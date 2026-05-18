@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import StaffSelector from './StaffSelector';
 import BookingConfig from './BookingConfig';
 import ConfirmationScreen from './ConfirmationScreen';
+import { type VipStaffInfo } from '@/lib/vipStaffUtils';
+import { type VipPricingTable } from '@/lib/vipPricingEngine';
 
 // =============================================
 // 👑 Premium Menu – VIP Booking Flow
@@ -20,12 +22,6 @@ const PROGRESS_MAP: Record<string, string> = {
   CONFIRMATION: '100%',
 };
 
-interface VipPricing {
-  duration: number;
-  price: number;
-  label: string;
-}
-
 interface PremiumMenuProps {
   lang: string;
   onBack: () => void;
@@ -38,23 +34,25 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
   const isVi = lang === 'vi';
   const [step, setStep] = useState<MenuStep>('STAFF');
 
-  // VIP pricing from SystemConfigs
-  const [vipPricing, setVipPricing] = useState<VipPricing[]>([]);
+  // VIP pricing table from SystemConfigs (2D: numStaff → duration → price)
+  const [vipPricingTable, setVipPricingTable] = useState<VipPricingTable | undefined>(undefined);
 
   // Flow state
   const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
+  const [selectedStaffInfoList, setSelectedStaffInfoList] = useState<VipStaffInfo[]>([]);
   const [selectedSkillsMap, setSelectedSkillsMap] = useState<Record<string, string[]>>({});
   const [totalDuration, setTotalDuration] = useState<number>(0);
   const [timeSlot, setTimeSlot] = useState<string | null>(null);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
-  // Fetch VIP pricing from SystemConfigs
+  // Fetch VIP pricing table from SystemConfigs
   useEffect(() => {
     fetch('/api/config/menu-vip')
       .then(res => res.json())
       .then(data => {
-        if (data.pricing && Array.isArray(data.pricing)) {
-          setVipPricing(data.pricing);
+        // API trả { pricing: VipPricingTable } dạng object 2 chiều
+        if (data.pricing && typeof data.pricing === 'object' && !Array.isArray(data.pricing)) {
+          setVipPricingTable(data.pricing as VipPricingTable);
         }
       })
       .catch(err => console.error('[VIP] Failed to fetch pricing:', err));
@@ -114,17 +112,12 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         <AnimatePresence mode="wait">
           {step === 'STAFF' && (
-            <motion.div
-              key="staff"
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -30 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div key="staff" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <StaffSelector
                 lang={lang}
-                onConfirmSelection={(ids) => {
+                onConfirmSelection={(ids, staffInfoList) => {
                   setSelectedStaffIds(ids);
+                  setSelectedStaffInfoList(staffInfoList);
                   setStep('BOOKING_CONFIG');
                 }}
               />
@@ -132,17 +125,12 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
           )}
 
           {step === 'BOOKING_CONFIG' && (
-            <motion.div
-              key="booking"
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -30 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div key="booking" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <BookingConfig
                 lang={lang}
                 selectedStaffIds={selectedStaffIds}
-                vipPricing={vipPricing}
+                selectedStaffInfoList={selectedStaffInfoList}
+                vipPricingTable={vipPricingTable}
                 onConfirm={(data) => {
                   setSelectedSkillsMap(data.skillsMap);
                   setTotalDuration(data.totalDuration);

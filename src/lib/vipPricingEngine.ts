@@ -13,6 +13,7 @@ import {
 // --- Pricing Table shape (from SystemConfigs.menu_vip_pricing) ---
 // { "1": { "60": 720000, "70": 840000, ... }, "2": { "60": 1080000, ... } }
 export type VipPricingTable = Record<string, Record<string, number>>;
+export type { VipDuration };
 
 // --- Engine Output ---
 export interface VipPricingResult {
