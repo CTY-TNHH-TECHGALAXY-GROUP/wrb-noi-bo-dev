@@ -19,7 +19,8 @@ import { getT, tpl, DAY_KEYS } from '../Premium.i18n';
 // =============================================
 // 📅 Booking Config – REAL DATA (Pha 3)
 // Skills thực từ Staff DB, pricing từ SystemConfigs
-// minDuration động theo số skills chọn
+// Time slots ĐỘNG theo ca KTV (shiftStart/shiftEnd)
+// UI compact: horizontal scroll + grid layout
 // =============================================
 
 // 🔧 UI CONFIGURATION
@@ -27,13 +28,63 @@ const FALLBACK_PRICING_TABLE: VipPricingTable = {
   '1': { '60': 690000, '70': 805000, '90': 1035000, '120': 1380000, '150': 1725000, '180': 2070000, '240': 2760000 },
   '2': { '60': 1080000, '70': 1260000, '90': 1530000, '120': 2040000, '150': 2550000, '180': 3060000, '240': 4080000 },
 };
+const TIME_SLOT_INTERVAL_MINUTES = 30;
+const BUFFER_MINUTES = 30; // Đặt trước ít nhất 30 phút so với hiện tại
+const DEFAULT_SHIFT_START = '09:00';
+const DEFAULT_SHIFT_END = '22:00';
+const SKILLS_VISIBLE_COUNT = 8; // Hiện tối đa 8 skills, có nút "Xem thêm"
+
+// --- Helper: parse "HH:mm" → minutes from midnight ---
+const timeToMinutes = (t: string): number => {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+};
+
+// --- Helper: minutes from midnight → "HH:mm" ---
+const minutesToTime = (mins: number): string => {
+  const h = Math.floor(mins / 60) % 24;
+  const m = mins % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
+
+// --- Generate time slots based on shift + day + duration ---
+const generateTimeSlots = (
+  shiftStart: string | null,
+  shiftEnd: string | null,
+  isToday: boolean,
+  serviceDuration: number,
+): string[] => {
+  const start = shiftStart || DEFAULT_SHIFT_START;
+  const end = shiftEnd || DEFAULT_SHIFT_END;
+
+  let startMins = timeToMinutes(start);
+  // Ca 3 (00:00) = midnight = 0 → convert to 1440 (24:00)
+  let endMins = timeToMinutes(end);
+  if (endMins <= startMins) endMins += 24 * 60; // cross-midnight
+
+  // Trừ buffer cuối ca: slot cuối = shiftEnd - serviceDuration
+  const lastSlotMins = endMins - serviceDuration;
+
+  // Nếu hôm nay: start từ now + BUFFER, round lên bội 30
+  if (isToday) {
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes() + BUFFER_MINUTES;
+    const roundedNow = Math.ceil(nowMins / TIME_SLOT_INTERVAL_MINUTES) * TIME_SLOT_INTERVAL_MINUTES;
+    startMins = Math.max(startMins, roundedNow);
+  }
+
+  const slots: string[] = [];
+  for (let m = startMins; m <= lastSlotMins; m += TIME_SLOT_INTERVAL_MINUTES) {
+    slots.push(minutesToTime(m));
+  }
+  return slots;
+};
 
 interface BookingConfigProps {
   lang: string;
   selectedStaffIds: string[];
-  selectedStaffInfoList: VipStaffInfo[];  // ← real data từ StaffSelector
+  selectedStaffInfoList: VipStaffInfo[];
   vipPricingTable?: VipPricingTable;
-  // Legacy prop — kept for backward compat
   vipPricing?: { duration: number; price: number; label: string }[];
   onConfirm: (data: { skillsMap: Record<string, string[]>; totalDuration: number; timeSlot: string | null; totalPrice: number }) => void;
 }
@@ -52,13 +103,14 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
   const [selectedDuration, setSelectedDuration] = useState<VipDuration | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [bookingMethod, setBookingMethod] = useState<'advance' | 'branch' | null>(null);
+  const [showAllSkills, setShowAllSkills] = useState(false);
 
   // --- Real skills: intersection of all selected KTVs ---
   const allStaffSkills = selectedStaffInfoList.map(s => s.skills);
   const availableSkills = useMemo(() => getIntersectionSkills(allStaffSkills), [allStaffSkills]);
   const { le: leSkills, chinh: chinhSkills } = useMemo(() => groupSkillsByType(availableSkills), [availableSkills]);
 
-  // All currently selected skill IDs (union across all staff tabs for minDuration calc)
+  // All currently selected skill IDs
   const allSelectedSkillIds = useMemo(() =>
     Object.values(selectedSkillsMap).flat(), [selectedSkillsMap]
   );
@@ -93,6 +145,16 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
     return days;
   }, [t]);
 
+  // --- Dynamic time slots from KTV shift ---
+  const timeSlots = useMemo(() => {
+    // Use earliest shift among all selected staff (most restrictive)
+    const shiftStart = primaryStaff?.shiftStart ?? null;
+    const shiftEnd = primaryStaff?.shiftEnd ?? null;
+    const isToday = selectedDay === 0;
+    const duration = effectiveDuration ?? 60;
+    return generateTimeSlots(shiftStart, shiftEnd, isToday, duration);
+  }, [primaryStaff, selectedDay, effectiveDuration]);
+
   const toggleSkill = (staffId: string, skillId: string) => {
     setSelectedSkillsMap(prev => {
       const current = prev[staffId] || [];
@@ -101,7 +163,6 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
         : [...current, skillId];
       return { ...prev, [staffId]: updated };
     });
-    // Reset duration if skills change (minDuration may change)
     setSelectedDuration(null);
   };
 
@@ -114,28 +175,28 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col px-6 pt-2 pb-36"
+      className="flex flex-col px-5 pt-2 pb-36"
     >
-      {/* KTV Header — 1 KTV or Tabs for 2 */}
-      <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+      {/* KTV Header — compact */}
+      <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
         {selectedStaffInfoList.length > 1 ? (
           <div>
-            <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-4">
-              <span className="w-8 h-px bg-[#4d463a] mr-3" />
+            <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-3">
+              <span className="w-6 h-px bg-[#4d463a] mr-2" />
               {t.bc_servicesByKtv}
             </h3>
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {selectedStaffInfoList.map(s => (
                 <button key={s.id} onClick={() => setActiveStaffTab(s.id)}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl min-w-max border transition-all ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl min-w-max border transition-all ${
                     activeStaffTab === s.id
                       ? 'bg-[#c9a96e]/10 border-[#e6c487] text-[#e6c487]'
                       : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5]'
                   }`}
                 >
                   {s.avatarUrl
-                    ? <img src={s.avatarUrl} alt={s.fullName} className="w-8 h-8 rounded-full border border-white/10 shrink-0" />
-                    : <div className="w-8 h-8 rounded-full bg-[#2a2a2c] flex items-center justify-center text-[#e6c487] text-sm font-bold">{s.fullName.charAt(0)}</div>
+                    ? <img src={s.avatarUrl} alt={s.fullName} className="w-7 h-7 rounded-full border border-white/10 shrink-0" />
+                    : <div className="w-7 h-7 rounded-full bg-[#2a2a2c] flex items-center justify-center text-[#e6c487] text-xs font-bold">{s.fullName.charAt(0)}</div>
                   }
                   <div className="text-left leading-tight">
                     <span className="block text-xs font-bold">{s.fullName}</span>
@@ -148,81 +209,76 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-5">
-            <div className="w-20 h-28 rounded-[1.5rem] overflow-hidden shadow-2xl relative shrink-0">
+          /* Single KTV — compact inline */
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg relative shrink-0">
               {primaryStaff?.avatarUrl
                 ? <img src={primaryStaff.avatarUrl} alt={primaryStaff.fullName} className="w-full h-full object-cover" />
-                : <div className="w-full h-full bg-gradient-to-br from-[#2a2a2c] to-[#1b1b1d] flex items-center justify-center text-4xl text-[#e6c487]/30 font-serif">{primaryStaff?.fullName.charAt(0)}</div>
+                : <div className="w-full h-full bg-gradient-to-br from-[#2a2a2c] to-[#1b1b1d] flex items-center justify-center text-xl text-[#e6c487]/30 font-serif">{primaryStaff?.fullName.charAt(0)}</div>
               }
-              <div className="absolute -bottom-1.5 -right-1.5 bg-[#e6c487] p-1 rounded-full shadow-lg">
-                <svg className="w-3.5 h-3.5 text-[#412d00]" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-              </div>
             </div>
             <div>
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[#ffb597]">{t.bc_expertTherapist}</span>
-              <h2 className="text-2xl font-serif italic text-[#e6c487] mt-0.5">{primaryStaff?.fullName}</h2>
-              <p className="text-[10px] text-[#e6c487]/60 mt-1">{primaryStaff?.id}</p>
+              <p className="text-[10px] tracking-[0.15em] uppercase text-[#c9a96e]">{t.bc_expertTherapist}</p>
+              <h2 className="text-xl font-serif italic text-[#e4e2e4]">{primaryStaff?.fullName}</h2>
+              <p className="text-[11px] text-[#998f81]">{primaryStaff?.id}</p>
             </div>
           </div>
         )}
       </motion.section>
 
-      {/* Kỹ Năng — Real skills from DB intersection */}
-      <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-8">
-        <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-4">
-          <span className="w-8 h-px bg-[#4d463a] mr-3" />
+      {/* Skills — compact with "show more" */}
+      <motion.section initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
+        <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-3">
+          <span className="w-6 h-px bg-[#4d463a] mr-2" />
           {t.bc_specialties}
         </h3>
+        <p className="text-[10px] text-[#998f81] mb-3">
+          {tpl(t.bc_minDurationHint, { le: leCount, chinh: chinhCount, min: minDuration })}
+        </p>
 
-        {/* minDuration hint */}
-        {allSelectedSkillIds.length > 0 && (
-          <p className="text-[10px] text-[#e6c487]/60 mb-3">
-            {tpl(t.bc_minDurationHint, { le: leCount, chinh: chinhCount, min: minDuration })}
-          </p>
-        )}
-
-        {/* CHÍNH group */}
+        {/* Chính */}
         {chinhSkills.length > 0 && (
-          <div className="mb-4">
-            <p className="text-[9px] text-[#998f81] tracking-widest uppercase mb-2">── {t.bc_mainServices}</p>
-            <div className="flex flex-wrap gap-2.5">
+          <div className="mb-2">
+            <p className="text-[9px] tracking-[0.15em] uppercase text-[#998f81] mb-1.5">— {t.bc_mainServices}</p>
+            <div className="flex flex-wrap gap-1.5">
               {chinhSkills.map(skill => {
-                const isActive = selectedSkillsMap[activeStaffTab]?.includes(skill.id);
+                const isSelected = (selectedSkillsMap[activeStaffTab] || []).includes(skill.id);
                 return (
                   <button key={skill.id} onClick={() => toggleSkill(activeStaffTab, skill.id)}
-                    className={`px-4 py-2.5 rounded-full text-xs font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'bg-[#c9a96e] text-[#543d0c] font-bold border border-[#e6c487]'
-                        : 'bg-[#2a2a2c] border border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
+                    className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all border ${
+                      isSelected
+                        ? 'bg-[#e6c487]/15 border-[#e6c487] text-[#e6c487]'
+                        : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                     }`}
-                  >
-                    {getSkillName(skill, lang as VipLang)}
-                  </button>
+                  >{getSkillName(skill, lang as VipLang)}</button>
                 );
               })}
             </div>
           </div>
         )}
 
-        {/* LẺ group */}
+        {/* Lẻ — with show more logic */}
         {leSkills.length > 0 && (
           <div>
-            <p className="text-[9px] text-[#998f81] tracking-widest uppercase mb-2">── {t.bc_addons}</p>
-            <div className="flex flex-wrap gap-2.5">
-              {leSkills.map(skill => {
-                const isActive = selectedSkillsMap[activeStaffTab]?.includes(skill.id);
+            <p className="text-[9px] tracking-[0.15em] uppercase text-[#998f81] mb-1.5">— {t.bc_addons}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {(showAllSkills ? leSkills : leSkills.slice(0, SKILLS_VISIBLE_COUNT)).map(skill => {
+                const isSelected = (selectedSkillsMap[activeStaffTab] || []).includes(skill.id);
                 return (
                   <button key={skill.id} onClick={() => toggleSkill(activeStaffTab, skill.id)}
-                    className={`px-4 py-2.5 rounded-full text-xs font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'bg-[#c9a96e] text-[#543d0c] font-bold border border-[#e6c487]'
-                        : 'bg-[#2a2a2c] border border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
+                    className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all border ${
+                      isSelected
+                        ? 'bg-[#e6c487]/15 border-[#e6c487] text-[#e6c487]'
+                        : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                     }`}
-                  >
-                    {getSkillName(skill, lang as VipLang)}
-                  </button>
+                  >{getSkillName(skill, lang as VipLang)}</button>
                 );
               })}
+              {!showAllSkills && leSkills.length > SKILLS_VISIBLE_COUNT && (
+                <button onClick={() => setShowAllSkills(true)}
+                  className="px-3 py-1.5 rounded-full text-[11px] font-medium border border-dashed border-[#998f81]/40 text-[#998f81] hover:border-[#e6c487]/50 hover:text-[#e6c487] transition-all"
+                >+{leSkills.length - SKILLS_VISIBLE_COUNT}</button>
+              )}
             </div>
           </div>
         )}
@@ -232,23 +288,24 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
         )}
       </motion.section>
 
-      {/* Duration — dynamic từ PricingEngine */}
+      {/* Duration — HORIZONTAL SCROLL (Bug C fix) */}
       <AnimatePresence>
         {availableDurations.length > 0 && (
           <motion.section
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mb-8 overflow-hidden"
+            className="mb-5 overflow-hidden"
           >
-            <div className="p-5 rounded-2xl bg-[#c9a96e]/5 border border-[#e6c487]/20">
+            <div className="p-4 rounded-2xl bg-[#c9a96e]/5 border border-[#e6c487]/20">
               <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#e6c487] font-bold mb-1">
                 {t.bc_selectDuration}
               </h3>
-              <p className="text-[10px] text-[#998f81] mb-4">
+              <p className="text-[10px] text-[#998f81] mb-3">
                 {t.bc_vatIncluded}
               </p>
-              <div className="flex flex-col gap-3">
+              {/* Horizontal scroll row */}
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                 {availableDurations.map(dur => {
                   const price = lookupPrice(pricingTable, selectedStaffIds.length, dur);
                   const isSelected = effectiveDuration === dur;
@@ -256,21 +313,17 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                     <button
                       key={dur}
                       onClick={() => setSelectedDuration(dur)}
-                      className={`py-4 px-5 rounded-2xl font-medium transition-all flex justify-between items-center ${
+                      className={`flex flex-col items-center justify-center min-w-[90px] py-3 px-3 rounded-xl transition-all shrink-0 border-2 ${
                         isSelected
-                          ? 'bg-[#e6c487]/15 border-2 border-[#e6c487] text-[#e6c487] shadow-[0_0_20px_rgba(230,196,135,0.15)]'
-                          : 'bg-[#1b1b1d] border-2 border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
+                          ? 'bg-[#e6c487]/15 border-[#e6c487] text-[#e6c487] shadow-[0_0_15px_rgba(230,196,135,0.15)]'
+                          : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          isSelected ? 'border-[#e6c487]' : 'border-[#4d463a]'
-                        }`}>
-                          {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#e6c487]" />}
-                        </div>
-                        <span className="text-base font-bold">{dur} {t.bc_mins}</span>
-                      </div>
-                      <span className="text-base font-bold">{price.toLocaleString('vi-VN')}đ</span>
+                      <span className="text-base font-bold">{dur}</span>
+                      <span className="text-[10px] opacity-70">{t.bc_mins}</span>
+                      <span className={`text-[11px] font-bold mt-1 ${isSelected ? 'text-[#e6c487]' : 'text-[#c9a96e]'}`}>
+                        {(price / 1000).toFixed(0)}k
+                      </span>
                     </button>
                   );
                 })}
@@ -280,30 +333,30 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
         )}
       </AnimatePresence>
 
-      {/* Hình Thức Sử Dụng Dịch Vụ (hiện sau khi đã chọn thời lượng) */}
+      {/* Hình Thức Sử Dụng (after duration selected) */}
       <AnimatePresence>
         {selectedDuration && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
             <section>
-              <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-4">
-                <span className="w-8 h-px bg-[#4d463a] mr-3" />
+              <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-3">
+                <span className="w-6 h-px bg-[#4d463a] mr-2" />
                 {t.bc_servicePreference}
               </h3>
               
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => {
                     setBookingMethod('branch');
                     setSelectedSlot('BRANCH_DECIDE');
                   }}
-                  className={`p-4 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${
+                  className={`p-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-1.5 ${
                     bookingMethod === 'branch'
                       ? 'bg-[#e6c487]/10 border-[#e6c487] text-[#e6c487] shadow-[0_0_15px_rgba(230,196,135,0.1)]'
                       : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                   }`}
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                  <span className="text-sm font-medium">{t.bc_walkIn}</span>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  <span className="text-xs font-medium">{t.bc_walkIn}</span>
                 </button>
 
                 <button
@@ -311,14 +364,14 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                     setBookingMethod('advance');
                     if (selectedSlot === 'BRANCH_DECIDE') setSelectedSlot(null);
                   }}
-                  className={`p-4 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${
+                  className={`p-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-1.5 ${
                     bookingMethod === 'advance'
                       ? 'bg-[#e6c487]/10 border-[#e6c487] text-[#e6c487] shadow-[0_0_15px_rgba(230,196,135,0.1)]'
                       : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                   }`}
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  <span className="text-sm font-medium">{t.bc_bookAdvance}</span>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  <span className="text-xs font-medium">{t.bc_bookAdvance}</span>
                 </button>
               </div>
             </section>
@@ -329,53 +382,58 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="space-y-8 overflow-hidden"
+                  className="space-y-5 overflow-hidden"
                 >
-                  {/* Section: Chọn Ngày */}
+                  {/* Day chips */}
                   <section>
-                    <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-4">
-                      <span className="w-8 h-px bg-[#4d463a] mr-3" />
+                    <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-3">
+                      <span className="w-6 h-px bg-[#4d463a] mr-2" />
                       {t.bc_selectDate}
                     </h3>
-                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                       {dayChips.map((day: { label: string; date: number }, idx: number) => (
                         <button
                           key={idx}
-                          onClick={() => setSelectedDay(idx)}
-                          className={`flex flex-col items-center justify-center min-w-[60px] h-20 rounded-full transition-all duration-200 ${
+                          onClick={() => { setSelectedDay(idx); setSelectedSlot(null); }}
+                          className={`flex flex-col items-center justify-center min-w-[52px] h-16 rounded-2xl transition-all duration-200 ${
                             selectedDay === idx
                               ? 'bg-[#c9a96e]/20 border border-[#e6c487]/30 text-[#e6c487]'
                               : 'bg-[#1b1b1d] text-[#d0c5b5] border border-transparent'
                           }`}
                         >
-                          <span className="text-[10px] uppercase tracking-tighter opacity-70">{day.label}</span>
-                          <span className="text-xl font-bold mt-0.5">{day.date}</span>
+                          <span className="text-[9px] uppercase tracking-tighter opacity-70">{day.label}</span>
+                          <span className="text-lg font-bold mt-0.5">{day.date}</span>
                         </button>
                       ))}
                     </div>
                   </section>
 
-                  {/* Time slots — generated from vipTimelineBuilder suggested slots */}
+                  {/* Time slots — DYNAMIC GRID 3 COLUMNS (Bug B+C fix) */}
                   <section>
-                    <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-5">
-                      <span className="w-8 h-px bg-[#4d463a] mr-3" />
+                    <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-3">
+                      <span className="w-6 h-px bg-[#4d463a] mr-2" />
                       {t.bc_availableTimes}
                     </h3>
-                    <div className="space-y-5">
-                      {/* Morning 08-12 */}
-                      {['08:00','09:00','09:30','10:00','10:30','11:00','11:30'].map(time => (
-                        <button key={time} onClick={() => setSelectedSlot(time)}
-                          className={`py-3 text-center rounded-xl text-sm font-medium transition-all w-full border ${
-                            selectedSlot === time
-                              ? 'bg-[#e6c487]/10 border-[#e6c487] text-[#e6c487] font-bold'
-                              : 'bg-[#1b1b1d] border-[#4d463a]/20 text-[#e4e2e4]/60 hover:border-[#998f81]/40'
-                          }`}
-                        >{time}</button>
-                      ))}
-                      <p className="text-[9px] text-[#998f81] text-center mt-2">
-                        {t.bc_timeNote}
+                    {timeSlots.length > 0 ? (
+                      <div className="grid grid-cols-3 gap-2">
+                        {timeSlots.map(time => (
+                          <button key={time} onClick={() => setSelectedSlot(time)}
+                            className={`py-2.5 text-center rounded-xl text-sm font-medium transition-all border ${
+                              selectedSlot === time
+                                ? 'bg-[#e6c487]/10 border-[#e6c487] text-[#e6c487] font-bold'
+                                : 'bg-[#1b1b1d] border-[#4d463a]/20 text-[#e4e2e4]/60 hover:border-[#998f81]/40'
+                            }`}
+                          >{time}</button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-[#998f81] text-sm text-center py-4">
+                        {lang === 'vi' ? 'Không còn khung giờ trống' : 'No available time slots'}
                       </p>
-                    </div>
+                    )}
+                    <p className="text-[9px] text-[#998f81] text-center mt-2">
+                      {t.bc_timeNote}
+                    </p>
                   </section>
                 </motion.div>
               )}
@@ -392,15 +450,12 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 80 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="fixed bottom-6 left-6 right-6 z-40"
+            className="fixed bottom-6 left-5 right-5 z-40"
           >
-            <div className="flex justify-between items-end mb-3 px-2">
+            <div className="flex justify-between items-end mb-2 px-1">
               <div>
                 <div className="text-[10px] text-[#998f81] uppercase tracking-wider">{t.bc_selected}</div>
                 <div className="text-lg font-bold text-[#e4e2e4]">{effectiveDuration} {t.bc_mins}</div>
-                {selectedStaffIds.length > 1 && (
-                  <div className="text-[9px] text-[#998f81]">x {selectedStaffIds.length} KTV</div>
-                )}
               </div>
               <div className="text-right">
                 <div className="text-[10px] text-[#e6c487] tracking-wider uppercase font-bold">Bespoke</div>
@@ -409,7 +464,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
             </div>
             <button
               onClick={() => onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: selectedSlot, totalPrice })}
-              className="w-full py-5 rounded-full bg-[#e6c487] text-[#412d00] font-bold tracking-[0.12em] text-sm shadow-[0_15px_30px_rgba(0,0,0,0.4)] flex items-center justify-center gap-3 active:scale-95 duration-200 uppercase"
+              className="w-full py-4 rounded-full bg-[#e6c487] text-[#412d00] font-bold tracking-[0.12em] text-sm shadow-[0_15px_30px_rgba(0,0,0,0.4)] flex items-center justify-center gap-3 active:scale-95 duration-200 uppercase"
             >
               <span>{t.bc_confirmSelection}</span>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>

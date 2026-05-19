@@ -119,12 +119,22 @@ export const countChinhSkills = (
   ).length;
 };
 
-// --- Staff availability status (from TurnQueue + KTVLeaveRequests) ---
+// --- Staff availability status (from TurnQueue + KTVShifts + KTVLeaveRequests) ---
 export type StaffAvailability =
-  | 'AVAILABLE'     // In TurnQueue, status=waiting
-  | 'BUSY'          // In TurnQueue, status=working/assigned
-  | 'OFF_TODAY'     // Not in TurnQueue, no leave record
+  | 'AVAILABLE'     // TurnQueue status='waiting'
+  | 'BUSY'          // TurnQueue status='working'/'assigned'
+  | 'NOT_YET'       // No TurnQueue record (chưa vô ca / chưa check-in)
+  | 'OFF_DUTY'      // TurnQueue status='off' (đã tan ca)
   | 'ON_LEAVE';     // Has KTVLeaveRequests record
+
+// --- Shift type definitions ---
+export type ShiftType = 'SHIFT_1' | 'SHIFT_2' | 'SHIFT_3' | 'FREE' | 'REQUEST';
+
+export const SHIFT_MAP: Record<string, { start: string; end: string }> = {
+  SHIFT_1: { start: '09:00', end: '17:00' },
+  SHIFT_2: { start: '11:00', end: '19:00' },
+  SHIFT_3: { start: '17:00', end: '00:00' },
+};
 
 export interface VipStaffInfo {
   id: string;
@@ -136,4 +146,8 @@ export interface VipStaffInfo {
   availability: StaffAvailability;
   estimatedEndTime: string | null; // HH:mm — only when BUSY
   currentOrderId: string | null;
+  // Shift info (from KTVShifts)
+  shiftType: ShiftType | null;
+  shiftStart: string | null;  // HH:mm — shift start time
+  shiftEnd: string | null;    // HH:mm — shift end time
 }

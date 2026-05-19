@@ -33,10 +33,15 @@ const STATUS_STYLES: Record<string, { style: string; textStyle: string; i18nKey:
     textStyle: 'text-[10px] tracking-[0.1em] text-amber-300 font-bold uppercase',
     i18nKey: 'status_busy',
   },
-  OFF_TODAY: {
-    style: 'bg-[#93000a]/20 backdrop-blur-md border border-[#ffb4ab]/20',
-    textStyle: 'text-[10px] tracking-[0.1em] text-[#ffb4ab] font-bold uppercase',
-    i18nKey: 'status_offToday',
+  NOT_YET: {
+    style: 'bg-blue-500/15 backdrop-blur-md border border-blue-400/20',
+    textStyle: 'text-[10px] tracking-[0.1em] text-blue-300 font-bold uppercase',
+    i18nKey: 'status_notYet',
+  },
+  OFF_DUTY: {
+    style: 'bg-zinc-500/20 backdrop-blur-md border border-zinc-400/20',
+    textStyle: 'text-[10px] tracking-[0.1em] text-zinc-400 font-bold uppercase',
+    i18nKey: 'status_offDuty',
   },
   ON_LEAVE: {
     style: 'bg-[#93000a]/20 backdrop-blur-md border border-[#ffb4ab]/20',
@@ -79,16 +84,17 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
     );
   }, [staffList, searchQuery]);
 
-  // Sort: AVAILABLE → BUSY → OFF/ON_LEAVE
+  // Sort: AVAILABLE → BUSY → NOT_YET → OFF_DUTY → ON_LEAVE
   const sortedStaff = useMemo(() => {
     return [...filteredStaff].sort((a, b) => {
-      const ORDER = { AVAILABLE: 0, BUSY: 1, OFF_TODAY: 2, ON_LEAVE: 3 };
+      const ORDER: Record<string, number> = { AVAILABLE: 0, BUSY: 1, NOT_YET: 2, OFF_DUTY: 3, ON_LEAVE: 4 };
       return (ORDER[a.availability] ?? 9) - (ORDER[b.availability] ?? 9);
     });
   }, [filteredStaff]);
 
+  // OFF_DUTY + ON_LEAVE = không cho đặt. NOT_YET = vẫn cho đặt (đặt trước cho lúc vô ca)
   const isUnavailable = (staff: VipStaffInfo) =>
-    staff.availability === 'OFF_TODAY' || staff.availability === 'ON_LEAVE';
+    staff.availability === 'OFF_DUTY' || staff.availability === 'ON_LEAVE';
 
   const handleToggle = (id: string) => {
     const staff = staffList.find((s) => s.id === id);
@@ -108,6 +114,11 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
     // BUSY: show estimated end time
     if (staff.availability === 'BUSY' && staff.estimatedEndTime) {
       label = tpl(t.status_freeAfter, { time: staff.estimatedEndTime });
+    }
+
+    // NOT_YET: show shift start time if known (VD: "VÀO CA LÚC 17:00")
+    if (staff.availability === 'NOT_YET' && staff.shiftStart) {
+      label = tpl(t.status_startsAt, { time: staff.shiftStart });
     }
 
     return (

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
-import { type VipStaffInfo, type StaffAvailability } from '@/lib/vipStaffUtils';
+import { type VipStaffInfo, type StaffAvailability, type ShiftType, SHIFT_MAP } from '@/lib/vipStaffUtils';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,15 +8,16 @@ export const dynamic = 'force-dynamic';
  * GET /api/staff/vip-available
  *
  * Returns all active KTV with their real-time availability status.
- * Combines: Staff + TurnQueue + KTVLeaveRequests
+ * Combines: Staff + TurnQueue + KTVShifts + KTVLeaveRequests
  *
  * Response shape: { staff: VipStaffInfo[] }
  *
- * Availability logic:
+ * Availability logic (priority order):
  *   ON_LEAVE    → Has KTVLeaveRequests record (APPROVED/PENDING) for today
- *   AVAILABLE   → In TurnQueue today, status = 'waiting'
- *   BUSY        → In TurnQueue today, status = 'working' or 'assigned'
- *   OFF_TODAY   → Not in TurnQueue (didn't check in) & no leave record
+ *   AVAILABLE   → TurnQueue status = 'waiting'
+ *   BUSY        → TurnQueue status = 'working' or 'assigned'
+ *   OFF_DUTY    → TurnQueue status = 'off' (đã tan ca)
+ *   NOT_YET     → No TurnQueue record (chưa vô ca / chưa check-in)
  */
 export async function GET(_req: NextRequest) {
   try {
@@ -54,7 +55,6 @@ export async function GET(_req: NextRequest) {
 
     if (tqError) {
       console.error('[vip-available] TurnQueue query error:', tqError);
-      // Non-fatal — continue with no queue data
     }
 
     // ─── Step 3: Fetch leave requests for today ──────────────────────────────
@@ -67,7 +67,17 @@ export async function GET(_req: NextRequest) {
 
     if (leaveError) {
       console.error('[vip-available] LeaveRequests query error:', leaveError);
-      // Non-fatal — continue with no leave data
+    }
+
+    // ─── Step 3.5: Fetch KTVShifts (ACTIVE) ─────────────────────────────────
+    const { data: shiftList, error: shiftError } = await supabase
+      .from('KTVShifts')
+      .select('employeeId, shiftType, estimatedEndTime')
+      .eq('status', 'ACTIVE')
+      .in('employeeId', staffIds);
+
+    if (shiftError) {
+      console.error('[vip-available] KTVShifts query error:', shiftError);
     }
 
     // ─── Step 4: Build lookup maps ───────────────────────────────────────────
@@ -88,29 +98,61 @@ export async function GET(_req: NextRequest) {
       onLeaveSet.add(leave.employeeId);
     }
 
+    const shiftMap = new Map<
+      string,
+      { shiftType: ShiftType; estimatedEndTime: string | null }
+    >();
+    for (const shift of shiftList ?? []) {
+      shiftMap.set(shift.employeeId, {
+        shiftType: shift.shiftType as ShiftType,
+        estimatedEndTime: shift.estimatedEndTime ?? null,
+      });
+    }
+
     // ─── Step 5: Merge into VipStaffInfo[] ──────────────────────────────────
     const result: VipStaffInfo[] = staffList.map((s) => {
       const tq = turnQueueMap.get(s.id);
       const isOnLeave = onLeaveSet.has(s.id);
+      const shift = shiftMap.get(s.id);
 
+      // --- Shift schedule ---
+      const shiftType = shift?.shiftType ?? null;
+      let shiftStart: string | null = null;
+      let shiftEnd: string | null = null;
+
+      if (shiftType && SHIFT_MAP[shiftType]) {
+        shiftStart = SHIFT_MAP[shiftType].start;
+        shiftEnd = SHIFT_MAP[shiftType].end;
+      } else if (shiftType === 'FREE' && shift?.estimatedEndTime) {
+        shiftEnd = shift.estimatedEndTime;
+      }
+
+      // --- Availability logic ---
+      // Priority: TurnQueue (check-in thật) > LeaveRequests > NOT_YET
+      // Nếu KTV đã check-in (có TurnQueue) → trạng thái thực tế thắng đơn OFF
       let availability: StaffAvailability;
       let estimatedEndTime: string | null = null;
       let currentOrderId: string | null = null;
 
-      if (isOnLeave) {
+      if (tq) {
+        // Đã check-in → TurnQueue wins (kể cả có LeaveRequest)
+        if (tq.status === 'waiting') {
+          availability = 'AVAILABLE';
+        } else if (tq.status === 'working' || tq.status === 'assigned') {
+          availability = 'BUSY';
+          estimatedEndTime = tq.estimated_end_time;
+          currentOrderId = tq.current_order_id;
+        } else if (tq.status === 'off') {
+          availability = 'OFF_DUTY';
+        } else {
+          availability = 'NOT_YET';
+        }
+      } else if (isOnLeave) {
+        // Chưa check-in + có đơn OFF → ON_LEAVE
         availability = 'ON_LEAVE';
-      } else if (!tq) {
-        // Not checked in today
-        availability = 'OFF_TODAY';
-      } else if (tq.status === 'waiting') {
-        availability = 'AVAILABLE';
-      } else if (tq.status === 'working' || tq.status === 'assigned') {
-        availability = 'BUSY';
-        estimatedEndTime = tq.estimated_end_time;
-        currentOrderId = tq.current_order_id;
       } else {
-        // 'off' or other
-        availability = 'OFF_TODAY';
+        // Chưa check-in + không có đơn OFF → chưa vô ca
+        availability = 'NOT_YET';
       }
 
       return {
@@ -123,15 +165,19 @@ export async function GET(_req: NextRequest) {
         availability,
         estimatedEndTime,
         currentOrderId,
+        shiftType,
+        shiftStart,
+        shiftEnd,
       };
     });
 
-    // ─── Step 6: Sort — AVAILABLE first, then BUSY, then others ─────────────
+    // ─── Step 6: Sort — AVAILABLE first ─────────────────────────────────────
     const SORT_ORDER: Record<StaffAvailability, number> = {
       AVAILABLE: 0,
       BUSY: 1,
-      OFF_TODAY: 2,
-      ON_LEAVE: 3,
+      NOT_YET: 2,
+      OFF_DUTY: 3,
+      ON_LEAVE: 4,
     };
 
     result.sort((a, b) => SORT_ORDER[a.availability] - SORT_ORDER[b.availability]);
