@@ -44,6 +44,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
   const [selectedSkillsMap, setSelectedSkillsMap] = useState<Record<string, string[]>>({});
   const [totalDuration, setTotalDuration] = useState<number>(0);
   const [timeSlot, setTimeSlot] = useState<string | null>(null);
+  const [appointmentDate, setAppointmentDate] = useState<string | null>(null);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   // Fetch VIP pricing table from SystemConfigs
@@ -137,6 +138,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
                     setTotalDuration(data.totalDuration);
                     setTimeSlot(data.timeSlot);
                     setTotalPrice(data.totalPrice || 0);
+                    setAppointmentDate(data.appointmentDate);
                     setStep('CONFIRMATION');
                   }}
                 />
@@ -152,6 +154,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
                   selectedSkillsMap={selectedSkillsMap}
                   totalDuration={totalDuration}
                   timeSlot={timeSlot}
+                  appointmentDate={appointmentDate}
                   totalPrice={totalPrice}
                   onConfirm={() => { onBack(); }}
                 />

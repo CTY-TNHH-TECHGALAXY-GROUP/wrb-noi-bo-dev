@@ -82,6 +82,7 @@ export const createBooking = async (data: BookingRequest, calculatedTotal: numbe
                 customerEmail: data.customer.email,
                 totalAmount: calculatedTotal,
                 paymentMethod: data.paymentMethod,
+                source: 'STANDARD_MENU',
                 createdAt: vnTimeStr,
                 updatedAt: vnTimeStr,
                 status: 'NEW'

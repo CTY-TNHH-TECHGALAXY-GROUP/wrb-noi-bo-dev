@@ -154,10 +154,20 @@ export async function POST(request: NextRequest) {
     }
 
     // ─── Step 4: Generate Booking ID & Status ────────────────────────────────
-    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
-    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-    const bookingId = `VIP-${dateStr}-${randomSuffix}`;
-    const billCode = `NH-VIP-${dateStr}-${randomSuffix}`;
+    const vnTimeStr = now.toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
+    const vnTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+    const dateCode = `${String(vnTime.getDate()).padStart(2, '0')}${String(vnTime.getMonth() + 1).padStart(2, '0')}${vnTime.getFullYear()}`;
+
+    // Count to generate billCode
+    const { count } = await supabase
+      .from('Bookings')
+      .select('*', { count: 'exact', head: true })
+      .ilike('billCode', `%-${dateCode}`);
+
+    const nextNum = (count || 0) + 1;
+    const billCode = `${String(nextNum).padStart(3, '0')}-${dateCode}`;
+    const branchCode = '11NDK'; // TODO: Dynamically pass this from frontend later
+    const bookingId = `${branchCode}-${billCode}`;
 
     // Map confidence → booking status
     const bookingStatus = confidence === 'CONFIRMED' ? 'NEW' : 'PENDING_CONFIRM';
@@ -174,7 +184,7 @@ export async function POST(request: NextRequest) {
       appointmentDate: appointmentDate || null,
       serverPrice,          // validated server-side price
       clientLang: lang || 'vi',
-      bookedAt: now.toISOString(),
+      bookedAt: vnTimeStr,
       isRisky: confidence === 'RISKY',
       bufferWarning: false, // TODO Pha 4.5: check from timeline
     };
@@ -186,7 +196,7 @@ export async function POST(request: NextRequest) {
         id: bookingId,
         billCode,
         branchName: 'Ngan Ha Spa',
-        bookingDate: now.toISOString(),
+        bookingDate: vnTimeStr,
         timeBooking: timeSlot && timeSlot !== 'BRANCH_DECIDE' ? timeSlot : null,
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim(),
@@ -194,10 +204,12 @@ export async function POST(request: NextRequest) {
         customerLang: lang || 'vi',
         technicianCode: selectedStaffIds[0] || null,
         totalAmount: serverPrice || 0,
+        paymentMethod: 'CASH', // default payment method
+        source: 'VIP_MENU',
         status: bookingStatus,
         notes: JSON.stringify(notesObj),
-        createdAt: now.toISOString(),
-        updatedAt: now.toISOString(),
+        createdAt: vnTimeStr,
+        updatedAt: vnTimeStr,
       })
       .select('id, billCode')
       .single();
@@ -208,6 +220,61 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to create appointment', detail: bookingError.message },
         { status: 500 }
       );
+    }
+
+    // ─── Step 6.5: Insert Booking Items ───────────────────────────────────────
+    const MAP_VIP_SKILL_TO_SERVICE_ID: Record<string, string> = {
+      shampoo: 'NHS0202',
+      earCombo: 'NHS0600',
+      earChuyen: 'NHS0600',
+      razorShave: 'NHS0700',
+      machineShave: 'NHS0700',
+      facial: 'NHS0301',
+      nailCombo: 'NHS0500',
+      nailChuyen: 'NHS0500',
+      heelScrub: 'NHS0400',
+      hairCut: 'NHS0701',
+      hairExtensionShampoo: 'NHS0202',
+      thaiBody: 'NHS0028',
+      shiatsuBody: 'NHS0015',
+      oilBody: 'NHS0001',
+      hotStoneBody: 'NHS0022',
+      bodyMix: 'NHS0040',
+      foot: 'NHS0100',
+    };
+
+    const itemsToInsert = [];
+    if (skills.length > 0) {
+      skills.forEach((skillId, index) => {
+        const serviceId = MAP_VIP_SKILL_TO_SERVICE_ID[skillId] || 'NHS0800';
+        itemsToInsert.push({
+          id: `${bookingId}-item${index + 1}`,
+          bookingId: bookingId,
+          serviceId: serviceId,
+          quantity: 1,
+          price: index === 0 ? (serverPrice || 0) : 0,
+          technicianCodes: selectedStaffIds,
+          status: 'WAITING',
+        });
+      });
+    } else {
+      itemsToInsert.push({
+        id: `${bookingId}-item1`,
+        bookingId: bookingId,
+        serviceId: 'NHS0800',
+        quantity: 1,
+        price: serverPrice || 0,
+        technicianCodes: selectedStaffIds,
+        status: 'WAITING',
+      });
+    }
+
+    const { error: itemsError } = await supabase
+      .from('BookingItems')
+      .insert(itemsToInsert);
+
+    if (itemsError) {
+      console.error('[VIP-Appointment] BookingItems Insert error:', itemsError);
     }
 
     // ─── Step 7: Notification theo Confidence ────────────────────────────────

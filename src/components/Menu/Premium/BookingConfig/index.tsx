@@ -87,7 +87,7 @@ interface BookingConfigProps {
   selectedStaffInfoList: VipStaffInfo[];
   vipPricingTable?: VipPricingTable;
   vipPricing?: { duration: number; price: number; label: string }[];
-  onConfirm: (data: { skillsMap: Record<string, string[]>; totalDuration: number; timeSlot: string | null; totalPrice: number }) => void;
+  onConfirm: (data: { skillsMap: Record<string, string[]>; totalDuration: number; timeSlot: string | null; totalPrice: number; appointmentDate: string }) => void;
 }
 
 const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPricingTable, onConfirm }: BookingConfigProps) => {
@@ -100,11 +100,58 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
     Object.fromEntries(selectedStaffIds.map(id => [id, []]))
   );
   const [activeStaffTab, setActiveStaffTab] = useState<string>(selectedStaffIds[0]);
-  const [selectedDay, setSelectedDay] = useState(0);
+
+  // Day chips (next 5 days)
+  const dayChips = useMemo(() => {
+    const days = [];
+    for (let i = 0; i < 5; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      days.push({ 
+        label: t[DAY_KEYS[d.getDay()]], 
+        date: d.getDate(), 
+        isoDate: d.toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).slice(0, 10) 
+      });
+    }
+    return days;
+  }, [t]);
+
+  const [selectedDateStr, setSelectedDateStr] = useState<string>(dayChips[0].isoDate);
   const [selectedDuration, setSelectedDuration] = useState<VipDuration | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [bookingMethod, setBookingMethod] = useState<'advance' | 'branch' | null>(null);
   const [showAllSkills, setShowAllSkills] = useState(false);
+
+  // Calendar states
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [currentCalendarMonth, setCurrentCalendarMonth] = useState(new Date().getMonth());
+  const [currentCalendarYear, setCurrentCalendarYear] = useState(new Date().getFullYear());
+
+  // Generate calendar month grid (Monday start)
+  const calendarDays = useMemo(() => {
+    const year = currentCalendarYear;
+    const month = currentCalendarMonth;
+    const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Sunday, 1 = Monday, ...
+    const adjustedFirstDayIndex = (firstDayIndex + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days = [];
+
+    for (let i = 0; i < adjustedFirstDayIndex; i++) {
+      days.push(null);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      days.push(new Date(year, month, d));
+    }
+
+    return days;
+  }, [currentCalendarMonth, currentCalendarYear]);
+
+  const isDateDisabled = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  };
 
   // --- Real skills: intersection of all selected KTVs ---
   const allStaffSkills = selectedStaffInfoList.map(s => s.skills);
@@ -135,23 +182,12 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
     ? lookupPrice(pricingTable, selectedStaffIds.length, effectiveDuration)
     : 0;
 
-  // Day chips (next 5 days)
-  const dayChips = useMemo(() => {
-    const days = [];
-    for (let i = 0; i < 5; i++) {
-      const d = new Date();
-      d.setDate(d.getDate() + i);
-      days.push({ label: t[DAY_KEYS[d.getDay()]], date: d.getDate(), isoDate: d.toISOString().slice(0, 10) });
-    }
-    return days;
-  }, [t]);
-
   // --- Dynamic time range for FlipTimePicker ---
   // Range = shiftStart → shiftEnd (full ca, tiệm xác nhận sau)
   const pickerTimeRange = useMemo(() => {
     const shiftStart = primaryStaff?.shiftStart ?? DEFAULT_SHIFT_START;
     const shiftEnd = primaryStaff?.shiftEnd ?? DEFAULT_SHIFT_END;
-    const isToday = selectedDay === 0;
+    const isToday = selectedDateStr === dayChips[0].isoDate;
 
     let startMins = timeToMinutes(shiftStart);
     let endMins = timeToMinutes(shiftEnd);
@@ -176,7 +212,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
       endTime: endMins >= 1440 ? '23:59' : minutesToTime(endMins),
       hasSlots: true,
     };
-  }, [primaryStaff, selectedDay]);
+  }, [primaryStaff, selectedDateStr, dayChips]);
 
   const toggleSkill = (staffId: string, skillId: string) => {
     setSelectedSkillsMap(prev => {
@@ -412,21 +448,47 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                       <span className="w-6 h-px bg-[#4d463a] mr-2" />
                       {t.bc_selectDate}
                     </h3>
-                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                      {dayChips.map((day: { label: string; date: number }, idx: number) => (
-                        <button
-                          key={idx}
-                          onClick={() => { setSelectedDay(idx); setSelectedSlot(null); }}
-                          className={`flex flex-col items-center justify-center min-w-[52px] h-16 rounded-2xl transition-all duration-200 ${
-                            selectedDay === idx
-                              ? 'bg-[#c9a96e]/20 border border-[#e6c487]/30 text-[#e6c487]'
-                              : 'bg-[#1b1b1d] text-[#d0c5b5] border border-transparent'
-                          }`}
-                        >
-                          <span className="text-[9px] uppercase tracking-tighter opacity-70">{day.label}</span>
-                          <span className="text-lg font-bold mt-0.5">{day.date}</span>
-                        </button>
-                      ))}
+                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide items-center">
+                      {dayChips.map((day: any, idx: number) => {
+                        const isSelected = selectedDateStr === day.isoDate;
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => { setSelectedDateStr(day.isoDate); setSelectedSlot(null); }}
+                            className={`flex flex-col items-center justify-center min-w-[52px] h-16 rounded-2xl transition-all duration-200 ${
+                              isSelected
+                                ? 'bg-[#c9a96e]/20 border border-[#e6c487]/30 text-[#e6c487]'
+                                : 'bg-[#1b1b1d] text-[#d0c5b5] border border-transparent'
+                            }`}
+                          >
+                            <span className="text-[9px] uppercase tracking-tighter opacity-70">{day.label}</span>
+                            <span className="text-lg font-bold mt-0.5">{day.date}</span>
+                          </button>
+                        );
+                      })}
+
+                      {/* Custom Calendar Button */}
+                      {(() => {
+                        const isCustomDate = !dayChips.some(d => d.isoDate === selectedDateStr);
+                        let displayLabel = lang === 'vi' ? 'Ngày khác' : 'More...';
+                        if (isCustomDate && selectedDateStr) {
+                          const [_, m, d] = selectedDateStr.split('-');
+                          displayLabel = `${d}/${m}`;
+                        }
+                        return (
+                          <button
+                            onClick={() => setShowCalendar(true)}
+                            className={`flex flex-col items-center justify-center min-w-[70px] h-16 rounded-2xl transition-all duration-200 border ${
+                              isCustomDate
+                                ? 'bg-[#c9a96e]/20 border-[#e6c487] text-[#e6c487]'
+                                : 'bg-[#1b1b1d] border-dashed border-[#4d463a]/50 text-[#998f81]'
+                            }`}
+                          >
+                            <span className="text-[9px] uppercase tracking-tighter opacity-70">Lịch 📅</span>
+                            <span className="text-xs font-bold mt-1.5">{displayLabel}</span>
+                          </button>
+                        );
+                      })()}
                     </div>
                   </section>
 
@@ -480,13 +542,118 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
               </div>
             </div>
             <button
-              onClick={() => onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: selectedSlot, totalPrice })}
+              onClick={() => onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: selectedSlot, totalPrice, appointmentDate: selectedDateStr })}
               className="w-full py-4 rounded-full bg-[#e6c487] text-[#412d00] font-bold tracking-[0.12em] text-sm shadow-[0_15px_30px_rgba(0,0,0,0.4)] flex items-center justify-center gap-3 active:scale-95 duration-200 uppercase"
             >
               <span>{t.bc_confirmSelection}</span>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </button>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Calendar Modal */}
+      <AnimatePresence>
+        {showCalendar && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-[#131315] border border-[#e6c487]/30 rounded-3xl p-5 w-full max-w-sm shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center mb-4">
+                <button
+                  onClick={() => {
+                    if (currentCalendarMonth === 0) {
+                      setCurrentCalendarMonth(11);
+                      setCurrentCalendarYear(prev => prev - 1);
+                    } else {
+                      setCurrentCalendarMonth(prev => prev - 1);
+                    }
+                  }}
+                  className="text-[#e6c487] p-2 hover:bg-white/5 rounded-full"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                
+                <h4 className="font-serif italic text-lg text-[#e6c487]">
+                  {lang === 'vi' ? 'Tháng ' : 'Month '}{currentCalendarMonth + 1}, {currentCalendarYear}
+                </h4>
+
+                <button
+                  onClick={() => {
+                    if (currentCalendarMonth === 11) {
+                      setCurrentCalendarMonth(0);
+                      setCurrentCalendarYear(prev => prev + 1);
+                    } else {
+                      setCurrentCalendarMonth(prev => prev + 1);
+                    }
+                  }}
+                  className="text-[#e6c487] p-2 hover:bg-white/5 rounded-full"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </button>
+              </div>
+
+              {/* Grid Header */}
+              <div className="grid grid-cols-7 gap-1 text-center text-[10px] text-[#998f81] font-bold mb-2">
+                <div>T2</div>
+                <div>T3</div>
+                <div>T4</div>
+                <div>T5</div>
+                <div>T6</div>
+                <div>T7</div>
+                <div className="text-red-400">CN</div>
+              </div>
+
+              {/* Grid Days */}
+              <div className="grid grid-cols-7 gap-1">
+                {calendarDays.map((day, idx) => {
+                  if (!day) return <div key={`empty-${idx}`} />;
+                  
+                  const isSelected = selectedDateStr === day.toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).slice(0, 10);
+                  const disabled = isDateDisabled(day);
+                  const isSunday = day.getDay() === 0;
+
+                  return (
+                    <button
+                      key={idx}
+                      disabled={disabled}
+                      onClick={() => {
+                        const isoStr = day.toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).slice(0, 10);
+                        setSelectedDateStr(isoStr);
+                        setSelectedSlot(null);
+                        setShowCalendar(false);
+                      }}
+                      className={`h-9 w-9 rounded-xl flex items-center justify-center text-xs transition-all ${
+                        isSelected
+                          ? 'bg-[#e6c487] text-[#412d00] font-bold'
+                          : disabled
+                            ? 'text-[#e4e2e4]/10 cursor-not-allowed'
+                            : isSunday
+                              ? 'text-red-400/80 hover:bg-white/5 cursor-pointer'
+                              : 'text-[#d0c5b5] hover:bg-white/5 cursor-pointer'
+                      }`}
+                    >
+                      {day.getDate()}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Close button */}
+              <div className="mt-4 pt-2 border-t border-[#4d463a]/30 flex justify-end">
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  className="px-4 py-2 text-xs font-bold text-[#e6c487] hover:bg-[#e6c487]/10 rounded-xl transition-colors"
+                >
+                  {lang === 'vi' ? 'Đóng' : 'Close'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </motion.div>

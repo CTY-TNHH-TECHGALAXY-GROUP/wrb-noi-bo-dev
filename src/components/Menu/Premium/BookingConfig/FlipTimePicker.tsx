@@ -136,7 +136,7 @@ const WheelColumn = ({ items, value, onChange, padDigits = 2 }: WheelColumnProps
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="h-full overflow-y-scroll scrollbar-hide"
+        className="h-full overflow-y-scroll scrollbar-hide [&::-webkit-scrollbar]:w-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         style={{
           scrollSnapType: 'y mandatory',
           WebkitOverflowScrolling: 'touch',
