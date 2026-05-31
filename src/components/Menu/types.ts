@@ -87,6 +87,15 @@ export interface CartItem extends Service {
   cartId: string; // ID riêng biệt trong giỏ (để phân biệt cùng món nhưng khác options)
   qty: number;
   options?: ServiceOptions;
+
+  // === VIP Fields (only present when itemType = 'vip') ===
+  itemType?: 'standard' | 'vip';        // default = 'standard'
+  vipStaffId?: string;                   // KTV ID assigned to this item
+  vipStaffName?: string;                 // KTV display name
+  vipStaffAvatar?: string | null;        // KTV avatar URL
+  vipSkillIds?: string[];                // Selected skill IDs
+  vipDisplayName?: string;               // Combined skill names e.g. "Body Thái + Gội"
+  vipDuration?: number;                  // Duration in minutes (customer choice)
 }
 
 // export type CartState = Record<string, number>; // (Legacy - Deactivated)

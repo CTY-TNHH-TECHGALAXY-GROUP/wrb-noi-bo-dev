@@ -2,24 +2,10 @@ import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import crypto from 'node:crypto';
 import { generateAccessToken } from '@/lib/token';
+import { handleStandardItems } from './handleStandardItems';
+import { handleVipItems } from './handleVipItems';
 
 const DAY_CUTOFF_HOUR = 8; // Reset day at 8:00 AM
-
-// Helper to translate Options to Vietnamese
-const toVietnamese = (text: string | null | undefined): string => {
-    if (!text) return '';
-    const map: Record<string, string> = {
-        'light': 'Nhẹ', 'medium': 'Vừa', 'strong': 'Mạnh',
-        'male': 'Nam', 'female': 'Nữ', 'random': 'Ngẫu nhiên',
-        'neck': 'Cổ', 'shoulder': 'Vai', 'back': 'Lưng', 'waist': 'Thắt lưng',
-        'arm': 'Tay', 'thigh': 'Đùi', 'calf': 'Bắp chân', 'foot': 'Bàn chân',
-        'head': 'Đầu', 'pregnant': 'Mang thai', 'allergy': 'Dị ứng',
-        'Medium': 'Vừa', 'Random': 'Ngẫu nhiên'
-    };
-    const lower = text.toLowerCase();
-    if (map[lower]) return map[lower];
-    return text.charAt(0).toUpperCase() + text.slice(1);
-};
 
 export async function POST(request: Request) {
     try {
@@ -50,54 +36,38 @@ export async function POST(request: Request) {
         const year = businessDate.getFullYear();
 
         const dateCode = `${day}${month}${year}`;
-        const dateStrForSheet = `${year}-${month}-${day}`;
 
-        // 1. Generate Bill Number (Based on today's count in Supabase)
+        // 1. Generate Bill Number
         const { count } = await supabaseAdmin
             .from('Bookings')
             .select('*', { count: 'exact', head: true })
-            .ilike('billCode', `%-${dateCode}`); // Đếm các mã kết thúc bằng chuỗi ngày (ví dụ: -23022026)
+            .ilike('billCode', `%-${dateCode}`);
 
-        // Tạo chuỗi dạng 001-23022026
         const nextNum = (count || 0) + 1;
         const billNum = `${String(nextNum).padStart(3, '0')}-${dateCode}`;
-        const branchCode = '11NDK'; // TODO: Dynamically pass this from frontend later
+        const branchCode = '11NDK';
         const customId = `${branchCode}-${billNum}`;
 
-        // 2. Prepare Data Items
-        console.log(`[POST /api/orders] Processing order with status expected: PENDING`);
-        const processedItems = items.map((item: any) => {
-            const opts = item.options || {};
-            const strengthVN = toVietnamese(opts.strength || 'Medium');
-            const therapistVN = toVietnamese(opts.therapist || 'Random');
-            const focusVN = (opts.bodyParts?.focus || []).map((f: string) => toVietnamese(f));
-            const avoidVN = (opts.bodyParts?.avoid || []).map((a: string) => toVietnamese(a));
+        // 2. Separate items by type
+        const standardItems = items.filter((i: any) => i.itemType !== 'vip');
+        const vipItems = items.filter((i: any) => i.itemType === 'vip');
+        const hasStandard = standardItems.length > 0;
+        const hasVip = vipItems.length > 0;
 
-            const tagList = [];
-            if (opts.notes?.tag0) tagList.push(toVietnamese('pregnant'));
-            if (opts.notes?.tag1) tagList.push(toVietnamese('allergy'));
+        // Determine source
+        const source = hasVip && hasStandard
+            ? 'MIXED_WALK_IN'
+            : hasVip
+                ? 'VIP_WALK_IN'
+                : 'STANDARD_WALK_IN';
 
-            return {
-                id: item.id,
-                name_en: item.names?.en || item.name,
-                name_vn: item.names?.vn || item.name,
-                qty: item.qty,
-                price: item.priceVND,
-                strength: strengthVN,
-                therapist: therapistVN,
-                focus: focusVN,
-                avoid: avoidVN,
-                tags: tagList,
-                note: opts.notes?.content || ''
-            };
-        });
+        console.log(`[POST /api/orders] source: ${source}, standard: ${standardItems.length}, vip: ${vipItems.length}`);
 
         const vnTimeStr = new Date().toISOString();
 
         // 2.5 Generate or find Customer ID
         let customerId = customer.id;
 
-        // Try to find existing customer by email OR phone to avoid unique constraint violations
         if (!customerId && (customer.email || customer.phone)) {
             let query = supabaseAdmin.from('Customers').select('id');
 
@@ -110,13 +80,11 @@ export async function POST(request: Request) {
             }
 
             const { data: existingCustomer } = await query.limit(1).maybeSingle();
-
             if (existingCustomer) {
                 customerId = existingCustomer.id;
             }
         }
 
-        // If still no ID, create a new one
         if (!customerId) {
             customerId = `CUS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
         }
@@ -133,16 +101,13 @@ export async function POST(request: Request) {
 
         const { error: customerError } = await supabaseAdmin
             .from('Customers')
-            .upsert(customerData, {
-                onConflict: 'id',
-                ignoreDuplicates: false
-            });
+            .upsert(customerData, { onConflict: 'id', ignoreDuplicates: false });
 
         if (customerError) {
-            console.error("⚠️ [API Order] Lỗi lưu thông tin khách hàng (nhưng không lỗi tạo đơn):", customerError);
+            console.error("⚠️ [API Order] Lỗi lưu thông tin khách hàng:", customerError);
         }
 
-        // 3. Save to Supabase (Bookings)
+        // 3. Create Booking (1 booking for all items)
         const accessToken = generateAccessToken();
         const { data: booking, error: bookingError } = await supabaseAdmin
             .from('Bookings')
@@ -160,37 +125,20 @@ export async function POST(request: Request) {
                 billCode: billNum,
                 customerLang: normalizedLang,
                 accessToken: accessToken,
-                source: 'STANDARD_WALK_IN'
+                source: source
             })
             .select()
             .single();
 
         if (bookingError) throw bookingError;
 
-        // 4. Save to Supabase (Booking Items)
-        const itemsToInsert = processedItems.map((pi: any, index: number) => ({
-            id: `${customId}-item${index + 1}`,
-            bookingId: customId,
-            serviceId: pi.id,
-            quantity: pi.qty,
-            price: pi.price,
-            options: {
-                strength: pi.strength,
-                therapist: pi.therapist,
-                focus: pi.focus,
-                avoid: pi.avoid,
-                tags: pi.tags,
-                note: pi.note
-            }
-        }));
-
-        const { error: itemsError } = await supabaseAdmin
-            .from('BookingItems')
-            .insert(itemsToInsert);
-
-        if (itemsError) throw itemsError;
-
-        // Customer upsert logic is handled before Booking insertion.
+        // 4. Delegate to handlers (separated for isolation)
+        if (hasStandard) {
+            await handleStandardItems(supabaseAdmin, customId, standardItems, 0);
+        }
+        if (hasVip) {
+            await handleVipItems(supabaseAdmin, customId, vipItems, standardItems.length);
+        }
 
         return NextResponse.json({ success: true, billNum, bookingId: customId, accessToken });
     } catch (error: any) {

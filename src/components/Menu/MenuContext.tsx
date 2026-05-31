@@ -12,6 +12,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Service, ServiceOptions, CartItem, Category } from '@/components/Menu/types';
 import { getServices } from '@/components/Menu/getServices';
+import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 
 export interface CustomerInfoContext {
     name: string;
@@ -37,6 +38,16 @@ interface MenuContextType {
     removeFromCart: (cartId: string) => void;
     clearCart: () => void;
     getQty: (serviceId: string) => number; // Helper lấy tổng số lượng của 1 service ID
+
+    // --- VIP Cart Logic ---
+    addVipToCart: (params: {
+        staffIds: string[];
+        staffInfoList: VipStaffInfo[];
+        skillIds: string[];
+        displayName: string;
+        duration: number;
+        totalPrice: number;
+    }) => void;
 
     // --- Customer Logic ---
     customerInfo: CustomerInfoContext;
@@ -130,6 +141,44 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
         return cart.filter(item => item.id === serviceId).reduce((sum, item) => sum + item.qty, 0);
     };
 
+    // --- VIP CART FUNCTION ---
+    // Add VIP item(s) to cart. 1 KTV = 1 cart item. Price only on first item.
+    const addVipToCart = (params: {
+        staffIds: string[];
+        staffInfoList: VipStaffInfo[];
+        skillIds: string[];
+        displayName: string;
+        duration: number;
+        totalPrice: number;
+    }) => {
+        const newItems: CartItem[] = params.staffIds.map((staffId, index) => {
+            const staffInfo = params.staffInfoList.find(s => s.id === staffId);
+            return {
+                // Service base fields (pseudo-service for VIP)
+                id: 'NHS0800',
+                cartId: `vip-${staffId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                cat: 'VIP',
+                names: { en: params.displayName, vi: params.displayName },
+                descriptions: { en: '', vi: '' },
+                img: '',
+                priceVND: index === 0 ? params.totalPrice : 0, // Price only on first item
+                priceUSD: 0,
+                timeValue: params.duration,
+                qty: 1,
+                menuType: 'vip' as const,
+                // VIP-specific fields
+                itemType: 'vip' as const,
+                vipStaffId: staffId,
+                vipStaffName: staffInfo?.fullName || staffId,
+                vipStaffAvatar: staffInfo?.avatarUrl || null,
+                vipSkillIds: params.skillIds,
+                vipDisplayName: params.displayName,
+                vipDuration: params.duration,
+            };
+        });
+        setCart(prev => [...prev, ...newItems]);
+    };
+
     // --- CUSTOMER FUNCTIONS ---
     const updateCustomerInfo = (field: string, value: string) => {
         setCustomerInfoContext(prev => ({ ...prev, [field]: value }));
@@ -149,6 +198,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
         <MenuContext.Provider value={{
             services, categories, loading, error, refreshData: fetchData,
             cart, addToCart, updateCartItem, updateCartItemOptions, updateAllCartItemOptions, removeFromCart, clearCart, getQty,
+            addVipToCart,
             customerInfo, updateCustomerInfo, resetCustomerInfo
         }}>
             {children}

@@ -99,6 +99,8 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
 
     // ... (Custom Request Handlers remain same) ...
     const handleCustomRequest = (item: CartItem) => {
+        // VIP items don't have Custom For You options (strength, therapist, focus, avoid)
+        if (item.itemType === 'vip') return;
         setSelectedCartItem(item);
         setIsModalOpen(true);
     };

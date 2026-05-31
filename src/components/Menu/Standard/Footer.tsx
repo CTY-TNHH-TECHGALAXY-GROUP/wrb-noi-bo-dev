@@ -11,7 +11,7 @@
  */
 'use client';
 import React from 'react';
-import { ShoppingCart, ArrowLeft, ArrowRight } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, ArrowRight, Crown } from 'lucide-react';
 import { formatCurrency } from '@/components/Menu/utils';
 
 interface FooterProps {
@@ -22,6 +22,7 @@ interface FooterProps {
     lang: string;
     onBack: () => void;
     onToggleCart: () => void;
+    onSwitchToVip?: () => void;
 }
 
 const TEXT = {
@@ -30,7 +31,7 @@ const TEXT = {
     mins: { vi: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
 };
 
-export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lang, onBack, onToggleCart }: FooterProps) {
+export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lang, onBack, onToggleCart, onSwitchToVip }: FooterProps) {
     const t = (key: keyof typeof TEXT) => TEXT[key][lang as keyof typeof TEXT['total_est']] || TEXT[key]['en'];
 
     return (
@@ -50,6 +51,14 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
             <button onClick={onBack} className="w-12 h-12 shrink-0 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 active:scale-95 transition-all shadow-lg backdrop-blur-md">
                 <ArrowLeft size={20} />
             </button>
+
+            {/* Nút VIP */}
+            {onSwitchToVip && (
+                <button onClick={onSwitchToVip} className="h-12 shrink-0 px-3 rounded-full bg-[#e6c487]/10 border border-[#e6c487]/30 flex items-center justify-center gap-1.5 hover:bg-[#e6c487]/20 active:scale-95 transition-all">
+                    <Crown size={16} className="text-[#e6c487]" />
+                    <span className="text-[10px] font-bold text-[#e6c487] tracking-wider">VIP</span>
+                </button>
+            )}
 
             {/* Thông tin Tiền & Thời gian */}
             <div className="flex-1 flex flex-col items-center justify-center min-w-0">

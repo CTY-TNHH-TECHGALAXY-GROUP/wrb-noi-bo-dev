@@ -8,6 +8,9 @@ import BookingConfig from './BookingConfig';
 import ConfirmationScreen from './ConfirmationScreen';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 import { type VipPricingTable } from '@/lib/vipPricingEngine';
+import { SKILL_MAP, type VipLang } from '@/lib/vipSkills.constants';
+import { getSkillName } from '@/lib/vipStaffUtils';
+import { useMenuData } from '@/components/Menu/MenuContext';
 import { getT } from './Premium.i18n';
 
 // =============================================
@@ -27,12 +30,14 @@ interface PremiumMenuProps {
   lang: string;
   onBack: () => void;
   onCheckout: () => void;
+  onSwitchToStandard?: () => void;
 }
 
 type MenuStep = 'STAFF' | 'BOOKING_CONFIG' | 'CONFIRMATION';
 
-const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
+const PremiumMenu = ({ lang, onBack, onCheckout, onSwitchToStandard }: PremiumMenuProps) => {
   const t = getT(lang);
+  const { addVipToCart } = useMenuData();
   const [step, setStep] = useState<MenuStep>('STAFF');
 
   // VIP pricing table from SystemConfigs (2D: numStaff → duration → price)
@@ -108,8 +113,17 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
             {getStepTitle()}
           </h1>
 
-          {/* Right spacer */}
-          <div className="w-6" />
+          {/* Right: Switch to Standard menu (only on STAFF step) */}
+          {step === 'STAFF' && onSwitchToStandard ? (
+            <button
+              onClick={onSwitchToStandard}
+              className="text-[10px] font-bold text-[#d0c5b5] tracking-wider px-3 py-1.5 rounded-full border border-[#4d463a]/50 hover:bg-white/5 transition-colors"
+            >
+              ☰ MENU
+            </button>
+          ) : (
+            <div className="w-6" />
+          )}
         </div>
       </header>
 
@@ -139,12 +153,40 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
                   vipPricingTable={vipPricingTable}
                   bufferMinutes={bufferMinutes}
                   onConfirm={(data) => {
-                    setSelectedSkillsMap(data.skillsMap);
-                    setTotalDuration(data.totalDuration);
-                    setTimeSlot(data.timeSlot);
-                    setTotalPrice(data.totalPrice || 0);
-                    setAppointmentDate(data.appointmentDate);
-                    setStep('CONFIRMATION');
+                    // Check if walk-in (branch) → add to cart → checkout
+                    const isWalkIn = !data.timeSlot || data.timeSlot === 'BRANCH_DECIDE';
+
+                    if (isWalkIn) {
+                      // Build display name from skills
+                      const allSkillIds = Object.values(data.skillsMap).flat();
+                      const skillNames = allSkillIds.map((id: string) => {
+                        const skill = SKILL_MAP[id];
+                        return skill ? getSkillName(skill, lang as VipLang) : id;
+                      });
+                      const uniqueNames = [...new Set(skillNames)];
+                      const displayName = uniqueNames.length > 0 ? uniqueNames.join(' + ') : 'VIP Bespoke';
+
+                      // Add to shared cart
+                      addVipToCart({
+                        staffIds: selectedStaffIds,
+                        staffInfoList: selectedStaffInfoList,
+                        skillIds: allSkillIds,
+                        displayName,
+                        duration: data.totalDuration,
+                        totalPrice: data.totalPrice || 0,
+                      });
+
+                      // Navigate to shared checkout page
+                      onCheckout();
+                    } else {
+                      // Advance booking → go to ConfirmationScreen (future feature)
+                      setSelectedSkillsMap(data.skillsMap);
+                      setTotalDuration(data.totalDuration);
+                      setTimeSlot(data.timeSlot);
+                      setTotalPrice(data.totalPrice || 0);
+                      setAppointmentDate(data.appointmentDate);
+                      setStep('CONFIRMATION');
+                    }
                   }}
                 />
               </motion.div>

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { PencilLine, Wand2, Check, GripHorizontal, User, HeartPulse, Ban, Hand, Clock } from 'lucide-react';
+import { PencilLine, Wand2, Check, GripHorizontal, User, HeartPulse, Ban, Hand, Clock, Crown } from 'lucide-react';
 import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
+import { SKILL_MAP, type VipLang } from '@/lib/vipSkills.constants';
+import { getSkillName } from '@/lib/vipStaffUtils';
 
 interface InvoiceProps {
     cart: CartItem[];
@@ -13,6 +15,7 @@ interface InvoiceProps {
 
 export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRequest }: InvoiceProps) {
     const total = cart.reduce((sum, item) => sum + ((currency === 'USD' ? item.priceUSD : item.priceVND) * item.qty), 0);
+    const vipLang = (lang || 'vi') as VipLang;
 
     return (
         <div className="space-y-4">
@@ -62,11 +65,16 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                             return 'text-[#C9A96E]';
                         };
 
+                        const isVipItem = item.itemType === 'vip';
+
                         return (
                             <div key={item.cartId} className="border border-white/10 rounded-2xl p-4 shadow-sm bg-[#0d0d0d] mb-4">
                                 {/* Row 1: Name + Price */}
                                 <div className="flex justify-between items-start mb-1 gap-2">
-                                    <h4 className="text-white font-bold text-lg truncate flex-1">{idx + 1}. {item.names[lang] || item.names.en}</h4>
+                                    <h4 className="text-white font-bold text-lg truncate flex-1 flex items-center gap-2">
+                                        {idx + 1}. {isVipItem ? (item.vipDisplayName || 'VIP Bespoke') : (item.names[lang] || item.names.en)}
+                                        {isVipItem && <Crown size={16} className="text-[#e6c487] shrink-0" />}
+                                    </h4>
                                     <span className={`font-bold text-lg shrink-0 ${currency === 'USD' ? 'text-emerald-600' : 'text-white'}`}>
                                         {currency === 'USD'
                                             ? `${(item.priceUSD * item.qty)} USD`
@@ -77,9 +85,55 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
 
                                 {/* Clickable Customization Region */}
                                 <div 
-                                    className="mt-2 p-3 bg-black/30 rounded-xl border border-white/5 space-y-2.5 cursor-pointer hover:bg-black/40 active:scale-[0.99] transition-all text-sm mb-1"
-                                    onClick={() => onCustomRequest(item)}
+                                    className={`mt-2 p-3 bg-black/30 rounded-xl border border-white/5 space-y-2.5 text-sm mb-1 ${
+                                        isVipItem ? 'cursor-default' : 'cursor-pointer hover:bg-black/40 active:scale-[0.99] transition-all'
+                                    }`}
+                                    onClick={() => !isVipItem && onCustomRequest(item)}
                                 >
+                                    {isVipItem ? (
+                                        /* ─── VIP ITEM RENDER ─── */
+                                        <>
+                                            {/* KTV Info */}
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="w-5 flex justify-center"><User size={16} className="text-[#e6c487]" /></div>
+                                                    <span className="font-medium text-gray-400">KTV</span>
+                                                </div>
+                                                <span className="font-bold text-[#e6c487]">{item.vipStaffName || item.vipStaffId}</span>
+                                            </div>
+                                            {/* Duration */}
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="w-5 flex justify-center"><Clock size={16} className="text-gray-400" /></div>
+                                                    <span className="font-medium text-gray-400">{dict.checkout?.time || 'Thời gian'}</span>
+                                                </div>
+                                                <span className="font-bold text-[#C9A96E]">
+                                                    {item.vipDuration} {dict.checkout?.mins || 'phút'}
+                                                </span>
+                                            </div>
+                                            {/* Skills Chips */}
+                                            {item.vipSkillIds && item.vipSkillIds.length > 0 && (
+                                                <div className="flex flex-wrap gap-1.5 mt-1 pt-2 border-t border-white/5">
+                                                    {item.vipSkillIds.map(skillId => {
+                                                        const skill = SKILL_MAP[skillId];
+                                                        const name = skill ? getSkillName(skill, vipLang) : skillId;
+                                                        const isChinhSkill = skill?.type === 'CHINH';
+                                                        return (
+                                                            <span key={skillId} className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${
+                                                                isChinhSkill
+                                                                    ? 'bg-[#e6c487]/15 text-[#e6c487] border-[#e6c487]/30'
+                                                                    : 'bg-white/5 text-[#d0c5b5] border-white/10'
+                                                            }`}>
+                                                                {name}
+                                                            </span>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        /* ─── STANDARD ITEM RENDER (unchanged) ─── */
+                                        <>
                                     {/* Duration */}
                                     {(item.timeValue > 0 || item.timeDisplay) && (
                                         <div className="flex justify-between items-center">
@@ -170,6 +224,8 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                                 </div>
                                             )}
                                         </div>
+                                    )}
+                                        </>
                                     )}
                                 </div>
                             </div>

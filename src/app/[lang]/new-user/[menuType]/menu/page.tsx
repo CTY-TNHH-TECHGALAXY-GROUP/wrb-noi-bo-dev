@@ -30,16 +30,24 @@ export default function MenuPage() {
         router.push(`/${lang}/new-user/${menuType}/checkout`);
     };
 
-    // 4. LOGIC ĐIỀU PHỐI (ROUTING)
+    // 4. Cross-menu navigation (cart giữ nguyên qua MenuContext)
+    const handleSwitchToVip = () => {
+        router.push(`/${lang}/new-user/vip/menu`);
+    };
+    const handleSwitchToStandard = () => {
+        router.push(`/${lang}/new-user/standard/menu`);
+    };
+
+    // 5. LOGIC ĐIỀU PHỐI (ROUTING)
 
     // Trường hợp 1: Menu Thường
     if (menuType === 'standard') {
-        return <StandardMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} />;
+        return <StandardMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} />;
     }
 
     // Trường hợp 2: Menu VIP (Premium)
     if (menuType === 'vip') {
-        return <PremiumMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} />;
+        return <PremiumMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} onSwitchToStandard={handleSwitchToStandard} />;
     }
 
     // Trường hợp 3: Người dùng nhập bậy bạ (vd: .../abc/menu) -> Trả về 404

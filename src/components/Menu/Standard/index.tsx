@@ -55,9 +55,10 @@ interface StandardMenuProps {
     lang: string;
     onBack: () => void;
     onCheckout: () => void;
+    onSwitchToVip?: () => void;
 }
 
-export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuProps) {
+export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }: StandardMenuProps) {
     // --- STATE DỮ LIỆU ---
     // Remove local loading state (duplicate)
     const [services, setServices] = useState<Service[]>([]);
@@ -254,6 +255,7 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
                         lang={lang}
                         onBack={() => setMode('PICKER')}
                         onToggleCart={handleOpenCart}
+                        onSwitchToVip={onSwitchToVip}
                     />
 
                     {/* D. KHU VỰC CÁC SHEET */}
