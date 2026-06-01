@@ -27,7 +27,7 @@ interface ConfirmationScreenProps {
 const i18n: Record<string, Record<string, string>> = {
   vi: {
     heroSub: 'Trải nghiệm đẳng cấp',
-    heroTitle: 'Hành Trình Chữa Lành',
+    heroTitle: 'Hành Trình',
     bookingDetails: 'THÔNG TIN ĐẶT LỊCH',
     therapists: 'Chuyên viên',
     schedule: 'Thời gian',
@@ -61,14 +61,14 @@ const i18n: Record<string, Record<string, string>> = {
   },
   en: {
     heroSub: 'Premium Experience',
-    heroTitle: 'Healing Journey',
+    heroTitle: 'Journey',
     bookingDetails: 'BOOKING DETAILS',
     therapists: 'Therapists',
     schedule: 'Schedule',
     walkIn: 'Walk-in at branch',
     services: 'Selected Services',
     totalDuration: 'Total Duration',
-    mins: 'minutes',
+    mins: 'mins',
     ktv: 'Therapists',
     pricing: 'Service Price',
     customerInfo: 'CONTACT INFORMATION',
@@ -95,7 +95,7 @@ const i18n: Record<string, Record<string, string>> = {
   },
   kr: {
     heroSub: '프리미엄 경험',
-    heroTitle: '힐링 여정',
+    heroTitle: '여정',
     bookingDetails: '예약 정보',
     therapists: '전문가',
     schedule: '일정',
@@ -163,7 +163,7 @@ const i18n: Record<string, Record<string, string>> = {
   },
   jp: {
     heroSub: 'プレミアム体験',
-    heroTitle: 'ヒーリングの旅',
+    heroTitle: 'ジャーニー',
     bookingDetails: '予約詳細',
     therapists: 'セラピスト',
     schedule: 'スケジュール',

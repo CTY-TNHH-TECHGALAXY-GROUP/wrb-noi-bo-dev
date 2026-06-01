@@ -45,12 +45,12 @@ export const LE_SKILLS: VipSkill[] = [
   {
     id: 'earCombo',
     type: 'LE',
-    name: { vi: 'Ráy combo', en: 'Ear Combo', cn: '耳朵护理套餐', jp: 'イヤーコンボ', kr: '이어 콤보' },
+    name: { vi: 'Lấy ráy tai', en: 'Ear Clean', cn: '采耳', jp: '耳掃除', kr: '귀 청소' },
   },
   {
     id: 'earChuyen',
     type: 'LE',
-    name: { vi: 'Ráy chuyên', en: 'Ear Pro', cn: '专业耳朵护理', jp: 'イヤープロ', kr: '이어 프로' },
+    name: { vi: 'Lấy ráy tai', en: 'Ear Clean', cn: '采耳', jp: '耳掃除', kr: '귀 청소' },
   },
   {
     id: 'razorShave',
@@ -70,12 +70,12 @@ export const LE_SKILLS: VipSkill[] = [
   {
     id: 'nailCombo',
     type: 'LE',
-    name: { vi: 'Nail combo', en: 'Nail Combo', cn: '美甲套餐', jp: 'ネイルコンボ', kr: '네일 콤보' },
+    name: { vi: 'Cắt móng', en: 'Nail cut', cn: '剪指甲', jp: '爪切り', kr: '손톱 정리' },
   },
   {
     id: 'nailChuyen',
     type: 'LE',
-    name: { vi: 'Nail chuyên', en: 'Nail Pro', cn: '专业美甲', jp: 'ネイルプロ', kr: '네일 프로' },
+    name: { vi: 'Cắt móng', en: 'Nail cut', cn: '剪指甲', jp: '爪切り', kr: '손톱 정리' },
   },
   {
     id: 'heelScrub',

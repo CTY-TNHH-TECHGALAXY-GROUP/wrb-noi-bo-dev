@@ -1,0 +1,107 @@
+Key	Vietnamese (vi)	English (en)	Korean (kr)	Chinese (cn)	Japanese (jp)
+step_staff	CHỌN CHUYÊN GIA	SELECT EXPERT	전문가 선택	选择专家	エキスパート選択
+step_config	TÙY CHỌN DỊCH VỤ	CUSTOMIZE	맞춤 설정	定制服务	カスタマイズ
+step_confirm	XÁC NHẬN	CONFIRM	확인	确认	確認
+ss_title	DANH SÁCH CHUYÊN GIA	OUR EXPERTS	전문가 소개	专家团队	エキスパート紹介
+ss_subtitle	Những đôi tay tài hoa sẵn sàng chăm sóc bạn	Talented hands ready to care for you	최고의 손길로 당신을 케어합니다	精湛技艺，悉心呵护	熟練の技で、あなたをケアいたします
+ss_searchPlaceholder	Tìm theo tên hoặc mã (NH001)	Search by name or code	이름 또는 코드로 검색	按姓名或编号搜索	名前またはコードで検索
+ss_noResult	Không tìm thấy nhân viên	No staff found	결과가 없습니다	未找到员工	スタッフが見つかりません
+ss_maxHint	Tối đa {max} chuyên viên	Maximum {max} therapists	최대 {max}명 선택 가능	最多选择 {max} 位技师	最大{max}名まで選択可能
+ss_bookNow	ĐẶT NGAY	BOOK NOW	예약하기	立即预约	今すぐ予約
+ss_unavailable	KHÔNG KHẢ DỤNG	UNAVAILABLE	이용 불가	暂不可用	利用不可
+ss_continueWith	Tiếp tục với {count} chuyên viên	Continue with {count} therapists	{count}명의 테라피스트와 계속	继续选择 {count} 位技师	{count}名のセラピストで続ける
+ss_quote	"Nghệ thuật của sự thư giãn bắt đầu từ những tâm hồn tinh tế nhất."	"The art of relaxation begins with the most refined souls."	"휴식의 예술은 가장 세련된 영혼에서 시작됩니다."	"放松的艺术始于最精致的灵魂。"	"リラクゼーションの芸術は、最も洗練された魂から始まります。"
+status_available	SẴN SÀNG	AVAILABLE	대기 중	空闲中	待機中
+status_busy	ĐANG PHỤC VỤ	IN SERVICE	서비스 중	服务中	施術中
+status_freeAfter	RẢNH SAU {time}	FREE AFTER {time}	{time} 이후 가능	{time} 后可用	{time}以降対応可
+status_notYet	CHƯA VÔ CA	NOT CHECKED IN	미출근	未到岗	未出勤
+status_offDuty	ĐÃ TAN CA	OFF DUTY	퇴근 완료	已下班	退勤済み
+status_startsAt	VÀO CA LÚC {time}	STARTS AT {time}	{time} 출근 예정	{time} 上班	{time}出勤予定
+status_onLeave	NGÀY NGHỈ	ON LEAVE	휴가	休假中	休暇中
+bc_servicesByKtv	CHỌN DỊCH VỤ CHO TỪNG KTV	SERVICES BY THERAPIST	테라피스트별 서비스	按技师选择服务	セラピスト別サービス
+bc_skills	kỹ năng	skills	스킬	技能	スキル
+bc_expertTherapist	Chuyên viên Thượng hạng	Expert Therapist	수석 테라피스트	资深技师	上級セラピスト
+bc_specialties	KỸ NĂNG CHUYÊN BIỆT	SPECIALTIES	전문 분야	专业技能	専門分野
+bc_minDurationHint	{le} lẻ + {chinh} chính → Tối thiểu {min} phút	{le} extras + {chinh} main → Min {min} mins	{le} 추가 + {chinh} 메인 → 최소 {min}분	{le} 附加 + {chinh} 主要 → 最少 {min} 分钟	{le}追加 + {chinh}メイン → 最低{min}分
+bc_mainServices	Dịch vụ Chính	Main Services	메인 서비스	主要服务	メインサービス
+bc_addons	Dịch vụ Lẻ	Add-ons	추가 서비스	附加服务	追加サービス
+bc_noSkills	Không có kỹ năng phù hợp	No matching skills	해당 스킬이 없습니다	暂无匹配技能	該当するスキルがありません
+bc_selectDuration	CHỌN THỜI LƯỢNG DỊCH VỤ	SELECT DURATION	시간 선택	选择时长	時間を選択
+bc_vatIncluded	Giá đã bao gồm VAT	Price includes VAT	VAT 포함 가격	价格含税	税込価格
+bc_mins	phút	mins	분	分钟	分
+bc_servicePreference	HÌNH THỨC SỬ DỤNG	SERVICE PREFERENCE	이용 방식	服务方式	ご利用方法
+bc_walkIn	Đang Tại Chi Nhánh	Walk-in Box	현장 방문	到店体验	店舗で受付
+bc_bookAdvance	Đặt Lịch Trước	Book in Advance	사전 예약	提前预约	事前予約
+bc_selectDate	CHỌN NGÀY	SELECT DATE	날짜 선택	选择日期	日付を選択
+bc_availableTimes	THỜI GIAN TRỐNG	AVAILABLE TIMES	가능한 시간	可用时间	空き时间
+bc_timeNote	* Tiệm sẽ xác nhận lịch chính xác khi liên hệ	* Exact slot confirmed when staff contact you	* 정확한 시간은 직원이 연락 시 확인됩니다	* 确切时间将在工作人员联系时确认	* 正確な時間はスタッフから連絡時に確定します
+bc_selected	Đã chọn	Selected	선택됨	已选	選択済み
+bc_confirmSelection	XÁC NHẬN LỰA CHỌN	CONFIRM SELECTION	선택 확인	确认选择	選択を確定
+bc_terms_agree	Tôi đã đọc và đồng ý với	I have read and agree to the	다음을 읽고 동의합니다:	我已阅读并同意	以下を読み、同意します:
+bc_terms_title	Điều khoản & Chính sách	Terms & Policies	이용약관 및 정책	条款和政策	利用規約とポリシー
+bc_terms_desc_1	Đối với đặt lịch tự do (chưa chọn thời gian cụ thể), hệ thống sẽ ghi nhận và bộ phận CSKH của Spa sẽ trực tiếp xác nhận, liên hệ chốt giờ với Quý khách.	For open bookings (without specific time), the system will record your request and our Customer Service team will contact you directly to confirm the exact time.			
+bc_terms_desc_2	Quý khách vui lòng đến đúng giờ hẹn. Trong trường hợp đến sớm hoặc trễ hơn dự kiến, Quý khách có thể sẽ phải chờ để nhân viên sắp xếp chỗ.	Please arrive on time. In case of early or late arrival, you may need to wait for our staff to arrange a spot.			
+bc_terms_btn_agree	ĐỒNG Ý	I AGREE			
+day_sun	CN	Sun	일	日	日
+day_mon	Thứ 2	Mon	월	一	月
+day_tue	Thứ 3	Tue	화	二	火
+day_wed	Thứ 4	Wed	수	三	水
+day_thu	Thứ 5	Thu	목	四	木
+day_fri	Thứ 6	Fri	금	五	金
+day_sat	Thứ 7	Sat	토	六	土
+cal_t2	T2	Mo	월	一	月
+cal_t3	T3	Tu	화	二	火
+cal_t4	T4	We	수	三	水
+cal_t5	T5	Th	목	四	木
+cal_t6	T6	Fr	금	五	金
+cal_t7	T7	Sa	토	六	土
+cal_cn	CN	Su	일	日	日
+bc_calendar	Lịch 📅	Cal 📅	달력 📅	日历 📅	カレンダー 📅
+bc_moreDate	Ngày khác	More...	다른 날짜	更多日期	別の日
+bc_noTimeSlots	Không còn khung giờ trống	No available time slots	예약 가능한 시간이 없습니다	暂无可预约时间	予約可能な時間がありません
+bc_month	Tháng 	Month 	월 	月 	月 
+bc_close	Đóng	Close	닫기	关闭	閉じる
+is_title	LỜI CHÀO TIÊN QUYẾT	YOUR SANCTUARY			
+is_question	Hôm nay quý khách muốn tập trung vào điều gì?	What brings you joy today?			
+is_explore	Khám phá ngay	Explore			
+is_preferred_title	CHỌN NHÂN VIÊN TRỰC TIẾP	PREFERRED THERAPIST			
+is_preferred_desc	Kết nối cá nhân hóa	Personalized connection			
+cats_match_desc	Hệ thống sẽ tìm chuyên gia phù hợp nhất	We will match the best specialist for you			
+sb_title	Bạn đã chọn chuyên gia, hay giao việc cho họ?	Design bespoke services for your therapists			
+sb_confirm_btn	Chốt lộ trình	Confirm Treatment			
+ts_title	Xác nhận thời gian	Confirm Time			
+ts_desc	Slot khả dụng chung cho nhóm KTV của bạn	Available slots for your team			
+ts_selected	Bạn đã chọn {time}	Selected {time}			
+ts_walk_in	Đến lấy vé tại Chi Nhánh (Push Live)	Walk-in (Live Update)			
+ts_walk_in_desc	Chúng tôi sẽ thông báo trực tuyến để KTV chuẩn bị đón bạn	We will notify your therapists to prepare			
+ts_finalize_btn	Chốt Cấu Hình Xong!	Finalize Booking			
+cs_heroSub	Trải nghiệm đẳng cấp	Premium Experience	프리미엄 경험	尊享体验	プレミアム体験
+cs_heroTitle	Hành Trình Chữa Lành	Healing Journey	힐링 여정	疗愈之旅	ヒーリングの旅
+cs_bookingDetails	THÔNG TIN ĐẶT LỊCH	BOOKING DETAILS	예약 정보	预约详情	予約詳細
+cs_therapists	Chuyên viên	Therapists	전문가	专家	セラピスト
+cs_schedule	Thời gian	Schedule	일정	时间	スケジュール
+cs_walkIn	Đến chi nhánh lấy vé trực tiếp	Walk-in at branch	지점 방문	到店取号	店舗で受付
+cs_services	Dịch vụ đã chọn	Selected Services	선택한 서비스	已选服务	選択したサービス
+cs_totalDuration	Tổng thời gian	Total Duration	총 시간	总时长	合計時間
+cs_pricing	Giá dịch vụ	Service Price	서비스 가격	服务价格	サービス料金
+cs_customerInfo	THÔNG TIN LIÊN HỆ	CONTACT INFORMATION	연락처 정보	联系方式	連絡先情報
+cs_customerInfoDesc	Spa sẽ liên hệ xác nhận lịch hẹn qua thông tin bên dưới	We will contact you to confirm the appointment	예약 확인을 위해 연락드리겠습니다	我们将通过以下信息确认预约	ご予約確認のためご連絡いたします
+cs_name	Họ và tên *	Full Name *	성함 *	姓名 *	お名前 *
+cs_namePlaceholder	Nhập họ và tên...	Enter your name...	이름을 입력하세요...	请输入姓名...	お名前を入力...
+cs_phone	Số điện thoại *	Phone Number *	전화번호 *	电话 *	電話番号 *
+cs_phonePlaceholder	VD: 0901234567	e.g. +84901234567	예: 010-1234-5678	例：13800138000	例：090-1234-5678
+cs_email	Email (tùy chọn)	Email (optional)	이메일 (선택)	邮箱（选填）	メール（任意）
+cs_emailPlaceholder	email@example.com	email@example.com	email@example.com	email@example.com	email@example.com
+cs_note	Ghi chú	Note	메모	备注	メモ
+cs_notePlaceholder	Yêu cầu đặc biệt (nếu có)...	Special requests (if any)...	특별 요청 사항...	特殊要求...	特別なご要望...
+cs_submitBtn	XÁC NHẬN ĐẶT LỊCH	CONFIRM BOOKING	예약 확인	确认预约	予約確認
+cs_submitting	ĐANG GỬI...	SUBMITTING...	전송 중...	提交中...	送信中...
+cs_errorName	Vui lòng nhập họ và tên	Please enter your name	이름을 입력해주세요	请输入姓名	お名前を入力してください
+cs_errorPhone	Vui lòng nhập số điện thoại	Please enter your phone number	전화번호를 입력해주세요	请输入电话号码	電話番号を入力してください
+cs_successTitle	Đặt lịch thành công!	Booking Confirmed!	예약 완료!	预约成功！	予約完了！
+cs_successMsg	Cảm ơn bạn! Spa sẽ liên hệ xác nhận trong thời gian sớm nhất.	Thank you! Our spa will contact you shortly to confirm.	감사합니다! 곧 연락드리겠습니다.	感谢您！我们将尽快联系您确认。	ありがとうございます！近日中にご連絡いたします。
+cs_successBtn	VỀ TRANG CHỦ	BACK TO HOME	홈으로	返回首页	ホームへ
+cs_badgeConfirmed	✅ Đặt lịch thành công	✅ Booking Confirmed	✅ 예약 완료	✅ 预约成功	✅ 予約完了
+cs_badgeNeedsConfirm	⚠️ Tiệm sẽ liên hệ xác nhận	⚠️ We will contact you to confirm	⚠️ 확인을 위해 연락드리겠습니다	⚠️ 我们将联系您确认	⚠️ 確認のためご連絡いたします
+cs_badgeRisky	🔴 Cần xác nhận khẩn	🔴 Urgent confirmation needed	🔴 긴급 확인 필요	🔴 需紧急确认	🔴 緊急確認が必要です
+cs_bookingCodeLabel	Mã đặt lịch	Booking Code	예약 코드	预约编号	予約コード

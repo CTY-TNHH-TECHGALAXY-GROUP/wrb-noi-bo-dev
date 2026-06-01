@@ -131,10 +131,12 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
   // Preview top skills for a staff member
   const getSkillPreview = (staff: VipStaffInfo): string => {
     const skills = getStaffVipSkills(staff.skills);
-    const top = skills.slice(0, SKILL_PREVIEW_COUNT);
-    const names = top.map((sk) => (sk.name as Record<string, string>)[lang] || sk.name.en);
-    if (skills.length > SKILL_PREVIEW_COUNT) names.push(`+${skills.length - SKILL_PREVIEW_COUNT}`);
-    return names.join(' · ');
+    let names = skills.map((sk) => (sk.name as Record<string, string>)[lang] || sk.name.en);
+    names = [...new Set(names)]; // Lọc trùng lặp do gộp Pro và Basic
+    
+    const top = names.slice(0, SKILL_PREVIEW_COUNT);
+    if (names.length > SKILL_PREVIEW_COUNT) top.push(`+${names.length - SKILL_PREVIEW_COUNT}`);
+    return top.join(' · ');
   };
 
   // On confirm: pass selected staff info list
@@ -188,9 +190,9 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
 
       {/* Loading skeleton */}
       {isLoading && (
-        <div className="space-y-8">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-[2rem] overflow-hidden bg-[#1b1b1d] h-[380px] animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="rounded-[2rem] overflow-hidden bg-[#1b1b1d] h-[450px] md:h-[500px] animate-pulse" />
           ))}
         </div>
       )}
@@ -219,7 +221,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
 
       {/* Therapist Gallery */}
       {!isLoading && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
           {sortedStaff.map((staff, idx) => {
             const isSelected = selectedIds.includes(staff.id);
             const unavailable = isUnavailable(staff);
@@ -238,12 +240,12 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
                 `}
               >
                 {/* Image Container */}
-                <div className="relative h-[380px] w-full overflow-hidden bg-[#1b1b1d]">
+                <div className="relative h-[450px] md:h-[500px] w-full overflow-hidden bg-[#1b1b1d]">
                   {staff.avatarUrl ? (
                     <img
                       src={staff.avatarUrl}
                       alt={staff.fullName}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
                     />
                   ) : (
                     /* Fallback avatar */
@@ -267,21 +269,21 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
                   {/* Content Overlay */}
                   <div className="absolute bottom-0 left-0 w-full p-7 bg-gradient-to-t from-[#131315] via-[#131315]/60 to-transparent">
                     {/* Staff Code Badge — enlarged as primary identifier */}
-                    <div className="inline-block bg-[#e6c487]/15 border border-[#e6c487]/30 px-4 py-1.5 rounded-full mb-3">
-                      <span className="text-sm tracking-[0.15em] text-[#e6c487] font-bold">{staff.id}</span>
+                    <div className="inline-block bg-[#e6c487]/15 border border-[#e6c487]/30 px-5 py-2 rounded-full mb-3">
+                      <span className="text-base tracking-[0.15em] text-[#e6c487] font-bold">{staff.id}</span>
                     </div>
 
                     {/* Skill preview chips */}
                     {skillPreview && (
-                      <p className="text-[10px] text-[#d0c5b5]/70 mb-4 tracking-wide">{skillPreview}</p>
+                      <p className="text-xs text-[#d0c5b5]/90 mb-4 tracking-wide font-medium">{skillPreview}</p>
                     )}
 
                     {/* Action Buttons */}
                     <div className="flex gap-3">
-                      <div className={`flex-1 py-3.5 rounded-full text-center text-xs font-bold tracking-[0.1em] uppercase transition-all ${
+                      <div className={`flex-1 py-4 rounded-full text-center text-sm font-bold tracking-[0.1em] uppercase transition-all shadow-[0_4px_15px_rgba(0,0,0,0.3)] ${
                         !unavailable
                           ? 'bg-[#e6c487] text-[#412d00]'
-                          : 'border border-[#4d463a] text-[#e4e2e4]'
+                          : 'bg-black/60 backdrop-blur-sm border border-[#4d463a] text-[#e4e2e4]'
                       }`}>
                         {!unavailable ? t.ss_bookNow : t.ss_unavailable}
                       </div>

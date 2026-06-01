@@ -202,22 +202,16 @@ const FlipTimePicker = ({ startTime, endTime, value, onChange }: FlipTimePickerP
   const [selectedHour, setSelectedHour] = useState(currentVal.h);
   const [selectedMinute, setSelectedMinute] = useState(snappedMin >= 60 ? 60 - MINUTE_INTERVAL : snappedMin);
 
-  // Generate valid minutes for selected hour
-  const validMinutes: number[] = [];
-  for (let m = 0; m < 60; m++) {
+  // Generate valid minutes at 15-min intervals for selected hour
+  const validIntervalMinutes = Array.from(
+    { length: 60 / MINUTE_INTERVAL },
+    (_, i) => i * MINUTE_INTERVAL
+  ).filter(m => {
     const totalMins = selectedHour * 60 + m;
     const startMins = start.h * 60 + start.m;
     const endMins = end.h * 60 + end.m;
-    if (totalMins >= startMins && totalMins <= endMins) {
-      validMinutes.push(m);
-    }
-  }
-
-  // Minutes at 15-min intervals: [0, 15, 30, 45]
-  const allMinutes = Array.from(
-    { length: 60 / MINUTE_INTERVAL },
-    (_, i) => i * MINUTE_INTERVAL
-  );
+    return totalMins >= startMins && totalMins <= endMins;
+  });
 
   // Sync selection back to parent
   useEffect(() => {
@@ -291,7 +285,7 @@ const FlipTimePicker = ({ startTime, endTime, value, onChange }: FlipTimePickerP
         {/* Minutes column */}
         <div className="w-24">
           <WheelColumn
-            items={allMinutes}
+            items={validIntervalMinutes}
             value={selectedMinute}
             onChange={handleMinuteChange}
           />

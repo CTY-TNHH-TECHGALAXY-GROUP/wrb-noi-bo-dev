@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   type VipStaffInfo,
@@ -173,6 +173,17 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(new Date().getMonth());
   const [currentCalendarYear, setCurrentCalendarYear] = useState(new Date().getFullYear());
 
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll when booking method is chosen (advance expands down)
+  useEffect(() => {
+    if (bookingMethod === 'advance') {
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 300);
+    }
+  }, [bookingMethod]);
+
   // Generate calendar month grid (Monday start)
   const calendarDays = useMemo(() => {
     const year = currentCalendarYear;
@@ -272,11 +283,12 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
       });
 
       if (maxBusyMins > 0) {
-        const roundedBusyMins = Math.ceil(maxBusyMins / TIME_SLOT_INTERVAL_MINUTES) * TIME_SLOT_INTERVAL_MINUTES;
-        startMins = Math.max(startMins, nowMins, roundedBusyMins);
+        startMins = Math.max(startMins, nowMins, maxBusyMins);
       } else {
         startMins = Math.max(startMins, nowMins);
       }
+      // Bắt buộc làm tròn startMins lên bội số của 15 phút (ví dụ 10:46 -> 11:00)
+      startMins = Math.ceil(startMins / TIME_SLOT_INTERVAL_MINUTES) * TIME_SLOT_INTERVAL_MINUTES;
     }
 
     // Clamp: nếu start > end → không còn slot
@@ -313,7 +325,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col px-5 pt-2 pb-36"
+      className="flex flex-col px-5 pt-2 pb-10"
     >
       {/* KTV Header — compact */}
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
@@ -365,24 +377,18 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
 
       {/* Skills — compact with "show more" */}
       <motion.section initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
-        <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-3">
-          <span className="w-6 h-px bg-[#4d463a] mr-2" />
-          {t.bc_specialties}
-        </h3>
-        <p className="text-[10px] text-[#998f81] mb-3">
-          {tpl(t.bc_minDurationHint, { le: leCount, chinh: chinhCount, min: minDuration })}
-        </p>
+
 
         {/* Chính */}
         {chinhSkills.length > 0 && (
-          <div className="mb-2">
-            <p className="text-[9px] tracking-[0.15em] uppercase text-[#998f81] mb-1.5">— {t.bc_mainServices}</p>
-            <div className="flex flex-wrap gap-1.5">
+          <div className="mb-4">
+            <p className="text-[10px] sm:text-xs tracking-[0.15em] uppercase text-[#998f81] mb-2">— {t.bc_mainServices}</p>
+            <div className="flex flex-wrap gap-2.5">
               {chinhSkills.map(skill => {
                 const isSelected = (selectedSkillsMap[activeStaffTab] || []).includes(skill.id);
                 return (
                   <button key={skill.id} onClick={() => toggleSkill(activeStaffTab, skill.id)}
-                    className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all border ${
+                    className={`px-4 py-2.5 rounded-full text-sm sm:text-base font-medium transition-all border-2 ${
                       isSelected
                         ? 'bg-[#e6c487]/15 border-[#e6c487] text-[#e6c487]'
                         : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
@@ -397,13 +403,13 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
         {/* Lẻ — with show more logic */}
         {leSkills.length > 0 && (
           <div>
-            <p className="text-[9px] tracking-[0.15em] uppercase text-[#998f81] mb-1.5">— {t.bc_addons}</p>
-            <div className="flex flex-wrap gap-1.5">
+            <p className="text-[10px] sm:text-xs tracking-[0.15em] uppercase text-[#998f81] mb-2">— {t.bc_addons}</p>
+            <div className="flex flex-wrap gap-2.5">
               {(showAllSkills ? leSkills : leSkills.slice(0, SKILLS_VISIBLE_COUNT)).map(skill => {
                 const isSelected = (selectedSkillsMap[activeStaffTab] || []).includes(skill.id);
                 return (
                   <button key={skill.id} onClick={() => toggleSkill(activeStaffTab, skill.id)}
-                    className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all border ${
+                    className={`px-4 py-2.5 rounded-full text-sm sm:text-base font-medium transition-all border-2 ${
                       isSelected
                         ? 'bg-[#e6c487]/15 border-[#e6c487] text-[#e6c487]'
                         : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
@@ -413,7 +419,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
               })}
               {!showAllSkills && leSkills.length > SKILLS_VISIBLE_COUNT && (
                 <button onClick={() => setShowAllSkills(true)}
-                  className="px-3 py-1.5 rounded-full text-[11px] font-medium border border-dashed border-[#998f81]/40 text-[#998f81] hover:border-[#e6c487]/50 hover:text-[#e6c487] transition-all"
+                  className="px-4 py-2.5 rounded-full text-sm sm:text-base font-medium border-2 border-dashed border-[#998f81]/40 text-[#998f81] hover:border-[#e6c487]/50 hover:text-[#e6c487] transition-all"
                 >+{leSkills.length - SKILLS_VISIBLE_COUNT}</button>
               )}
             </div>
@@ -442,7 +448,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                 {t.bc_vatIncluded}
               </p>
               {/* Horizontal scroll row */}
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                 {availableDurations.map(dur => {
                   const price = lookupPrice(pricingTable, selectedStaffIds.length, dur);
                   const isSelected = effectiveDuration === dur;
@@ -450,15 +456,15 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                     <button
                       key={dur}
                       onClick={() => setSelectedDuration(dur)}
-                      className={`flex flex-col items-center justify-center min-w-[72px] sm:min-w-[85px] py-2.5 px-1 sm:px-2 rounded-xl transition-all shrink-0 border-2 ${
+                      className={`flex flex-col items-center justify-center min-w-[85px] sm:min-w-[100px] py-3.5 px-2 sm:px-3 rounded-2xl transition-all shrink-0 border-2 ${
                         isSelected
                           ? 'bg-[#e6c487]/15 border-[#e6c487] text-[#e6c487] shadow-[0_0_15px_rgba(230,196,135,0.15)]'
                           : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                       }`}
                     >
-                      <span className="text-sm sm:text-base font-bold">{dur}</span>
-                      <span className="text-[9px] sm:text-[10px] opacity-70">{t.bc_mins}</span>
-                      <span className={`text-[10px] sm:text-[11px] font-bold mt-1 ${isSelected ? 'text-[#e6c487]' : 'text-[#c9a96e]'}`}>
+                      <span className="text-base sm:text-xl font-bold">{dur}</span>
+                      <span className="text-[10px] sm:text-xs opacity-70">{t.bc_mins}</span>
+                      <span className={`text-xs sm:text-sm font-bold mt-1.5 ${isSelected ? 'text-[#e6c487]' : 'text-[#c9a96e]'}`}>
                         {(price / 1000).toFixed(0)}k
                       </span>
                     </button>
@@ -486,14 +492,14 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                     setBookingMethod('branch');
                     setSelectedSlot('BRANCH_DECIDE');
                   }}
-                  className={`p-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-1.5 ${
+                  className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-2 ${
                     bookingMethod === 'branch'
                       ? 'bg-[#e6c487]/10 border-[#e6c487] text-[#e6c487] shadow-[0_0_15px_rgba(230,196,135,0.1)]'
                       : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                   }`}
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                  <span className="text-xs font-medium">{t.bc_walkIn}</span>
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  <span className="text-sm sm:text-base font-medium">{t.bc_walkIn}</span>
                 </button>
 
                 <button
@@ -501,14 +507,14 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                     setBookingMethod('advance');
                     if (selectedSlot === 'BRANCH_DECIDE') setSelectedSlot(null);
                   }}
-                  className={`p-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-1.5 ${
+                  className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-2 ${
                     bookingMethod === 'advance'
                       ? 'bg-[#e6c487]/10 border-[#e6c487] text-[#e6c487] shadow-[0_0_15px_rgba(230,196,135,0.1)]'
                       : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                   }`}
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  <span className="text-xs font-medium">{t.bc_bookAdvance}</span>
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  <span className="text-sm sm:text-base font-medium">{t.bc_bookAdvance}</span>
                 </button>
               </div>
             </section>
@@ -611,29 +617,31 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
             className="fixed bottom-6 inset-x-5 lg:inset-x-0 mx-auto lg:w-[500px] z-40"
           >
             {/* Terms and Policies Checkbox */}
-            <div className="flex items-center gap-2 mb-3 px-2">
-              <button
-                onClick={() => setIsAgreedTerms(!isAgreedTerms)}
-                className={`w-5 h-5 rounded flex items-center justify-center shrink-0 border transition-all ${
-                  isAgreedTerms
-                    ? 'bg-green-500 border-green-500'
-                    : 'bg-[#1b1b1d] border-[#4d463a] hover:border-[#e6c487]'
-                }`}
-              >
-                {isAgreedTerms && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                )}
-              </button>
-              <div className="text-[11px] text-[#998f81]">
-                {t.bc_terms_agree || 'Tôi đã đọc và đồng ý với '}{' '}
-                <button 
-                  onClick={() => setShowTermsModal(true)}
-                  className="text-[#e6c487] underline underline-offset-2 decoration-[#e6c487]/30 hover:decoration-[#e6c487]"
+            {bookingMethod === 'advance' && (
+              <div className="flex items-center gap-2 mb-3 px-2">
+                <button
+                  onClick={() => setIsAgreedTerms(!isAgreedTerms)}
+                  className={`w-5 h-5 rounded flex items-center justify-center shrink-0 border transition-all ${
+                    isAgreedTerms
+                      ? 'bg-green-500 border-green-500'
+                      : 'bg-[#1b1b1d] border-[#4d463a] hover:border-[#e6c487]'
+                  }`}
                 >
-                  <i>{t.bc_terms_title || 'Điều khoản & Chính sách'}</i>
+                  {isAgreedTerms && (
+                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  )}
                 </button>
+                <div className="text-[11px] text-[#998f81]">
+                  {t.bc_terms_agree || 'Tôi đã đọc và đồng ý với '}{' '}
+                  <button 
+                    onClick={() => setShowTermsModal(true)}
+                    className="text-[#e6c487] underline underline-offset-2 decoration-[#e6c487]/30 hover:decoration-[#e6c487]"
+                  >
+                    <i>{t.bc_terms_title || 'Điều khoản & Chính sách'}</i>
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex justify-between items-end mb-2 px-1">
               <div>
@@ -646,10 +654,10 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
               </div>
             </div>
             <button
-              disabled={!isAgreedTerms}
+              disabled={bookingMethod === 'advance' && !isAgreedTerms}
               onClick={() => onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: selectedSlot, totalPrice, appointmentDate: selectedDateStr })}
               className={`w-full py-4 rounded-full font-bold tracking-[0.12em] text-sm flex items-center justify-center gap-3 duration-200 uppercase ${
-                isAgreedTerms 
+                (bookingMethod === 'branch' || isAgreedTerms)
                   ? 'bg-[#e6c487] text-[#412d00] shadow-[0_15px_30px_rgba(0,0,0,0.4)] active:scale-95' 
                   : 'bg-[#4d463a]/50 text-[#998f81] cursor-not-allowed'
               }`}
@@ -827,6 +835,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
           </div>
         )}
       </AnimatePresence>
+      <div ref={bottomRef} className="h-[280px] w-full" />
     </motion.div>
   );
 };
