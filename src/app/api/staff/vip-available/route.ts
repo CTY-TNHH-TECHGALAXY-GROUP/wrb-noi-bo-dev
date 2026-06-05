@@ -72,7 +72,7 @@ export async function GET(_req: NextRequest) {
 
     const { data: turnQueueList, error: tqError } = await supabase
       .from('TurnQueue')
-      .select('employee_id, status, estimated_end_time, current_order_id, queue_position')
+      .select('employee_id, status, estimated_end_time, current_order_id, queue_position, turns_completed')
       .eq('date', today)
       .in('employee_id', staffIds);
 
@@ -106,7 +106,7 @@ export async function GET(_req: NextRequest) {
     // ─── Step 4: Build lookup maps ───────────────────────────────────────────
     const turnQueueMap = new Map<
       string,
-      { status: string; estimated_end_time: string | null; current_order_id: string | null; queue_position: number | null }
+      { status: string; estimated_end_time: string | null; current_order_id: string | null; queue_position: number | null; turns_completed: number | null }
     >();
     for (const tq of turnQueueList ?? []) {
       turnQueueMap.set(tq.employee_id, {
@@ -114,6 +114,7 @@ export async function GET(_req: NextRequest) {
         estimated_end_time: tq.estimated_end_time,
         current_order_id: tq.current_order_id,
         queue_position: tq.queue_position ?? null,
+        turns_completed: tq.turns_completed ?? null,
       });
     }
 
@@ -159,6 +160,7 @@ export async function GET(_req: NextRequest) {
       let currentOrderId: string | null = null;
 
       let queuePosition = 999;
+      let turnsCompleted = 0;
 
       if (tq) {
         // Đã check-in → TurnQueue wins (kể cả có LeaveRequest)
@@ -174,6 +176,7 @@ export async function GET(_req: NextRequest) {
           availability = 'NOT_YET';
         }
         queuePosition = tq.queue_position ?? 999;
+        turnsCompleted = tq.turns_completed ?? 0;
       } else if (isOnLeave) {
         // Chưa check-in + có đơn OFF → ON_LEAVE
         availability = 'ON_LEAVE';
@@ -196,6 +199,7 @@ export async function GET(_req: NextRequest) {
         shiftStart,
         shiftEnd,
         queuePosition,
+        turnsCompleted,
       };
     });
 
@@ -212,6 +216,12 @@ export async function GET(_req: NextRequest) {
       const diff = SORT_ORDER[a.availability] - SORT_ORDER[b.availability];
       if (diff !== 0) return diff;
 
+      // 1. Sort by turnsCompleted (số tua đã làm) ascending
+      const aTurns = a.turnsCompleted ?? 0;
+      const bTurns = b.turnsCompleted ?? 0;
+      if (aTurns !== bTurns) return aTurns - bTurns;
+
+      // 2. Sort by queuePosition (vị trí xếp hàng) ascending
       const aPos = a.queuePosition ?? 999;
       const bPos = b.queuePosition ?? 999;
       if (aPos !== bPos) return aPos - bPos;
