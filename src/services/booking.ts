@@ -83,6 +83,7 @@ export const createBooking = async (data: BookingRequest, calculatedTotal: numbe
                 totalAmount: calculatedTotal,
                 paymentMethod: data.paymentMethod,
                 source: 'STANDARD_WALK_IN',
+                accessToken: 'NGANHA_SECURE_TOKEN_2026',
                 createdAt: vnTimeStr,
                 updatedAt: vnTimeStr,
                 status: 'NEW'

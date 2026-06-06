@@ -253,6 +253,7 @@ export async function POST(request: NextRequest) {
           : 'VIP_WALK_IN',  // Khách tại tiệm, phục vụ ngay
         status: bookingStatus,
         notes: JSON.stringify(notesObj),
+        accessToken: 'NGANHA_SECURE_TOKEN_2026',
         createdAt: vnTimeStr,
         updatedAt: vnTimeStr,
       })
