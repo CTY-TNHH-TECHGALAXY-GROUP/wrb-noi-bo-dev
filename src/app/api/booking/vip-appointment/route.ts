@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { calculateMinDuration, lookupPrice, type VipPricingTable } from '@/lib/vipPricingEngine';
+import { generateAccessToken } from '@/lib/token';
 
 export const dynamic = 'force-dynamic';
 
@@ -253,7 +254,7 @@ export async function POST(request: NextRequest) {
           : 'VIP_WALK_IN',  // Khách tại tiệm, phục vụ ngay
         status: bookingStatus,
         notes: JSON.stringify(notesObj),
-        accessToken: 'NGANHA_SECURE_TOKEN_2026',
+        accessToken: generateAccessToken(),
         createdAt: vnTimeStr,
         updatedAt: vnTimeStr,
       })

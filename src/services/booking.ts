@@ -1,6 +1,7 @@
 import { getMenuData } from "@/services/menu";
 import { supabase } from "@/lib/supabase";
 import crypto from "node:crypto";
+import { generateAccessToken } from "@/lib/token";
 
 // Kiểu dữ liệu cho item trong giỏ hàng gửi lên từ Client
 export interface BookingItem {
@@ -83,7 +84,7 @@ export const createBooking = async (data: BookingRequest, calculatedTotal: numbe
                 totalAmount: calculatedTotal,
                 paymentMethod: data.paymentMethod,
                 source: 'STANDARD_WALK_IN',
-                accessToken: 'NGANHA_SECURE_TOKEN_2026',
+                accessToken: generateAccessToken(),
                 createdAt: vnTimeStr,
                 updatedAt: vnTimeStr,
                 status: 'NEW'

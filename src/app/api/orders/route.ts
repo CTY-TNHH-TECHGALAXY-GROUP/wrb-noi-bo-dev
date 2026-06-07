@@ -108,7 +108,7 @@ export async function POST(request: Request) {
         }
 
         // 3. Create Booking (1 booking for all items)
-        const accessToken = 'NGANHA_SECURE_TOKEN_2026';
+        const accessToken = generateAccessToken();
         const { data: booking, error: bookingError } = await supabaseAdmin
             .from('Bookings')
             .insert({
