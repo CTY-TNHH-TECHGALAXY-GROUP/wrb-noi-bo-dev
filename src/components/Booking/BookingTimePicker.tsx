@@ -28,7 +28,7 @@ const minutesToTime = (mins: number): string => {
 };
 
 const DEFAULT_SHIFT_START = '09:00';
-const DEFAULT_SHIFT_END = '22:00';
+const DEFAULT_SHIFT_END = '22:30';
 const TIME_SLOT_INTERVAL_MINUTES = 15;
 
 const DAY_KEYS: Record<number, string> = {
@@ -53,6 +53,15 @@ export default function BookingTimePicker({
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(new Date().getMonth());
   const [currentCalendarYear, setCurrentCalendarYear] = useState(new Date().getFullYear());
+  const [clientNow, setClientNow] = useState<Date | null>(null);
+
+  // Lấy giờ đúng của trình duyệt khi component được mount
+  React.useEffect(() => {
+    setClientNow(new Date());
+    // Có thể cập nhật lại giờ mỗi phút nếu muốn, nhưng ở đây chỉ cần lúc mount là đủ
+    const interval = setInterval(() => setClientNow(new Date()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Generate Day Chips (Next 5 days)
   const dayChips = useMemo(() => {
@@ -110,9 +119,8 @@ export default function BookingTimePicker({
     let endMins = timeToMinutes(shiftEnd);
     if (endMins <= startMins) endMins += 24 * 60; // cross-midnight
 
-    if (isToday) {
-      const now = new Date();
-      const nowMins = now.getHours() * 60 + now.getMinutes() + bufferMinutes;
+    if (isToday && clientNow) {
+      const nowMins = clientNow.getHours() * 60 + clientNow.getMinutes() + bufferMinutes;
       startMins = Math.max(startMins, nowMins);
       // Round up to nearest 15 mins
       startMins = Math.ceil(startMins / TIME_SLOT_INTERVAL_MINUTES) * TIME_SLOT_INTERVAL_MINUTES;
@@ -127,7 +135,7 @@ export default function BookingTimePicker({
       endTime: endMins >= 1440 ? '23:59' : minutesToTime(endMins),
       hasSlots: true,
     };
-  }, [selectedDateStr, dayChips, bufferMinutes]);
+  }, [selectedDateStr, dayChips, bufferMinutes, clientNow]);
 
   return (
     <div className="space-y-5">

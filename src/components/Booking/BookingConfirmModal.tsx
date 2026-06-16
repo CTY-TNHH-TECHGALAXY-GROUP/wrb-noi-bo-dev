@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ClipboardList, Clock, ArrowRight, Check, User, HeartPulse, Ban, AlertCircle, Calendar } from 'lucide-react';
+import { ClipboardList, Clock, ArrowRight, Check, User, HeartPulse, Ban, Hand, Calendar } from 'lucide-react';
 import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
 import { getBookingT } from './BookingCheckout.i18n';
@@ -153,6 +153,7 @@ export default function BookingConfirmModal({
                         <div className="space-y-1 text-sm">
                             <div className="flex justify-between"><span className="text-gray-400 font-medium">{dict.checkout?.name || 'Name'}</span><span className="font-bold text-[#C9A96E]">{customerInfo.name}</span></div>
                             <div className="flex justify-between"><span className="text-gray-400 font-medium">{dict.checkout?.phone || 'Phone'}</span><span className="font-bold text-[#C9A96E]">{customerInfo.phone || '-'}</span></div>
+                            <div className="flex justify-between"><span className="text-gray-400 font-medium">{(dict.checkout?.email || 'Email').split('(')[0].trim()}</span><span className="font-bold text-[#C9A96E]">{customerInfo.email || '-'}</span></div>
                         </div>
                     </div>
 
@@ -162,14 +163,73 @@ export default function BookingConfirmModal({
                             {dict.checkout?.order_summary || 'Order Summary'}
                         </div>
                         <div className="space-y-3">
-                            {cart.map((item, idx) => (
-                                <div key={item.cartId} className="flex justify-between items-start border-b border-white/5 pb-2 last:border-0 last:pb-0">
-                                    <div className="font-bold text-white text-[14px]">
-                                        {idx + 1}. {item.names[lang] || item.names.en} {item.qty > 1 && `(x${item.qty})`}
+                            {cart.map((item, idx) => {
+                                const strength = item.options?.strength || 'medium';
+                                const therapist = item.options?.therapist || 'random';
+                                const isVipItem = item.itemType === 'vip';
+
+                                return (
+                                    <div key={item.cartId} className="border-b border-white/5 pb-3 last:border-0 last:pb-0">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div className="font-bold text-white text-[14px]">
+                                                {idx + 1}. {isVipItem ? (item.vipDisplayName || 'VIP Bespoke') : (item.names[lang] || item.names.en)} {item.qty > 1 && `(x${item.qty})`}
+                                            </div>
+                                            <div className="font-bold text-white text-[14px]">{formatCurrency(item.priceVND * item.qty)} VND</div>
+                                        </div>
+                                        
+                                        <div className="bg-black/30 rounded-xl p-3 space-y-2 border border-white/5 text-[12px]">
+                                            {isVipItem ? (
+                                                <>
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="flex gap-2 items-center text-gray-400">
+                                                            <User size={14} /> <span>KTV</span>
+                                                        </div>
+                                                        <span className="font-bold text-[#C9A96E]">{item.vipStaffName || item.vipStaffId}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="flex gap-2 items-center text-gray-400">
+                                                            <Clock size={14} /> <span>{dict.checkout?.time || 'Time'}</span>
+                                                        </div>
+                                                        <span className="font-bold text-[#C9A96E]">{item.vipDuration} {dict.checkout?.mins || 'mins'}</span>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {(item.timeValue > 0 || item.timeDisplay) && (
+                                                        <div className="flex justify-between items-center">
+                                                            <div className="flex gap-2 items-center text-gray-400">
+                                                                <Clock size={14} /> <span>{dict.checkout?.time || (lang === 'vi' ? 'Thời gian' : 'Time')}</span>
+                                                            </div>
+                                                            <span className="font-bold text-[#C9A96E]">
+                                                                {item.timeDisplay 
+                                                                    ? item.timeDisplay.replace('mins', dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins'))
+                                                                    : `${item.timeValue} ${dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins')}`
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="flex gap-2 items-center text-gray-400">
+                                                            <Hand size={14} /> <span>{dict.checkout?.strength_label || 'Strength'}</span>
+                                                        </div>
+                                                        <span className="font-bold capitalize text-[#C9A96E]">
+                                                            {dict.options?.strength_levels?.[strength?.toLowerCase()] || strength}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="flex gap-2 items-center text-gray-400">
+                                                            <User size={14} /> <span>{dict.checkout?.therapist_label || 'Therapist'}</span>
+                                                        </div>
+                                                        <span className="font-bold capitalize text-[#C9A96E]">
+                                                            {dict.options?.therapist_options?.[therapist?.toLowerCase()] || therapist}
+                                                        </span>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="font-bold text-[#C9A96E] text-[14px]">{formatCurrency(item.priceVND * item.qty)}</div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 

@@ -63,7 +63,7 @@ export default function CustomerInfo({ lang, dict, info, onChange, isBookingFlow
                                 type="tel"
                                 value={info.phone}
                                 onChange={(e) => onChange('phone', e.target.value)}
-                                placeholder={dict.checkout.phone + ' *'}
+                                placeholder={phoneLabel + ' *'}
                                 className="w-full bg-[#0d0d0d] border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
                             />
                         </div>
@@ -72,7 +72,7 @@ export default function CustomerInfo({ lang, dict, info, onChange, isBookingFlow
                                 type="email"
                                 value={info.email}
                                 onChange={(e) => onChange('email', e.target.value)}
-                                placeholder={dict.checkout.email + ' *'}
+                                placeholder={emailLabel + ' *'}
                                 className="w-full bg-[#0d0d0d] border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
                             />
                         </div>

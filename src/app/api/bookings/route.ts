@@ -62,8 +62,12 @@ export async function POST(request: Request) {
         const hasStandard = standardItems.length > 0;
         const hasVip = vipItems.length > 0;
 
-        // Source = WEB_NOI_BO_BOOKING
-        const source = 'WEB_NOI_BO_BOOKING';
+        // Determine source
+        const source = hasVip && hasStandard
+            ? 'MIXED_BOOKING'
+            : hasVip
+                ? 'VIP_BOOKING'
+                : 'STANDARD_BOOKING';
 
         const vnTimeStr = new Date().toISOString();
 
