@@ -6,6 +6,7 @@ import PaymentMethods from '@/components/Checkout/PaymentMethods';
 import ChangeDenominationSelector from '@/components/Checkout/ChangeDenominationSelector';
 import AlertModal from '@/components/Shared/AlertModal';
 import VatInvoiceSection, { type VatInvoiceData } from '@/components/Checkout/VatInvoiceSection';
+import { getBookingT } from '@/components/Booking/BookingCheckout.i18n';
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -51,6 +52,8 @@ export default function PaymentModal({
     const [showWarningModal, setShowWarningModal] = useState(false);
     const [isWarningClosing, setIsWarningClosing] = useState(false);
     const [vatInvoice, setVatInvoice] = useState<VatInvoiceData | null>(initialVatInvoice || null);
+
+    const t = getBookingT(lang);
 
     const currency = useMemo(() => paymentMethod === 'cash_usd' ? 'USD' : 'VND', [paymentMethod]);
 
@@ -145,7 +148,7 @@ export default function PaymentModal({
         if (isBookingFlow && !isAgreedTerms) {
             setAlertState({
                 isOpen: true,
-                message: dict.checkout?.alerts?.agree_terms || 'Vui lòng đồng ý với Điều Khoản & Chính Sách',
+                message: t.error_agree_terms || 'Vui lòng đồng ý với Điều Khoản & Chính Sách',
                 type: 'error'
             });
             return;
@@ -314,7 +317,7 @@ export default function PaymentModal({
                                 <button
                                     onClick={() => onAgreeTermsChange && onAgreeTermsChange(!isAgreedTerms)}
                                     className={`w-6 h-6 rounded border flex items-center justify-center shrink-0 transition-colors ${
-                                        isAgreedTerms ? 'bg-[#e6c487] border-[#e6c487] text-black' : 'border-gray-600'
+                                        isAgreedTerms ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-600'
                                     }`}
                                 >
                                     {isAgreedTerms && <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
