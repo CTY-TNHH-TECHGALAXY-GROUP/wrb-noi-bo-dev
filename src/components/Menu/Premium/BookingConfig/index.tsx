@@ -439,7 +439,9 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
             exit={{ opacity: 0, height: 0 }}
             className="mb-5 overflow-hidden"
           >
-            <div className="p-4 rounded-2xl bg-[#c9a96e]/5 border border-[#e6c487]/20">
+            <div className={`p-4 rounded-2xl bg-[#c9a96e]/5 border border-[#e6c487]/20 transition-all duration-500 ${
+              allSelectedSkillIds.length === 0 ? 'opacity-30 grayscale blur-[1px] pointer-events-none' : ''
+            }`}>
               <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#e6c487] font-bold mb-1">
                 {t.bc_selectDuration}
               </h3>

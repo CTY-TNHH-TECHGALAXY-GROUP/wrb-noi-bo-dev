@@ -240,6 +240,7 @@ const ConfirmationScreen = ({
   const handleSubmit = async () => {
     if (!customerName.trim()) { setFormError(t.errorName); return; }
     if (!customerPhone.trim()) { setFormError(t.errorPhone); return; }
+    if (!customerEmail.trim() || !customerEmail.includes('@')) { setFormError(t.errorEmail || 'Vui lòng nhập Email hợp lệ'); return; }
     setFormError('');
     setIsSubmitting(true);
 
@@ -458,9 +459,12 @@ const ConfirmationScreen = ({
           />
           <input
             type="email"
+            autoComplete="off"
+            data-lpignore="true"
+            name="spa_customer_email_prevent_autofill"
             value={customerEmail}
             onChange={e => setCustomerEmail(e.target.value)}
-            placeholder={t.emailPlaceholder}
+            placeholder={t.emailPlaceholder?.replace('(tùy chọn)', '*') || 'Email *'}
             className={`${INPUT_STYLE} lg:col-span-2`}
           />
           <textarea
