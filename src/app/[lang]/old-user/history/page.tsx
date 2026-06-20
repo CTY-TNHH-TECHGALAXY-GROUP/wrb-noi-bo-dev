@@ -170,7 +170,20 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                     };
                 }
 
-                addToCart(service, item.qty || 1, options);
+                // Gán mã KTV từ đơn hàng nếu đây là đơn VIP
+                if (order.technicianCode) {
+                    options.vipStaffId = options.vipStaffId || order.technicianCode;
+                }
+
+                // Chép đè giá trị service bằng giá tiền thực tế khách đã thanh toán trong lịch sử
+                // Vì đơn VIP được lưu ngầm dưới mã Combo King, nếu không đè giá sẽ bị lấy giá gốc của Combo King.
+                const serviceToRestore = {
+                    ...service,
+                    priceVND: item.price !== undefined ? item.price : service.priceVND,
+                    priceUSD: item.price !== undefined ? Math.round(item.price / 25000) : service.priceUSD
+                };
+
+                addToCart(serviceToRestore, item.qty || 1, options);
             } else {
                 console.warn(`Service ${item.id || item.name} not found in current menu`);
             }
