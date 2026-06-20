@@ -154,21 +154,18 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
         totalPrice: number;
         customerNotes?: string;
     }) => {
-        const staffCount = params.staffIds.length;
-        const vipServiceId = `VIP_${staffCount}K_${params.duration}`;
-
         const newItems: CartItem[] = params.staffIds.map((staffId, index) => {
             const staffInfo = params.staffInfoList.find(s => s.id === staffId);
             return {
-                // Service base fields
-                id: vipServiceId,
+                // Service base fields (pseudo-service for VIP)
+                id: 'NHS0800',
                 cartId: `vip-${staffId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-                cat: 'VIP_MENU',
+                cat: 'VIP',
                 names: { en: params.displayName, vi: params.displayName },
                 descriptions: { en: '', vi: '' },
                 img: '',
                 priceVND: index === 0 ? params.totalPrice : 0, // Price only on first item
-                priceUSD: index === 0 ? Math.round(params.totalPrice / 25000) : 0,
+                priceUSD: 0,
                 timeValue: params.duration,
                 qty: 1,
                 menuType: 'vip' as const,

@@ -17,7 +17,6 @@ import {
 } from '@/lib/vipPricingEngine';
 import { getT, tpl, DAY_KEYS } from '../Premium.i18n';
 import FlipTimePicker from '@/components/Booking/FlipTimePicker';
-import { useMenuData } from '@/components/Menu/MenuContext';
 
 // =============================================
 // 📅 Booking Config – REAL DATA (Pha 3)
@@ -137,7 +136,6 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
   const t = getT(lang);
   const primaryStaff = selectedStaffInfoList[0];
   const pricingTable = vipPricingTable ?? FALLBACK_PRICING_TABLE;
-  const { services } = useMenuData();
 
   // Fetch policies
   const { policies, loading: loadingPolicies } = useSpaPolicies(lang);
@@ -254,18 +252,9 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
   const effectiveDuration = selectedDuration && selectedDuration >= minDuration
     ? selectedDuration : null;
 
-  // Helper function: Get price from Services or Fallback to PricingEngine
-  const getVipPrice = (duration: number) => {
-    const staffCount = selectedStaffIds.length;
-    const vipServiceId = `VIP_${staffCount}K_${duration}`;
-    const vipService = services.find(s => s.id === vipServiceId);
-    if (vipService) return vipService.priceVND;
-    return lookupPrice(pricingTable, staffCount, duration);
-  };
-
-  // Price from real pricing table (now via Services DB)
+  // Price from real pricing table
   const totalPrice = effectiveDuration
-    ? getVipPrice(effectiveDuration)
+    ? lookupPrice(pricingTable, selectedStaffIds.length, effectiveDuration)
     : 0;
 
   // --- Dynamic time range for FlipTimePicker ---
@@ -463,7 +452,7 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
               {/* Horizontal scroll row */}
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                 {availableDurations.map(dur => {
-                  const price = getVipPrice(dur);
+                  const price = lookupPrice(pricingTable, selectedStaffIds.length, dur);
                   const isSelected = effectiveDuration === dur;
                   return (
                     <button
