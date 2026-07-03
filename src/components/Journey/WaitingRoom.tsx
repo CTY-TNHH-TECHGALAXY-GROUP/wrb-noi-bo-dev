@@ -63,7 +63,7 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
             {/* ─── Dịch vụ hôm nay ─── */}
             {items.length > 0 && (
                 <div className="w-full mb-6">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-2 mb-3 block">
+                    <span className="text-sm font-bold text-gray-400 uppercase tracking-widest pl-2 mb-3 block">
                         {t.todayServices || "Today's Services"}
                     </span>
                     <div className="space-y-2">
@@ -73,7 +73,7 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
                                     <span className="text-xl">💆</span>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-white text-sm leading-tight truncate">
+                                    <p className="font-bold text-white text-base leading-tight truncate">
                                         {item.service_names?.[lang] || item.service_name}
                                     </p>
                                     <p className="text-xs text-[#C9A96E] font-medium mt-0.5">
@@ -90,7 +90,7 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
 
             {/* ─── Lộ trình dịch vụ ─── */}
             <div className="w-full">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-2 mb-3 block">
+                <span className="text-sm font-bold text-gray-400 uppercase tracking-widest pl-2 mb-3 block">
                     {t.yourJourney}
                 </span>
                 <div className="bg-[#1c1c1e] rounded-3xl p-5 border border-white/5">
@@ -122,13 +122,13 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
                                     )}
                                 </div>
                                 <div className="pt-1.5 flex-1 min-w-0">
-                                    <p className={`font-bold text-sm transition-colors ${
+                                    <p className={`font-bold text-base transition-colors ${
                                         isCompleted ? 'text-[#C9A96E] line-through opacity-60' :
                                         isActive ? 'text-[#C9A96E]' : 'text-gray-500'
                                     }`}>
                                         {step.title}
                                     </p>
-                                    <p className={`text-xs font-medium mt-0.5 ${
+                                    <p className={`text-sm font-medium mt-0.5 ${
                                         isCompleted ? 'text-[#C9A96E]/40' :
                                         isActive ? 'text-gray-400' : 'text-gray-600'
                                     }`}>{step.sub}</p>

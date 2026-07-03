@@ -331,7 +331,12 @@ export default function PaymentModal({
 
                     <button
                         onClick={handleConfirmNext}
-                        className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] active:scale-[0.98] transition-all text-lg"
+                        disabled={isBookingFlow ? (!isAgreedTerms || !paymentMethod) : !paymentMethod}
+                        className={`w-full py-4 text-white font-bold uppercase rounded-xl transition-all text-lg ${
+                            (isBookingFlow ? (!isAgreedTerms || !paymentMethod) : !paymentMethod)
+                                ? 'bg-white/10 text-gray-500 cursor-not-allowed opacity-70'
+                                : 'bg-[#C9A96E] shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] active:scale-[0.98]'
+                        }`}
                     >
                         {dict.checkout?.continue || (lang === 'vi' ? 'TIẾP TỤC' : 'CONTINUE')}
                     </button>

@@ -33,19 +33,19 @@ export default function CheckBelongings({ onConfirm, lang = 'vi' }: CheckBelongi
                     <div className="w-16 h-16 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 bg-white shadow-sm">
                         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t.check_phone}</span>
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.check_phone}</span>
                 </div>
                 <div className="flex flex-col items-center gap-3">
                     <div className="w-16 h-16 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 bg-white shadow-sm">
                         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t.check_wallet}</span>
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.check_wallet}</span>
                 </div>
                 <div className="flex flex-col items-center gap-3">
                     <div className="w-16 h-16 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 bg-white shadow-sm">
                         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745V20a2 2 0 002 2h14a2 2 0 002-2v-6.745zM16 8V5a2 2 0 00-2-2H10a2 2 0 00-2 2v2"></path></svg>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t.check_belongings}</span>
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.check_belongings}</span>
                 </div>
             </div>
 

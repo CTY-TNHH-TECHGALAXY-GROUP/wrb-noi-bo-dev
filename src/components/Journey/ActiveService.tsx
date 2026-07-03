@@ -186,8 +186,8 @@ export default function ActiveService({
             {/* Quick feedback */}
             <div className="w-full max-w-sm mb-12">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-gray-800 font-bold text-base">{t.feedbackTitle}</h3>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100">{t.optional}</span>
+                    <h3 className="text-gray-800 font-bold text-lg">{t.feedbackTitle}</h3>
+                    <span className="text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100">{t.optional}</span>
                 </div>
                 <div className="space-y-3">
                     {violations.map((v, idx) => {
@@ -209,7 +209,7 @@ export default function ActiveService({
                                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                                     )}
                                 </div>
-                                <span className={`text-sm leading-snug font-medium pr-2 flex-1 ${
+                                <span className={`text-base leading-snug font-medium pr-2 flex-1 ${
                                     isSelected ? (isSent ? 'text-green-800' : 'text-amber-900') : 'text-gray-500'
                                 }`}>{v}</span>
                                 {isSending && (
@@ -219,7 +219,7 @@ export default function ActiveService({
                                     </svg>
                                 )}
                                 {isSelected && isSent && !isSending && (
-                                    <span className="text-[9px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5 uppercase tracking-wider whitespace-nowrap">
+                                    <span className="text-[11px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5 uppercase tracking-wider whitespace-nowrap">
                                         {t.sent}
                                     </span>
                                 )}
@@ -240,7 +240,7 @@ export default function ActiveService({
                         />
                     </div>
                     <div className="flex-1">
-                        <span className="text-xs text-gray-400 font-bold uppercase tracking-widest block mb-0.5">{t.therapistLabel}</span>
+                        <span className="text-sm text-gray-400 font-bold uppercase tracking-widest block mb-0.5">{t.therapistLabel}</span>
                         <span className="text-lg font-bold text-gray-800">{currentStaffName || "Đang cập nhật..."}</span>
                     </div>
                 </div>

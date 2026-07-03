@@ -203,7 +203,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                             <h2 className="text-2xl font-bold text-white mb-2">
                                 {dict.checkout.order_submitted || 'Order Submitted!'}
                             </h2>
-                            <p className="text-indigo-300 text-sm">
+                            <p className="text-indigo-300 text-base">
                                 {dict.checkout.scan_qr || 'Scan QR code to track your service on your phone'}
                             </p>
                         </div>
@@ -227,7 +227,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                         </div>
 
                         {/* Timer Reminder for Customer */}
-                        <p className="text-indigo-200/80 text-xs text-center leading-relaxed max-w-sm px-2 mt-1">
+                        <p className="text-indigo-200/80 text-sm text-center leading-relaxed max-w-sm px-2 mt-1">
                             {dict.checkout.qr_timer_reminder || 'Scan the QR code above to track your journey.'}
                         </p>
 

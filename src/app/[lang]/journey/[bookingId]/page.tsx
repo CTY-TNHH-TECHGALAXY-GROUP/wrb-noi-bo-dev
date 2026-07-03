@@ -363,7 +363,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                                         <span className="text-lg leading-none">{step.emoji}</span>
                                     )}
                                 </div>
-                                <span className={`text-[9px] font-bold uppercase tracking-wider ${isActive ? 'text-[#C9A96E]' : isCompleted ? 'text-white' : 'text-gray-500'}`}>
+                                <span className={`text-xs font-bold uppercase tracking-wider ${isActive ? 'text-[#C9A96E]' : isCompleted ? 'text-white' : 'text-gray-500'}`}>
                                     {step.label}
                                 </span>
                             </div>
