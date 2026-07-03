@@ -233,7 +233,7 @@ export default function Feedback({
                                     <svg className="w-3.2 h-3.2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                                 )}
                             </div>
-                            <span className={`text-[15px] leading-snug font-medium ${selectedViolations.includes(idx) ? 'text-amber-900' : 'text-gray-500'}`}>{v}</span>
+                            <span className={`text-xl leading-snug font-medium ${selectedViolations.includes(idx) ? 'text-amber-900' : 'text-gray-500'}`}>{v}</span>
                         </div>
                     ))}
                 </div>
