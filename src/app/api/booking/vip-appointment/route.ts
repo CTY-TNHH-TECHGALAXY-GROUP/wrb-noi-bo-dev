@@ -97,7 +97,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
 
     const now = new Date();
+    const vnNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
     const targetDate = appointmentDate || getTodayVN();
+
+    // ─── Step 1.5: Validate Time (Prevent past booking) ──────────────────────
+    if (appointmentDate && timeSlot && timeSlot !== 'BRANCH_DECIDE') {
+      const year = vnNow.getFullYear();
+      const month = String(vnNow.getMonth() + 1).padStart(2, '0');
+      const day = String(vnNow.getDate()).padStart(2, '0');
+      const todayStr = `${year}-${month}-${day}`;
+
+      if (appointmentDate < todayStr) {
+        return NextResponse.json({ error: 'Ngày hẹn đã ở trong quá khứ' }, { status: 400 });
+      }
+
+      if (appointmentDate === todayStr) {
+        const currentTotalMinutes = vnNow.getHours() * 60 + vnNow.getMinutes();
+        const [slotHour, slotMinute] = timeSlot.split(':').map(Number);
+        const slotTotalMinutes = slotHour * 60 + slotMinute;
+
+        if (slotTotalMinutes < currentTotalMinutes - 5) {
+            return NextResponse.json({ error: 'Khung giờ này đã trôi qua, vui lòng chọn lại' }, { status: 400 });
+        }
+      }
+    }
 
     // ─── Step 2: Server-side Pricing Validation ───────────────────────────────
     const skills: string[] = Array.isArray(selectedSkills) ? selectedSkills : [];

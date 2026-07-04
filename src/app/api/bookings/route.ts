@@ -35,6 +35,31 @@ export async function POST(request: Request) {
         const vnDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
         const currentHour = vnDate.getHours();
 
+        // 🚨 Validate: Prevent booking in the past
+        if (appointmentDate && timeSlot) {
+            const year = vnDate.getFullYear();
+            const month = String(vnDate.getMonth() + 1).padStart(2, '0');
+            const day = String(vnDate.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            if (appointmentDate < todayStr) {
+                return NextResponse.json({ success: false, error: 'Ngày hẹn đã ở trong quá khứ' }, { status: 400 });
+            }
+
+            if (appointmentDate === todayStr) {
+                const currentMinute = vnDate.getMinutes();
+                const currentTotalMinutes = currentHour * 60 + currentMinute;
+
+                const [slotHour, slotMinute] = timeSlot.split(':').map(Number);
+                const slotTotalMinutes = slotHour * 60 + slotMinute;
+
+                // Buffer 5 minutes
+                if (slotTotalMinutes < currentTotalMinutes - 5) {
+                    return NextResponse.json({ success: false, error: 'Khung giờ này đã trôi qua, vui lòng chọn lại' }, { status: 400 });
+                }
+            }
+        }
+
         const businessDate = new Date(vnDate);
         if (currentHour < DAY_CUTOFF_HOUR) {
             businessDate.setDate(businessDate.getDate() - 1);
