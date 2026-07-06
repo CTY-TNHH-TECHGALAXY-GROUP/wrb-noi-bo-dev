@@ -37,8 +37,20 @@ export async function handleStandardItems(
         const avoidVN = (opts.bodyParts?.avoid || []).map((a: string) => toVietnamese(a));
 
         const tagList = [];
-        if (opts.notes?.tag0) tagList.push(toVietnamese('pregnant'));
-        if (opts.notes?.tag1) tagList.push(toVietnamese('allergy'));
+        if (opts.notes?.tag0) {
+            if (item.TAGS && item.TAGS[0] && (item.TAGS[0].vn || item.TAGS[0].vi || item.TAGS[0].en)) {
+                tagList.push(item.TAGS[0].vn || item.TAGS[0].vi || item.TAGS[0].en);
+            } else {
+                tagList.push(toVietnamese('pregnant'));
+            }
+        }
+        if (opts.notes?.tag1) {
+            if (item.TAGS && item.TAGS[1] && (item.TAGS[1].vn || item.TAGS[1].vi || item.TAGS[1].en)) {
+                tagList.push(item.TAGS[1].vn || item.TAGS[1].vi || item.TAGS[1].en);
+            } else {
+                tagList.push(toVietnamese('allergy'));
+            }
+        }
 
         return {
             id: item.id,

@@ -147,10 +147,9 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
     // Collect all tags for General Notes
     const allTags = cart.reduce((acc: string[], item) => {
-        const itemTags = [
-            item.options?.notes?.tag0 ? 'Pregnant' : null,
-            item.options?.notes?.tag1 ? 'Allergy' : null
-        ].filter(Boolean) as string[];
+        const tag0 = item.options?.notes?.tag0 ? (item.TAGS?.[0] ? (item.TAGS[0][lang as keyof typeof item.TAGS[0]] || item.TAGS[0].vi || item.TAGS[0].vn || item.TAGS[0].en) : (dict.tags?.pregnant || 'Pregnant')) : null;
+        const tag1 = item.options?.notes?.tag1 ? (item.TAGS?.[1] ? (item.TAGS[1][lang as keyof typeof item.TAGS[1]] || item.TAGS[1].vi || item.TAGS[1].vn || item.TAGS[1].en) : (dict.tags?.allergy || 'Allergy')) : null;
+        const itemTags = [tag0, tag1].filter(Boolean) as string[];
         return [...acc, ...itemTags];
     }, []);
     const uniqueTags = Array.from(new Set(allTags));
@@ -432,8 +431,8 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 // ...
 
                                 const tags = [
-                                    item.options?.notes?.tag0 ? (dict.tags?.pregnant || 'Pregnant') : null,
-                                    item.options?.notes?.tag1 ? (dict.tags?.allergy || 'Allergy') : null
+                                    item.options?.notes?.tag0 ? (item.TAGS?.[0] ? (item.TAGS[0][lang as keyof typeof item.TAGS[0]] || item.TAGS[0].vi || item.TAGS[0].vn || item.TAGS[0].en) : (dict.tags?.pregnant || 'Pregnant')) : null,
+                                    item.options?.notes?.tag1 ? (item.TAGS?.[1] ? (item.TAGS[1][lang as keyof typeof item.TAGS[1]] || item.TAGS[1].vi || item.TAGS[1].vn || item.TAGS[1].en) : (dict.tags?.allergy || 'Allergy')) : null
                                 ].filter(Boolean) as string[];
 
                                 const getStrengthColor = (s: string) => {
@@ -594,8 +593,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 <div className="flex flex-wrap gap-2">
                                     {uniqueTags.map(tag => (
                                         <span key={tag} className="text-red-600 font-medium flex items-center gap-1">
-                                            {/* Look up tag name again to be safe/consistent */}
-                                            {(tag === 'Pregnant' || tag === (dict.tags?.pregnant)) ? (dict.tags?.pregnant) : (dict.tags?.allergy)} {tag.includes('Pregnant') || tag === dict.tags?.pregnant ? '🤰' : '⚠️'}
+                                            {tag} {tag === dict.tags?.pregnant || tag === 'Pregnant' ? '🤰' : '📌'}
                                         </span>
                                     ))}
                                 </div>
