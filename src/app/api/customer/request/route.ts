@@ -5,7 +5,7 @@ import { z } from 'zod';
 const CustomerRequestSchema = z.object({
     bookingId: z.string().min(1),
     accessToken: z.string().min(1),
-    type: z.enum(['WATER', 'SUPPORT', 'EMERGENCY', 'CHECKOUT']),
+    type: z.enum(['WATER', 'SUPPORT', 'EMERGENCY', 'CHECKOUT', 'BUY_MORE']),
 });
 
 export async function POST(request: Request) {
@@ -54,10 +54,11 @@ export async function POST(request: Request) {
 
         // 5. Map message
         const messageMap: Record<string, string> = {
-            'WATER': `👤 Khách ${roomInfo} yêu cầu mang nước/trà`,
-            'SUPPORT': `👤 Khách ${roomInfo} yêu cầu hỗ trợ`,
+            'WATER': `🥤 Khách ${roomInfo} yêu cầu mang nước/trà`,
+            'SUPPORT': `🔔 Khách ${roomInfo} yêu cầu hỗ trợ`,
             'EMERGENCY': `🚨 Khách ${roomInfo} BÁO KHẨN CẤP`,
-            'CHECKOUT': `👤 Khách ${roomInfo} muốn thanh toán`,
+            'CHECKOUT': `💳 Khách ${roomInfo} muốn thanh toán`,
+            'BUY_MORE': `✨ YÊU CẦU: Khách tại ${roomInfo} muốn MUA THÊM DỊCH VỤ.`
         };
         const message = messageMap[type];
 

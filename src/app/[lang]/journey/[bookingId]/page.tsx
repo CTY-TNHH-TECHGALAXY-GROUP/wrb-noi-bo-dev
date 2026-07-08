@@ -21,6 +21,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const [sosSent, setSosSent] = React.useState(false);
     const [isActionLoading, setIsActionLoading] = React.useState(false);
     const [actionSuccess, setActionSuccess] = React.useState<string | null>(null);
+    const [addServiceNote, setAddServiceNote] = React.useState<string | null>(null);
     const [serviceView, setServiceView] = React.useState<'TIMER' | 'CHECK_BELONGINGS' | 'RATING'>('TIMER');
     const [confirmState, setConfirmState] = React.useState<{ isOpen: boolean; message: string; onConfirm: () => void; isDestructive?: boolean } | null>(null);
     const [alertState, setAlertState] = React.useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
@@ -124,6 +125,30 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     };
     const currentIndex = getStepIndex();
 
+    React.useEffect(() => {
+        if (!journeyData?.id) return;
+        const supabase = createClient();
+        const channel = supabase
+            .channel(`page-requests-${journeyData.id}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'StaffNotifications',
+                filter: `bookingId=eq.${journeyData.id}`,
+            }, (payload) => {
+                if (payload.new.acknowledgedAt) {
+                    const typeMatch = String(payload.new.type).replace('CUSTOMER_', '');
+                    if (typeMatch === 'BUY_MORE') {
+                        setActionSuccess('ADD_SERVICE_CONFIRMED');
+                        setAddServiceNote(payload.new.acknowledgedNote || null);
+                    }
+                }
+            })
+            .subscribe();
+
+        return () => { supabase.removeChannel(channel); };
+    }, [journeyData?.id]);
+
     // ─── Handlers ────────────────────────────────────────────────────────────
 
     const handleSOS = async () => {
@@ -166,18 +191,25 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
         if (isActionLoading) return;
         setIsActionLoading(true);
         try {
-            const res = await fetch('/api/notifications/normal', {
+            const res = await fetch('/api/customer/request', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     bookingId,
-                    customerName: journeyData?.roomName || 'Khách',
-                    message: `🔔 YÊU CẦU: Khách tại PHÒNG ${journeyData?.roomName || '???'}${journeyData?.bedId ? ` - GIƯỜNG ${journeyData.bedId}` : ''} muốn MUA THÊM DỊCH VỤ.`
+                    accessToken: bookingId,
+                    type: 'BUY_MORE'
                 })
             });
-            if (res.ok) {
-                setActionSuccess('ADD_SERVICE');
-                setTimeout(() => setActionSuccess(null), 3000);
+            const data = await res.json();
+            if (data.success) {
+                setActionSuccess('ADD_SERVICE_PENDING');
+                setAddServiceNote(null);
+            } else {
+                setAlertState({
+                    isOpen: true,
+                    message: data.error || 'Gửi yêu cầu thất bại.',
+                    type: 'error'
+                });
             }
         } catch (err) { console.error(err); }
         finally { setIsActionLoading(false); }
@@ -403,6 +435,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         onChangeStaff={handleChangeStaff}
                         isActionLoading={isActionLoading}
                         actionSuccess={actionSuccess}
+                        addServiceNote={addServiceNote}
                         onItemRated={handleItemRated}
                         isPaused={isPaused}
                         onViewChange={setServiceView}
