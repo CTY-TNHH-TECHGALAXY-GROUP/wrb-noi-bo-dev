@@ -9,6 +9,7 @@ import Feedback from '@/components/Journey/Feedback';
 import { translations } from '@/components/Journey/Journey.i18n';
 import { useAuthStore } from '@/lib/authStore.logic';
 import CustomerRequestFAB from '@/components/Journey/CustomerRequestFAB';
+import { createClient } from '@/lib/supabase';
 
 export default function JourneyPage({ params }: { params: Promise<{ lang: string, bookingId: string }> }) {
     const resolvedParams = React.use(params);
