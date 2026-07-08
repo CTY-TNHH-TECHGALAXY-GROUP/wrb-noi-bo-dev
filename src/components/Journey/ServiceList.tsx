@@ -38,7 +38,7 @@ interface ServiceListProps {
 const TabTimerView = ({
     items, lang, bookingId, roomName, bedId,
     onSOS, isSosLoading, sosSent, isAuthUser,
-    onAddService, onChangeStaff, isActionLoading, actionSuccess, addServiceNote, isPaused
+    onAddService, onChangeStaff, isActionLoading, actionSuccess, addServiceNote, isPaused, onViewChange
 }: Omit<ServiceListProps, 'onItemRated'>) => {
     const [selectedIdx, setSelectedIdx] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -187,6 +187,19 @@ const TabTimerView = ({
                     })}
                 </div>
             </div>
+
+            {/* Manual Proceed Button when timer is finished but KTV hasn't ended */}
+            {isFinished && !isCompleted && (
+                <div className="mb-4 px-1">
+                    <button onClick={() => onViewChange?.('CHECK_BELONGINGS')} 
+                        className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black uppercase tracking-widest rounded-2xl shadow-lg animate-pulse transition-all">
+                        {lang === 'vi' ? 'Tiến hành Đánh giá' : 'Proceed to Rate'}
+                    </button>
+                    <p className="text-[11px] text-gray-400 text-center mt-2 italic">
+                        {lang === 'vi' ? 'Đã hết thời gian, bạn có thể nhận xét ngay nếu dịch vụ đã xong.' : 'Time is up, you can rate now if the service is finished.'}
+                    </p>
+                </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-3">
@@ -640,7 +653,7 @@ const ServiceList = (props: ServiceListProps) => {
     // COMPLETED = KTV kết thúc chặng nhưng có thể còn chặng tiếp theo
     // Nếu dùng CLEANING/COMPLETED ở đây → đơn 2KTV sẽ nhảy khi KTV1 vừa xong
     const allCompleted = items.length > 0 && items.every(i =>
-        ['DONE', 'FEEDBACK'].includes(i.status || '')
+        ['CLEANING', 'DONE', 'FEEDBACK'].includes(i.status || '')
     );
     const allRated = items.length > 0 && items.every(i =>
         i.itemRating !== null && i.itemRating !== undefined
