@@ -33,6 +33,7 @@ export interface ServiceItem {
     roomName: string | null;
     bedId: string | null;
     segments: any[];
+    pausedSeconds?: number;
 }
 
 export interface JourneyData {
@@ -173,6 +174,25 @@ export function useJourneyRealtime(bookingId: string) {
                         const itemBedId = ktvSegment?.bedId || i.bedId || booking.bedId || null;
 
                         const fallbackName = svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`;
+                        const segments = Array.isArray(i.segments) ? i.segments : (typeof i.segments === 'string' ? JSON.parse(i.segments) : []);
+                        let pausedSeconds = 0;
+                        if (segments && segments.length > 0) {
+                            let firstStart = 0;
+                            let activeMs = 0;
+                            segments.forEach((seg: any) => {
+                                if (seg.actualStartTime) {
+                                    const start = new Date(seg.actualStartTime.replace(' ', 'T')).getTime();
+                                    if (!firstStart || start < firstStart) firstStart = start;
+                                    const end = seg.actualEndTime ? new Date(seg.actualEndTime.replace(' ', 'T')).getTime() : Date.now();
+                                    activeMs += Math.max(0, end - start);
+                                }
+                            });
+                            if (firstStart) {
+                                const totalMs = Date.now() - firstStart;
+                                pausedSeconds = Math.max(0, Math.floor((totalMs - activeMs) / 1000));
+                            }
+                        }
+
                         processedItems.push({
                             id: itemId,
                             serviceId: i.serviceId,
@@ -200,7 +220,8 @@ export function useJourneyRealtime(bookingId: string) {
                             // Per-item room/bed from segments
                             roomName: itemRoomName,
                             bedId: itemBedId,
-                            segments: Array.isArray(i.segments) ? i.segments : (typeof i.segments === 'string' ? JSON.parse(i.segments) : [])
+                            segments,
+                            pausedSeconds
                         });
                     });
                 });

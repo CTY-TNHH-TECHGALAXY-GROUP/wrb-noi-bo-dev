@@ -634,9 +634,13 @@ const ServiceList = (props: ServiceListProps) => {
     const { items, lang = 'vi', isPaused } = props;
     const [view, setView] = useState<ViewState>('TIMER');
 
-    // Auto-transition: TIMER → CHECK_BELONGINGS when all items completed
+    // Auto-transition: TIMER → CHECK_BELONGINGS when all items TRULY finished
+    // ⚠️ CRITICAL: Only DONE/FEEDBACK count as "completed". 
+    // CLEANING = KTV vừa kết thúc, đang dọn phòng (chưa xong thật sự)
+    // COMPLETED = KTV kết thúc chặng nhưng có thể còn chặng tiếp theo
+    // Nếu dùng CLEANING/COMPLETED ở đây → đơn 2KTV sẽ nhảy khi KTV1 vừa xong
     const allCompleted = items.length > 0 && items.every(i =>
-        ['COMPLETED', 'DONE', 'CLEANING', 'FEEDBACK'].includes(i.status || '')
+        ['DONE', 'FEEDBACK'].includes(i.status || '')
     );
     const allRated = items.length > 0 && items.every(i =>
         i.itemRating !== null && i.itemRating !== undefined

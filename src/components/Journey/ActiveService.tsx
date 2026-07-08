@@ -38,6 +38,8 @@ const ServiceTimer = ({ item, timeEnd, lang = 'vi' }: { item: ServiceItem; timeE
         item.duration,
         item.computedTimeStart,
         timeEnd,
+        undefined,
+        item.pausedSeconds || 0
     );
 
     const circumference = 2 * Math.PI * TIMER_CONFIG.RADIUS;
@@ -117,6 +119,8 @@ export default function ActiveService({
         currentItem?.duration || totalDuration,
         currentItem?.computedTimeStart || timeStart,
         timeEnd,
+        undefined,
+        currentItem?.pausedSeconds || 0
     );
 
     const violations = useRemindersCustomer(lang || 'vi');

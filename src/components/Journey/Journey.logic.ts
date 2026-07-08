@@ -31,7 +31,8 @@ export const useServiceTimer = (
     duration: number,
     computedTimeStart: string | null | undefined,
     timeEnd?: string | null,
-    isPaused?: boolean
+    isPaused?: boolean,
+    pausedSeconds: number = 0
 ): ServiceTimerResult => {
     const totalSeconds = duration * 60;
     const isStarted = !!computedTimeStart;
@@ -54,14 +55,14 @@ export const useServiceTimer = (
                 normalizedEnd = timeEnd.replace(' ', 'T');
             }
             const end = new Date(normalizedEnd).getTime();
-            const diffInSeconds = Math.floor((end - start) / 1000);
+            const diffInSeconds = Math.floor((end - start) / 1000) - pausedSeconds;
             return Math.max(0, Math.min(diffInSeconds, totalSeconds));
         }
 
         const now = new Date().getTime();
-        const diffInSeconds = Math.floor((now - start) / 1000);
+        const diffInSeconds = Math.floor((now - start) / 1000) - pausedSeconds;
         return Math.max(0, Math.min(diffInSeconds, totalSeconds));
-    }, [computedTimeStart, timeEnd, totalSeconds]);
+    }, [computedTimeStart, timeEnd, totalSeconds, pausedSeconds]);
 
     const [elapsedSeconds, setElapsedSeconds] = useState(getInitialElapsed());
 
@@ -72,6 +73,7 @@ export const useServiceTimer = (
     useEffect(() => {
         // Only tick if the service has actually started
         if (!isStarted) return;
+        if (isPaused) return;
 
         // Đếm giây mượt mà bằng prev + 1
         const interval = setInterval(() => {
@@ -115,6 +117,7 @@ export interface GroupedService {
     totalDuration: number;
     itemCount: number;
     earliestTimeStart: string | null;
+    earliestTimeEnd: string | null;
     roomName: string | null;
     bedId: string | null;
     items: ServiceItem[];
@@ -161,6 +164,7 @@ export const groupItemsByTech = (items: ServiceItem[], lang: string = 'vi'): Gro
 
         let activeSegDuration = 0;
         let activeSegStartTime: string | null = null;
+        let activeSegEndTime: string | null = null;
         let hasActiveSeg = false;
         let activeSegIdx = -1;
 
@@ -170,6 +174,7 @@ export const groupItemsByTech = (items: ServiceItem[], lang: string = 'vi'): Gro
                  if (allMySegs[i].actualStartTime) {
                      activeSegDuration = Number(allMySegs[i].duration) || 0;
                      activeSegStartTime = allMySegs[i].actualStartTime;
+                     activeSegEndTime = allMySegs[i].actualEndTime || null;
                      hasActiveSeg = true;
                      activeSegIdx = i;
                      break;
@@ -196,6 +201,7 @@ export const groupItemsByTech = (items: ServiceItem[], lang: string = 'vi'): Gro
         // Earliest timeStart among all items in group
         // 🕒 NẾU CÓ CHẶNG ĐANG CHẠY: Dùng mốc bắt đầu của riêng chặng đó
         let earliestTimeStart: string | null = activeSegStartTime;
+        let earliestTimeEnd: string | null = activeSegEndTime;
         if (!hasActiveSeg) {
             groupItems.forEach(i => {
                 if (i.computedTimeStart) {
@@ -217,6 +223,7 @@ export const groupItemsByTech = (items: ServiceItem[], lang: string = 'vi'): Gro
             totalDuration,
             itemCount: isShared ? 1 : groupItems.length, // Shared = 1 DV with multiple KTVs
             earliestTimeStart,
+            earliestTimeEnd,
             roomName: groupItems[0]?.roomName || null,
             bedId: groupItems[0]?.bedId || null,
             items: groupItems,

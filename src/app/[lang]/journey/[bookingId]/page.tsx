@@ -135,7 +135,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                 schema: 'public',
                 table: 'StaffNotifications',
                 filter: `bookingId=eq.${journeyData.id}`,
-            }, (payload) => {
+            }, (payload: any) => {
                 if (payload.new.acknowledgedAt) {
                     const typeMatch = String(payload.new.type).replace('CUSTOMER_', '');
                     if (typeMatch === 'BUY_MORE') {
