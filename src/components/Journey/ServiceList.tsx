@@ -192,18 +192,19 @@ const TabTimerView = ({
             <div className="flex flex-col gap-3">
                 <div className="flex gap-3">
                     <button onClick={onAddService} disabled={isActionLoading || actionSuccess === 'ADD_SERVICE_PENDING' || actionSuccess === 'ADD_SERVICE_CONFIRMED'}
-                        className={`w-full py-4 font-black rounded-2xl text-lg transition-all flex flex-col items-center justify-center gap-1 shadow-md active:scale-95 ${
+                        className={`w-full py-4 font-black rounded-2xl text-lg transition-all flex items-center justify-center gap-2 shadow-md active:scale-95 ${
                             actionSuccess === 'ADD_SERVICE_CONFIRMED' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
                             actionSuccess === 'ADD_SERVICE_PENDING' ? 'bg-[#C9A96E]/20 text-[#C9A96E] animate-pulse border border-[#C9A96E]/30' :
                             'bg-[#C9A96E] text-black hover:bg-[#b09461]'
                         }`}>
-                        <span className="flex items-center gap-2">
-                            {actionSuccess === 'ADD_SERVICE_CONFIRMED' ? '✅ ' : actionSuccess === 'ADD_SERVICE_PENDING' ? '⏳ ' : '+ '}
-                            {actionSuccess === 'ADD_SERVICE_CONFIRMED' ? t.confirmed : actionSuccess === 'ADD_SERVICE_PENDING' ? t.pending : t.addServiceShort}
+                        {actionSuccess === 'ADD_SERVICE_CONFIRMED' ? '✅' : actionSuccess === 'ADD_SERVICE_PENDING' ? '⏳' : '+'}
+                        <span>
+                            {actionSuccess === 'ADD_SERVICE_CONFIRMED' 
+                                ? (addServiceNote || t.confirmed) 
+                                : actionSuccess === 'ADD_SERVICE_PENDING' 
+                                    ? t.pending 
+                                    : t.addServiceShort}
                         </span>
-                        {actionSuccess === 'ADD_SERVICE_CONFIRMED' && addServiceNote && (
-                            <span className="text-sm font-normal opacity-90">{addServiceNote}</span>
-                        )}
                     </button>
                     {/* Change staff button removed (Task C2c) */}
                 </div>
