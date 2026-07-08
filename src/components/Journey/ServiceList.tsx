@@ -188,19 +188,6 @@ const TabTimerView = ({
                 </div>
             </div>
 
-            {/* Manual Proceed Button when timer is finished but KTV hasn't ended */}
-            {isFinished && !isCompleted && (
-                <div className="mb-4 px-1">
-                    <button onClick={() => onViewChange?.('CHECK_BELONGINGS')} 
-                        className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black uppercase tracking-widest rounded-2xl shadow-lg animate-pulse transition-all">
-                        {lang === 'vi' ? 'Tiến hành Đánh giá' : 'Proceed to Rate'}
-                    </button>
-                    <p className="text-[11px] text-gray-400 text-center mt-2 italic">
-                        {lang === 'vi' ? 'Đã hết thời gian, bạn có thể nhận xét ngay nếu dịch vụ đã xong.' : 'Time is up, you can rate now if the service is finished.'}
-                    </p>
-                </div>
-            )}
-
             {/* Action Buttons */}
             <div className="flex flex-col gap-3">
                 <div className="flex gap-3">
@@ -659,12 +646,55 @@ const ServiceList = (props: ServiceListProps) => {
         i.itemRating !== null && i.itemRating !== undefined
     );
 
+    const [timeIsUp, setTimeIsUp] = useState(false);
+    
+    // Auto-transition when overall timer runs out
     useEffect(() => {
-        if (allCompleted && view === 'TIMER') {
+        if (items.length === 0) return;
+        
+        const checkTimer = () => {
+            const now = Date.now();
+            let allFinished = true;
+            
+            const groups = groupItemsByTech(items, lang);
+            for (const g of groups) {
+                if (!g.isStarted) {
+                    allFinished = false;
+                    break;
+                }
+                
+                let normalizedStart = g.earliestTimeStart!;
+                if (typeof normalizedStart === 'string' && !normalizedStart.includes('Z') && !normalizedStart.includes('+')) {
+                    normalizedStart = normalizedStart.replace(' ', 'T');
+                }
+                const start = new Date(normalizedStart).getTime();
+                const durationMs = g.totalDuration * 60 * 1000;
+                const pausedMs = (g.items[0]?.pausedSeconds || 0) * 1000;
+                
+                const elapsedMs = now - start - pausedMs;
+                
+                if (!g.earliestTimeEnd && elapsedMs < durationMs) {
+                    allFinished = false;
+                    break;
+                }
+            }
+            
+            if (allFinished) {
+                setTimeIsUp(true);
+            }
+        };
+
+        checkTimer(); // Check initially
+        const interval = setInterval(checkTimer, 1000);
+        return () => clearInterval(interval);
+    }, [items, lang]);
+
+    useEffect(() => {
+        if ((allCompleted || timeIsUp) && view === 'TIMER') {
             setView('CHECK_BELONGINGS');
             props.onViewChange?.('CHECK_BELONGINGS');
         }
-    }, [allCompleted, view, props.onViewChange]);
+    }, [allCompleted, timeIsUp, view, props.onViewChange]);
 
     return (
         <div className="w-full">
