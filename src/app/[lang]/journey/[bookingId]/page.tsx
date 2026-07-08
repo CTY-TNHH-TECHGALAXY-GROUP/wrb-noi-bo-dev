@@ -8,7 +8,6 @@ import CheckBelongings from '@/components/Journey/CheckBelongings';
 import Feedback from '@/components/Journey/Feedback';
 import { translations } from '@/components/Journey/Journey.i18n';
 import { useAuthStore } from '@/lib/authStore.logic';
-import CustomerRequestFAB from '@/components/Journey/CustomerRequestFAB';
 import { createClient } from '@/lib/supabase';
 
 export default function JourneyPage({ params }: { params: Promise<{ lang: string, bookingId: string }> }) {
@@ -196,7 +195,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    bookingId,
+                    bookingId: journeyData?.id || bookingId,
                     accessToken: bookingId,
                     type: 'BUY_MORE'
                 })
@@ -455,10 +454,6 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                     </div>
                 )}
             </main>
-
-            {journeyData?.id && (
-                <CustomerRequestFAB realBookingId={journeyData.id} accessToken={bookingId} lang={lang} />
-            )}
 
             {/* Custom Confirm Modal */}
             {confirmState?.isOpen && (
