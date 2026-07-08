@@ -18,6 +18,15 @@ const config: Config = {
         sans: ['var(--font-primary)', 'sans-serif'],
         luxury: ['var(--font-luxury)', 'serif'],
       },
+      keyframes: {
+        'scale-pulse': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
+        },
+      },
+      animation: {
+        'scale-pulse': 'scale-pulse 2s ease-in-out infinite',
+      },
     },
   },
   plugins: [],

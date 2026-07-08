@@ -52,7 +52,7 @@ export default function CheckBelongings({ onConfirm, lang = 'vi' }: CheckBelongi
             {/* Action Button */}
             <button
                 onClick={onConfirm}
-                className="w-full max-w-sm py-5 bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 font-black tracking-widest uppercase rounded-2xl shadow-[0_10px_30px_rgba(245,158,11,0.3)] hover:from-amber-500 hover:to-amber-600 transition-all border border-amber-300"
+                className="w-full max-w-sm py-5 bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 font-black tracking-widest uppercase rounded-2xl shadow-[0_10px_30px_rgba(245,158,11,0.3)] hover:from-amber-500 hover:to-amber-600 transition-all border border-amber-300 animate-scale-pulse"
             >
                 {t.check_confirm}
             </button>
