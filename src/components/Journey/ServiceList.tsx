@@ -160,28 +160,28 @@ const TabTimerView = ({
 
             {/* Quick Violations */}
             <div className="mb-4">
-                <div className="flex items-center justify-between mb-2 px-1">
-                    <h3 className="font-bold text-white/90 text-sm">{t.quickFeedback}</h3>
-                    <span className="text-[9px] font-black uppercase tracking-wider text-[#C9A96E] bg-[#C9A96E]/10 px-2 py-0.5 rounded-full border border-[#C9A96E]/20">
+                <div className="flex items-center justify-between mb-4 px-1">
+                    <h3 className="font-bold text-white/90 text-xl">{t.quickFeedback}</h3>
+                    <span className="text-xs font-black uppercase tracking-wider text-[#C9A96E] bg-[#C9A96E]/10 px-3 py-1 rounded-full border border-[#C9A96E]/20">
                         {t.optional}
                     </span>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                     {violations.map((v, idx) => {
                         const isSel = selectedViolations.includes(idx);
                         const isSent = sentViolations.has(idx);
                         return (
                             <div key={idx} onClick={() => toggleViolation(idx)}
-                                className={`flex items-start gap-3 p-3 bg-[#1c1c1e] rounded-2xl cursor-pointer border transition-all ${
+                                className={`flex items-start gap-4 p-4 bg-[#1c1c1e] rounded-2xl cursor-pointer border transition-all ${
                                     isSel ? (isSent ? 'border-[#C9A96E]/50 bg-[#C9A96E]/5' : 'border-[#C9A96E]') : 'border-white/5'
                                 }`}>
-                                <div className={`mt-0.5 w-5 h-5 rounded-lg border-2 flex-shrink-0 flex items-center justify-center ${
+                                <div className={`mt-0.5 w-6 h-6 rounded-lg border-2 flex-shrink-0 flex items-center justify-center ${
                                     isSel ? (isSent ? 'border-[#C9A96E] bg-[#C9A96E]' : 'border-[#C9A96E] bg-[#C9A96E]') : 'border-gray-600'
                                 }`}>
-                                    {isSel && <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                    {isSel && <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
                                 </div>
-                                <span className={`text-xs leading-snug font-medium flex-1 ${isSel ? (isSent ? 'text-[#C9A96E]/80' : 'text-[#C9A96E]') : 'text-gray-400'}`}>{v}</span>
-                                {isSel && isSent && <span className="text-[9px] font-bold text-black bg-[#C9A96E] px-1.5 py-0.5 rounded-full flex-shrink-0">{t.sent}</span>}
+                                <span className={`text-lg leading-tight font-medium flex-1 ${isSel ? (isSent ? 'text-[#C9A96E]/80' : 'text-[#C9A96E]') : 'text-gray-400'}`}>{v}</span>
+                                {isSel && isSent && <span className="text-xs font-bold text-black bg-[#C9A96E] px-2 py-1 rounded-full flex-shrink-0">{t.sent}</span>}
                             </div>
                         );
                     })}
