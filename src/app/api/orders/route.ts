@@ -90,11 +90,22 @@ export async function POST(request: Request) {
         }
 
         const fallbackId = Date.now().toString();
+        // Normalize gender: 'Male' → 'male', 'Female' → 'female', 'Nam' → 'male', 'Nữ' → 'female'
+        const normalizeGender = (g: string | undefined | null): string | null => {
+            if (!g) return null;
+            const lower = g.toLowerCase().trim();
+            if (lower === 'male' || lower === 'nam') return 'male';
+            if (lower === 'female' || lower === 'nữ' || lower === 'nu') return 'female';
+            return null;
+        };
+        const normalizedGender = normalizeGender(customer.gender);
+
         const customerData: Record<string, any> = {
             id: customerId,
             fullName: customer.name || "Guest",
             phone: customer.phone?.trim() || `GUEST-${fallbackId}`,
             email: customer.email?.trim() || `guest-${fallbackId}@no-email.com`,
+            ...(normalizedGender && { gender: normalizedGender }),
             createdAt: vnTimeStr,
             updatedAt: vnTimeStr
         };
