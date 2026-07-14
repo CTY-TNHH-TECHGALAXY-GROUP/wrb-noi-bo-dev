@@ -399,10 +399,10 @@ const CombinedRatingView = ({
                 <div className="w-16 h-16 bg-[#1c1c1e] rounded-full flex items-center justify-center text-3xl mx-auto mb-3 border border-[#C9A96E]/30 shadow-[0_0_15px_rgba(201,169,110,0.2)]">
                     ⭐
                 </div>
-                <h2 className="text-xl font-black text-[#C9A96E]">
+                <h2 className="text-2xl font-black text-[#C9A96E]">
                     {t.rateTitle}
                 </h2>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className="text-gray-400 text-base mt-2">
                     {t.rateSub}
                 </p>
             </div>
@@ -410,10 +410,10 @@ const CombinedRatingView = ({
             {/* Violations Checklist — full 6 questions, editable */}
             <div className="bg-[#1c1c1e] border border-white/5 rounded-2xl p-4 mb-5 animate-in fade-in duration-300">
                 <div className="flex items-center gap-2 mb-3">
-                    <div className="w-7 h-7 rounded-lg bg-[#C9A96E]/10 border border-[#C9A96E]/20 text-[#C9A96E] flex items-center justify-center flex-shrink-0">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <div className="w-8 h-8 rounded-lg bg-[#C9A96E]/10 border border-[#C9A96E]/20 text-[#C9A96E] flex items-center justify-center flex-shrink-0">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
-                    <h3 className="text-sm font-black text-[#C9A96E]">
+                    <h3 className="text-base font-black text-[#C9A96E]">
                         {t.violationsSectionTitle}
                     </h3>
                 </div>
@@ -446,12 +446,12 @@ const CombinedRatingView = ({
                                 className={`flex items-start gap-3 p-3 bg-[#0d0d0d] rounded-2xl cursor-pointer border transition-all ${
                                     isChecked ? 'border-[#C9A96E] shadow-[#C9A96E]/10 shadow-sm ring-1 ring-[#C9A96E]/20' : 'border-white/5'
                                 }`}>
-                                <div className={`mt-0.5 w-5 h-5 rounded-lg border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
+                                <div className={`mt-0.5 w-6 h-6 rounded-lg border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
                                     isChecked ? 'border-[#C9A96E] bg-[#C9A96E]' : 'border-gray-600 bg-transparent'
                                 }`}>
-                                    {isChecked && <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                    {isChecked && <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
                                 </div>
-                                <span className={`text-xs leading-snug font-medium flex-1 ${isChecked ? 'text-[#C9A96E]' : 'text-gray-400'}`}>{v}</span>
+                                <span className={`text-base leading-snug font-medium flex-1 ${isChecked ? 'text-[#C9A96E]' : 'text-gray-400'}`}>{v}</span>
                             </div>
                         );
                     })}
@@ -466,7 +466,7 @@ const CombinedRatingView = ({
                             style={{ width: `${(ratedCount / items.length) * 100}%` }} />
                     </div>
                 </div>
-                <span className="text-xs font-black text-gray-500 whitespace-nowrap">
+                <span className="text-sm font-black text-gray-500 whitespace-nowrap">
                     {ratedCount}/{groups.length} {t.rated}
                 </span>
             </div>
@@ -494,17 +494,17 @@ const CombinedRatingView = ({
                                     {isRated ? '✅' : '💆'}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className={`font-black text-sm leading-tight truncate ${isRated ? 'text-gray-400' : 'text-white/90'}`}>
+                                    <p className={`font-black text-base leading-tight truncate ${isRated ? 'text-gray-400' : 'text-white/90'}`}>
                                         NV: {group.technicianCode || 'N/A'}
                                     </p>
-                                    <p className="text-gray-500 text-xs font-medium truncate">
+                                    <p className="text-gray-500 text-sm font-medium truncate mt-1">
                                         {group.itemCount} {t.services} · {group.totalDuration} {t.minutes}
                                     </p>
                                 </div>
                                 {isRated ? (
                                     <div className="flex items-center gap-1.5 bg-[#C9A96E]/20 text-[#C9A96E] px-3 py-1.5 rounded-full border border-[#C9A96E]/30">
-                                        <span className="text-lg leading-none">{ratedOpt?.emoji || '⭐'}</span>
-                                        <span className="text-[10px] font-black">{t.ratedSent}</span>
+                                        <span className="text-xl leading-none">{ratedOpt?.emoji || '⭐'}</span>
+                                        <span className="text-xs font-black">{t.ratedSent}</span>
                                     </div>
                                 ) : (
                                     <svg className={`w-5 h-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -516,7 +516,7 @@ const CombinedRatingView = ({
                             {/* Expanded Rating Area */}
                             {isExpanded && !isRated && (
                                 <div className="px-4 pb-4 border-t border-white/5 pt-3 animate-in fade-in slide-in-from-top-2 duration-300 bg-[#0d0d0d]/50">
-                                    <p className="text-sm font-bold text-[#C9A96E] mb-3">
+                                    <p className="text-base font-bold text-[#C9A96E] mb-4">
                                         {t.yourExperience}
                                     </p>
                                     <div className="grid grid-cols-4 gap-2 mb-4">
@@ -547,8 +547,8 @@ const CombinedRatingView = ({
                                                             ? 'opacity-40 grayscale cursor-not-allowed bg-[#0d0d0d] border-transparent'
                                                             : `active:scale-95 ${bgClass}`
                                                     }`}>
-                                                    <span className="text-2xl mb-0.5">{opt.emoji}</span>
-                                                    <span className={`text-[10px] font-bold leading-tight text-center ${isSel ? 'text-white' : 'text-gray-500'}`}>
+                                                    <span className="text-3xl mb-1">{opt.emoji}</span>
+                                                    <span className={`text-xs font-bold leading-tight text-center ${isSel ? 'text-white' : 'text-gray-500'}`}>
                                                         {getRatingLabel(lang || 'vi', opt.value)}
                                                     </span>
                                                 </button>
@@ -559,7 +559,7 @@ const CombinedRatingView = ({
                                     {isSubmittingThis && (
                                         <div className="w-full py-3 flex items-center justify-center gap-2 text-[#C9A96E]">
                                             <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
-                                            <span className="text-sm font-bold">{t.submitting}</span>
+                                            <span className="text-base font-bold">{t.submitting}</span>
                                         </div>
                                     )}
                                 </div>

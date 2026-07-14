@@ -15,6 +15,22 @@ type BookingConfidence = 'CONFIRMED' | 'NEEDS_CONFIRM' | 'RISKY';
 const getTodayVN = (): string =>
   new Date().toLocaleDateString('sv', { timeZone: 'Asia/Ho_Chi_Minh' });
 
+/** Map (numKtvs, duration) → VIP Service ID in DB.
+ *  Available durations: 60, 70, 90, 120, 150, 180, 240
+ *  1 KTV → VIP_1K_{duration}, 2 KTV → VIP_2K_{duration}
+ *  Falls back to NHS0800 if no matching VIP service code exists.
+ */
+const VIP_DURATIONS = [60, 70, 90, 120, 150, 180, 240];
+const getVipServiceId = (numKtvs: number, duration: number): string => {
+  const ktvKey = numKtvs >= 2 ? '2K' : '1K';
+  if (VIP_DURATIONS.includes(duration)) {
+    return `VIP_${ktvKey}_${duration}`;
+  }
+  // Fallback: find closest duration that is >= selected duration
+  const closest = VIP_DURATIONS.find(d => d >= duration) || VIP_DURATIONS[VIP_DURATIONS.length - 1];
+  return `VIP_${ktvKey}_${closest}`;
+};
+
 /** Get localized warning messages */
 function getWarningMessage(type: 'LEAVE_APPROVED' | 'LEAVE_PENDING' | 'BUSY' | 'NOT_CHECKED_IN', staffId: string, lang: string, extra?: string) {
   const msgs: Record<string, Record<string, string>> = {
@@ -310,12 +326,13 @@ export async function POST(request: NextRequest) {
     const displayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
 
     const itemsToInsert: any[] = [];
+    const vipServiceId = getVipServiceId(selectedStaffIds.length, duration);
     
     selectedStaffIds.forEach((ktvId: string, index: number) => {
       itemsToInsert.push({
         id: `${bookingId}-item${index + 1}`,
         bookingId: bookingId,
-        serviceId: 'NHS0800', // Mã Gói VIP Tổng Hợp
+        serviceId: vipServiceId, // Map động: VIP_1K_90, VIP_2K_120... (category: VIP_MENU)
         quantity: 1,
         price: index === 0 ? (serverPrice || 0) : 0, // Tiền chỉ ghi nhận ở item đầu
         technicianCodes: [ktvId], // Gán ĐÚNG 1 KTV vào item này
