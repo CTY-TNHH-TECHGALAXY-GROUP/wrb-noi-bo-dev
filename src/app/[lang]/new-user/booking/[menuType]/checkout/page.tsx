@@ -206,11 +206,11 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
                 }
             />
 
-            <main className={`p-4 lg:p-8 mx-auto min-h-screen ${PAGE_CONFIG.MAX_WIDTH}`}>
-                <div className="flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:gap-8">
+            <main className={`p-4 md:p-6 lg:p-8 mx-auto min-h-screen ${PAGE_CONFIG.MAX_WIDTH}`}>
+                <div className="flex flex-col gap-6 md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
 
                     {/* Left Column */}
-                    <div className="w-full lg:col-span-7 lg:row-start-1 space-y-6">
+                    <div className="w-full md:col-span-7 md:row-start-1 space-y-6">
                         {/* 1. Customer Info */}
                         <CustomerInfo
                             lang={activeLang}
@@ -235,8 +235,8 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
                     </div>
 
                     {/* Right Column: Invoice & Submit */}
-                    <div className="w-full lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-2 space-y-6">
-                        <div className="lg:sticky lg:top-4 space-y-6">
+                    <div className="w-full md:col-span-5 md:col-start-8 md:row-start-1 md:row-span-2 space-y-6">
+                        <div className="md:sticky md:top-4 space-y-6">
                             <Invoice
                                 cart={cart}
                                 lang={activeLang}
@@ -247,7 +247,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
                             />
 
                             {/* Desktop Submit Button */}
-                            <div className="hidden lg:block">
+                            <div className="hidden md:block">
                                 <button
                                     onClick={handleProceedToPayment}
                                     className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
@@ -261,7 +261,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
             </main>
 
             {/* Mobile Bottom Bar */}
-            <div className="fixed bottom-0 left-0 w-full bg-[#1c1c1e] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-white/10 z-40 lg:hidden shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+            <div className="fixed bottom-0 left-0 w-full bg-[#1c1c1e] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-white/10 z-40 md:hidden shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
                 <button
                     onClick={handleProceedToPayment}
                     className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"

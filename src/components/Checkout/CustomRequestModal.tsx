@@ -71,13 +71,13 @@ export default function CustomRequestModal({ isOpen, onClose, onSave, lang, item
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none">
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center pointer-events-none">
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black/80 pointer-events-auto" onClick={onClose} />
 
             {/* Modal Content */}
             <div className={`
-                bg-[#1c1c1e] border border-white/5 w-full max-w-lg max-h-[90vh] flex flex-col rounded-t-3xl sm:rounded-3xl shadow-2xl pointer-events-auto
+                bg-[#1c1c1e] border border-white/5 w-full max-w-lg max-h-[90vh] flex flex-col rounded-t-3xl md:rounded-3xl shadow-2xl pointer-events-auto
                 transform transition-all duration-300
             `}>
                 {/* Header */}

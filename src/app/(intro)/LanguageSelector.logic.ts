@@ -29,12 +29,18 @@ export const useLanguageSelectorLogic = (overrideRadius?: number) => {
    * Responsive: mobile 110px, desktop 120px
    */
   useEffect(() => {
-    if (overrideRadius) {
-      setRadius(overrideRadius);
-      return;
-    }
     const updateRadius = () => {
-      setRadius(window.innerWidth < 768 ? 110 : 120);
+      const w = window.innerWidth;
+      if (w >= 1024) {
+        // Desktop: larger orbit
+        setRadius(overrideRadius ? Math.round(overrideRadius * 1.5) : 180);
+      } else if (w >= 768) {
+        // Tablet: medium orbit (scaled up for iPad)
+        setRadius(overrideRadius ? Math.round(overrideRadius * 1.4) : 170);
+      } else {
+        // Mobile: compact orbit
+        setRadius(overrideRadius || 110);
+      }
     };
     updateRadius();
     window.addEventListener('resize', updateRadius);

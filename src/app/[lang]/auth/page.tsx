@@ -85,7 +85,7 @@ export default function AuthPage() {
             {/* Background soft glow / texture (optional) */}
             <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-multiply bg-gradient-to-b from-[#FDFCF8] to-[#F1EDE4]" />
 
-            <div className="z-10 w-full max-w-md flex flex-col px-6 h-full text-center">
+            <div className="z-10 w-full max-w-md md:max-w-lg flex flex-col px-6 md:px-10 h-full text-center">
 
                 {/* HEADER */}
                 <div
@@ -106,7 +106,7 @@ export default function AuthPage() {
                 {/* IMAGE HERO */}
                 <div className="flex-1 flex flex-col justify-center items-center py-4 gap-8">
                     <div
-                        className="rounded-full overflow-hidden shadow-xl border-4 border-white animate-fade-in-up"
+                        className="rounded-full overflow-hidden shadow-xl border-4 border-white animate-fade-in-up md:w-[220px] md:h-[220px]"
                         style={{ width: LAYOUT.imageSize, height: LAYOUT.imageSize, aspectRatio: '1/1' }}
                     >
                         {/* 
@@ -123,7 +123,7 @@ export default function AuthPage() {
                         />
                     </div>
 
-                    <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight animate-fade-in-up delay-100">
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight animate-fade-in-up delay-100">
                         {localeText.welcome}
                     </h1>
 
@@ -131,7 +131,7 @@ export default function AuthPage() {
                         <p className="font-bold text-gray-800 text-[15px]">
                             {localeText.askLogin}
                         </p>
-                        <p className="text-gray-500 text-sm leading-relaxed px-4">
+                        <p className="text-gray-500 text-sm md:text-base leading-relaxed px-4 md:px-8">
                             {localeText.benefit}
                         </p>
                     </div>

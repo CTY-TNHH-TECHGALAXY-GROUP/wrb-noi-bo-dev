@@ -165,7 +165,7 @@ export default function PaymentModal({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
             {/* Backdrop */}
             <div 
                 className={`fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
@@ -174,14 +174,14 @@ export default function PaymentModal({
 
             {/* Modal Content */}
             <div className={`
-                relative w-full max-w-lg bg-[#1c1c1e] border border-white/5 sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col
+                relative w-full max-w-lg bg-[#1c1c1e] border border-white/5 md:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col
                 transform transition-transform duration-300
                 pb-safe max-h-[90vh]
-                ${(isClosing || !isVisible) ? 'translate-y-full sm:scale-95 sm:translate-y-0 sm:opacity-0' : 'translate-y-0 sm:scale-100 sm:opacity-100'}
+                ${(isClosing || !isVisible) ? 'translate-y-full md:scale-95 md:translate-y-0 md:opacity-0' : 'translate-y-0 md:scale-100 md:opacity-100'}
             `}>
                 
                 {/* Header handle bar (Mobile) */}
-                <div className="w-full flex justify-center pt-3 pb-2 sm:hidden bg-[#1c1c1e] rounded-t-3xl">
+                <div className="w-full flex justify-center pt-3 pb-2 md:hidden bg-[#1c1c1e] rounded-t-3xl">
                     <div className="w-12 h-1.5 bg-[#3f3f46] rounded-full"></div>
                 </div>
 

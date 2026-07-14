@@ -370,3 +370,22 @@ img {
 .animate-out.zoom-out-95 {
   animation: zoomOut 0.2s ease-in forwards;
 }
+
+/* --- 7. TABLET & LANDSCAPE OPTIMIZATIONS --- */
+
+/* Landscape tablet: ensure scrollable content doesn't overflow */
+@media (orientation: landscape) and (min-width: 768px) {
+  .landscape-compact {
+    max-height: 100dvh;
+    overflow-y: auto;
+  }
+}
+
+/* Tablet general: wider content areas */
+@media (min-width: 768px) {
+  /* Ensure modals don't stretch too wide on tablets */
+  .modal-tablet-center {
+    max-width: 500px;
+    margin-inline: auto;
+  }
+}

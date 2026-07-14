@@ -33,7 +33,7 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
     return (
         <div className="flex flex-col items-center w-full animate-in fade-in duration-500">
             {/* Hero Card: Mã đơn rút gọn */}
-            <div className="relative w-full aspect-[4/3] bg-[#1c1c1e] rounded-3xl overflow-hidden shadow-sm mb-6 border border-white/5">
+            <div className="relative w-full aspect-[4/3] md:aspect-[16/9] md:max-w-2xl md:mx-auto bg-[#1c1c1e] rounded-3xl overflow-hidden shadow-sm mb-6 border border-white/5">
                 <img
                     src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1000&auto=format&fit=crop"
                     alt="Spa Relax"
@@ -55,7 +55,7 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
 
             {/* Welcome Message */}
             <div className="text-center px-4 mb-6">
-                <h2 className="text-xl font-bold text-white/90 leading-relaxed">
+                <h2 className="text-xl md:text-2xl font-bold text-white/90 leading-relaxed">
                     {t.welcomeMessage}
                 </h2>
             </div>

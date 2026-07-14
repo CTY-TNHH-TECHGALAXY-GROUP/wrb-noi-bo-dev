@@ -36,7 +36,7 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
 
     return (
         <div
-            className="glass-footer w-full px-4 pt-6 flex items-center justify-between gap-3 animate-[slide-up_0.3s_ease-out] bg-black/90 backdrop-blur-xl border-t border-gray-800"
+            className="glass-footer w-full px-4 md:px-8 pt-6 flex items-center justify-between gap-3 animate-[slide-up_0.3s_ease-out] bg-black/90 backdrop-blur-xl border-t border-gray-800"
             style={{
                 position: 'fixed',
                 bottom: 0,

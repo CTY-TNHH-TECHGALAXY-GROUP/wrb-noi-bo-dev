@@ -145,7 +145,7 @@ export default function ActiveService({
 
             {/* Service Tabs (only show if multiple services) */}
             {hasMultipleServices && (
-                <div className="w-full max-w-sm mb-8">
+                <div className="w-full max-w-sm md:max-w-lg mb-8">
                     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                         {items.map((item, idx) => (
                             <button
@@ -178,7 +178,7 @@ export default function ActiveService({
             )}
 
             {/* Service Info */}
-            <div className="text-center mb-10 border-b border-gray-100 pb-10 w-full max-w-sm">
+            <div className="text-center mb-10 border-b border-gray-100 pb-10 w-full max-w-sm md:max-w-lg">
                 <h1 className="text-3xl font-black text-gray-800 mb-2">{currentItem?.service_name || 'Dịch vụ Spa'}</h1>
                 {hasMultipleServices && (
                     <p className="text-sm text-gray-400 font-medium">
@@ -188,7 +188,7 @@ export default function ActiveService({
             </div>
 
             {/* Quick feedback */}
-            <div className="w-full max-w-sm mb-12">
+            <div className="w-full max-w-sm md:max-w-lg mb-12">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-gray-800 font-bold text-lg">{t.feedbackTitle}</h3>
                     <span className="text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100">{t.optional}</span>
@@ -234,7 +234,7 @@ export default function ActiveService({
             </div>
 
             {/* Therapist Info & Actions */}
-            <div className="w-full max-w-sm space-y-4">
+            <div className="w-full max-w-sm md:max-w-lg space-y-4">
                 <div className="flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
                     <div className="w-14 h-14 bg-amber-100 rounded-xl overflow-hidden flex-shrink-0">
                         <img 

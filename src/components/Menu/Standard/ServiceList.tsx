@@ -145,7 +145,7 @@ export default function ServiceList({ categories, services, cart, lang, selected
 
                             {/* Grid danh sách */}
                             <motion.div
-                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 lg:max-w-7xl lg:mx-auto"
+                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl lg:max-w-7xl md:mx-auto lg:mx-auto"
                                 variants={gridContainerVariants}
                                 initial="hidden"
                                 animate="visible"

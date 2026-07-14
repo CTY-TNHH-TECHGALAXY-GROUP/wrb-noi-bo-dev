@@ -86,7 +86,7 @@ export default function CustomerTypePage() {
         <ArrowLeft className="text-white w-6 h-6" strokeWidth={1.5} />
       </button>
 
-      <div className={`z-10 w-full max-w-md flex flex-col ${getCommonAnimationClass()}`} style={{ gap: LAYOUT_CONFIG.buttons.gap }}>
+      <div className={`z-10 w-full max-w-md md:max-w-lg flex flex-col ${getCommonAnimationClass()}`} style={{ gap: LAYOUT_CONFIG.buttons.gap }}>
 
         {/* --- LOGO --- */}
         <div
@@ -104,7 +104,7 @@ export default function CustomerTypePage() {
         {/* --- TIÊU ĐỀ (Dùng t() để dịch) --- */}
         <div className="text-center flex flex-col items-center" style={{ marginBottom: LAYOUT_CONFIG.text.marginBottom }}>
           <h1
-            className="font-bold uppercase tracking-[0.1em] mb-2 font-luxury gold-text-shiny drop-shadow-md"
+            className="font-bold uppercase tracking-[0.1em] mb-2 font-luxury gold-text-shiny drop-shadow-md md:text-4xl"
             style={{ fontSize: LAYOUT_CONFIG.text.titleSize }}
           >
             {t('wc_title')}
@@ -116,7 +116,7 @@ export default function CustomerTypePage() {
         <button
           onClick={onSelectWalkIn}
           style={{ height: LAYOUT_CONFIG.buttons.height }}
-          className="w-full h-auto py-4 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
+          className="w-full h-auto py-4 md:py-5 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
         >
           <div className="flex flex-col items-start text-left">
             <span
@@ -141,7 +141,7 @@ export default function CustomerTypePage() {
         <button
           onClick={onSelectAdvance}
           style={{ height: LAYOUT_CONFIG.buttons.height }}
-          className="w-full h-auto py-4 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
+          className="w-full h-auto py-4 md:py-5 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
         >
           <div className="flex flex-col items-start text-left">
             <span
@@ -166,7 +166,7 @@ export default function CustomerTypePage() {
         <button
           onClick={onSelectOldUser}
           style={{ height: LAYOUT_CONFIG.buttons.height }}
-          className="w-full h-auto py-4 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
+          className="w-full h-auto py-4 md:py-5 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
         >
           <span className="gold-text-shiny font-bold uppercase tracking-widest" style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeTitle }}>
             {t('btn_old_title')}

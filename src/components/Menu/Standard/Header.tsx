@@ -77,7 +77,7 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
                 onMouseLeave={handleMouseLeave}
                 onMouseUp={handleMouseUp}
                 onMouseMove={handleMouseMove}
-                className={`flex flex-row overflow-x-auto snap-x hide-scrollbar gap-x-4 pt-4 px-4 pb-2 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'} cursor-grab`}
+                className={`flex flex-row overflow-x-auto md:justify-center snap-x hide-scrollbar gap-x-4 md:gap-x-6 pt-4 px-4 pb-2 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'} cursor-grab`}
                 style={{ scrollBehavior: 'smooth' }}
             >
                 {repeatedCategories.map((cat, index) => {
@@ -86,9 +86,9 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
                         <button
                             key={`${cat.id}-${index}`}
                             onClick={() => onSelectCategory(cat.id)}
-                            className={`flex flex-col items-center gap-2 group focus:outline-none shrink-0 snap-center w-[4.5rem] transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}
+                            className={`flex flex-col items-center gap-2 group focus:outline-none shrink-0 snap-center w-[4.5rem] md:w-[5.5rem] transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}
                         >
-                            <div style={{ width: 60, height: 60 }} className={`rounded-full border flex items-center justify-center transition-all shadow-md overflow-hidden relative ${isActive ? 'bg-[#1a1a1a] border-[#C9A96E]' : 'bg-[#1c1c1e] border-transparent group-hover:bg-[#252528] pointer-events-none'}`}>
+                            <div className={`w-[60px] h-[60px] md:w-[72px] md:h-[72px] rounded-full border flex items-center justify-center transition-all shadow-md overflow-hidden relative ${isActive ? 'bg-[#1a1a1a] border-[#C9A96E]' : 'bg-[#1c1c1e] border-transparent group-hover:bg-[#252528] pointer-events-none'}`}>
                                 <img
                                     src={cat.image || 'https://placehold.co/100x100'}
                                     className="w-[70%] h-[70%] object-contain transition-transform duration-500 group-hover:scale-110 pointer-events-none"

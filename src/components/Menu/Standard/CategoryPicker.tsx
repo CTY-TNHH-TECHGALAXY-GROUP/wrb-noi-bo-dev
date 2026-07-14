@@ -129,7 +129,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                 animate="visible"
                 exit="exit"
             >
-                <div className="grid grid-cols-2 grid-rows-5 gap-3 max-w-sm w-full mx-auto flex-1">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-w-sm md:max-w-2xl w-full mx-auto flex-1">
                     {categories.map((cat) => {
                         const name = cat.names[lang as keyof typeof cat.names] || cat.names['en'];
 

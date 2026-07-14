@@ -11,38 +11,40 @@ import React from "react";
 import { useLanguageSelectorLogic } from "./LanguageSelector.logic";
 import { languages } from "./LanguageSelector.lang";
 import { animClasses } from "./animation";
+import { useDeviceType } from "@/lib/useDeviceType";
 
 // ============================================================================
 // 👇 KHU VỰC CHỈNH SỬA GIAO DIỆN CHỌN NGÔN NGỮ (SỬA SỐ Ở ĐÂY) 👇
 // ============================================================================
-const LAYOUT_CONFIG = {
+// Responsive config: trả về giá trị khác nhau cho Mobile / Tablet / Desktop
+const getLayoutConfig = (isTabletOrAbove: boolean) => ({
   // 1. LOGO TRÊN CÙNG
   topLogo: {
-    marginTop: "20px", // Kéo logo lên trên (trước là 50px)
-    width: "200px",    // Kích thước logo vừa vặn với iPhone (trước là 250px)
+    marginTop: "20px",
+    width: isTabletOrAbove ? "280px" : "200px",
   },
 
   // 2. VÒNG TRÒN CỜ (ORBIT)
   orbit: {
-    marginTop: "120px",  // Hạ thấp tâm vòng tròn cờ xuống để tránh logo (trước là 50px)
-    centerLogoSize: "100px",
-    radius: 120,        // Thu nhỏ lại bán kính 1 chút (trước là 130)
+    marginTop: isTabletOrAbove ? "160px" : "120px",
+    centerLogoSize: isTabletOrAbove ? "130px" : "100px",
+    radius: isTabletOrAbove ? 170 : 120,  // Hook sẽ tự scale thêm
   },
 
   // 3. CẤU HÌNH LÁ CỜ
   flag: {
-    circleSize: 64,           // Kích thước vòng tròn cờ (trước là 70)
-    flagSize: "55px",         // Cỡ ảnh cờ bên trong circle
-    textSize: "12px",         // Cỡ chữ tên ngôn ngữ
+    circleSize: isTabletOrAbove ? 88 : 64,
+    flagSize: isTabletOrAbove ? "75px" : "55px",
+    textSize: isTabletOrAbove ? "15px" : "12px",
   },
 
   // 4. CHỮ CHẠY (MARQUEE)
   marquee: {
-    marginBottom: "20px",     // Kéo phần marquee xuống dưới 1 chút (trước là 80px)
-    height: "100px",
-    fontSize: "17px",
+    marginBottom: "20px",
+    height: isTabletOrAbove ? "120px" : "100px",
+    fontSize: isTabletOrAbove ? "22px" : "17px",
   }
-};
+});
 // ============================================================================
 
 /**
@@ -50,12 +52,15 @@ const LAYOUT_CONFIG = {
  * Sử dụng hook useLanguageSelectorLogic để quản lý logic
  */
 export default function LanguageSelectorPage() {
+  const { isTabletOrAbove } = useDeviceType();
+  const LAYOUT_CONFIG = getLayoutConfig(isTabletOrAbove);
+
   const {
     greeting,
     showGreeting,
     handleSelectLanguage,
     getFlagPosition
-  } = useLanguageSelectorLogic(LAYOUT_CONFIG.orbit.radius); // Truyền bán kính từ config vào logic
+  } = useLanguageSelectorLogic(LAYOUT_CONFIG.orbit.radius); // Truyền bán kính responsive từ config
 
   // Tạo mảng nội dung lặp lại để chạy chữ (4 lần để đảm bảo lấp đầy màn hình rộng)
   const marqueeContent = Array(4).fill("11 Ngo Duc Ke, Sai Gon Ward, HCMC, VietNam");

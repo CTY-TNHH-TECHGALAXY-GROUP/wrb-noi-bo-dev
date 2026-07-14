@@ -234,11 +234,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 }
             />
 
-            <main className="p-4 lg:p-8 max-w-6xl mx-auto min-h-screen">
-                <div className="flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:gap-8">
+            <main className="p-4 md:p-6 lg:p-8 max-w-6xl mx-auto min-h-screen">
+                <div className="flex flex-col gap-6 md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
 
                     {/* 1. Customer Info (Mobile: Item 1, Desktop: Item 1 - Left Col) */}
-                    <div className="w-full lg:col-span-7 lg:row-start-1">
+                    <div className="w-full md:col-span-7 md:row-start-1">
                         <CustomerInfo
                             lang={activeLang}
                             dict={dict}
@@ -249,8 +249,8 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
 
                     {/* 2. Invoice (Mobile: Item 2, Desktop: Item 2 - Right Col) */}
                     {/* DOM Order ensures Mobile flow is Customer -> Invoice -> Payment */}
-                    <div className="w-full lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-2 space-y-6">
-                        <div className="lg:sticky lg:top-4">
+                    <div className="w-full md:col-span-5 md:col-start-8 md:row-start-1 md:row-span-2 space-y-6">
+                        <div className="md:sticky md:top-4">
                             <Invoice
                                 cart={cart}
                                 lang={activeLang}
@@ -261,7 +261,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                             />
 
                             {/* Desktop Confirm Button */}
-                            <div className="hidden lg:block mt-6">
+                            <div className="hidden md:block mt-6">
                                 <button
                                     onClick={handleConfirmOrder}
                                     className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
@@ -275,7 +275,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             </main>
 
             {/* Bottom Bar - Confirm (Mobile Only) */}
-            <div className="fixed bottom-0 left-0 w-full bg-[#1c1c1e] p-4 border-t border-white/10 z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.5)] lg:hidden">
+            <div className="fixed bottom-0 left-0 w-full bg-[#1c1c1e] p-4 border-t border-white/10 z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.5)] md:hidden">
                 <div className="max-w-2xl mx-auto">
                     <button
                         onClick={handleConfirmOrder}
