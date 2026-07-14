@@ -108,6 +108,28 @@ export default function ServiceList({ categories, services, cart, lang, selected
 
                     if (categoryGroups.length === 0) return null;
 
+                    // [LOGIC NEW] Custom sort cho category 'Body': Đưa Mix 4 lên đầu, Tinh dầu xuống cuối
+                    if (cat.id === 'Body') {
+                        categoryGroups.sort((a, b) => {
+                            const nameEnA = a[0].names.en.toLowerCase();
+                            const nameEnB = b[0].names.en.toLowerCase();
+                            const nameViA = (a[0].names.vi || '').toLowerCase();
+                            const nameViB = (b[0].names.vi || '').toLowerCase();
+                            
+                            const isMixA = nameEnA.includes('mix of four') || nameViA.includes('kết hợp 4') || nameViA.includes('mix 4');
+                            const isMixB = nameEnB.includes('mix of four') || nameViB.includes('kết hợp 4') || nameViB.includes('mix 4');
+                            if (isMixA && !isMixB) return -1;
+                            if (!isMixA && isMixB) return 1;
+                            
+                            const isAromaA = nameEnA.includes('aroma oil') || nameViA.includes('tinh dầu');
+                            const isAromaB = nameEnB.includes('aroma oil') || nameViB.includes('tinh dầu');
+                            if (isAromaA && !isAromaB) return 1;
+                            if (!isAromaA && isAromaB) return -1;
+                            
+                            return 0; // Giữ nguyên thứ tự ban đầu cho các món khác
+                        });
+                    }
+
                     return (
                         <motion.div 
                             key={cat.id} 
