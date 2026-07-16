@@ -1,5 +1,4 @@
 // File: src/services/user/checkUserEmail.ts
-import { supabase } from "@/lib/supabase";
 
 export interface CheckUserResult {
     exists: boolean;
@@ -10,38 +9,29 @@ export interface CheckUserResult {
     } | null;
 }
 
-export const checkUserEmail = async (email: string): Promise<CheckUserResult> => {
+export const checkUserEmail = async (inputValue: string): Promise<CheckUserResult> => {
     try {
-        // Tìm đơn hàng gần nhất của email này
-        const { data, error } = await supabase
-            .from('Bookings')
-            .select('customerName, customerPhone, customerEmail')
-            .eq('customerEmail', email)
-            .order('bookingDate', { ascending: false })
-            .limit(1)
-            .single();
+        const trimmed = inputValue.trim();
+        const isEmail = trimmed.includes('@');
+        const paramKey = isEmail ? 'email' : 'phone';
 
-        if (error) {
-            if (error.code === 'PGRST116') { // Không tìm thấy dữ liệu
-                return { exists: false, customer: null };
-            }
-            throw error;
-        }
+        const res = await fetch(`/api/auth/lookup?${paramKey}=${encodeURIComponent(trimmed)}`);
+        const data = await res.json();
 
-        if (data) {
+        if (data.success && data.customer) {
             return {
                 exists: true,
                 customer: {
-                    name: data.customerName || "",
-                    phone: data.customerPhone || "",
-                    email: data.customerEmail || email
+                    name: data.customer.fullName || "",
+                    phone: data.customer.phone || "",
+                    email: data.customer.email || (isEmail ? trimmed : "")
                 }
             };
         }
 
         return { exists: false, customer: null };
     } catch (error) {
-        console.error("❌ [Supabase] Lỗi check email:", error);
+        console.error("❌ [API] Lỗi check user:", error);
         return { exists: false, customer: null };
     }
 };

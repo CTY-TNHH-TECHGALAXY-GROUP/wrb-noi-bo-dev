@@ -25,16 +25,16 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     btn_old_title: 'View Order History',
     btn_back: 'Back',
     find_history: 'Find History',
-    desc_enter_email: 'Enter your email to retrieve past visits.',
-    input_placeholder: 'example@gmail.com',
+    desc_enter_email: 'Enter your phone number or email to retrieve past visits.',
+    input_placeholder: 'Phone number or Email',
     search: 'SEARCH',
     cancel: 'Cancel',
     error_not_found: 'Not Found',
-    error_desc: 'This email has not been used before.',
-    btn_retry: 'Try Another Email',
+    error_desc: 'This phone number or email has not been used before.',
+    btn_retry: 'Try Another Phone/Email',
     btn_register_new: 'Register New Customer',
     btn_logout: 'Switch Account / Logout',
-    or_manual: 'or enter email'
+    or_manual: 'or enter manually'
   },
   vi: {
     wc_title: 'Chào mừng',
@@ -46,16 +46,16 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     btn_old_title: 'Xem lịch sử đơn hàng',
     btn_back: 'Quay lại',
     find_history: 'Tìm Lịch Sử',
-    desc_enter_email: 'Nhập email để tìm lại lịch sử ghé thăm.',
-    input_placeholder: 'example@gmail.com',
+    desc_enter_email: 'Nhập số điện thoại hoặc email để tìm lại lịch sử ghé thăm.',
+    input_placeholder: 'Số điện thoại hoặc Email',
     search: 'TÌM KIẾM',
     cancel: 'Hủy',
     error_not_found: 'Không Tìm Thấy',
-    error_desc: 'Email này chưa từng sử dụng dịch vụ.',
-    btn_retry: 'Thử Email Khác',
+    error_desc: 'Số điện thoại hoặc email này chưa từng sử dụng dịch vụ.',
+    btn_retry: 'Thử Số Điện Thoại / Email Khác',
     btn_register_new: 'Đăng Ký Khách Mới',
     btn_logout: 'Đổi Tài Khoản / Đăng Xuất',
-    or_manual: 'hoặc nhập email'
+    or_manual: 'hoặc nhập số điện thoại/email'
   },
   jp: {
     wc_title: 'ようこそ',
@@ -67,16 +67,16 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     btn_old_title: '注文履歴を見る',
     btn_back: '戻る',
     find_history: '履歴検索',
-    desc_enter_email: '過去の履歴を検索するにはメールを入力してください。',
-    input_placeholder: 'example@gmail.com',
+    desc_enter_email: '過去の履歴を検索するには電話番号またはメールを入力してください。',
+    input_placeholder: '電話番号またはメール',
     search: '検索',
     cancel: 'キャンセル',
     error_not_found: '見つかりません',
-    error_desc: 'このメールアドレスは登録されていません。',
-    btn_retry: '別のメールを試す',
+    error_desc: 'この電話番号またはメールアドレスは登録されていません。',
+    btn_retry: '別の電話番号/メールを試す',
     btn_register_new: '新規登録',
     btn_logout: 'アカウント切り替え / ログアウト',
-    or_manual: 'またはメール入力'
+    or_manual: 'または電話番号/メール入力'
   },
   kr: {
     wc_title: '환영합니다',
@@ -88,16 +88,16 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     btn_old_title: '주문 내역 보기',
     btn_back: '돌아가기',
     find_history: '기록 찾기',
-    desc_enter_email: '이전 방문 기록을 확인하려면 이메일을 입력하세요.',
-    input_placeholder: 'example@gmail.com',
+    desc_enter_email: '이전 방문 기록을 확인하려면 전화번호 또는 이메일을 입력하세요.',
+    input_placeholder: '전화번호 또는 이메일',
     search: '검색',
     cancel: '취소',
     error_not_found: '찾을 수 없음',
-    error_desc: '이 이메일은 사용된 적이 없습니다.',
-    btn_retry: '다른 이메일 시도',
+    error_desc: '이 전화번호 또는 이메일은 사용된 적이 없습니다.',
+    btn_retry: '다른 전화번호/이메일 시도',
     btn_register_new: '신규 고객 등록',
     btn_logout: '계정 전환 / 로그아웃',
-    or_manual: '또는 이메일 입력'
+    or_manual: '또는 전화번호/이메일 입력'
   },
   cn: {
     wc_title: '欢迎',
@@ -109,15 +109,15 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     btn_old_title: '查看订单记录',
     btn_back: '返回',
     find_history: '查找记录',
-    desc_enter_email: '请输入您的电子邮件以检索过往记录。',
-    input_placeholder: 'example@gmail.com',
+    desc_enter_email: '请输入您的电话号码或电子邮件以检索过往记录。',
+    input_placeholder: '电话号码或邮箱',
     search: '搜索',
     cancel: '取消',
     error_not_found: '未找到',
-    error_desc: '此电子邮件尚未使用过。',
-    btn_retry: '尝试其他邮箱',
+    error_desc: '此电话号码或电子邮件尚未使用过。',
+    btn_retry: '尝试其他电话/邮箱',
     btn_register_new: '注册新客户',
     btn_logout: '切换账号 / 退出',
-    or_manual: '或输入邮箱'
+    or_manual: '或输入电话/邮箱'
   }
 };

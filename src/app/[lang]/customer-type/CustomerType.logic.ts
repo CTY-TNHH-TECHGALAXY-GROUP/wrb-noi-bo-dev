@@ -75,17 +75,30 @@ export const useCustomerTypeLogic = (lang: string) => {
   };
 
   // --- 5. LOGIC CHECK EMAIL VỚI FIREBASE ---
-  const handleCheckUserEmail = async (email: string) => {
-    if (!email.trim()) return;
+  const handleCheckUserEmail = async (inputValue: string) => {
+    const trimmedValue = inputValue.trim();
+    if (!trimmedValue) return;
 
     setIsLoading(true);
 
-    const result = await checkUserEmail(email);
+    const result = await checkUserEmail(trimmedValue);
 
     setIsLoading(false);
 
     if (result.exists && result.customer) {
-      localStorage.setItem('currentUserEmail', email);
+      // Lưu cả email và phone vào localStorage để trang lịch sử sử dụng
+      if (result.customer.email) {
+        localStorage.setItem('currentUserEmail', result.customer.email);
+      } else {
+        localStorage.removeItem('currentUserEmail');
+      }
+
+      if (result.customer.phone) {
+        localStorage.setItem('currentUserPhone', result.customer.phone);
+      } else {
+        localStorage.removeItem('currentUserPhone');
+      }
+
       // Save full info for Auto-fill
       localStorage.setItem('currentUserInfo', JSON.stringify(result.customer));
 

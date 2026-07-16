@@ -37,7 +37,7 @@ const LAYOUT_CONFIG = {
 export default function CustomerTypePage() {
   const params = useParams();
   const lang = (params?.lang as string) || "en";
-  const [inputEmail, setInputEmail] = useState("");
+  const [inputValue, setInputValue] = useState("");
 
   const {
     t,                    // <-- Lấy hàm dịch
@@ -217,17 +217,17 @@ export default function CustomerTypePage() {
 
               <div className="w-full space-y-4">
                 <input
-                  type="email"
+                  type="text"
                   placeholder={t('input_placeholder')}
                   className="w-full bg-[#161b26] border border-[#2a3040] rounded-2xl p-4 text-white text-center font-bold text-lg focus:border-[#EAB308] focus:ring-1 focus:ring-[#EAB308] outline-none transition-all placeholder-gray-600"
-                  value={inputEmail}
-                  onChange={(e) => setInputEmail(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleCheckUserEmail(inputEmail)}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCheckUserEmail(inputValue)}
                   autoFocus
                 />
 
                 <button
-                  onClick={() => handleCheckUserEmail(inputEmail)}
+                  onClick={() => handleCheckUserEmail(inputValue)}
                   disabled={isLoading}
                   className="w-full bg-[#EAB308] hover:bg-[#d9a507] text-black font-extrabold text-[15px] py-4 rounded-2xl uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-[0.98]"
                 >
