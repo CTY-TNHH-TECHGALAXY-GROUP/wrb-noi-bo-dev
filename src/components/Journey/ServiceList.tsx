@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 import TipModal from '@/components/Journey/TipModal';
 import { TIMER_CONFIG_COMPACT, RATING_OPTIONS, getRatingLabel } from './Journey.constants';
-import { useServiceTimer, groupItemsByTech, useViolations, GroupedService, useRemindersCustomer } from './Journey.logic';
+import { useServiceTimer, groupItemsByTech, groupItemsByService, useViolations, GroupedService, useRemindersCustomer } from './Journey.logic';
 import AlertModal from '@/components/Shared/AlertModal';
 import { translations } from './Journey.i18n';
 
@@ -262,8 +262,8 @@ const CombinedRatingView = ({
     onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
     onAllRated?: () => void;
 }) => {
-    // Group items by KTV
-    const groups = groupItemsByTech(items, lang || 'vi');
+    // Group items by Service
+    const groups = groupItemsByService(items, lang || 'vi');
 
     const [submitted, setSubmitted] = useState<Set<string>>(new Set());
 
@@ -367,18 +367,28 @@ const CombinedRatingView = ({
 
         setSubmitting(groupId);
         try {
-            const group = groups.find(g => g.items[0].id === groupId);
-            if (group) {
-                const newSubmitted = new Set(submitted);
-                let first = true;
-                for (const item of group.items) {
-                    if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
-                        await onItemRated(item.id, 4, first ? `tip:${tipAmount}` : '');
-                        newSubmitted.add(item.id);
-                        first = false;
-                    }
-                }
-                setSubmitted(newSubmitted);
+            // Find the item specifically if groupId is actually an itemId (like abc-ktv0)
+            let itemToRate = items.find(i => i.id === groupId);
+            
+            if (itemToRate) {
+                 // It's a single KTV being tipped
+                 await onItemRated(itemToRate.id, 4, `tip:${tipAmount}`);
+                 setSubmitted(prev => new Set(prev).add(itemToRate.id));
+            } else {
+                 // It's a whole group being tipped
+                 const group = groups.find(g => g.items[0].id === groupId);
+                 if (group) {
+                     const newSubmitted = new Set(submitted);
+                     let first = true;
+                     for (const item of group.items) {
+                         if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
+                             await onItemRated(item.id, 4, first ? `tip:${tipAmount}` : '');
+                             newSubmitted.add(item.id);
+                             first = false;
+                         }
+                     }
+                     setSubmitted(newSubmitted);
+                 }
             }
             setExpandedId(null);
         } catch (err: any) {
@@ -485,7 +495,7 @@ const CombinedRatingView = ({
                         <div key={groupId} className={`bg-[#1c1c1e] rounded-3xl border-2 transition-all overflow-hidden ${
                             isRated ? 'border-white/5 opacity-80' : isExpanded ? 'border-[#C9A96E] shadow-[#C9A96E]/20 shadow-lg' : 'border-white/5'
                         }`}>
-                            {/* Accordion Header — chỉ hiện NV */}
+                            {/* Accordion Header */}
                             <button onClick={() => !isRated && setExpandedId(isExpanded ? null : groupId)}
                                 className="w-full text-left p-4 flex items-center gap-3">
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 ${
@@ -495,10 +505,10 @@ const CombinedRatingView = ({
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className={`font-black text-base leading-tight truncate ${isRated ? 'text-gray-400' : 'text-white/90'}`}>
-                                        NV: {group.technicianCode || 'N/A'}
+                                        {group.combinedName}
                                     </p>
                                     <p className="text-gray-500 text-sm font-medium truncate mt-1">
-                                        {group.itemCount} {t.services} · {group.totalDuration} {t.minutes}
+                                        NV: {group.technicianCode || 'N/A'} · {group.totalDuration} {t.minutes}
                                     </p>
                                 </div>
                                 {isRated ? (
@@ -516,48 +526,125 @@ const CombinedRatingView = ({
                             {/* Expanded Rating Area */}
                             {isExpanded && !isRated && (
                                 <div className="px-4 pb-4 border-t border-white/5 pt-3 animate-in fade-in slide-in-from-top-2 duration-300 bg-[#0d0d0d]/50">
-                                    <p className="text-base font-bold text-[#C9A96E] mb-4">
-                                        {t.yourExperience}
-                                    </p>
-                                    <div className="grid grid-cols-4 gap-2 mb-4">
-                                        {RATING_OPTIONS.map((opt) => {
-                                            const isDisabled = opt.value > maxAllowedRating;
-                                            // TODO: Update opt.bgSel in Journey.constants.ts to dark mode version later, for now we inject Tailwind class string conditionally here if we need to. 
-                                            // Actually RATING_OPTIONS.bgSel might be using bright colors like bg-green-100.
-                                            // We'll customize it here:
-                                            const isSel = ratings[groupId] === opt.value;
-                                            let bgClass = "bg-[#1c1c1e] border-white/5 hover:border-white/10";
-                                            if (isSel) {
-                                                if (opt.value === 4) bgClass = "bg-green-900/40 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]";
-                                                else if (opt.value === 3) bgClass = "bg-blue-900/40 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]";
-                                                else if (opt.value === 2) bgClass = "bg-[#C9A96E]/20 border-[#C9A96E] shadow-[0_0_10px_rgba(201,169,110,0.2)]";
-                                                else bgClass = "bg-red-900/40 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
-                                            }
+                                    
+                                    {/* Rating Chung cho Dịch Vụ */}
+                                    <div className="mb-4">
+                                        <p className="text-base font-bold text-[#C9A96E] mb-4 text-center">
+                                            {t.yourExperience}
+                                        </p>
+                                        <div className="grid grid-cols-4 gap-2">
+                                            {RATING_OPTIONS.map((opt) => {
+                                                const isDisabled = opt.value > maxAllowedRating;
+                                                const isSel = ratings[groupId] === opt.value;
+                                                let bgClass = "bg-[#1c1c1e] border-white/5 hover:border-white/10";
+                                                if (isSel) {
+                                                    if (opt.value === 4) bgClass = "bg-green-900/40 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]";
+                                                    else if (opt.value === 3) bgClass = "bg-blue-900/40 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]";
+                                                    else if (opt.value === 2) bgClass = "bg-[#C9A96E]/20 border-[#C9A96E] shadow-[0_0_10px_rgba(201,169,110,0.2)]";
+                                                    else bgClass = "bg-red-900/40 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
+                                                }
 
-                                            return (
-                                                <button key={opt.value}
-                                                    disabled={isDisabled || isSubmittingThis}
-                                                    onClick={() => {
-                                                        if (isDisabled || isSubmittingThis) return;
-                                                        setRatings(prev => ({ ...prev, [groupId]: opt.value }));
-                                                        handleAutoSubmit(groupId, opt.value);
-                                                    }}
-                                                    className={`flex flex-col items-center p-2.5 rounded-2xl border-2 transition-all ${
-                                                        isDisabled || isSubmittingThis
-                                                            ? 'opacity-40 grayscale cursor-not-allowed bg-[#0d0d0d] border-transparent'
-                                                            : `active:scale-95 ${bgClass}`
-                                                    }`}>
-                                                    <span className="text-3xl mb-1">{opt.emoji}</span>
-                                                    <span className={`text-xs font-bold leading-tight text-center ${isSel ? 'text-white' : 'text-gray-500'}`}>
-                                                        {getRatingLabel(lang || 'vi', opt.value)}
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
+                                                return (
+                                                    <button key={opt.value}
+                                                        disabled={isDisabled || isSubmittingThis}
+                                                        onClick={() => {
+                                                            if (isDisabled || isSubmittingThis) return;
+                                                            setRatings(prev => ({ ...prev, [groupId]: opt.value }));
+                                                            handleAutoSubmit(groupId, opt.value); // This will submit for all KTVs in the group
+                                                        }}
+                                                        className={`flex flex-col items-center p-2.5 rounded-2xl border-2 transition-all ${
+                                                            isDisabled || isSubmittingThis
+                                                                ? 'opacity-40 grayscale cursor-not-allowed bg-[#0d0d0d] border-transparent'
+                                                                : `active:scale-95 ${bgClass}`
+                                                        }`}>
+                                                        <span className="text-3xl mb-1">{opt.emoji}</span>
+                                                        <span className={`text-xs font-bold leading-tight text-center ${isSel ? 'text-white' : 'text-gray-500'}`}>
+                                                            {getRatingLabel(lang || 'vi', opt.value)}
+                                                        </span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
+
+                                    {/* Đánh giá riêng cho KTV (nếu có nhiều KTV) */}
+                                    {group.items.length > 1 && (
+                                        <div className="border-t border-white/10 pt-4 mt-2">
+                                            <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider text-center">Hoặc đánh giá chi tiết từng NV</p>
+                                            <div className="space-y-4">
+                                                {group.items.map(item => {
+                                                    const itemRated = item.itemRating !== null && item.itemRating !== undefined || submitted.has(item.id);
+                                                    const itemRatingValue = ratings[item.id] || item.itemRating;
+                                                    
+                                                    return (
+                                                        <div key={item.id} className={`bg-[#1c1c1e] p-3 rounded-2xl border ${itemRated ? 'border-white/5 opacity-80' : 'border-[#C9A96E]/20'}`}>
+                                                            <div className="flex justify-between items-center mb-2">
+                                                                <p className="font-bold text-[#C9A96E] text-sm">NV: {item.technicianCode}</p>
+                                                                {itemRated && (
+                                                                    <span className="text-[10px] font-black text-green-500 uppercase tracking-widest bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+                                                                        Đã gửi
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="grid grid-cols-4 gap-2">
+                                                                {RATING_OPTIONS.map((opt) => {
+                                                                    const isDisabled = opt.value > maxAllowedRating;
+                                                                    const isSel = itemRatingValue === opt.value;
+                                                                    let bgClass = "bg-[#0d0d0d] border-white/5 hover:border-white/10";
+                                                                    if (isSel) {
+                                                                        if (opt.value === 4) bgClass = "bg-green-900/40 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]";
+                                                                        else if (opt.value === 3) bgClass = "bg-blue-900/40 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]";
+                                                                        else if (opt.value === 2) bgClass = "bg-[#C9A96E]/20 border-[#C9A96E] shadow-[0_0_10px_rgba(201,169,110,0.2)]";
+                                                                        else bgClass = "bg-red-900/40 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
+                                                                    }
+
+                                                                    return (
+                                                                        <button key={opt.value}
+                                                                            disabled={isDisabled || isSubmittingThis || itemRated}
+                                                                            onClick={async () => {
+                                                                                if (isDisabled || isSubmittingThis || itemRated) return;
+                                                                                setRatings(prev => ({ ...prev, [item.id]: opt.value }));
+                                                                                
+                                                                                // Submit rating only for THIS specific item (KTV)
+                                                                                setSubmitting(groupId);
+                                                                                try {
+                                                                                    await onItemRated(item.id, opt.value, '');
+                                                                                    setSubmitted(prev => new Set(prev).add(item.id));
+                                                                                    
+                                                                                    // Show tip if 4 stars
+                                                                                    if (opt.value === 4) {
+                                                                                        setShowTipFor(item.id);
+                                                                                    }
+                                                                                } catch (err) {
+                                                                                    setAlertState({
+                                                                                        isOpen: true,
+                                                                                        message: lang === 'vi' ? 'Gửi đánh giá thất bại. Vui lòng thử lại.' : 'Failed to submit rating. Please try again.',
+                                                                                        type: 'error'
+                                                                                    });
+                                                                                } finally {
+                                                                                    setSubmitting(null);
+                                                                                }
+                                                                            }}
+                                                                            className={`flex flex-col items-center p-2 rounded-xl border-2 transition-all ${
+                                                                                isDisabled || isSubmittingThis || itemRated && !isSel
+                                                                                    ? 'opacity-40 grayscale cursor-not-allowed bg-transparent border-transparent'
+                                                                                    : `active:scale-95 ${bgClass}`
+                                                                            }`}>
+                                                                            <span className="text-2xl mb-1">{opt.emoji}</span>
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Submitting indicator */}
                                     {isSubmittingThis && (
-                                        <div className="w-full py-3 flex items-center justify-center gap-2 text-[#C9A96E]">
+                                        <div className="w-full py-3 mt-2 flex items-center justify-center gap-2 text-[#C9A96E]">
                                             <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
                                             <span className="text-base font-bold">{t.submitting}</span>
                                         </div>

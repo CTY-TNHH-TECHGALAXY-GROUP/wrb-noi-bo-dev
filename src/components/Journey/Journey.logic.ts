@@ -235,6 +235,58 @@ export const groupItemsByTech = (items: ServiceItem[], lang: string = 'vi'): Gro
     });
 };
 
+/**
+ * Group booking items by base service ID.
+ * Items with the same base service ID (e.g., 'item1-ktv1' and 'item1-ktv2' -> 'item1') are grouped together.
+ * Useful for the Rating View where we want to rate per service, then expand for KTVs.
+ */
+export const groupItemsByService = (items: ServiceItem[], lang: string = 'vi'): GroupedService[] => {
+    const map = new Map<string, ServiceItem[]>();
+    items.forEach(item => {
+        // Group by base item ID (remove -ktvX suffix)
+        const key = item.id.replace(/-ktv\d+$/, '');
+        const list = map.get(key) || [];
+        list.push(item);
+        map.set(key, list);
+    });
+
+    return Array.from(map.entries()).map(([baseId, groupItems]) => {
+        const getLocalizedName = (i: ServiceItem) => i.service_names?.[lang] || i.service_name;
+        
+        // All items in the group share the same service name, just take the first one
+        const names = [getLocalizedName(groupItems[0])];
+        const combinedName = names[0];
+
+        // Service duration is usually the same across composite items, take the max just in case
+        const totalDuration = Math.max(...groupItems.map(i => Number(i.duration) || 0));
+
+        // Collect all tech codes for display
+        const allTechCodes = [...new Set(groupItems.map(i => i.technicianCode).filter(Boolean))];
+        const techDisplay = allTechCodes.join(' & ');
+
+        const doneStatuses = ['COMPLETED', 'DONE', 'CLEANING', 'FEEDBACK'];
+        const isCompleted = groupItems.every(i => doneStatuses.includes(i.status || ''));
+        const isStarted = groupItems.some(i => i.computedTimeStart !== null);
+
+        return {
+            technicianCode: techDisplay,
+            names,
+            combinedName,
+            totalDuration,
+            itemCount: 1, // It's 1 service
+            earliestTimeStart: groupItems[0]?.computedTimeStart || null,
+            earliestTimeEnd: groupItems[0]?.timeEnd || null,
+            roomName: groupItems[0]?.roomName || null,
+            bedId: groupItems[0]?.bedId || null,
+            items: groupItems,
+            isCompleted,
+            isStarted,
+            activeSegmentIndex: -1,
+            totalSegments: 1
+        };
+    });
+};
+
 
 // ─── useViolations ───────────────────────────────────────────────────────────
 // Consolidated from ActiveService + ServiceList violations logic
