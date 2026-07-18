@@ -79,6 +79,7 @@ export const translations: Record<string, any> = {
         processing: 'Đang xử lý...',
         thankYou: '🎉 Cảm ơn bạn đã đánh giá!',
         allDoneRedirecting: 'Đang chuyển hướng...',
+        orRateDetail: 'Hoặc đánh giá chi tiết từng NV',
         // Check belongings (inline version in ServiceList)
         beforeYouLeave: 'Nhắc nhở trước khi ra về',
         checkBeforeLeave: 'Vui lòng kiểm tra kỹ tư trang cá nhân trước khi rời phòng!',
@@ -169,6 +170,7 @@ export const translations: Record<string, any> = {
         processing: 'Processing...',
         thankYou: '🎉 Thank you for your feedback!',
         allDoneRedirecting: 'Redirecting...',
+        orRateDetail: 'Or rate each staff in detail',
         // Check belongings (inline version in ServiceList)
         beforeYouLeave: 'Before You Leave',
         checkBeforeLeave: 'Please check your personal belongings before leaving!',
@@ -260,6 +262,7 @@ export const translations: Record<string, any> = {
         processing: '처리 중...',
         thankYou: '🎉 피드백 감사합니다!',
         allDoneRedirecting: '리다이렉트 중...',
+        orRateDetail: '또는 직원별 상세 평가',
         // Check belongings
         beforeYouLeave: '퇴실 전 확인',
         checkBeforeLeave: '퇴실 전 소지품을 확인해 주세요!',
@@ -350,6 +353,7 @@ export const translations: Record<string, any> = {
         processing: '処理中...',
         thankYou: '🎉 フィードバックありがとうございます！',
         allDoneRedirecting: 'リダイレクト中...',
+        orRateDetail: 'またはスタッフごとに詳細を評価する',
         // Check belongings
         beforeYouLeave: 'ご退室前に',
         checkBeforeLeave: 'お忘れ物がないかご確認ください！',
@@ -440,6 +444,7 @@ export const translations: Record<string, any> = {
         processing: '处理中...',
         thankYou: '🎉 感谢您的评价！',
         allDoneRedirecting: '正在跳转...',
+        orRateDetail: '或者对每位员工进行详细评价',
         // Check belongings
         beforeYouLeave: '离开前提醒',
         checkBeforeLeave: '离开前请检查您的个人物品！',

@@ -583,23 +583,28 @@ const CombinedRatingView = ({
                                     {/* Đánh giá riêng cho KTV (nếu có nhiều KTV) */}
                                     {group.items.length > 1 && showPerKtv[groupId] && (
                                         <div className="border-t border-white/10 pt-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                                            <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider text-center">Hoặc đánh giá chi tiết từng NV</p>
+                                            <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider text-center">{t.orRateDetail}</p>
                                             <div className="space-y-4">
                                                 {group.items.map(item => {
                                                     const itemRated = item.itemRating !== null && item.itemRating !== undefined || submitted.has(item.id);
                                                     const itemRatingValue = ratings[item.id] || item.itemRating;
+                                                    const selectedOpt = RATING_OPTIONS.find(o => o.value === itemRatingValue);
                                                     
                                                     return (
                                                         <div key={item.id} className={`bg-[#1c1c1e] p-3 rounded-2xl border ${itemRated ? 'border-white/5 opacity-80' : 'border-[#C9A96E]/20'}`}>
-                                                            <div className="flex justify-between items-center mb-2">
+                                                            <div className={`flex justify-between items-center ${!itemRated ? 'mb-2' : ''}`}>
                                                                 <p className="font-bold text-[#C9A96E] text-sm">NV: {item.technicianCode}</p>
-                                                                {itemRated && (
-                                                                    <span className="text-[10px] font-black text-green-500 uppercase tracking-widest bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
-                                                                        Đã gửi
-                                                                    </span>
+                                                                {itemRated && selectedOpt && (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-3xl animate-in zoom-in duration-300">{selectedOpt.emoji}</span>
+                                                                        <span className="text-[10px] font-black text-green-500 uppercase tracking-widest bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+                                                                            {t.ratedSent}
+                                                                        </span>
+                                                                    </div>
                                                                 )}
                                                             </div>
-                                                            <div className="grid grid-cols-4 gap-2">
+                                                            {!itemRated && (
+                                                                <div className="grid grid-cols-4 gap-2">
                                                                 {RATING_OPTIONS.map((opt) => {
                                                                     const isDisabled = opt.value > maxAllowedRating;
                                                                     const isSel = itemRatingValue === opt.value;
@@ -647,7 +652,8 @@ const CombinedRatingView = ({
                                                                         </button>
                                                                     );
                                                                 })}
-                                                            </div>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     );
                                                 })}
