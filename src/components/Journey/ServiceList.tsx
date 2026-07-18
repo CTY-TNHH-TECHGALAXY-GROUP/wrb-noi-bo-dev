@@ -525,7 +525,9 @@ const CombinedRatingView = ({
                             </button>
 
                             {/* Expanded Rating Area */}
-                            {isExpanded && !isRated && (
+                            {isExpanded && !isRated && (() => {
+                                const isPartiallyRated = group.items.some(i => i.itemRating !== null && i.itemRating !== undefined || submitted.has(i.id));
+                                return (
                                 <div className="px-4 pb-4 border-t border-white/5 pt-3 animate-in fade-in slide-in-from-top-2 duration-300 bg-[#0d0d0d]/50">
                                     
                                     {/* Rating Chung cho Dịch Vụ */}
@@ -537,15 +539,16 @@ const CombinedRatingView = ({
                                             {group.items.length > 1 && (
                                                 <button 
                                                     onClick={() => setShowPerKtv(prev => ({ ...prev, [groupId]: !prev[groupId] }))}
-                                                    className={`absolute right-2 flex flex-col gap-1.5 p-2 transition-all ${showPerKtv[groupId] ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}
+                                                    className={`absolute right-2 flex flex-col gap-1.5 p-2 transition-all ${showPerKtv[groupId] || isPartiallyRated ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}
                                                 >
-                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] ? 'rotate-45 translate-y-2' : ''}`}></span>
-                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] ? 'opacity-0' : ''}`}></span>
-                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] ? '-rotate-45 -translate-y-2' : ''}`}></span>
+                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] || isPartiallyRated ? 'rotate-45 translate-y-2' : ''}`}></span>
+                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] || isPartiallyRated ? 'opacity-0' : ''}`}></span>
+                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] || isPartiallyRated ? '-rotate-45 -translate-y-2' : ''}`}></span>
                                                 </button>
                                             )}
                                         </div>
-                                        <div className="grid grid-cols-4 gap-2">
+                                        {!(showPerKtv[groupId] || isPartiallyRated) && (
+                                            <div className="grid grid-cols-4 gap-2">
                                             {RATING_OPTIONS.map((opt) => {
                                                 const isDisabled = opt.value > maxAllowedRating;
                                                 const isSel = ratings[groupId] === opt.value;
@@ -577,11 +580,12 @@ const CombinedRatingView = ({
                                                     </button>
                                                 );
                                             })}
-                                        </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Đánh giá riêng cho KTV (nếu có nhiều KTV) */}
-                                    {group.items.length > 1 && showPerKtv[groupId] && (
+                                    {group.items.length > 1 && (showPerKtv[groupId] || isPartiallyRated) && (
                                         <div className="border-t border-white/10 pt-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
                                             <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider text-center">{t.orRateDetail}</p>
                                             <div className="space-y-4">
@@ -669,7 +673,8 @@ const CombinedRatingView = ({
                                         </div>
                                     )}
                                 </div>
-                            )}
+                                );
+                            })()}
                         </div>
                     );
                 })}
