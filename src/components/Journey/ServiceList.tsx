@@ -276,6 +276,7 @@ const CombinedRatingView = ({
     const [submitting, setSubmitting] = useState<string | null>(null);
     const [showTipFor, setShowTipFor] = useState<string | null>(null);
     const [savedViolations, setSavedViolations] = useState<number[]>([]);
+    const [showPerKtv, setShowPerKtv] = useState<Record<string, boolean>>({});
     const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
     const t = translations[lang || 'vi'] || translations['en'];
 
@@ -529,9 +530,21 @@ const CombinedRatingView = ({
                                     
                                     {/* Rating Chung cho Dịch Vụ */}
                                     <div className="mb-4">
-                                        <p className="text-base font-bold text-[#C9A96E] mb-4 text-center">
-                                            {t.yourExperience}
-                                        </p>
+                                        <div className="flex items-center justify-center relative mb-4">
+                                            <p className="text-base font-bold text-[#C9A96E]">
+                                                {t.yourExperience}
+                                            </p>
+                                            {group.items.length > 1 && (
+                                                <button 
+                                                    onClick={() => setShowPerKtv(prev => ({ ...prev, [groupId]: !prev[groupId] }))}
+                                                    className={`absolute right-2 flex flex-col gap-1.5 p-2 transition-all ${showPerKtv[groupId] ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}
+                                                >
+                                                    <span className={`w-5 h-0.5 bg-red-500 rounded-full transition-all ${showPerKtv[groupId] ? 'rotate-45 translate-y-2' : ''}`}></span>
+                                                    <span className={`w-5 h-0.5 bg-red-500 rounded-full transition-all ${showPerKtv[groupId] ? 'opacity-0' : ''}`}></span>
+                                                    <span className={`w-5 h-0.5 bg-red-500 rounded-full transition-all ${showPerKtv[groupId] ? '-rotate-45 -translate-y-2' : ''}`}></span>
+                                                </button>
+                                            )}
+                                        </div>
                                         <div className="grid grid-cols-4 gap-2">
                                             {RATING_OPTIONS.map((opt) => {
                                                 const isDisabled = opt.value > maxAllowedRating;
@@ -568,8 +581,8 @@ const CombinedRatingView = ({
                                     </div>
 
                                     {/* Đánh giá riêng cho KTV (nếu có nhiều KTV) */}
-                                    {group.items.length > 1 && (
-                                        <div className="border-t border-white/10 pt-4 mt-2">
+                                    {group.items.length > 1 && showPerKtv[groupId] && (
+                                        <div className="border-t border-white/10 pt-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
                                             <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider text-center">Hoặc đánh giá chi tiết từng NV</p>
                                             <div className="space-y-4">
                                                 {group.items.map(item => {

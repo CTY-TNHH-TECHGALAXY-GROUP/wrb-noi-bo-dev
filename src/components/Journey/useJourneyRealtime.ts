@@ -153,9 +153,16 @@ export function useJourneyRealtime(bookingId: string) {
 
                     // Split multi-KTV items: if a BookingItem has multiple technicianCodes,
                     // create separate ServiceItems so each KTV gets their own rating card.
-                    const techCodes: string[] = Array.isArray(i.technicianCodes) && i.technicianCodes.length > 0
-                        ? i.technicianCodes
-                        : [booking.technicianCode || ''];
+                    let techCodes: string[] = [];
+                    if (Array.isArray(i.technicianCodes) && i.technicianCodes.length > 0) {
+                        techCodes = i.technicianCodes;
+                    } else if (i.technicianCode) {
+                        techCodes = String(i.technicianCode).split(',').map((s: string) => s.trim()).filter(Boolean);
+                    } else if (booking.technicianCode) {
+                        techCodes = String(booking.technicianCode).split(',').map((s: string) => s.trim()).filter(Boolean);
+                    } else {
+                        techCodes = [''];
+                    }
 
                     techCodes.forEach((techCode: string, techIdx: number) => {
                         // For multi-KTV: use composite ID so each KTV gets unique rating
