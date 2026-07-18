@@ -539,9 +539,9 @@ const CombinedRatingView = ({
                                                     onClick={() => setShowPerKtv(prev => ({ ...prev, [groupId]: !prev[groupId] }))}
                                                     className={`absolute right-2 flex flex-col gap-1.5 p-2 transition-all ${showPerKtv[groupId] ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}
                                                 >
-                                                    <span className={`w-5 h-0.5 bg-red-500 rounded-full transition-all ${showPerKtv[groupId] ? 'rotate-45 translate-y-2' : ''}`}></span>
-                                                    <span className={`w-5 h-0.5 bg-red-500 rounded-full transition-all ${showPerKtv[groupId] ? 'opacity-0' : ''}`}></span>
-                                                    <span className={`w-5 h-0.5 bg-red-500 rounded-full transition-all ${showPerKtv[groupId] ? '-rotate-45 -translate-y-2' : ''}`}></span>
+                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] ? 'rotate-45 translate-y-2' : ''}`}></span>
+                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] ? 'opacity-0' : ''}`}></span>
+                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] ? '-rotate-45 -translate-y-2' : ''}`}></span>
                                                 </button>
                                             )}
                                         </div>
