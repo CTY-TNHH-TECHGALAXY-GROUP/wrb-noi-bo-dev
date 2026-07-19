@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
-import { calculateMinDuration, lookupPrice, type VipPricingTable } from '@/lib/vipPricingEngine';
+import { calculateMinDuration, lookupPrice, getVipServiceId, type VipPricingTable } from '@/lib/vipPricingEngine';
 import { generateAccessToken } from '@/lib/token';
 
 export const dynamic = 'force-dynamic';
@@ -14,38 +14,6 @@ type BookingConfidence = 'CONFIRMED' | 'NEEDS_CONFIRM' | 'RISKY';
 /** Get today's date in Vietnam timezone */
 const getTodayVN = (): string =>
   new Date().toLocaleDateString('sv', { timeZone: 'Asia/Ho_Chi_Minh' });
-
-const VIP_DURATIONS = [60, 70, 90, 120, 150, 180, 240];
-
-const VIP_1K_MAP: Record<number, string> = {
-  60: 'NHP0001',
-  70: 'NHP0002',
-  90: 'NHP0003',
-  120: 'NHP0004',
-  150: 'NHP0005',
-  180: 'NHP0006',
-  240: 'NHP0007',
-};
-
-const VIP_2K_MAP: Record<number, string> = {
-  60: 'NHP0008',
-  70: 'NHP0009',
-  90: 'NHP0010',
-  120: 'NHP0011',
-  150: 'NHP0012',
-  180: 'NHP0013',
-  240: 'NHP0014',
-};
-
-const getVipServiceId = (numKtvs: number, duration: number): string => {
-  const map = numKtvs >= 2 ? VIP_2K_MAP : VIP_1K_MAP;
-  if (VIP_DURATIONS.includes(duration)) {
-    return map[duration];
-  }
-  // Fallback: find closest duration that is >= selected duration
-  const closest = VIP_DURATIONS.find(d => d >= duration) || VIP_DURATIONS[VIP_DURATIONS.length - 1];
-  return map[closest];
-};
 
 /** Get localized warning messages */
 function getWarningMessage(type: 'LEAVE_APPROVED' | 'LEAVE_PENDING' | 'BUSY' | 'NOT_CHECKED_IN', staffId: string, lang: string, extra?: string) {

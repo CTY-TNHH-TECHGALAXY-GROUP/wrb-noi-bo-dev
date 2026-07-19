@@ -15,6 +15,36 @@ import {
 export type VipPricingTable = Record<string, Record<string, number>>;
 export type { VipDuration };
 
+export const VIP_1K_MAP: Record<number, string> = {
+  60: 'NHP0001',
+  70: 'NHP0002',
+  90: 'NHP0003',
+  120: 'NHP0004',
+  150: 'NHP0005',
+  180: 'NHP0006',
+  240: 'NHP0007',
+};
+
+export const VIP_2K_MAP: Record<number, string> = {
+  60: 'NHP0008',
+  70: 'NHP0009',
+  90: 'NHP0010',
+  120: 'NHP0011',
+  150: 'NHP0012',
+  180: 'NHP0013',
+  240: 'NHP0014',
+};
+
+export const getVipServiceId = (numKtvs: number, duration: number): string => {
+  const map = numKtvs >= 2 ? VIP_2K_MAP : VIP_1K_MAP;
+  if (VIP_DURATION_TIERS.includes(duration as any)) {
+    return map[duration];
+  }
+  // Fallback: find closest duration that is >= selected duration
+  const closest = VIP_DURATION_TIERS.find(d => d >= duration) || VIP_DURATION_TIERS[VIP_DURATION_TIERS.length - 1];
+  return map[closest];
+};
+
 // --- Engine Output ---
 export interface VipPricingResult {
   leCount: number;
