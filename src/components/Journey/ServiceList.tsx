@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 import TipModal from '@/components/Journey/TipModal';
 import { TIMER_CONFIG_COMPACT, RATING_OPTIONS, getRatingLabel } from './Journey.constants';
@@ -252,9 +252,9 @@ const CheckBelongingsView = ({ lang = 'vi', onConfirm }: { lang?: string; onConf
     );
 };
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// VIEW 3: Combined Rating — Tất cả NV gộp 1 trang
-// ═══════════════════════════════════════════════════════════════════════════════
+// -------------------------------------------------------------------------------
+// VIEW 3: Combined Rating � T?t c? NV g?p 1 trang (H? tr? d�nh gi� chung & l?)
+// -------------------------------------------------------------------------------
 const CombinedRatingView = ({
     items, lang = 'vi', bookingId, onItemRated, onAllRated,
 }: {
@@ -262,26 +262,26 @@ const CombinedRatingView = ({
     onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
     onAllRated?: () => void;
 }) => {
-    // Group items by Service
-    const groups = groupItemsByService(items, lang || 'vi');
-
     const [submitted, setSubmitted] = useState<Set<string>>(new Set());
-
-    // Task C3a: Auto-expand first unrated service card
-    const firstUnratedId = groups.find(g => 
-        g.items.some(i => (i.itemRating === null || i.itemRating === undefined) && !submitted.has(i.id))
-    )?.items[0].id || null;
-    const [expandedId, setExpandedId] = useState<string | null>(firstUnratedId);
-    const [ratings, setRatings] = useState<Record<string, number>>({});
-    const [submitting, setSubmitting] = useState<string | null>(null);
-    const [showTipFor, setShowTipFor] = useState<string | null>(null);
+    const [commonRating, setCommonRating] = useState<number | null>(null);
+    const [submitting, setSubmitting] = useState<boolean>(false);
+    const [showTipFor, setShowTipFor] = useState<boolean>(false);
     const [savedViolations, setSavedViolations] = useState<number[]>([]);
-    const [showPerKtv, setShowPerKtv] = useState<Record<string, boolean>>({});
     const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
     const t = translations[lang || 'vi'] || translations['en'];
 
-    // 🔧 RATING CONSTRAINT: max rating based on number of violations
-    // 0 violations → 4 (Excellent), 1 → 3 (Good), 2 → 2 (Ok), 3+ → 1 (Bad)
+    const [showDetailed, setShowDetailed] = useState<boolean>(false);
+    const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
+    const groups = useMemo(() => groupItemsByService(items, lang || 'vi'), [items, lang]);
+
+    const hasAnyRating = items.some(i => i.itemRating !== null && i.itemRating !== undefined) || submitted.size > 0;
+
+    useEffect(() => {
+        if (hasAnyRating) {
+            setShowDetailed(true);
+        }
+    }, [hasAnyRating]);
+
     const getMaxRating = (violationCount: number): number => {
         if (violationCount >= 3) return 1;
         if (violationCount >= 2) return 2;
@@ -290,7 +290,6 @@ const CombinedRatingView = ({
     };
     const maxAllowedRating = getMaxRating(savedViolations.length);
 
-    // Read violations from localStorage (saved by TabTimerView)
     const storageKey = `spa_wrb_violations_${bookingId || 'default'}`;
     const violations = useRemindersCustomer(lang || 'vi');
 
@@ -299,8 +298,6 @@ const CombinedRatingView = ({
             const saved = localStorage.getItem(storageKey);
             if (saved) {
                 const parsed = JSON.parse(saved);
-                // useViolations saves as Record<string, number[]> (map by itemId)
-                // Merge all item arrays into a flat unique array
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
                     const allViolations = new Set<number>();
                     Object.values(parsed).forEach((arr: any) => {
@@ -314,101 +311,81 @@ const CombinedRatingView = ({
         } catch { /* silent */ }
     }, [storageKey]);
 
-    const ratedCount = groups.filter(g => g.items.every(i => (i.itemRating !== null && i.itemRating !== undefined) || submitted.has(i.id))).length;
-    const allRated = ratedCount >= groups.length;
+    const isAllRated = items.length > 0 && items.every(i => (i.itemRating !== null && i.itemRating !== undefined) || submitted.has(i.id));
 
-    // Clean up localStorage and notify parent when all rated
     useEffect(() => {
-        if (allRated) {
+        if (isAllRated) {
             try { localStorage.removeItem(storageKey); } catch { /* silent */ }
-            // Notify parent to transition to DONE screen
             onAllRated?.();
         }
-    }, [allRated, storageKey, onAllRated]);
+    }, [isAllRated, storageKey, onAllRated]);
 
-    // Auto-submit: gọi trực tiếp khi chọn rating, không cần nút Submit
-    const handleAutoSubmit = async (groupId: string, rating: number) => {
+    const handleAutoSubmitAll = async (rating: number) => {
         if (submitting) return;
 
-        // Show TipModal (appreciation popup) when rating is Excellent (4)
+        setCommonRating(rating);
+
         if (rating === 4) {
-            setShowTipFor(groupId);
+            setShowTipFor(true);
             return;
         }
 
-        setSubmitting(groupId);
+        setSubmitting(true);
         try {
-            const group = groups.find(g => g.items[0].id === groupId);
-            if (group) {
-                const newSubmitted = new Set(submitted);
-                for (const item of group.items) {
-                    if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
-                        await onItemRated(item.id, rating, '');
-                        newSubmitted.add(item.id);
-                    }
+            const newSubmitted = new Set(submitted);
+            for (const item of items) {
+                if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
+                    await onItemRated(item.id, rating, '');
+                    newSubmitted.add(item.id);
                 }
-                setSubmitted(newSubmitted);
             }
-            setExpandedId(null);
+            setSubmitted(newSubmitted);
         } catch (err: any) {
             console.error('Rating submit error:', err);
             setAlertState({
                 isOpen: true,
-                message: lang === 'vi' ? 'Gửi đánh giá thất bại. Vui lòng thử lại.' : 'Failed to submit rating. Please try again.',
+                message: lang === 'vi' ? 'G?i d�nh gi� th?t b?i. Vui l�ng th? l?i.' : 'Failed to submit rating. Please try again.',
                 type: 'error'
             });
+            setCommonRating(null);
         }
-        finally { setSubmitting(null); }
+        finally { setSubmitting(false); }
     };
 
     const handleTipClose = async (tipAmount: number) => {
-        const groupId = showTipFor;
-        setShowTipFor(null);
-        if (!groupId) return;
-
-        setSubmitting(groupId);
+        setShowTipFor(false);
+        setSubmitting(true);
         try {
-            // Find the item specifically if groupId is actually an itemId (like abc-ktv0)
-            let itemToRate = items.find(i => i.id === groupId);
-            
-            if (itemToRate) {
-                 // It's a single KTV being tipped
-                 await onItemRated(itemToRate.id, 4, `tip:${tipAmount}`);
-                 setSubmitted(prev => new Set(prev).add(itemToRate.id));
-            } else {
-                 // It's a whole group being tipped
-                 const group = groups.find(g => g.items[0].id === groupId);
-                 if (group) {
-                     const newSubmitted = new Set(submitted);
-                     let first = true;
-                     for (const item of group.items) {
-                         if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
-                             await onItemRated(item.id, 4, first ? `tip:${tipAmount}` : '');
-                             newSubmitted.add(item.id);
-                             first = false;
-                         }
-                     }
-                     setSubmitted(newSubmitted);
-                 }
+            const newSubmitted = new Set(submitted);
+            let first = true;
+            for (const item of items) {
+                if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
+                    await onItemRated(item.id, 4, first ? `tip:${tipAmount}` : '');
+                    newSubmitted.add(item.id);
+                    first = false;
+                }
             }
-            setExpandedId(null);
+            setSubmitted(newSubmitted);
         } catch (err: any) {
             console.error('Rating submit error:', err);
             setAlertState({
                 isOpen: true,
-                message: lang === 'vi' ? 'Gửi đánh giá thất bại. Vui lòng thử lại.' : 'Failed to submit rating. Please try again.',
+                message: lang === 'vi' ? 'G?i d�nh gi� th?t b?i. Vui l�ng th? l?i.' : 'Failed to submit rating. Please try again.',
                 type: 'error'
             });
+            setCommonRating(null);
         }
-        finally { setSubmitting(null); }
+        finally { setSubmitting(false); }
     };
+
+    const ratedOpt = RATING_OPTIONS.find(r => r.value === commonRating || (!hasAnyRating && items.some(i => i.itemRating === r.value)));
 
     return (
         <div className="flex flex-col w-full py-4 animate-in fade-in slide-in-from-bottom-5 duration-500">
             {/* Header */}
             <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-[#1c1c1e] rounded-full flex items-center justify-center text-3xl mx-auto mb-3 border border-[#C9A96E]/30 shadow-[0_0_15px_rgba(201,169,110,0.2)]">
-                    ⭐
+                    ?
                 </div>
                 <h2 className="text-2xl font-black text-[#C9A96E]">
                     {t.rateTitle}
@@ -418,7 +395,7 @@ const CombinedRatingView = ({
                 </p>
             </div>
 
-            {/* Violations Checklist — full 6 questions, editable */}
+            {/* Violations Checklist */}
             <div className="bg-[#1c1c1e] border border-white/5 rounded-2xl p-4 mb-5 animate-in fade-in duration-300">
                 <div className="flex items-center gap-2 mb-3">
                     <div className="w-8 h-8 rounded-lg bg-[#C9A96E]/10 border border-[#C9A96E]/20 text-[#C9A96E] flex items-center justify-center flex-shrink-0">
@@ -440,19 +417,10 @@ const CombinedRatingView = ({
                                     setSavedViolations(updated);
                                     try { localStorage.setItem(storageKey, JSON.stringify(updated)); } catch { /* silent */ }
 
-                                    // Auto-reset ratings that exceed new max allowed
                                     const newMax = getMaxRating(updated.length);
-                                    setRatings(prev => {
-                                        const next = { ...prev };
-                                        let changed = false;
-                                        Object.keys(next).forEach(key => {
-                                            if (next[key] > newMax) {
-                                                delete next[key];
-                                                changed = true;
-                                            }
-                                        });
-                                        return changed ? next : prev;
-                                    });
+                                    if (commonRating && commonRating > newMax) {
+                                        setCommonRating(null);
+                                    }
                                 }}
                                 className={`flex items-start gap-3 p-3 bg-[#0d0d0d] rounded-2xl cursor-pointer border transition-all ${
                                     isChecked ? 'border-[#C9A96E] shadow-[#C9A96E]/10 shadow-sm ring-1 ring-[#C9A96E]/20' : 'border-white/5'
@@ -469,243 +437,225 @@ const CombinedRatingView = ({
                 </div>
             </div>
 
-            {/* Progress */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-3 border border-white/5 flex items-center gap-3 mb-5">
-                <div className="flex-1">
-                    <div className="h-2 bg-[#0d0d0d] rounded-full overflow-hidden border border-white/5">
-                        <div className="h-full bg-[#C9A96E] rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(201,169,110,0.5)]"
-                            style={{ width: `${(ratedCount / items.length) * 100}%` }} />
+            {/* Single Order Card */}
+            <div className="space-y-3">
+                <div className={`bg-[#1c1c1e] rounded-3xl border-2 transition-all overflow-hidden ${
+                    isAllRated ? 'border-white/5 opacity-80' : 'border-[#C9A96E] shadow-[#C9A96E]/20 shadow-lg'
+                }`}>
+                    {/* Accordion Header */}
+                    <div className="w-full text-left p-4 flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 ${
+                            isAllRated ? 'bg-[#0d0d0d] border border-white/5' : 'bg-[#0d0d0d] border border-[#C9A96E]/30 text-[#C9A96E]'
+                        }`}>
+                            {isAllRated ? '?' : '??'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className={`font-black text-base leading-tight truncate ${isAllRated ? 'text-gray-400' : 'text-white/90'}`}>
+                                To�n b? li?u tr�nh
+                            </p>
+                            <p className="text-gray-500 text-sm font-medium truncate mt-1">
+                                {items.length} {t.services}
+                            </p>
+                        </div>
+                        {isAllRated && !hasAnyRating && ratedOpt && (
+                            <div className="flex items-center gap-1.5 bg-[#C9A96E]/20 text-[#C9A96E] px-3 py-1.5 rounded-full border border-[#C9A96E]/30">
+                                <span className="text-xl leading-none">{ratedOpt?.emoji || '?'}</span>
+                                <span className="text-xs font-black">{t.ratedSent}</span>
+                            </div>
+                        )}
+                        {isAllRated && hasAnyRating && (
+                            <div className="flex items-center gap-1.5 bg-green-900/20 text-green-500 px-3 py-1.5 rounded-full border border-green-500/30">
+                                <span className="text-xs font-black">Ho�n t?t</span>
+                            </div>
+                        )}
                     </div>
+
+                    {/* Expanded Rating Area (Ch? hi?n th? khi CHUA c� d�nh gi� l? n�o) */}
+                    {!isAllRated && !hasAnyRating && (
+                        <div className="px-4 pb-4 border-t border-white/5 pt-3 animate-in fade-in slide-in-from-top-2 duration-300 bg-[#0d0d0d]/50">
+                            <div className="mb-4">
+                                <div className="flex items-center justify-center relative mb-4">
+                                    <p className="text-base font-bold text-[#C9A96E]">
+                                        {t.yourExperience}
+                                    </p>
+                                </div>
+                                <div className="grid grid-cols-4 gap-2">
+                                {RATING_OPTIONS.map((opt) => {
+                                    const isDisabled = opt.value > maxAllowedRating;
+                                    const isSel = commonRating === opt.value;
+                                    let bgClass = "bg-[#1c1c1e] border-white/5 hover:border-white/10";
+                                    if (isSel) {
+                                        if (opt.value === 4) bgClass = "bg-green-900/40 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]";
+                                        else if (opt.value === 3) bgClass = "bg-blue-900/40 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]";
+                                        else if (opt.value === 2) bgClass = "bg-[#C9A96E]/20 border-[#C9A96E] shadow-[0_0_10px_rgba(201,169,110,0.2)]";
+                                        else bgClass = "bg-red-900/40 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
+                                    }
+
+                                    return (
+                                        <button key={opt.value}
+                                            disabled={isDisabled || submitting}
+                                            onClick={() => {
+                                                if (isDisabled || submitting) return;
+                                                handleAutoSubmitAll(opt.value);
+                                            }}
+                                            className={`flex flex-col items-center p-2.5 rounded-2xl border-2 transition-all ${
+                                                isDisabled || submitting
+                                                    ? 'opacity-40 grayscale cursor-not-allowed bg-[#0d0d0d] border-transparent'
+                                                    : `active:scale-95 ${bgClass}`
+                                            }`}>
+                                            <span className="text-3xl mb-1">{opt.emoji}</span>
+                                            <span className={`text-xs font-bold leading-tight text-center ${isSel ? 'text-white' : 'text-gray-500'}`}>
+                                                {getRatingLabel(lang || 'vi', opt.value)}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                                </div>
+                            </div>
+                            
+                            {/* Submitting indicator */}
+                            {submitting && (
+                                <div className="w-full py-3 mt-2 flex items-center justify-center gap-2 text-[#C9A96E]">
+                                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
+                                    <span className="text-base font-bold">{t.submitting}</span>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
-                <span className="text-sm font-black text-gray-500 whitespace-nowrap">
-                    {ratedCount}/{groups.length} {t.rated}
-                </span>
             </div>
 
-            {/* Staff Cards */}
-            <div className="space-y-3">
-                {groups.map((group) => {
-                    const groupId = group.items[0].id;
-                    const isExpanded = expandedId === groupId;
-                    const isRated = group.items.every(i => (i.itemRating !== null && i.itemRating !== undefined) || submitted.has(i.id));
-                    const ratingValue = ratings[groupId] || group.items[0].itemRating;
-                    const ratedOpt = RATING_OPTIONS.find(r => r.value === ratingValue);
-                    const isSubmittingThis = submitting === groupId;
+            {/* Toggle Detailed Button */}
+            {!isAllRated && !hasAnyRating && !showDetailed && (
+                <button
+                    onClick={() => setShowDetailed(true)}
+                    className="w-full py-3 mt-4 rounded-2xl font-bold text-sm text-[#C9A96E] bg-[#1c1c1e] border border-white/5 hover:border-[#C9A96E]/50 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                    Ho?c d�nh gi� chi ti?t t?ng d?ch v? ??
+                </button>
+            )}
 
-                    return (
-                        <div key={groupId} className={`bg-[#1c1c1e] rounded-3xl border-2 transition-all overflow-hidden ${
-                            isRated ? 'border-white/5 opacity-80' : isExpanded ? 'border-[#C9A96E] shadow-[#C9A96E]/20 shadow-lg' : 'border-white/5'
-                        }`}>
-                            {/* Accordion Header */}
-                            <button onClick={() => !isRated && setExpandedId(isExpanded ? null : groupId)}
-                                className="w-full text-left p-4 flex items-center gap-3">
-                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 ${
-                                    isRated ? 'bg-[#0d0d0d] border border-white/5' : 'bg-[#0d0d0d] border border-[#C9A96E]/30 text-[#C9A96E]'
-                                }`}>
-                                    {isRated ? '✅' : '💆'}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className={`font-black text-base leading-tight truncate ${isRated ? 'text-gray-400' : 'text-white/90'}`}>
-                                        {group.combinedName}
-                                    </p>
-                                    <p className="text-gray-500 text-sm font-medium truncate mt-1">
-                                        NV: {group.technicianCode || 'N/A'} · {group.totalDuration} {t.minutes}
-                                    </p>
-                                </div>
-                                {isRated ? (
-                                    <div className="flex items-center gap-1.5 bg-[#C9A96E]/20 text-[#C9A96E] px-3 py-1.5 rounded-full border border-[#C9A96E]/30">
-                                        <span className="text-xl leading-none">{ratedOpt?.emoji || '⭐'}</span>
-                                        <span className="text-xs font-black">{t.ratedSent}</span>
+            {/* Detailed Per-Service Accordions */}
+            {showDetailed && groups.length > 0 && (
+                <div className="space-y-3 mt-6 animate-in fade-in slide-in-from-top-4">
+                    <h3 className="text-gray-400 font-bold text-sm uppercase tracking-wider text-center mb-3">��nh gi� chi ti?t</h3>
+                    {groups.map((g: any, i: number) => {
+                        const isGroupRated = g.items.every((item: any) => (item.itemRating !== null && item.itemRating !== undefined) || submitted.has(item.id));
+                        const isExpanded = expandedGroups.has(i) || (!isGroupRated && groups.findIndex((gr: any) => !gr.items.every((it: any) => (it.itemRating !== null && it.itemRating !== undefined) || submitted.has(it.id))) === i);
+                        const groupOpt = RATING_OPTIONS.find(r => r.value === g.items[0]?.itemRating);
+
+                        return (
+                            <div key={i} className={`bg-[#1c1c1e] rounded-3xl border transition-all overflow-hidden ${
+                                isGroupRated ? 'border-white/5 opacity-80' : 'border-[#C9A96E]/50 shadow-[#C9A96E]/5'
+                            }`}>
+                                {/* Accordion Header */}
+                                <div onClick={() => {
+                                    if (isGroupRated) return;
+                                    const next = new Set(expandedGroups);
+                                    if (next.has(i)) next.delete(i);
+                                    else next.add(i);
+                                    setExpandedGroups(next);
+                                }} className="w-full text-left p-4 flex items-center gap-3 cursor-pointer">
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
+                                        isGroupRated ? 'bg-[#0d0d0d] border border-white/5' : 'bg-[#0d0d0d] border border-[#C9A96E]/30 text-[#C9A96E]'
+                                    }`}>
+                                        {isGroupRated ? '?' : '??'}
                                     </div>
-                                ) : (
-                                    <svg className={`w-5 h-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                )}
-                            </button>
-
-                            {/* Expanded Rating Area */}
-                            {isExpanded && !isRated && (() => {
-                                const isPartiallyRated = group.items.some(i => i.itemRating !== null && i.itemRating !== undefined || submitted.has(i.id));
-                                return (
-                                <div className="px-4 pb-4 border-t border-white/5 pt-3 animate-in fade-in slide-in-from-top-2 duration-300 bg-[#0d0d0d]/50">
-                                    
-                                    {/* Rating Chung cho Dịch Vụ */}
-                                    <div className="mb-4">
-                                        <div className="flex items-center justify-center relative mb-4">
-                                            <p className="text-base font-bold text-[#C9A96E]">
-                                                {t.yourExperience}
-                                            </p>
-                                            {group.items.length > 1 && (
-                                                <button 
-                                                    onClick={() => setShowPerKtv(prev => ({ ...prev, [groupId]: !prev[groupId] }))}
-                                                    className={`absolute right-2 flex flex-col gap-1.5 p-2 transition-all ${showPerKtv[groupId] || isPartiallyRated ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}
-                                                >
-                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] || isPartiallyRated ? 'rotate-45 translate-y-2' : ''}`}></span>
-                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] || isPartiallyRated ? 'opacity-0' : ''}`}></span>
-                                                    <span className={`w-5 h-0.5 bg-gray-500 rounded-full transition-all ${showPerKtv[groupId] || isPartiallyRated ? '-rotate-45 -translate-y-2' : ''}`}></span>
-                                                </button>
-                                            )}
+                                    <div className="flex-1 min-w-0">
+                                        <p className={`font-bold text-sm leading-tight truncate ${isGroupRated ? 'text-gray-400' : 'text-white/90'}`}>
+                                            {g.serviceName}
+                                        </p>
+                                        <p className="text-gray-500 text-xs font-medium truncate mt-1">
+                                            KTV: {g.technicians.join(', ')}
+                                        </p>
+                                    </div>
+                                    {isGroupRated && groupOpt && (
+                                        <div className="flex items-center justify-center w-8 h-8 bg-black/20 rounded-full">
+                                            <span className="text-lg leading-none">{groupOpt.emoji}</span>
                                         </div>
-                                        {!(showPerKtv[groupId] || isPartiallyRated) && (
-                                            <div className="grid grid-cols-4 gap-2">
+                                    )}
+                                    {!isGroupRated && (
+                                        <svg className={`w-5 h-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    )}
+                                </div>
+
+                                {/* Expanded Area */}
+                                {!isGroupRated && isExpanded && (
+                                    <div className="px-4 pb-4 border-t border-white/5 pt-3 bg-[#0d0d0d]/50">
+                                        <div className="grid grid-cols-4 gap-2">
                                             {RATING_OPTIONS.map((opt) => {
                                                 const isDisabled = opt.value > maxAllowedRating;
-                                                const isSel = ratings[groupId] === opt.value;
-                                                let bgClass = "bg-[#1c1c1e] border-white/5 hover:border-white/10";
-                                                if (isSel) {
-                                                    if (opt.value === 4) bgClass = "bg-green-900/40 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]";
-                                                    else if (opt.value === 3) bgClass = "bg-blue-900/40 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]";
-                                                    else if (opt.value === 2) bgClass = "bg-[#C9A96E]/20 border-[#C9A96E] shadow-[0_0_10px_rgba(201,169,110,0.2)]";
-                                                    else bgClass = "bg-red-900/40 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
-                                                }
+                                                const isSel = g.items.some((item: any) => item.itemRating === opt.value);
+                                                let bgClass = "bg-[#1c1c1e] border-white/5";
+                                                if (isSel) bgClass = "bg-[#C9A96E]/20 border-[#C9A96E]";
 
                                                 return (
                                                     <button key={opt.value}
-                                                        disabled={isDisabled || isSubmittingThis}
-                                                        onClick={() => {
-                                                            if (isDisabled || isSubmittingThis) return;
-                                                            setRatings(prev => ({ ...prev, [groupId]: opt.value }));
-                                                            handleAutoSubmit(groupId, opt.value); // This will submit for all KTVs in the group
+                                                        disabled={isDisabled || submitting}
+                                                        onClick={async () => {
+                                                            if (isDisabled || submitting) return;
+                                                            setSubmitting(true);
+                                                            try {
+                                                                const newSubmitted = new Set(submitted);
+                                                                for (const item of g.items) {
+                                                                    if (!newSubmitted.has(item.id)) {
+                                                                        await onItemRated(item.id, opt.value, '');
+                                                                        newSubmitted.add(item.id);
+                                                                    }
+                                                                }
+                                                                setSubmitted(newSubmitted);
+                                                                
+                                                                const nextExpanded = new Set(expandedGroups);
+                                                                nextExpanded.delete(i);
+                                                                setExpandedGroups(nextExpanded);
+                                                            } catch (err) {
+                                                                console.error(err);
+                                                            } finally {
+                                                                setSubmitting(false);
+                                                            }
                                                         }}
-                                                        className={`flex flex-col items-center p-2.5 rounded-2xl border-2 transition-all ${
-                                                            isDisabled || isSubmittingThis
+                                                        className={`flex flex-col items-center p-2 rounded-xl border-2 transition-all ${
+                                                            isDisabled || submitting
                                                                 ? 'opacity-40 grayscale cursor-not-allowed bg-[#0d0d0d] border-transparent'
                                                                 : `active:scale-95 ${bgClass}`
                                                         }`}>
-                                                        <span className="text-3xl mb-1">{opt.emoji}</span>
-                                                        <span className={`text-xs font-bold leading-tight text-center ${isSel ? 'text-white' : 'text-gray-500'}`}>
+                                                        <span className="text-2xl mb-1">{opt.emoji}</span>
+                                                        <span className={`text-[10px] font-bold leading-tight text-center ${isSel ? 'text-white' : 'text-gray-500'}`}>
                                                             {getRatingLabel(lang || 'vi', opt.value)}
                                                         </span>
                                                     </button>
                                                 );
                                             })}
-                                            </div>
-                                        )}
+                                        </div>
                                     </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
 
-                                    {/* Đánh giá riêng cho KTV (nếu có nhiều KTV) */}
-                                    {group.items.length > 1 && (showPerKtv[groupId] || isPartiallyRated) && (
-                                        <div className="border-t border-white/10 pt-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                                            <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider text-center">{t.orRateDetail}</p>
-                                            <div className="space-y-4">
-                                                {group.items.map(item => {
-                                                    const itemRated = item.itemRating !== null && item.itemRating !== undefined || submitted.has(item.id);
-                                                    const itemRatingValue = ratings[item.id] || item.itemRating;
-                                                    const selectedOpt = RATING_OPTIONS.find(o => o.value === itemRatingValue);
-                                                    
-                                                    return (
-                                                        <div key={item.id} className={`bg-[#1c1c1e] p-3 rounded-2xl border ${itemRated ? 'border-white/5 opacity-80' : 'border-[#C9A96E]/20'}`}>
-                                                            <div className={`flex justify-between items-center ${!itemRated ? 'mb-2' : ''}`}>
-                                                                <p className="font-bold text-[#C9A96E] text-sm">NV: {item.technicianCode}</p>
-                                                                {itemRated && selectedOpt && (
-                                                                    <div className="flex items-center gap-2">
-                                                                        <span className="text-3xl animate-in zoom-in duration-300">{selectedOpt.emoji}</span>
-                                                                        <span className="text-[10px] font-black text-green-500 uppercase tracking-widest bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
-                                                                            {t.ratedSent}
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            {!itemRated && (
-                                                                <div className="grid grid-cols-4 gap-2">
-                                                                {RATING_OPTIONS.map((opt) => {
-                                                                    const isDisabled = opt.value > maxAllowedRating;
-                                                                    const isSel = itemRatingValue === opt.value;
-                                                                    let bgClass = "bg-[#0d0d0d] border-white/5 hover:border-white/10";
-                                                                    if (isSel) {
-                                                                        if (opt.value === 4) bgClass = "bg-green-900/40 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]";
-                                                                        else if (opt.value === 3) bgClass = "bg-blue-900/40 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]";
-                                                                        else if (opt.value === 2) bgClass = "bg-[#C9A96E]/20 border-[#C9A96E] shadow-[0_0_10px_rgba(201,169,110,0.2)]";
-                                                                        else bgClass = "bg-red-900/40 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
-                                                                    }
-
-                                                                    return (
-                                                                        <button key={opt.value}
-                                                                            disabled={isDisabled || isSubmittingThis || itemRated}
-                                                                            onClick={async () => {
-                                                                                if (isDisabled || isSubmittingThis || itemRated) return;
-                                                                                setRatings(prev => ({ ...prev, [item.id]: opt.value }));
-                                                                                
-                                                                                // Submit rating only for THIS specific item (KTV)
-                                                                                setSubmitting(groupId);
-                                                                                try {
-                                                                                    await onItemRated(item.id, opt.value, '');
-                                                                                    setSubmitted(prev => new Set(prev).add(item.id));
-                                                                                    
-                                                                                    // Show tip if 4 stars
-                                                                                    if (opt.value === 4) {
-                                                                                        setShowTipFor(item.id);
-                                                                                    }
-                                                                                } catch (err) {
-                                                                                    setAlertState({
-                                                                                        isOpen: true,
-                                                                                        message: lang === 'vi' ? 'Gửi đánh giá thất bại. Vui lòng thử lại.' : 'Failed to submit rating. Please try again.',
-                                                                                        type: 'error'
-                                                                                    });
-                                                                                } finally {
-                                                                                    setSubmitting(null);
-                                                                                }
-                                                                            }}
-                                                                            className={`flex flex-col items-center p-2 rounded-xl border-2 transition-all ${
-                                                                                isDisabled || isSubmittingThis || itemRated && !isSel
-                                                                                    ? 'opacity-40 grayscale cursor-not-allowed bg-transparent border-transparent'
-                                                                                    : `active:scale-95 ${bgClass}`
-                                                                            }`}>
-                                                                            <span className="text-2xl mb-1">{opt.emoji}</span>
-                                                                        </button>
-                                                                    );
-                                                                })}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Submitting indicator */}
-                                    {isSubmittingThis && (
-                                        <div className="w-full py-3 mt-2 flex items-center justify-center gap-2 text-[#C9A96E]">
-                                            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
-                                            <span className="text-base font-bold">{t.submitting}</span>
-                                        </div>
-                                    )}
-                                </div>
-                                );
-                            })()}
-                        </div>
-                    );
-                })}
-            </div>
-
-            {/* Skip Button — only show if not all rated yet */}
-            {!allRated && (
+            {/* Skip Button */}
+            {!isAllRated && (
                 <button
                     onClick={async () => {
-                        const unratedGroups = groups.filter(g => 
-                            g.items.some(i => (i.itemRating === null || i.itemRating === undefined) && !submitted.has(i.id))
-                        );
-                        setSubmitting('__skip__');
+                        setSubmitting(true);
                         try {
                             const newSubmitted = new Set(submitted);
-                            for (const group of unratedGroups) {
-                                for (const item of group.items) {
-                                    if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
-                                        await onItemRated(item.id, 0, 'skipped');
-                                        newSubmitted.add(item.id);
-                                    }
+                            for (const item of items) {
+                                if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
+                                    await onItemRated(item.id, 0, 'skipped');
+                                    newSubmitted.add(item.id);
                                 }
                             }
                             setSubmitted(newSubmitted);
                         } catch { /* noop */ }
-                        finally { setSubmitting(null); }
+                        finally { setSubmitting(false); }
                     }}
-                    disabled={!!submitting}
+                    disabled={submitting}
                     className="w-full py-3 mt-4 rounded-2xl font-bold text-sm text-gray-400 bg-[#1c1c1e] border border-white/5 hover:border-white/10 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                    {submitting === '__skip__' ? (
+                    {submitting ? (
                         <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>{t.processing}</>
                     ) : (
                         <>{t.skipRating}</>
@@ -714,7 +664,7 @@ const CombinedRatingView = ({
             )}
 
             {/* All-done message */}
-            {allRated && (
+            {isAllRated && (
                 <div className="mt-6 text-center animate-in fade-in zoom-in-95">
                     <p className="text-green-600 font-black text-lg">{t.thankYou}</p>
                     <p className="text-gray-400 text-sm mt-1">{t.allDoneRedirecting}</p>
@@ -736,7 +686,6 @@ const CombinedRatingView = ({
     );
 };
 
-// ═══════════════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT — State machine
 // ═══════════════════════════════════════════════════════════════════════════════
 type ViewState = 'TIMER' | 'CHECK_BELONGINGS' | 'RATING';
