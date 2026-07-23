@@ -272,6 +272,8 @@ export const groupItemsByService = (items: ServiceItem[], lang: string = 'vi'): 
             technicianCode: techDisplay,
             names,
             combinedName,
+            serviceName: combinedName, // Alias for CombinedRatingView
+            technicians: allTechCodes, // Array of tech codes for display
             totalDuration,
             itemCount: 1, // It's 1 service
             earliestTimeStart: groupItems[0]?.computedTimeStart || null,

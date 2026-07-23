@@ -253,7 +253,7 @@ const CheckBelongingsView = ({ lang = 'vi', onConfirm }: { lang?: string; onConf
 };
 
 // -------------------------------------------------------------------------------
-// VIEW 3: Combined Rating � T?t c? NV g?p 1 trang (H? tr? d�nh gi� chung & l?)
+// VIEW 3: Combined Rating - All staff in 1 page (supports both global & per-service)
 // -------------------------------------------------------------------------------
 const CombinedRatingView = ({
     items, lang = 'vi', bookingId, onItemRated, onAllRated,
@@ -344,7 +344,7 @@ const CombinedRatingView = ({
             console.error('Rating submit error:', err);
             setAlertState({
                 isOpen: true,
-                message: lang === 'vi' ? 'G?i d�nh gi� th?t b?i. Vui l�ng th? l?i.' : 'Failed to submit rating. Please try again.',
+                message: t.ratingError || 'Failed to submit rating. Please try again.',
                 type: 'error'
             });
             setCommonRating(null);
@@ -370,7 +370,7 @@ const CombinedRatingView = ({
             console.error('Rating submit error:', err);
             setAlertState({
                 isOpen: true,
-                message: lang === 'vi' ? 'G?i d�nh gi� th?t b?i. Vui l�ng th? l?i.' : 'Failed to submit rating. Please try again.',
+                message: t.ratingError || 'Failed to submit rating. Please try again.',
                 type: 'error'
             });
             setCommonRating(null);
@@ -385,7 +385,7 @@ const CombinedRatingView = ({
             {/* Header */}
             <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-[#1c1c1e] rounded-full flex items-center justify-center text-3xl mx-auto mb-3 border border-[#C9A96E]/30 shadow-[0_0_15px_rgba(201,169,110,0.2)]">
-                    ?
+                    ⭐
                 </div>
                 <h2 className="text-2xl font-black text-[#C9A96E]">
                     {t.rateTitle}
@@ -437,21 +437,24 @@ const CombinedRatingView = ({
                 </div>
             </div>
 
-            {/* Single Order Card */}
+            {/* Single Order Card — with toggle for per-service detail */}
             <div className="space-y-3">
                 <div className={`bg-[#1c1c1e] rounded-3xl border-2 transition-all overflow-hidden ${
                     isAllRated ? 'border-white/5 opacity-80' : 'border-[#C9A96E] shadow-[#C9A96E]/20 shadow-lg'
                 }`}>
-                    {/* Accordion Header */}
-                    <div className="w-full text-left p-4 flex items-center gap-3">
+                    {/* Card Header — clickable to toggle per-service detail */}
+                    <div
+                        onClick={() => { if (!isAllRated && !hasAnyRating) setShowDetailed(prev => !prev); }}
+                        className={`w-full text-left p-4 flex items-center gap-3 ${!isAllRated && !hasAnyRating ? 'cursor-pointer active:bg-white/5' : ''}`}
+                    >
                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 ${
                             isAllRated ? 'bg-[#0d0d0d] border border-white/5' : 'bg-[#0d0d0d] border border-[#C9A96E]/30 text-[#C9A96E]'
                         }`}>
-                            {isAllRated ? '?' : '??'}
+                            {isAllRated ? '✅' : '💆'}
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className={`font-black text-base leading-tight truncate ${isAllRated ? 'text-gray-400' : 'text-white/90'}`}>
-                                To�n b? li?u tr�nh
+                                {t.fullCourse}
                             </p>
                             <p className="text-gray-500 text-sm font-medium truncate mt-1">
                                 {items.length} {t.services}
@@ -459,19 +462,27 @@ const CombinedRatingView = ({
                         </div>
                         {isAllRated && !hasAnyRating && ratedOpt && (
                             <div className="flex items-center gap-1.5 bg-[#C9A96E]/20 text-[#C9A96E] px-3 py-1.5 rounded-full border border-[#C9A96E]/30">
-                                <span className="text-xl leading-none">{ratedOpt?.emoji || '?'}</span>
+                                <span className="text-xl leading-none">{ratedOpt?.emoji || '⭐'}</span>
                                 <span className="text-xs font-black">{t.ratedSent}</span>
                             </div>
                         )}
                         {isAllRated && hasAnyRating && (
                             <div className="flex items-center gap-1.5 bg-green-900/20 text-green-500 px-3 py-1.5 rounded-full border border-green-500/30">
-                                <span className="text-xs font-black">Ho�n t?t</span>
+                                <span className="text-xs font-black">{t.completedLabel}</span>
+                            </div>
+                        )}
+                        {/* Hamburger toggle icon — only show when expandable */}
+                        {!isAllRated && !hasAnyRating && (
+                            <div className="flex flex-col items-center justify-center w-8 h-8 rounded-lg bg-[#0d0d0d] border border-white/10">
+                                <svg className={`w-5 h-5 text-[#C9A96E] transition-transform duration-300 ${showDetailed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                </svg>
                             </div>
                         )}
                     </div>
 
-                    {/* Expanded Rating Area (Ch? hi?n th? khi CHUA c� d�nh gi� l? n�o) */}
-                    {!isAllRated && !hasAnyRating && (
+                    {/* Global Rating Area — show when NOT expanded to detail and NOT rated yet */}
+                    {!isAllRated && !hasAnyRating && !showDetailed && (
                         <div className="px-4 pb-4 border-t border-white/5 pt-3 animate-in fade-in slide-in-from-top-2 duration-300 bg-[#0d0d0d]/50">
                             <div className="mb-4">
                                 <div className="flex items-center justify-center relative mb-4">
@@ -494,7 +505,8 @@ const CombinedRatingView = ({
                                     return (
                                         <button key={opt.value}
                                             disabled={isDisabled || submitting}
-                                            onClick={() => {
+                                            onClick={(e) => {
+                                                e.stopPropagation();
                                                 if (isDisabled || submitting) return;
                                                 handleAutoSubmitAll(opt.value);
                                             }}
@@ -525,20 +537,10 @@ const CombinedRatingView = ({
                 </div>
             </div>
 
-            {/* Toggle Detailed Button */}
-            {!isAllRated && !hasAnyRating && !showDetailed && (
-                <button
-                    onClick={() => setShowDetailed(true)}
-                    className="w-full py-3 mt-4 rounded-2xl font-bold text-sm text-[#C9A96E] bg-[#1c1c1e] border border-white/5 hover:border-[#C9A96E]/50 active:scale-95 transition-all flex items-center justify-center gap-2"
-                >
-                    Ho?c d�nh gi� chi ti?t t?ng d?ch v? ??
-                </button>
-            )}
-
-            {/* Detailed Per-Service Accordions */}
+            {/* Detailed Per-Service Accordions — toggled by card header */}
             {showDetailed && groups.length > 0 && (
-                <div className="space-y-3 mt-6 animate-in fade-in slide-in-from-top-4">
-                    <h3 className="text-gray-400 font-bold text-sm uppercase tracking-wider text-center mb-3">��nh gi� chi ti?t</h3>
+                <div className="space-y-3 mt-4 animate-in fade-in slide-in-from-top-4">
+                    <h3 className="text-gray-400 font-bold text-sm uppercase tracking-wider text-center mb-3">{t.detailedRating}</h3>
                     {groups.map((g: any, i: number) => {
                         const isGroupRated = g.items.every((item: any) => (item.itemRating !== null && item.itemRating !== undefined) || submitted.has(item.id));
                         const isExpanded = expandedGroups.has(i) || (!isGroupRated && groups.findIndex((gr: any) => !gr.items.every((it: any) => (it.itemRating !== null && it.itemRating !== undefined) || submitted.has(it.id))) === i);
@@ -559,7 +561,7 @@ const CombinedRatingView = ({
                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
                                         isGroupRated ? 'bg-[#0d0d0d] border border-white/5' : 'bg-[#0d0d0d] border border-[#C9A96E]/30 text-[#C9A96E]'
                                     }`}>
-                                        {isGroupRated ? '?' : '??'}
+                                        {isGroupRated ? '✅' : '💆'}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className={`font-bold text-sm leading-tight truncate ${isGroupRated ? 'text-gray-400' : 'text-white/90'}`}>
