@@ -253,6 +253,10 @@ export async function GET(request: Request) {
                 billCode,
                 totalAmount,
                 bookingDate,
+                createdAt,
+                timeBooking,
+                notes,
+                focusAreaNote,
                 status,
                 rating,
                 technicianCode,
@@ -262,7 +266,11 @@ export async function GET(request: Request) {
                     serviceId,
                     quantity,
                     price,
-                    options
+                    options,
+                    itemRating,
+                    ktvRatings,
+                    itemFeedback,
+                    technicianCodes
                 )
             `);
 
@@ -292,8 +300,20 @@ export async function GET(request: Request) {
             });
         }
 
-        // Fetch staff names for technicianCodes
-        const techCodes = [...new Set(bookings.map((b: any) => b.technicianCode).filter(Boolean))];
+        // Fetch staff names for technicianCodes (booking-level + item-level)
+        const allTechCodes = new Set<string>();
+        bookings.forEach((b: any) => {
+            if (b.technicianCode) allTechCodes.add(b.technicianCode);
+            b.BookingItems?.forEach((i: any) => {
+                if (i.technicianCodes && Array.isArray(i.technicianCodes)) {
+                    i.technicianCodes.forEach((code: string) => allTechCodes.add(code));
+                }
+                if (i.ktvRatings && typeof i.ktvRatings === 'object') {
+                    Object.keys(i.ktvRatings).forEach((code: string) => allTechCodes.add(code));
+                }
+            });
+        });
+        const techCodes = [...allTechCodes];
         const staffMap = new Map<string, string>();
         if (techCodes.length > 0) {
             const { data: staffList } = await supabaseAdmin
@@ -308,40 +328,95 @@ export async function GET(request: Request) {
             }
         }
 
-        const result = bookings.map((b: any) => ({
-            id: b.id,
-            date: new Date(b.bookingDate).toISOString().split('T')[0],
-            total: b.totalAmount,
-            status: b.status,
-            rating: b.rating,
-            technicianCode: b.technicianCode || null,
-            staffName: b.technicianCode ? (staffMap.get(b.technicianCode) || b.technicianCode) : null,
-            items: b.BookingItems.map((i: any) => {
-                const sId = String(i.serviceId || '').trim().toLowerCase();
-                const svc = svcMap.get(sId);
-                
-                const finalName = i.options?.displayName || svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`;
-                const finalDuration = i.options?.vipDuration || svc?.duration || null;
+        const result = bookings.map((b: any) => {
+            // Format datetime: prefer createdAt, fallback to bookingDate
+            const rawDate = b.createdAt || b.bookingDate;
+            let formattedDate = '';
+            try {
+                const d = new Date(rawDate);
+                const vnDate = new Date(d.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+                const dd = String(vnDate.getDate()).padStart(2, '0');
+                const mm = String(vnDate.getMonth() + 1).padStart(2, '0');
+                const yyyy = vnDate.getFullYear();
+                const hh = String(vnDate.getHours()).padStart(2, '0');
+                const mi = String(vnDate.getMinutes()).padStart(2, '0');
+                formattedDate = `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+            } catch {
+                formattedDate = rawDate ? String(rawDate).split('T')[0] : '';
+            }
 
-                return {
-                    id: i.serviceId,
-                    name: finalName,
-                    names: {
-                        vi: i.options?.displayName || svc?.nameVN || '',
-                        en: i.options?.displayName || svc?.nameEN || '',
-                        cn: i.options?.displayName || svc?.nameCN || '',
-                        kr: i.options?.displayName || svc?.nameKR || '',
-                        jp: i.options?.displayName || svc?.nameJP || '',
-                    },
-                    duration: finalDuration,
-                    qty: i.quantity,
-                    price: i.price,
-                    options: i.options
-                };
-            }),
-            note: 'Supabase Booking',
-            accessToken: b.accessToken || null
-        }));
+            // Parse real notes from DB
+            let customerNote = '';
+            if (b.focusAreaNote) {
+                customerNote = b.focusAreaNote;
+            }
+            if (b.notes) {
+                try {
+                    const parsed = JSON.parse(b.notes);
+                    if (parsed?.vipCustomerNotes) {
+                        customerNote = customerNote ? `${customerNote} | ${parsed.vipCustomerNotes}` : parsed.vipCustomerNotes;
+                    }
+                } catch {
+                    // notes is plain text
+                    if (b.notes !== 'Supabase Booking') {
+                        customerNote = customerNote ? `${customerNote} | ${b.notes}` : b.notes;
+                    }
+                }
+            }
+
+            return {
+                id: b.id,
+                date: formattedDate,
+                timeBooking: b.timeBooking || null,
+                total: b.totalAmount,
+                status: b.status,
+                rating: b.rating,
+                technicianCode: b.technicianCode || null,
+                staffName: b.technicianCode ? (staffMap.get(b.technicianCode) || b.technicianCode) : null,
+                items: b.BookingItems.map((i: any) => {
+                    const sId = String(i.serviceId || '').trim().toLowerCase();
+                    const svc = svcMap.get(sId);
+                    
+                    const finalName = i.options?.displayName || svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`;
+                    const finalDuration = i.options?.vipDuration || svc?.duration || null;
+
+                    // Map KTV names for this item
+                    const itemStaffNames = (i.technicianCodes || []).map((code: string) => staffMap.get(code) || code);
+
+                    // Per-KTV ratings
+                    let ktvRatingDetails: { code: string; name: string; rating: number }[] = [];
+                    if (i.ktvRatings && typeof i.ktvRatings === 'object') {
+                        ktvRatingDetails = Object.entries(i.ktvRatings).map(([code, rating]) => ({
+                            code,
+                            name: staffMap.get(code) || code,
+                            rating: Number(rating),
+                        }));
+                    }
+
+                    return {
+                        id: i.serviceId,
+                        name: finalName,
+                        names: {
+                            vi: i.options?.displayName || svc?.nameVN || '',
+                            en: i.options?.displayName || svc?.nameEN || '',
+                            cn: i.options?.displayName || svc?.nameCN || '',
+                            kr: i.options?.displayName || svc?.nameKR || '',
+                            jp: i.options?.displayName || svc?.nameJP || '',
+                        },
+                        duration: finalDuration,
+                        qty: i.quantity,
+                        price: i.price,
+                        options: i.options,
+                        itemRating: i.itemRating || null,
+                        itemFeedback: i.itemFeedback || null,
+                        staffNames: itemStaffNames,
+                        ktvRatings: ktvRatingDetails,
+                    };
+                }),
+                note: customerNote || null,
+                accessToken: b.accessToken || null,
+            };
+        });
 
         return NextResponse.json({ success: true, orders: result });
     } catch (error: any) {
