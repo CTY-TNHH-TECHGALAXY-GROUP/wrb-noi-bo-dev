@@ -59,7 +59,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeTab, setActiveTab] = useState<'all' | 'unrated'>('all');
-    const [rebookOrder, setRebookOrder] = useState<any>(null);
+    const [actionContext, setActionContext] = useState<{ action: 'rebook' | 'modify' | 'new', order?: any } | null>(null);
     const router = useRouter();
     const { addToCart, clearCart, services } = useMenuData();
 
@@ -130,6 +130,8 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
 
         console.log("Restoring Cart. Available Services:", services.length);
         console.log("Items to restore:", itemsToRestore);
+        
+        let detectedMenuType = 'standard';
 
         itemsToRestore.forEach((item: any) => {
             // 1. Try to find service by ID first
@@ -147,6 +149,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
             console.log(`Checking item ${item.id || item.name} -> Found?`, !!service);
 
             if (service) {
+                if (service.menuType === 'vip' || item.itemType === 'vip') detectedMenuType = 'vip';
                 // 3. Construct Options
                 // If raw_items (has .options), use directly.
                 // If processedItems (has flat fields strength/therapist in VN/EN), map back to codes.
@@ -211,12 +214,23 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                     options.vipStaffId = options.vipStaffId || order.technicianCode;
                 }
 
+                const isVip = service.menuType === 'vip' || item.itemType === 'vip' || String(item.id).startsWith('NHP') || String(item.id).startsWith('NHS0800');
+                if (isVip) detectedMenuType = 'vip';
+
                 // Chép đè giá trị service bằng giá tiền thực tế khách đã thanh toán trong lịch sử
                 // Vì đơn VIP được lưu ngầm dưới mã Combo King, nếu không đè giá sẽ bị lấy giá gốc của Combo King.
                 const serviceToRestore = {
                     ...service,
                     priceVND: item.price !== undefined ? item.price : service.priceVND,
-                    priceUSD: item.price !== undefined ? Math.round(item.price / 25000) : service.priceUSD
+                    priceUSD: item.price !== undefined ? Math.round(item.price / 25000) : service.priceUSD,
+                    ...(isVip ? {
+                        itemType: 'vip',
+                        vipStaffId: options.vipStaffId,
+                        vipDuration: options.vipDuration || service.timeValue,
+                        vipDisplayName: options.displayName,
+                        vipCustomerNotes: options.customerNotes,
+                        vipSkillIds: options.selectedSkills
+                    } : {})
                 };
 
                 addToCart(serviceToRestore, item.qty || 1, options);
@@ -224,42 +238,54 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                 console.warn(`Service ${item.id || item.name} not found in current menu`);
             }
         });
+        
+        return detectedMenuType;
     };
 
     const handleCreateNew = () => {
-        // Clear cart for new booking
-        clearCart();
-        // Redirect to Old User -> Select Menu (as requested)
-        setTimeout(() => {
-            router.push(`/${lang}/old-user/select-menu`);
-        }, 100);
+        setActionContext({ action: 'new' });
     };
 
     const handleModify = (order: any) => {
-        if (!services || services.length === 0) {
-            console.error("Services not loaded yet");
-            return;
-        }
-        restoreCart(order);
-        // Redirect to Select Menu so they can choose VIP or Standard
-        setTimeout(() => {
-            router.push(`/${lang}/old-user/select-menu`);
-        }, 100);
+        setActionContext({ action: 'modify', order });
     };
 
     const handleRebook = (order: any) => {
-        setRebookOrder(order);
+        setActionContext({ action: 'rebook', order });
     };
 
-    const handleConfirmRebook = (source: 'walk-in' | 'booking') => {
-        if (!services || services.length === 0 || !rebookOrder) return;
-        restoreCart(rebookOrder);
-        setRebookOrder(null);
+    const handleConfirmAction = (source: 'walk-in' | 'booking') => {
+        if (!actionContext) return;
+        const { action, order } = actionContext;
+        setActionContext(null);
+
         setTimeout(() => {
-            if (source === 'walk-in') {
-                router.push(`/${lang}/old-user/standard/checkout`);
-            } else {
-                router.push(`/${lang}/new-user/booking/standard/checkout`);
+            if (action === 'new') {
+                clearCart();
+                if (source === 'walk-in') {
+                    router.push(`/${lang}/old-user/select-menu`);
+                } else {
+                    router.push(`/${lang}/old-user/booking/select-menu`);
+                }
+            } else if (action === 'modify') {
+                if (!services || services.length === 0) return;
+                const menuType = restoreCart(order);
+                if (source === 'walk-in') {
+                    router.push(`/${lang}/old-user/${menuType}/menu?cart=open`);
+                } else {
+                    router.push(`/${lang}/old-user/booking/${menuType}/menu?cart=open`);
+                }
+            } else if (action === 'rebook') {
+                if (!services || services.length === 0 || !order) return;
+                const menuType = restoreCart(order);
+                
+                if (source === 'walk-in') {
+                    // Rebook walk-in: đã có giỏ hàng → nhảy thẳng checkout
+                    router.push(`/${lang}/old-user/${menuType}/checkout`);
+                } else {
+                    // Rebook booking: đã có giỏ hàng → nhảy thẳng checkout
+                    router.push(`/${lang}/old-user/booking/${menuType}/checkout`);
+                }
             }
         }, 100);
     };
@@ -418,16 +444,16 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                 </button>
             </div>
 
-            {/* Rebook Source Modal */}
+            {/* Action Source Modal */}
             <AnimatePresence>
-                {rebookOrder && (
+                {actionContext && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                            onClick={() => setRebookOrder(null)}
+                            onClick={() => setActionContext(null)}
                         />
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -440,13 +466,13 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                             
                             <div className="grid grid-cols-2 gap-4">
                                 <button
-                                    onClick={() => handleConfirmRebook('walk-in')}
+                                    onClick={() => handleConfirmAction('walk-in')}
                                     className="py-3 px-4 bg-[#C9A96E] hover:bg-[#b89a64] text-white font-bold rounded-xl transition-colors text-center"
                                 >
                                     {(POPUP_I18N[lang] || POPUP_I18N['en']).walkin}
                                 </button>
                                 <button
-                                    onClick={() => handleConfirmRebook('booking')}
+                                    onClick={() => handleConfirmAction('booking')}
                                     className="py-3 px-4 bg-transparent border border-[#C9A96E] text-[#C9A96E] hover:bg-[#C9A96E]/10 font-bold rounded-xl transition-colors text-center"
                                 >
                                     {(POPUP_I18N[lang] || POPUP_I18N['en']).booking}

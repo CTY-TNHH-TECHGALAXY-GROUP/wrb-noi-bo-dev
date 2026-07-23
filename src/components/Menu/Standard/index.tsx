@@ -90,12 +90,24 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
         }
     }, [allServices, contextLoading]);
 
+    // Check query string for auto-opening cart (e.g. from Modify Order)
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('cart') === 'open') {
+                setMode('MENU');
+                setSheet({ isOpen: true, type: 'CART', data: null });
+            }
+        }
+    }, []);
+
     // --- 2. LOGIC TÍNH TOÁN CART ---
     // a. Tính tổng tiền & số lượng (cho Footer)
     const { totalVND, totalUSD, totalItems, maxMinutes } = useMemo(() => {
+        const standardCart = cart.filter(item => item.itemType !== 'vip');
         let vnd = 0, usd = 0, items = 0, maxMin = 0;
 
-        cart.forEach(item => {
+        standardCart.forEach(item => {
             vnd += (item.priceVND || 0) * item.qty;
             usd += (item.priceUSD || 0) * item.qty;
             items += item.qty;
@@ -314,7 +326,7 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
                     {/* 3. Cart Drawer (Giỏ hàng) */}
                     {sheet.isOpen && sheet.type === 'CART' && (
                         <CartDrawer
-                            cart={cart}
+                            cart={cart.filter(item => item.itemType !== 'vip')}
                             services={services}
                             lang={lang}
                             isOpen={sheet.isOpen}

@@ -68,6 +68,16 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
             .catch(err => console.error('[VIP] Failed to fetch pricing:', err));
     }, []);
 
+    // Check query string for auto-opening cart (e.g. from Modify Order)
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('cart') === 'open') {
+                setIsCartOpen(true);
+            }
+        }
+    }, []);
+
     // ── Navigation ──────────────────────────────────
     const handleBack = () => {
         switch (step) {

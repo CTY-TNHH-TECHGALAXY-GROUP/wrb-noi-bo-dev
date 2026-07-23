@@ -84,13 +84,20 @@ export const LoginGate = ({ lang, onSuccess }: LoginGateProps) => {
       const data = await res.json();
 
       if (data.success && data.customer) {
+        // Helper: detect fake system-generated emails
+        const isFakeEmail = (e: string) => /^guest-\d+@no-email\.com$/i.test(e);
+        const cleanEmail = data.customer.email && !isFakeEmail(data.customer.email) ? data.customer.email : '';
+
         // Save to localStorage for history page
-        if (data.customer.email) localStorage.setItem('currentUserEmail', data.customer.email);
+        if (cleanEmail) localStorage.setItem('currentUserEmail', cleanEmail);
         if (data.customer.phone) localStorage.setItem('currentUserPhone', data.customer.phone);
-        localStorage.setItem('currentUserInfo', JSON.stringify(data.customer));
+        localStorage.setItem('currentUserInfo', JSON.stringify({
+          ...data.customer,
+          email: cleanEmail, // Override with cleaned email
+        }));
 
         onSuccess({
-          email: data.customer.email,
+          email: cleanEmail,
           phone: data.customer.phone,
           fullName: data.customer.fullName,
         });

@@ -12,8 +12,15 @@ interface CustomerInfoProps {
 export default function CustomerInfo({ lang, dict, info, onChange, isBookingFlow }: CustomerInfoProps) {
     // Determine which tab to show by default
     const [contactMethod, setContactMethod] = useState<'email' | 'phone'>(
-        info.phone && !info.email ? 'phone' : 'email'
+        info.phone ? 'phone' : 'email'
     );
+
+    // Auto-switch to phone tab if phone number is provided (e.g. from history restore)
+    React.useEffect(() => {
+        if (info.phone) {
+            setContactMethod('phone');
+        }
+    }, [info.phone]);
 
     // Extract raw labels for buttons (removing the placeholder hints in parenthesis if any)
     const emailLabel = dict.checkout.email?.split('(')[0]?.trim() || 'Email';

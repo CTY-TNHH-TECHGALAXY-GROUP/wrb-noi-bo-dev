@@ -9,17 +9,29 @@ import CheckoutHeader from '@/components/Checkout/CheckoutHeader';
 import CustomerInfo from '@/components/Checkout/CustomerInfo';
 import Invoice from '@/components/Checkout/Invoice';
 import PaymentModal from '@/components/Checkout/PaymentModal';
-import OrderConfirmModal from '@/components/Checkout/OrderConfirmModal';
 import VipEditModal, { type VipEditSaveData } from '@/components/Checkout/VipEditModal';
 import CustomForYouModal from '@/components/CustomForYou';
 import AlertModal from '@/components/Shared/AlertModal';
 import { ServiceOptions, CartItem } from '@/components/Menu/types';
-import { type VatInvoiceData } from '@/components/Checkout/VatInvoiceSection';
 import { getDictionary } from '@/lib/dictionaries';
 
-export default function CheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
+import BookingTimePicker from '@/components/Booking/BookingTimePicker';
+import BookingTermsModal from '@/components/Booking/BookingTermsModal';
+import BookingConfirmModal from '@/components/Booking/BookingConfirmModal';
+import { getBookingT } from '@/components/Booking/BookingCheckout.i18n';
+
+// 🔧 UI CONFIGURATION
+const PAGE_CONFIG = {
+    BOTTOM_PADDING: 'pb-32',
+    ANIMATION_DURATION: 'duration-500',
+    MAX_WIDTH: 'max-w-6xl',
+    BG_COLOR: 'bg-[#0d0d0d]',
+    TEXT_COLOR: 'text-white'
+};
+
+export default function OldUserBookingCheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
     const router = useRouter();
-    const { cart, updateAllCartItemOptions, updateCartItemOptions, updateVipCartItem, customerInfo, updateCustomerInfo, resetCustomerInfo } = useMenuData();
+    const { cart, updateCartItemOptions, updateVipCartItem, customerInfo, updateCustomerInfo, resetCustomerInfo, clearCart } = useMenuData();
     const { user, isAuthUser } = useAuthStore();
 
     // Unwrap params
@@ -28,41 +40,31 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     const [originalLang] = useState(rawLang);
 
     const dict = getDictionary(activeLang);
+    const t = getBookingT(activeLang);
 
     // --- STATE ---
+    const [selectedDateStr, setSelectedDateStr] = useState<string | null>(null);
+    const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+    const [isAgreedTerms, setIsAgreedTerms] = useState(false);
 
-    // Payment
     const [paymentMethod, setPaymentMethod] = useState('');
     const [amountPaid, setAmountPaid] = useState<string>('');
-
-    // Modals
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-    const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null);
     const [changeDenominations, setChangeDenominations] = useState<number[]>([]);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null);
     const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
-    // VIP Edit Modal
-    const [isVipEditOpen, setIsVipEditOpen] = useState(false);
+    const [isVipEditOpen, setIsVipEditOpen]     = useState(false);
     const [selectedVipItem, setSelectedVipItem] = useState<CartItem | null>(null);
-
-    // VAT Invoice (5B persist: state lives at page level)
-    const [vatInvoice, setVatInvoice] = useState<VatInvoiceData | null>(null);
 
     // --- COMPUTED ---
     const currency = useMemo(() => paymentMethod === 'cash_usd' ? 'USD' : 'VND', [paymentMethod]);
-
     const totalVND = useMemo(() => cart.reduce((sum, item) => sum + item.priceVND * item.qty, 0), [cart]);
     const totalUSD = useMemo(() => cart.reduce((sum, item) => sum + item.priceUSD * item.qty, 0), [cart]);
-
-    const changeAmount = useMemo(() => {
-        const rawPaid = parseInt(amountPaid.replace(/\./g, '') || '0', 10);
-        if (currency === 'USD') {
-            return rawPaid - totalUSD;
-        }
-        return rawPaid - totalVND;
-    }, [amountPaid, totalVND, totalUSD, currency]);
 
     // --- EFFECTS ---
     useEffect(() => {
@@ -74,7 +76,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     // Helper: detect fake system-generated emails
     const isFakeEmail = (email: string) => /^guest-\d+@no-email\.com$/i.test(email);
 
-    // [NEW] Auto-fill Customer Info (OLD USER SPECIFIC & Google Login)
+    // 🔑 AUTO-FILL: Lấy lại thông tin khách cũ từ Auth Store (Supabase session) hoặc LocalStorage
     useEffect(() => {
         let autoName = '';
         let autoEmail = '';
@@ -86,6 +88,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             autoPhone = user.phone || '';
         }
 
+        // Fallback to localStorage if manual input was used in LoginGate
         if (typeof window !== 'undefined') {
             try {
                 const storedInfo = localStorage.getItem('currentUserInfo');
@@ -116,14 +119,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthUser, user]);
 
-    // --- HANDLERS ---
     const handleBack = () => {
         router.back();
     };
 
-    // Cleanup obsolete handlers
-
     const handleCustomRequest = (item: CartItem) => {
+        if (item.itemType === 'vip') return;
         setSelectedCartItem(item);
         setIsModalOpen(true);
     };
@@ -156,41 +157,35 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         updateCustomerInfo(field, value);
     };
 
-    const handleConfirmOrder = () => {
-        // Validation 1: Name is required
+    const handleProceedToPayment = () => {
         if (!customerInfo.name.trim()) {
-            setAlertState({
-                isOpen: true,
-                message: dict.checkout.alerts?.fill_name || 'Please enter your Full Name',
-                type: 'error'
-            });
+            setAlertState({ isOpen: true, message: t.error_incomplete || 'Vui lòng điền tên khách hàng', type: 'error' });
             return;
         }
-
-        // Validation 2: Either Phone or Email is required
-        if (!customerInfo.email.trim() && !customerInfo.phone.trim()) {
-            setAlertState({
-                isOpen: true,
-                message: dict.checkout.alerts?.fill_phone_or_email || 'Please enter Phone Number or Email',
-                type: 'error'
-            });
+        if (!customerInfo.phone.trim()) {
+            setAlertState({ isOpen: true, message: t.error_incomplete || 'Vui lòng điền số điện thoại', type: 'error' });
+            return;
+        }
+        if (!customerInfo.email.trim()) {
+            setAlertState({ isOpen: true, message: t.error_incomplete || 'Vui lòng điền email', type: 'error' });
+            return;
+        }
+        if (!selectedDateStr || !selectedSlot) {
+            setAlertState({ isOpen: true, message: t.error_incomplete || 'Vui lòng chọn ngày và giờ hẹn', type: 'error' });
             return;
         }
         setIsPaymentModalOpen(true);
     };
 
-    const handlePaymentNext = (data: { paymentMethod: string; amountPaid: string; changeDenominations: number[]; vatInvoice?: VatInvoiceData | null }) => {
+    const handlePaymentNext = (data: { paymentMethod: string; amountPaid: string; changeDenominations: number[] }) => {
         setPaymentMethod(data.paymentMethod);
         setAmountPaid(data.amountPaid);
         setChangeDenominations(data.changeDenominations);
-        setVatInvoice(data.vatInvoice || null); // 5B persist
         setIsPaymentModalOpen(false);
         setTimeout(() => setIsConfirmOpen(true), 300);
     };
 
-
     const handleFinalSubmit = async () => {
-        console.log('[Checkout] handleFinalSubmit — vatInvoice state:', JSON.stringify(vatInvoice));
         const payload = {
             customer: customerInfo,
             items: cart,
@@ -199,10 +194,13 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             changeDenominations,
             totalVND,
             lang: rawLang,
-            vatInvoice,
+            appointmentDate: selectedDateStr,
+            timeSlot: selectedSlot,
+            bookingSource: 'web',
+            status: 'ADVANCE_BOOKING'
         };
 
-        const res = await fetch('/api/orders', {
+        const res = await fetch('/api/bookings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -210,26 +208,22 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
 
         if (!res.ok) {
             const err = await res.json();
-            throw new Error(err.error || "Failed to submit");
+            throw new Error(err.error || "Failed to submit booking");
         }
 
         const data = await res.json();
+        clearCart();
         resetCustomerInfo();
-        return data.accessToken || data.bookingId;
+        return data.bookingId;
     };
 
     if (!cart) return null;
 
-    // Quick Suggestions Logic
-    const quickSuggestions = currency === 'USD'
-        ? [totalUSD, 50, 100, 200]
-        : [totalVND, 500000, 1000000];
-
     return (
-        <div className="min-h-screen bg-[#0d0d0d] text-white pb-32 font-sans animate-in fade-in duration-500">
+        <div className={`min-h-screen ${PAGE_CONFIG.BG_COLOR} ${PAGE_CONFIG.TEXT_COLOR} font-sans animate-in fade-in ${PAGE_CONFIG.ANIMATION_DURATION} ${PAGE_CONFIG.BOTTOM_PADDING}`}>
             <CheckoutHeader
-                title={dict.checkout.title}
-                backLabel={dict.common?.back_to_menu}
+                title={activeLang === 'en' ? 'Advance Booking' : 'Đặt Lịch Hẹn'}
+                backLabel={t.btn_back}
                 onBack={handleBack}
                 rightAction={
                     <button
@@ -242,23 +236,37 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 }
             />
 
-            <main className="p-4 md:p-6 lg:p-8 max-w-6xl mx-auto min-h-screen">
+            <main className={`p-4 md:p-6 lg:p-8 mx-auto min-h-screen ${PAGE_CONFIG.MAX_WIDTH}`}>
                 <div className="flex flex-col gap-6 md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
 
-                    {/* 1. Customer Info (Mobile: Item 1, Desktop: Item 1 - Left Col) */}
-                    <div className="w-full md:col-span-7 md:row-start-1">
+                    {/* Left Column */}
+                    <div className="w-full md:col-span-7 md:row-start-1 space-y-6">
+                        {/* 1. Customer Info */}
                         <CustomerInfo
                             lang={activeLang}
                             dict={dict}
                             info={customerInfo}
                             onChange={handleCustomerChange}
+                            isBookingFlow={true}
                         />
+
+                        {/* 2. Date & Time Picker */}
+                        <div className="bg-[#131315] rounded-3xl p-6 border border-white/5">
+                            <BookingTimePicker
+                                lang={activeLang}
+                                selectedDateStr={selectedDateStr}
+                                selectedSlot={selectedSlot}
+                                onChangeDate={setSelectedDateStr}
+                                onChangeSlot={setSelectedSlot}
+                                t={t}
+                            />
+                        </div>
+
                     </div>
 
-                    {/* 2. Invoice (Mobile: Item 2, Desktop: Item 2 - Right Col) */}
-                    {/* DOM Order ensures Mobile flow is Customer -> Invoice -> Payment */}
+                    {/* Right Column: Invoice & Submit */}
                     <div className="w-full md:col-span-5 md:col-start-8 md:row-start-1 md:row-span-2 space-y-6">
-                        <div className="md:sticky md:top-4">
+                        <div className="md:sticky md:top-4 space-y-6">
                             <Invoice
                                 cart={cart}
                                 lang={activeLang}
@@ -268,13 +276,13 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                                 onVipEditRequest={handleVipEditRequest}
                             />
 
-                            {/* Desktop Confirm Button */}
-                            <div className="hidden md:block mt-6">
+                            {/* Desktop Submit Button */}
+                            <div className="hidden md:block">
                                 <button
-                                    onClick={handleConfirmOrder}
+                                    onClick={handleProceedToPayment}
                                     className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
                                 >
-                                    {dict.checkout.confirm_order_btn}
+                                    {t.btn_next}
                                 </button>
                             </div>
                         </div>
@@ -282,28 +290,17 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 </div>
             </main>
 
-            {/* Bottom Bar - Confirm (Mobile Only) */}
-            <div className="fixed bottom-0 left-0 w-full bg-[#1c1c1e] p-4 border-t border-white/10 z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.5)] md:hidden">
-                <div className="max-w-2xl mx-auto">
-                    <button
-                        onClick={handleConfirmOrder}
-                        className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
-                    >
-                        {dict.checkout.confirm_order_btn}
-                    </button>
-                </div>
+            {/* Mobile Bottom Bar */}
+            <div className="fixed bottom-0 left-0 w-full bg-[#1c1c1e] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-white/10 z-40 md:hidden shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+                <button
+                    onClick={handleProceedToPayment}
+                    className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
+                >
+                    {t.btn_next}
+                </button>
             </div>
 
-            {/* VIP Edit Modal */}
-            <VipEditModal
-                item={selectedVipItem}
-                isOpen={isVipEditOpen}
-                onClose={() => { setIsVipEditOpen(false); setSelectedVipItem(null); }}
-                onSave={handleSaveVipEdit}
-                lang={activeLang}
-            />
-
-            {/* Standard Custom Request Modal */}
+            {/* Modals */}
             {selectedCartItem && (
                 <CustomForYouModal
                     isOpen={isModalOpen}
@@ -334,10 +331,21 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 dict={dict}
                 totalVND={totalVND}
                 totalUSD={totalUSD}
-                initialVatInvoice={vatInvoice}
+                isBookingFlow={true}
+                isAgreedTerms={isAgreedTerms}
+                onAgreeTermsChange={setIsAgreedTerms}
+                bookingReminder={t.booking_reminder}
+                termsText={
+                    <>
+                        {t.terms_agree}
+                        <button onClick={() => setIsTermsModalOpen(true)} className="text-[#e6c487] underline hover:text-[#d4b47a] ml-1">
+                            {t.terms_link}
+                        </button>
+                    </>
+                }
             />
 
-            <OrderConfirmModal
+            <BookingConfirmModal
                 isOpen={isConfirmOpen}
                 onClose={() => setIsConfirmOpen(false)}
                 onConfirm={handleFinalSubmit}
@@ -347,7 +355,14 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 customerInfo={customerInfo}
                 paymentMethod={paymentMethod}
                 amountPaid={parseInt(amountPaid.replace(/\./g, '') || '0', 10)}
-                vatInvoice={vatInvoice}
+                appointmentDate={selectedDateStr!}
+                timeSlot={selectedSlot!}
+            />
+
+            <BookingTermsModal
+                isOpen={isTermsModalOpen}
+                onClose={() => setIsTermsModalOpen(false)}
+                lang={activeLang}
             />
 
             <AlertModal
@@ -357,7 +372,15 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
                 lang={activeLang}
             />
+
+            {/* VIP Edit Modal */}
+            <VipEditModal
+                item={selectedVipItem}
+                isOpen={isVipEditOpen}
+                onClose={() => { setIsVipEditOpen(false); setSelectedVipItem(null); }}
+                onSave={handleSaveVipEdit}
+                lang={activeLang}
+            />
         </div>
     );
 }
-
