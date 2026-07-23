@@ -77,7 +77,7 @@ export default function CustomerRequestFAB({ realBookingId, accessToken, lang }:
                 schema: 'public',
                 table: 'StaffNotifications',
                 filter: `bookingId=eq.${realBookingId}`,
-            }, (payload) => {
+            }, (payload: any) => {
                 if (payload.new.acknowledgedAt) {
                     const typeMatch = (payload.new.type as string).replace('CUSTOMER_', '') as RequestType;
                     if (requests[typeMatch]) {

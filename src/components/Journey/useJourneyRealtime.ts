@@ -20,6 +20,7 @@ export interface ServiceItem {
     staffName: string;
     staffAvatar: string;
     computedTimeStart: string | null;
+    timeEnd?: string | null;
     quantity: number;
     price: number;
     options?: any;

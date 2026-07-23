@@ -359,7 +359,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                                     {/* Overall Rating Stars */}
                                     {visit.rating && visit.rating > 0 && (
                                         <div className="flex items-center justify-end gap-0.5 mt-1">
-                                            {[1, 2, 3, 4, 5].map((star) => (
+                                            {[1, 2, 3, 4].map((star) => (
                                                 <svg key={star} className={`w-3.5 h-3.5 ${star <= visit.rating ? 'text-yellow-400' : 'text-gray-600'}`} fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                                 </svg>
@@ -398,7 +398,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                                         {/* Per-item rating (overall) */}
                                         {item.itemRating && item.itemRating > 0 && (
                                             <div className="flex items-center gap-1 mt-1.5">
-                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                {[1, 2, 3, 4].map((star) => (
                                                     <svg key={star} className={`w-3 h-3 ${star <= item.itemRating ? 'text-yellow-400' : 'text-gray-600'}`} fill="currentColor" viewBox="0 0 20 20">
                                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                                     </svg>
@@ -406,26 +406,8 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                                             </div>
                                         )}
 
-                                        {/* Per-KTV individual ratings */}
-                                        {item.ktvRatings && item.ktvRatings.length > 0 && (
-                                            <div className="mt-1.5 space-y-1">
-                                                {item.ktvRatings.map((ktv: any) => (
-                                                    <div key={ktv.code} className="flex items-center gap-1.5 text-xs">
-                                                        <span className="text-gray-400">{ktv.name}</span>
-                                                        <div className="flex items-center gap-0.5">
-                                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                                <svg key={star} className={`w-2.5 h-2.5 ${star <= ktv.rating ? 'text-yellow-400' : 'text-gray-700'}`} fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                                </svg>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-
                                         {/* Per-item feedback text */}
-                                        {item.itemFeedback && (
+                                        {item.itemFeedback && !item.itemFeedback.toLowerCase().includes('tip:') && (
                                             <p className="text-xs text-gray-500 italic mt-1.5 leading-relaxed">"{item.itemFeedback}"</p>
                                         )}
                                     </div>
