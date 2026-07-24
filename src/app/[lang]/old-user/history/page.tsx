@@ -61,6 +61,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
     const [activeTab, setActiveTab] = useState<'all' | 'unrated'>('all');
     const [actionContext, setActionContext] = useState<{ action: 'rebook' | 'modify' | 'new', order?: any } | null>(null);
     const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({});
+    const [visibleCount, setVisibleCount] = useState(5);
     const router = useRouter();
     const { addToCart, clearCart, services } = useMenuData();
 
@@ -346,8 +347,9 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                     </div>
 
                 ) : (
-                    orders.map((visit) => (
-                        <div key={visit.id} className={`${HISTORY_CONFIG.ITEM_BG} ${HISTORY_CONFIG.ITEM_BORDER_RADIUS} p-5 border ${HISTORY_CONFIG.ITEM_BORDER}`}>
+                    <>
+                        {orders.slice(0, visibleCount).map((visit) => (
+                            <div key={visit.id} className={`${HISTORY_CONFIG.ITEM_BG} ${HISTORY_CONFIG.ITEM_BORDER_RADIUS} p-5 border ${HISTORY_CONFIG.ITEM_BORDER}`}>
                             {/* Header Row: Date + Time | ID ---------- Price */}
                             <div className="flex justify-between items-start mb-2">
                                 <div className="flex flex-col text-sm">
@@ -510,7 +512,19 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                                 )}
                             </div>
                         </div>
-                    ))
+                    ))}
+                    {orders.length > visibleCount && (
+                        <div className="pt-2 pb-6 flex justify-center">
+                            <button
+                                onClick={() => setVisibleCount(prev => prev + 5)}
+                                className="px-6 py-2.5 bg-[#1f2430] hover:bg-[#2a3040] text-gray-300 text-sm font-medium rounded-full transition-colors border border-white/10 flex items-center gap-2 active:scale-95 shadow-lg"
+                            >
+                                <span>{lang === 'vi' ? 'Xem thêm' : 'Load more'}</span>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </div>
+                    )}
+                    </>
                 )}
             </main>
 
