@@ -364,6 +364,12 @@ export async function GET(request: Request) {
                 }
             }
 
+            // Lọc bỏ phần đánh giá KTV (ví dụ: "[Đánh giá KTV: Khách Dễ Thương]") để không cho khách hàng thấy
+            if (customerNote) {
+                customerNote = customerNote.replace(/\[Đánh giá KTV:.*?\]/gi, '').trim();
+                customerNote = customerNote.replace(/(^\|\s*)|(\s*\|\s*$)/g, '').trim();
+            }
+
             return {
                 id: b.id,
                 date: formattedDate,
