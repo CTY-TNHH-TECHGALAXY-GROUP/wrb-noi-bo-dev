@@ -333,7 +333,11 @@ export async function GET(request: Request) {
             const rawDate = b.createdAt || b.bookingDate;
             let formattedDate = '';
             try {
-                const d = new Date(rawDate);
+                let dateStr = String(rawDate);
+                if (dateStr && !dateStr.endsWith('Z') && !dateStr.match(/([+-]\d{2}:?\d{2})$/)) {
+                    dateStr += 'Z';
+                }
+                const d = new Date(dateStr);
                 const vnDate = new Date(d.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
                 const dd = String(vnDate.getDate()).padStart(2, '0');
                 const mm = String(vnDate.getMonth() + 1).padStart(2, '0');
