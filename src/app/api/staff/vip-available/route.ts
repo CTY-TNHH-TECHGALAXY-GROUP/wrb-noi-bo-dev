@@ -55,7 +55,7 @@ export async function GET(_req: NextRequest) {
       .from('Staff')
       .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until')
       .eq('status', 'ĐANG LÀM')
-      .or('is_active_vip_menu.eq.true,online_status.eq.ONLINE') // Lấy KTV VIP hoặc KTV đang bật Online
+      .eq('is_active_vip_menu', true) // Bắt buộc phải được check VIP Menu
       .order('full_name');
 
     if (staffError) {
