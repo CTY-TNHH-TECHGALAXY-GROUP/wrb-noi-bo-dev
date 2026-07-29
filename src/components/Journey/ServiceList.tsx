@@ -125,7 +125,7 @@ const TabTimerView = ({
                             <>
                                 <span className={`text-5xl font-black tracking-tighter ${isStarted ? 'text-[#C9A96E]' : 'text-gray-600'}`}>{formattedTime}</span>
                                 {!isStarted && <span className="text-xs font-bold text-gray-600 uppercase tracking-wider animate-pulse">{t.waiting}</span>}
-                                {isStarted && isPaused && <span className="text-[9px] font-bold text-[#C9A96E] uppercase tracking-tighter animate-pulse bg-[#C9A96E]/10 border border-[#C9A96E]/20 px-2 py-0.5 rounded-full mt-1">ĐỢI CHUYỂN PHÒNG</span>}
+                                {isStarted && isPaused && <span className="text-[9px] font-bold text-[#C9A96E] uppercase tracking-tighter animate-pulse bg-[#C9A96E]/10 border border-[#C9A96E]/20 px-2 py-0.5 rounded-full mt-1">{currentGroup.items.some(i => i.status === 'PAUSED') ? 'TẠM DỪNG' : 'ĐỢI CHUYỂN PHÒNG'}</span>}
                             </>
                         )}
                     </div>

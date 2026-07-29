@@ -67,7 +67,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const hasCompletedItems = (journeyData?.items || []).some(i => 
         ['COMPLETED', 'CLEANING', 'DONE', 'FEEDBACK'].includes(i.status || '')
     );
-    const isPaused = rawStatus === 'PREPARING' && itemsStarted && hasCompletedItems;
+    const isPaused = (rawStatus === 'PREPARING' && itemsStarted && hasCompletedItems) || (journeyData?.items || []).some(i => i.status === 'PAUSED');
 
     const t = {
         preparing: translations[lang]?.preparing || translations['en'].preparing,

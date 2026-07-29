@@ -191,7 +191,12 @@ export function useJourneyRealtime(bookingId: string) {
                                 if (seg.actualStartTime) {
                                     const start = new Date(seg.actualStartTime.replace(' ', 'T')).getTime();
                                     if (!firstStart || start < firstStart) firstStart = start;
-                                    const end = seg.actualEndTime ? new Date(seg.actualEndTime.replace(' ', 'T')).getTime() : Date.now();
+                                    let end = Date.now();
+                                    if (seg.actualEndTime) {
+                                        end = new Date(seg.actualEndTime.replace(' ', 'T')).getTime();
+                                    } else if (i.status === 'PAUSED' && i.pauseStart) {
+                                        end = new Date(i.pauseStart.replace(' ', 'T')).getTime();
+                                    }
                                     activeMs += Math.max(0, end - start);
                                 }
                             });
