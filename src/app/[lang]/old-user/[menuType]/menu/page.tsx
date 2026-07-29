@@ -26,7 +26,7 @@ export default function OldUserMenuPage() {
     }
 
     if (menuType === 'vip' || menuType === 'premium') {
-        return <PremiumMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} />;
+        return <PremiumMenu lang={lang} isBookingFlow={false} onBack={handleBack} onCheckout={handleCheckout} />;
     }
 
     return notFound();

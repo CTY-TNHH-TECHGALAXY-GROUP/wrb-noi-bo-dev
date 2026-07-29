@@ -53,9 +53,9 @@ export async function GET(_req: NextRequest) {
     // ─── Step 1: Fetch all active staff ─────────────────────────────────────
     const { data: staffList, error: staffError } = await supabase
       .from('Staff')
-      .select('id, full_name, avatar_url, gender, skills, height, feature_flags')
+      .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until')
       .eq('status', 'ĐANG LÀM')
-      .eq('is_active_vip_menu', true) // Chỉ lấy nhân viên cho VIP Menu
+      .or('is_active_vip_menu.eq.true,online_status.eq.ONLINE') // Lấy KTV VIP hoặc KTV đang bật Online
       .order('full_name');
 
     if (staffError) {
@@ -162,11 +162,24 @@ export async function GET(_req: NextRequest) {
       let turnsCompleted: number = 0;
       let travelTimeMins: number | undefined;
 
-      // Check Feature Flags for On-Call
-      const featureFlags = s.feature_flags as Record<string, any> | null;
-      const isAllowedOnCall = featureFlags?.allow_on_call === true;
-      const isOnCallEnabled = featureFlags?.is_on_call === true;
-      const isStaffOnCall = isAllowedOnCall && isOnCallEnabled;
+      // Check new Online KTV features first, fallback to feature flags
+      let isStaffOnCall = false;
+      let staffTravelTimeMins = 30; // default
+      
+      const nowMs = Date.now();
+      const availableUntilMs = s.available_until ? new Date(s.available_until).getTime() : 0;
+      
+      if (s.online_status === 'ONLINE' && availableUntilMs > nowMs) {
+          isStaffOnCall = true;
+          staffTravelTimeMins = s.travel_minutes || 30;
+      } else {
+          // Fallback to legacy feature_flags
+          const featureFlags = s.feature_flags as Record<string, any> | null;
+          const isAllowedOnCall = featureFlags?.allow_on_call === true;
+          const isOnCallEnabled = featureFlags?.is_on_call === true;
+          isStaffOnCall = isAllowedOnCall && isOnCallEnabled;
+          if (isStaffOnCall) staffTravelTimeMins = featureFlags?.travel_time_mins || 30;
+      }
 
       if (tq) {
         // Đã check-in → TurnQueue wins (kể cả có LeaveRequest)
@@ -179,12 +192,12 @@ export async function GET(_req: NextRequest) {
         } else if (tq.status === 'off') {
           availability = isStaffOnCall ? 'ON_CALL' : 'OFF_DUTY';
           if (availability === 'ON_CALL') {
-            travelTimeMins = featureFlags?.travel_time_mins || 30; // Default 30 mins
+            travelTimeMins = staffTravelTimeMins;
           }
         } else {
           availability = isStaffOnCall ? 'ON_CALL' : 'NOT_YET';
           if (availability === 'ON_CALL') {
-            travelTimeMins = featureFlags?.travel_time_mins || 30;
+            travelTimeMins = staffTravelTimeMins;
           }
         }
         queuePosition = tq.queue_position ?? 999;
@@ -193,13 +206,13 @@ export async function GET(_req: NextRequest) {
         // Chưa check-in + có đơn OFF → ON_LEAVE (trừ khi chủ động bật ON_CALL)
         availability = isStaffOnCall ? 'ON_CALL' : 'ON_LEAVE';
         if (availability === 'ON_CALL') {
-          travelTimeMins = featureFlags?.travel_time_mins || 30;
+          travelTimeMins = staffTravelTimeMins;
         }
       } else {
         // Chưa check-in + không có đơn OFF → chưa vô ca
         availability = isStaffOnCall ? 'ON_CALL' : 'NOT_YET';
         if (availability === 'ON_CALL') {
-          travelTimeMins = featureFlags?.travel_time_mins || 30;
+          travelTimeMins = staffTravelTimeMins;
         }
       }
 

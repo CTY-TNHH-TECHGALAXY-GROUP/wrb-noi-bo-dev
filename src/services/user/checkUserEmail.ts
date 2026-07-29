@@ -6,6 +6,7 @@ export interface CheckUserResult {
         name: string;
         phone: string;
         email: string;
+        lang?: string | null;
     } | null;
 }
 
@@ -24,7 +25,8 @@ export const checkUserEmail = async (inputValue: string): Promise<CheckUserResul
                 customer: {
                     name: data.customer.fullName || "",
                     phone: data.customer.phone || "",
-                    email: data.customer.email || (isEmail ? trimmed : "")
+                    email: data.customer.email || (isEmail ? trimmed : ""),
+                    lang: data.customer.lang || null
                 }
             };
         }

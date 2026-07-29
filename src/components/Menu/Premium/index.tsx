@@ -48,6 +48,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     // Selected staff for current booking flow
     const [selectedStaffIds, setSelectedStaffIds]           = useState<string[]>([]);
     const [selectedStaffInfoList, setSelectedStaffInfoList] = useState<VipStaffInfo[]>([]);
+    const [staffGroupingMode, setStaffGroupingMode] = useState<'FOUR_HAND' | 'SEPARATE' | null>(null);
     const [bufferMinutes, setBufferMinutes]                 = useState<number>(30);
 
     // Số lượng gói VIP đã đặt (để hiển thị badge trên nút Cart)
@@ -110,15 +111,35 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
         const uniqueNames = [...new Set(skillNames)];
         const displayName = uniqueNames.length > 0 ? uniqueNames.join(' + ') : 'VIP Bespoke';
 
-        addVipToCart({
-            staffIds:      selectedStaffIds,
-            staffInfoList: selectedStaffInfoList,
-            skillIds:      allSkillIds,
-            displayName,
-            duration:      data.totalDuration,
-            totalPrice:    data.totalPrice || 0,
-            customerNotes: data.customerNotes,
-        });
+        const isSeparate = staffGroupingMode === 'SEPARATE';
+        
+        if (isSeparate && selectedStaffIds.length > 1) {
+            selectedStaffIds.forEach((staffId) => {
+                const staffInfo = selectedStaffInfoList.find(s => s.id === staffId);
+                const individualDisplayName = `${displayName} - KTV ${staffId}`;
+                addVipToCart({
+                    staffIds: [staffId],
+                    staffInfoList: [staffInfo!],
+                    skillIds: allSkillIds,
+                    displayName: individualDisplayName,
+                    duration: data.totalDuration,
+                    totalPrice: data.totalPrice,
+                    customerNotes: data.customerNotes ? `${data.customerNotes} (Mỗi khách 1 KTV)` : '(Mỗi khách 1 KTV)',
+                });
+            });
+        } else {
+            addVipToCart({
+                staffIds: selectedStaffIds,
+                staffInfoList: selectedStaffInfoList,
+                skillIds: allSkillIds,
+                displayName: displayName,
+                duration: data.totalDuration,
+                totalPrice: data.totalPrice || 0,
+                customerNotes: staffGroupingMode === 'FOUR_HAND' && selectedStaffIds.length > 1
+                    ? (data.customerNotes ? `${data.customerNotes} (Tứ thủ)` : '(Tứ thủ)')
+                    : data.customerNotes,
+            });
+        }
 
         // Mở Cart sheet overlay thay vì navigate sang step mới
         setIsCartOpen(true);
@@ -139,6 +160,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     const handleAddAnother = () => {
         setSelectedStaffIds([]);
         setSelectedStaffInfoList([]);
+        setStaffGroupingMode(null);
         setStep('STAFF');
     };
 
@@ -215,9 +237,11 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                             >
                                 <StaffSelector
                                     lang={lang}
-                                    onConfirmSelection={(ids, staffInfoList) => {
+                                    cartHasItems={vipGroupCount > 0}
+                                    onConfirmSelection={(ids, staffInfoList, mode) => {
                                         setSelectedStaffIds(ids);
                                         setSelectedStaffInfoList(staffInfoList);
+                                        setStaffGroupingMode(mode || null);
                                         setStep('BOOKING_CONFIG');
                                     }}
                                 />

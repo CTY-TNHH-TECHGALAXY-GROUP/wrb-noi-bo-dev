@@ -47,7 +47,7 @@ export default function MenuPage() {
 
     // Trường hợp 2: Menu VIP (Premium)
     if (menuType === 'vip') {
-        return <PremiumMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} onSwitchToStandard={handleSwitchToStandard} />;
+        return <PremiumMenu lang={lang} isBookingFlow={false} onBack={handleBack} onCheckout={handleCheckout} onSwitchToStandard={handleSwitchToStandard} />;
     }
 
     // Trường hợp 3: Người dùng nhập bậy bạ (vd: .../abc/menu) -> Trả về 404

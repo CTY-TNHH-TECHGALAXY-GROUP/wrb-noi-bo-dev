@@ -167,7 +167,7 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
   const [showAllSkills, setShowAllSkills] = useState(false);
   const [isAgreedTerms, setIsAgreedTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const [showOnCallWarning, setShowOnCallWarning] = useState(false);
+
   const [customerNotes, setCustomerNotes] = useState('');
 
   // Calendar states
@@ -273,8 +273,9 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
       const now = new Date();
       const nowMins = now.getHours() * 60 + now.getMinutes() + bufferMinutes;
       
-      // Kiểm tra KTV bận
+      // Kiểm tra KTV bận hoặc ON_CALL
       let maxBusyMins = 0;
+      let maxTravelMins = 0;
       selectedStaffInfoList.forEach(staff => {
         if (staff.availability === 'BUSY' && staff.estimatedEndTime) {
           const mins = timeToMinutes(staff.estimatedEndTime);
@@ -282,10 +283,16 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
             maxBusyMins = mins;
           }
         }
+        if (staff.availability === 'ON_CALL') {
+          const tMins = staff.travelTimeMins || 30;
+          if (tMins > maxTravelMins) {
+            maxTravelMins = tMins;
+          }
+        }
       });
 
-      if (maxBusyMins > 0) {
-        startMins = Math.max(startMins, nowMins, maxBusyMins);
+      if (maxBusyMins > 0 || maxTravelMins > 0) {
+        startMins = Math.max(startMins, nowMins + maxTravelMins, maxBusyMins);
       } else {
         startMins = Math.max(startMins, nowMins);
       }
@@ -521,51 +528,45 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
               </div>
             </div>
 
-            {/* Checkbox Điều khoản */}
-            <div className="flex items-start gap-2.5 mb-3 px-1">
-              <button
-                type="button"
-                onClick={() => setIsAgreedTerms(!isAgreedTerms)}
-                className={`w-5 h-5 mt-0.5 rounded flex items-center justify-center border transition-colors shrink-0 ${
-                  isAgreedTerms 
-                    ? 'bg-green-500 border-green-500' 
-                    : 'bg-[#1b1b1d] border-[#4d463a] hover:border-[#e6c487]/50'
-                }`}
-              >
-                {isAgreedTerms && (
-                  <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </button>
-              <div className="text-[11px] text-[#998f81] leading-tight">
-                {t.bc_agree_terms || 'Tôi đã đọc và đồng ý với '}
-                <button 
-                  onClick={() => setShowTermsModal(true)}
-                  className="text-[#e6c487] underline underline-offset-2 hover:text-[#e4e2e4] transition-colors"
+            {/* Checkbox Điều khoản (Chỉ hiển thị cho Booking Flow) */}
+            {isBookingFlow && (
+              <div className="flex items-start gap-2.5 mb-3 px-1">
+                <button
+                  type="button"
+                  onClick={() => setIsAgreedTerms(!isAgreedTerms)}
+                  className={`w-5 h-5 mt-0.5 rounded flex items-center justify-center border transition-colors shrink-0 ${
+                    isAgreedTerms 
+                      ? 'bg-green-500 border-green-500' 
+                      : 'bg-[#1b1b1d] border-[#4d463a] hover:border-[#e6c487]/50'
+                  }`}
                 >
-                  {t.bc_terms_link || 'Điều khoản & Chính sách'}
+                  {isAgreedTerms && (
+                    <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
                 </button>
-                {' của Spa.'}
+                <div className="text-[11px] text-[#998f81] leading-tight">
+                  {t.bc_agree_terms || 'Tôi đã đọc và đồng ý với '}
+                  <button 
+                    onClick={() => setShowTermsModal(true)}
+                    className="text-[#e6c487] underline underline-offset-2 hover:text-[#e4e2e4] transition-colors"
+                  >
+                    {t.bc_terms_link || 'Điều khoản & Chính sách'}
+                  </button>
+                  {' của Spa.'}
+                </div>
               </div>
-            </div>
+            )}
 
             <button
               onClick={() => {
-                if (!isAgreedTerms) return;
-                // Kiểm tra xem có KTV nào đang ON_CALL không
-                const isToday = selectedDateStr === dayChips[0].isoDate;
-                const onCallStaffs = selectedStaffInfoList.filter(s => s.availability === 'ON_CALL');
-                
-                if (isToday && onCallStaffs.length > 0) {
-                  setShowOnCallWarning(true);
-                } else {
-                  onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: null, totalPrice, appointmentDate: selectedDateStr, customerNotes });
-                }
+                if (isBookingFlow && !isAgreedTerms) return;
+                onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: null, totalPrice, appointmentDate: selectedDateStr, customerNotes });
               }}
-              disabled={!isAgreedTerms}
+              disabled={isBookingFlow && !isAgreedTerms}
               className={`w-full py-4 rounded-full font-bold tracking-[0.12em] text-sm flex items-center justify-center gap-3 duration-200 uppercase shadow-[0_15px_30px_rgba(0,0,0,0.4)] transition-all ${
-                isAgreedTerms
+                (!isBookingFlow || isAgreedTerms)
                   ? 'bg-[#e6c487] text-[#412d00] hover:bg-[#e2c285] active:scale-95'
                   : 'bg-[#4d463a]/40 text-[#998f81] cursor-not-allowed'
               }`}
@@ -744,52 +745,7 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
         )}
       </AnimatePresence>
 
-      {/* On-Call Warning Popup */}
-      <AnimatePresence>
-        {showOnCallWarning && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-5">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="bg-[#131315] border border-[#e6c487]/30 rounded-3xl p-6 w-full max-w-sm shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
-            >
-              <div className="text-center mb-5">
-                <div className="w-16 h-16 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4 text-purple-400">
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <h4 className="font-serif italic text-xl text-[#e6c487] mb-2">
-                  Lưu ý thời gian di chuyển
-                </h4>
-                <p className="text-sm text-[#d0c5b5] leading-relaxed">
-                  Chuyên viên bạn chọn hiện đang ở ngoài Spa. Sẽ cần khoảng <span className="font-bold text-purple-400">{Math.max(...selectedStaffInfoList.filter(s => s.availability === 'ON_CALL').map(s => s.travelTimeMins || 30))} phút</span> để chuyên viên di chuyển đến nơi.
-                </p>
-                <p className="text-sm text-[#d0c5b5] leading-relaxed mt-2">
-                  Bạn có đồng ý chờ không?
-                </p>
-              </div>
 
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setShowOnCallWarning(false)}
-                  className="flex-1 py-3.5 rounded-xl bg-[#1b1b1d] border border-[#4d463a]/40 text-[#998f81] font-bold text-sm hover:bg-[#2a2a2c] transition-colors"
-                >
-                  Chọn lại
-                </button>
-                <button
-                  onClick={() => {
-                    setShowOnCallWarning(false);
-                    onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration!, timeSlot: null, totalPrice, appointmentDate: selectedDateStr, customerNotes });
-                  }}
-                  className="flex-1 py-3.5 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold text-sm hover:bg-purple-500/30 transition-colors"
-                >
-                  Đồng ý chờ
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       <div ref={bottomRef} className="h-[280px] w-full" />
     </motion.div>

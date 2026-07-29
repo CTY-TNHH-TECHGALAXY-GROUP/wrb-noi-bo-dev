@@ -314,6 +314,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 totalVND={totalVND}
                 totalUSD={totalUSD}
                 initialVatInvoice={vatInvoice}
+                isBookingFlow={false}
             />
 
             <OrderConfirmModal

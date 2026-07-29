@@ -104,7 +104,8 @@ export const useCustomerTypeLogic = (lang: string) => {
 
       setIsExiting(true);
       setTimeout(() => {
-        router.push(`/${lang}/old-user/history`);
+        const targetLang = result.customer?.lang && result.customer.lang !== lang ? result.customer.lang : lang;
+        router.push(`/${targetLang}/old-user/history`);
       }, 500);
     } else {
       setPopupStep('error');

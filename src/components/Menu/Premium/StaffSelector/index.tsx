@@ -18,7 +18,8 @@ const SKILL_PREVIEW_COUNT = 3;
 interface StaffSelectorProps {
   lang: string;
   preferredCategoryId?: string;
-  onConfirmSelection: (selectedStaffIds: string[], staffInfoList: VipStaffInfo[]) => void;
+  cartHasItems?: boolean;
+  onConfirmSelection: (selectedStaffIds: string[], staffInfoList: VipStaffInfo[], groupingMode?: 'FOUR_HAND' | 'SEPARATE' | null) => void;
 }
 
 // --- Status badge style config (text from i18n) ---
@@ -63,6 +64,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showGroupingPopup, setShowGroupingPopup] = useState(false);
 
   // Fetch real staff from API
   useEffect(() => {
@@ -166,7 +168,18 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
   // On confirm: pass selected staff info list
   const handleConfirm = () => {
     const selectedStaff = staffList.filter((s) => selectedIds.includes(s.id));
-    onConfirmSelection(selectedIds, selectedStaff);
+    // Nếu chọn 2 KTV, hoặc chọn 1 KTV nhưng đang Thêm nhân viên (cartHasItems)
+    if (selectedIds.length === 2 || (selectedIds.length === 1 && cartHasItems)) {
+        setShowGroupingPopup(true);
+    } else {
+        onConfirmSelection(selectedIds, selectedStaff);
+    }
+  };
+
+  const handleGroupingConfirm = (mode: 'FOUR_HAND' | 'SEPARATE') => {
+    const selectedStaff = staffList.filter((s) => selectedIds.includes(s.id));
+    setShowGroupingPopup(false);
+    onConfirmSelection(selectedIds, selectedStaff, mode);
   };
 
   return (
@@ -310,7 +323,21 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
                         onClick={(e) => {
                           e.stopPropagation(); // Ngăn sự kiện click lan ra viền thẻ
                           if (!unavailable) {
-                            onConfirmSelection([staff.id], [staff]); // Chuyển thẳng sang trang tiếp theo
+                            if (selectedIds.length === 0) {
+                                // Nếu chỉ đặt 1 người (Direct click)
+                                const staffItem = staffList.find(s => s.id === staff.id);
+                                if (cartHasItems) {
+                                    setSelectedIds([staff.id]);
+                                    setShowGroupingPopup(true);
+                                } else {
+                                    onConfirmSelection([staff.id], staffItem ? [staffItem] : []);
+                                }
+                            } else if (selectedIds.includes(staff.id)) {
+                                // Đã chọn rồi, ấn Book Now sẽ Confirm luôn với list hiện tại
+                                handleConfirm();
+                            } else {
+                                handleToggle(staff.id);
+                            }
                           }
                         }}
                         className={`w-full py-4 rounded-full text-center text-sm font-bold tracking-[0.1em] uppercase transition-all shadow-[0_4px_15px_rgba(0,0,0,0.3)] ${
@@ -359,6 +386,54 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
           </p>
         </div>
       )}
+
+      {/* Grouping Popup (Four-hand vs Separate) */}
+      <AnimatePresence>
+        {showGroupingPopup && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <motion.div 
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                    onClick={() => setShowGroupingPopup(false)}
+                />
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                    className="relative w-full max-w-sm bg-[#131315] border border-[#e6c487]/30 rounded-[2rem] p-6 shadow-2xl overflow-hidden"
+                >
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#e6c487] to-transparent opacity-50" />
+                    
+                    <h3 className="text-xl font-serif italic text-[#e6c487] text-center mb-6 mt-2">
+                        {t.ss_grouping_title || 'Xác nhận dịch vụ'}
+                    </h3>
+
+                    <div className="flex flex-col gap-3">
+                        <button
+                            onClick={() => handleGroupingConfirm('FOUR_HAND')}
+                            className="w-full py-4 px-6 rounded-2xl bg-[#e6c487]/10 hover:bg-[#e6c487]/20 border border-[#e6c487]/40 text-[#e6c487] text-sm font-bold tracking-wider transition-all active:scale-95 text-center flex flex-col items-center justify-center gap-1"
+                        >
+                            <span>{t.ss_fourhand || 'Làm chung 1 khách (Tứ thủ)'}</span>
+                        </button>
+
+                        <button
+                            onClick={() => handleGroupingConfirm('SEPARATE')}
+                            className="w-full py-4 px-6 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-bold tracking-wider transition-all active:scale-95 text-center flex flex-col items-center justify-center gap-1"
+                        >
+                            <span>{t.ss_separate || 'Mỗi khách 1 KTV (Riêng biệt)'}</span>
+                        </button>
+                    </div>
+
+                    <button
+                        onClick={() => setShowGroupingPopup(false)}
+                        className="w-full mt-4 py-3 text-gray-500 hover:text-gray-300 text-sm font-medium transition-colors"
+                    >
+                        {t.ss_cancel || 'Hủy'}
+                    </button>
+                </motion.div>
+            </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

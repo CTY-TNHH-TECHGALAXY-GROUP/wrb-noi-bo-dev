@@ -52,6 +52,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Customer not found' });
     }
 
+    // FETCH LATEST LANG FROM BOOKINGS
+    const { data: bookingData, error: bookingError } = await supabase
+      .from('Bookings')
+      .select('customerLang')
+      .eq('customerId', data.id)
+      .order('bookingDate', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (bookingError) {
+        console.error('Fetch customerLang error:', bookingError);
+    }
+
     return NextResponse.json({
       success: true,
       customer: {
@@ -59,6 +72,7 @@ export async function GET(request: NextRequest) {
         fullName: data.fullName,
         phone: data.phone,
         email: data.email,
+        lang: bookingData?.customerLang || null
       },
     });
   } catch (err: any) {
