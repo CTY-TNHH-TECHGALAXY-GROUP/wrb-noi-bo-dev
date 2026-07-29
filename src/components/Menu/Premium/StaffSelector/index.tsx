@@ -56,7 +56,7 @@ const STATUS_STYLES: Record<string, { style: string; textStyle: string; i18nKey:
   },
 };
 
-const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffSelectorProps) => {
+const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelection }: StaffSelectorProps) => {
   const t = getT(lang);
 
   // State
@@ -142,12 +142,16 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
       label = tpl(t.status_startsAt, { time: staff.shiftStart });
     }
 
-    // ON_CALL: show travel time or availableFrom
+    // ON_CALL: dynamically calculate current time + travel time
     if (staff.availability === 'ON_CALL') {
-      if (staff.availableFrom) {
+      if (staff.travelTimeMins) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + staff.travelTimeMins);
+        const hh = now.getHours().toString().padStart(2, '0');
+        const mm = now.getMinutes().toString().padStart(2, '0');
+        label = tpl(t.status_freeAfter, { time: `${hh}:${mm}` });
+      } else if (staff.availableFrom) {
         label = tpl(t.status_freeAfter, { time: staff.availableFrom });
-      } else if (staff.travelTimeMins) {
-        label = tpl(t.status_onCall, { time: staff.travelTimeMins });
       }
     }
 
