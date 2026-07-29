@@ -142,9 +142,13 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
       label = tpl(t.status_startsAt, { time: staff.shiftStart });
     }
 
-    // ON_CALL: show travel time
-    if (staff.availability === 'ON_CALL' && staff.travelTimeMins) {
-      label = tpl(t.status_onCall, { time: staff.travelTimeMins });
+    // ON_CALL: show travel time or availableFrom
+    if (staff.availability === 'ON_CALL') {
+      if (staff.availableFrom) {
+        label = tpl(t.status_freeAfter, { time: staff.availableFrom });
+      } else if (staff.travelTimeMins) {
+        label = tpl(t.status_onCall, { time: staff.travelTimeMins });
+      }
     }
 
     return (

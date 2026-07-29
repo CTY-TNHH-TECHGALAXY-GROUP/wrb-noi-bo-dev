@@ -232,6 +232,7 @@ export async function GET(_req: NextRequest) {
         queuePosition,
         turnsCompleted,
         travelTimeMins,
+        availableFrom: formatTimeVn(s.available_from),
       };
     });
 

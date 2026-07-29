@@ -154,4 +154,5 @@ export interface VipStaffInfo {
   queuePosition?: number;     // KTV position in the turn queue (số tua)
   turnsCompleted?: number;    // Number of completed turns today (số tua đã làm)
   travelTimeMins?: number;    // Only available when availability === 'ON_CALL'
+  availableFrom?: string;     // HH:mm for ON_CALL KTVs
 }
