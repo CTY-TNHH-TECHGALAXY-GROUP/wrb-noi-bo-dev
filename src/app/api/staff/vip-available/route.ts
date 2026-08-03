@@ -53,7 +53,7 @@ export async function GET(_req: NextRequest) {
     // ─── Step 1: Fetch all active staff ─────────────────────────────────────
     const { data: staffList, error: staffError } = await supabase
       .from('Staff')
-      .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until')
+      .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type')
       .eq('status', 'ĐANG LÀM')
       .eq('is_active_vip_menu', true) // Bắt buộc phải được check VIP Menu
       .order('full_name');
@@ -209,8 +209,8 @@ export async function GET(_req: NextRequest) {
           travelTimeMins = staffTravelTimeMins;
         }
       } else {
-        // Chưa check-in + không có đơn OFF → chưa vô ca
-        availability = isStaffOnCall ? 'ON_CALL' : 'NOT_YET';
+        // Chưa check-in + không có đơn OFF → chưa vô ca (hoặc ngoài ca với KTV B)
+        availability = isStaffOnCall ? 'ON_CALL' : (s.work_type === 'TYPE_B' ? 'ON_LEAVE' : 'NOT_YET');
         if (availability === 'ON_CALL') {
           travelTimeMins = staffTravelTimeMins;
         }
