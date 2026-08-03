@@ -169,11 +169,17 @@ export async function GET(_req: NextRequest) {
       const nowMs = Date.now();
       const availableUntilMs = s.available_until ? new Date(s.available_until).getTime() : 0;
       
-      if (s.online_status === 'ONLINE' && availableUntilMs > nowMs) {
-          isStaffOnCall = true;
-          staffTravelTimeMins = s.travel_minutes || 30;
+      if (s.online_status === 'ONLINE') {
+          if (availableUntilMs > nowMs) {
+              isStaffOnCall = true;
+              staffTravelTimeMins = s.travel_minutes || 30;
+          } else {
+              isStaffOnCall = false; // Hết giờ -> tự động Offline
+          }
+      } else if (s.online_status === 'OFFLINE' || s.online_status === 'AT_VENUE') {
+          isStaffOnCall = false;
       } else {
-          // Fallback to legacy feature_flags
+          // Fallback to legacy feature_flags (chỉ dùng nếu online_status chưa được set)
           const featureFlags = s.feature_flags as Record<string, any> | null;
           const isAllowedOnCall = featureFlags?.allow_on_call === true;
           const isOnCallEnabled = featureFlags?.is_on_call === true;
