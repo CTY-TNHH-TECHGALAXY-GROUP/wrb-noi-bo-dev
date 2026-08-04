@@ -28,7 +28,7 @@ export async function handleVipItems(
             return name;
         });
         const uniqueSkillNames = [...new Set(skillNames)];
-        const displayName = item.vipDisplayName || (uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP');
+        const displayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
         const duration = item.vipDuration || item.timeValue || 60;
         const key = `${displayName}||${duration}`;
         groupMap.set(key, (groupMap.get(key) || 0) + 1);
@@ -44,7 +44,7 @@ export async function handleVipItems(
             return name;
         });
         const uniqueSkillNames = [...new Set(skillNames)];
-        const displayName = item.vipDisplayName || (uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP');
+        const displayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
         const duration = item.vipDuration || item.timeValue || 60;
         
         const key = `${displayName}||${duration}`;

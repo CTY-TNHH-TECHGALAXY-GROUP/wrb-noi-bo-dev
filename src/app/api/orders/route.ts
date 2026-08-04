@@ -183,7 +183,18 @@ export async function POST(request: Request) {
                 notifMessage += `📦 DỊCH VỤ VIP:\n`;
                 vipItems.forEach((item: any) => {
                     const ktv = item.vipStaffId ? ` | KTV: ${item.vipStaffId}` : '';
-                    notifMessage += `- ${item.vipDisplayName || 'Gói VIP'} (${item.vipDuration || 60}p)${ktv}\n`;
+                    // Dịch lại tiếng Việt cho thông báo để nhân viên dễ hiểu
+                    const skillIds: string[] = item.vipSkillIds || [];
+                    const skillNames = skillIds.map((id: string) => {
+                        let name = SKILL_MAP[id]?.name?.vi || id;
+                        if (name.toLowerCase().includes('ráy')) name = 'Ráy';
+                        if (name.toLowerCase().includes('nail') || name.toLowerCase().includes('móng')) name = 'Nail';
+                        return name;
+                    });
+                    const uniqueSkillNames = [...new Set(skillNames)];
+                    const vnDisplayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
+                    
+                    notifMessage += `- ${vnDisplayName} (${item.vipDuration || 60}p)${ktv}\n`;
                     if (item.vipCustomerNotes && item.vipCustomerNotes.trim()) {
                         notifMessage += `  📝 Ghi chú: ${item.vipCustomerNotes.trim()}\n`;
                     }
