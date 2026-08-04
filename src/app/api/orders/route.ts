@@ -4,6 +4,10 @@ import crypto from 'node:crypto';
 import { generateAccessToken } from '@/lib/token';
 import { handleStandardItems } from './handleStandardItems';
 import { handleVipItems } from './handleVipItems';
+import { ALL_VIP_SKILLS, type VipLang } from '@/lib/vipSkills.constants';
+import { getSkillName } from '@/lib/vipStaffUtils';
+
+const SKILL_MAP = Object.fromEntries(ALL_VIP_SKILLS.map(s => [s.id, s]));
 
 const DAY_CUTOFF_HOUR = 8; // Reset day at 8:00 AM
 
@@ -387,6 +391,31 @@ export async function GET(request: Request) {
                     const sId = String(i.serviceId || '').trim().toLowerCase();
                     const svc = svcMap.get(sId);
                     
+                    const namesObj: Record<string, string> = {
+                        vi: '', en: '', jp: '', kr: '', cn: ''
+                    };
+                    
+                    const isVip = i.options?.selectedSkills && Array.isArray(i.options.selectedSkills) && i.options.selectedSkills.length > 0;
+                    
+                    if (isVip) {
+                        const langs: VipLang[] = ['vi', 'en', 'jp', 'kr', 'cn'];
+                        langs.forEach(langCode => {
+                            const skillNames = i.options.selectedSkills.map((id: string) => {
+                                const s = SKILL_MAP[id];
+                                return s ? getSkillName(s, langCode) : id;
+                            });
+                            const uniqueNames = [...new Set(skillNames)];
+                            namesObj[langCode] = uniqueNames.length > 0 ? uniqueNames.join(' + ') : (i.options.displayName || 'VIP Bespoke');
+                        });
+                    } else {
+                        // Ưu tiên tên từ Database, fallback xuống displayName nếu DB rỗng
+                        namesObj.vi = svc?.nameVN || i.options?.displayName || '';
+                        namesObj.en = svc?.nameEN || svc?.nameVN || i.options?.displayName || '';
+                        namesObj.jp = svc?.nameJP || svc?.nameEN || svc?.nameVN || i.options?.displayName || '';
+                        namesObj.kr = svc?.nameKR || svc?.nameEN || svc?.nameVN || i.options?.displayName || '';
+                        namesObj.cn = svc?.nameCN || svc?.nameEN || svc?.nameVN || i.options?.displayName || '';
+                    }
+
                     const finalName = i.options?.displayName || svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`;
                     const finalDuration = i.options?.vipDuration || svc?.duration || null;
 
@@ -406,13 +435,7 @@ export async function GET(request: Request) {
                     return {
                         id: i.serviceId,
                         name: finalName,
-                        names: {
-                            vi: i.options?.displayName || svc?.nameVN || '',
-                            en: i.options?.displayName || svc?.nameEN || '',
-                            cn: i.options?.displayName || svc?.nameCN || '',
-                            kr: i.options?.displayName || svc?.nameKR || '',
-                            jp: i.options?.displayName || svc?.nameJP || '',
-                        },
+                        names: namesObj,
                         duration: finalDuration,
                         qty: i.quantity,
                         price: i.price,

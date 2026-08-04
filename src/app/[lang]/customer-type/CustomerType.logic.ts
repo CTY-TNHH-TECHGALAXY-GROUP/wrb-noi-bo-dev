@@ -104,7 +104,8 @@ export const useCustomerTypeLogic = (lang: string) => {
 
       setIsExiting(true);
       setTimeout(() => {
-        const targetLang = result.customer?.lang && result.customer.lang !== lang ? result.customer.lang : lang;
+        // Ưu tiên giữ nguyên ngôn ngữ hiện tại (lang) của Tablet để khách không bị gián đoạn trải nghiệm
+        const targetLang = lang;
         router.push(`/${targetLang}/old-user/history`);
       }, 500);
     } else {

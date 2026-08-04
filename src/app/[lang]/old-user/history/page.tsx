@@ -8,6 +8,8 @@ import { getDictionary } from '@/lib/dictionaries';
 import { formatCurrency } from '@/components/Menu/utils';
 import { useMenuData } from '@/components/Menu/MenuContext';
 import { LoginGate } from '@/components/Auth/LoginGate';
+import { ALL_VIP_SKILLS, type VipLang } from '@/lib/vipSkills.constants';
+import { getSkillName } from '@/lib/vipStaffUtils';
 
 // 🔧 UI CONFIGURATION
 const HISTORY_CONFIG = {
@@ -218,6 +220,19 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                 const isVip = service.menuType === 'vip' || item.itemType === 'vip' || String(item.id).startsWith('NHP') || String(item.id).startsWith('NHS0800');
                 if (isVip) detectedMenuType = 'vip';
 
+                let dynamicVipName = options.displayName;
+                if (isVip && options.selectedSkills && Array.isArray(options.selectedSkills) && options.selectedSkills.length > 0) {
+                    const SKILL_MAP = Object.fromEntries(ALL_VIP_SKILLS.map(s => [s.id, s]));
+                    const skillNames = options.selectedSkills.map((id: string) => {
+                        const s = SKILL_MAP[id];
+                        return s ? getSkillName(s, lang as VipLang) : id;
+                    });
+                    const uniqueNames = [...new Set(skillNames)];
+                    if (uniqueNames.length > 0) {
+                        dynamicVipName = uniqueNames.join(' + ');
+                    }
+                }
+
                 // Chép đè giá trị service bằng giá tiền thực tế khách đã thanh toán trong lịch sử
                 // Vì đơn VIP được lưu ngầm dưới mã Combo King, nếu không đè giá sẽ bị lấy giá gốc của Combo King.
                 const serviceToRestore = {
@@ -228,7 +243,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                         itemType: 'vip',
                         vipStaffId: options.vipStaffId,
                         vipDuration: options.vipDuration || service.timeValue,
-                        vipDisplayName: options.displayName,
+                        vipDisplayName: dynamicVipName,
                         vipCustomerNotes: options.customerNotes,
                         vipSkillIds: options.selectedSkills
                     } : {})
@@ -350,7 +365,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                                 <div className="flex flex-col text-sm">
                                     <span className="font-bold text-gray-300">{visit.date}</span>
                                     {visit.timeBooking && (
-                                        <span className="text-purple-400 text-xs mt-0.5">🕐 Hẹn: {visit.timeBooking}</span>
+                                        <span className="text-purple-400 text-xs mt-0.5">🕐 {POPUP_I18N[lang]?.booking || 'Booking'}: {visit.timeBooking}</span>
                                     )}
                                     <span className="text-gray-600 text-xs mt-0.5">#{visit.id}</span>
                                 </div>
