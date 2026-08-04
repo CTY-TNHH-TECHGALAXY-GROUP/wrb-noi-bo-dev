@@ -166,15 +166,28 @@ export async function GET(_req: NextRequest) {
       let isStaffOnCall = false;
       let staffTravelTimeMins = 30; // default
       
-      const nowMs = Date.now();
-      const availableUntilMs = s.available_until ? new Date(s.available_until).getTime() : 0;
-      
       if (s.online_status === 'ONLINE') {
-          if (availableUntilMs > nowMs) {
+          let isExpired = false;
+          if (s.available_until) {
+              const parts = String(s.available_until).split(':').map(Number);
+              if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                  const nowVn = new Date(Date.now() + 7 * 60 * 60 * 1000);
+                  const nowMinutes = nowVn.getUTCHours() * 60 + nowVn.getUTCMinutes();
+                  const untilMinutes = parts[0] * 60 + parts[1];
+                  const isCrossMidnight = untilMinutes < 360;
+                  if (isCrossMidnight) {
+                      isExpired = nowMinutes >= untilMinutes && nowMinutes < 720;
+                  } else {
+                      isExpired = nowMinutes > untilMinutes;
+                  }
+              }
+          } else {
+              isExpired = true;
+          }
+
+          if (!isExpired) {
               isStaffOnCall = true;
               staffTravelTimeMins = s.travel_minutes || 30;
-          } else {
-              isStaffOnCall = false; // Hết giờ -> tự động Offline
           }
       } else if (s.online_status === 'OFFLINE' || s.online_status === 'AT_VENUE') {
           isStaffOnCall = false;
