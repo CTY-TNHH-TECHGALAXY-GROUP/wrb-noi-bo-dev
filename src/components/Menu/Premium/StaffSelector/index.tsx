@@ -45,8 +45,8 @@ const STATUS_STYLES: Record<string, { style: string; textStyle: string; i18nKey:
     i18nKey: 'status_offDuty',
   },
   ON_LEAVE: {
-    style: 'bg-black/70 backdrop-blur-md border border-[#ffb4ab]/40 shadow-lg',
-    textStyle: 'text-[10px] tracking-[0.1em] text-[#ffb4ab] font-bold uppercase',
+    style: 'bg-black/70 backdrop-blur-md border border-red-500/40 shadow-lg',
+    textStyle: 'text-[10px] tracking-[0.1em] text-red-500 font-bold uppercase',
     i18nKey: 'status_onLeave',
   },
   ON_CALL: {
@@ -131,6 +131,8 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
   const getStatusBadge = (staff: VipStaffInfo) => {
     const cfg = STATUS_STYLES[staff.availability];
     let label = t[cfg.i18nKey];
+    let overrideStyle = cfg.style;
+    let overrideTextStyle = cfg.textStyle;
 
     // BUSY: show estimated end time
     if (staff.availability === 'BUSY' && staff.estimatedEndTime) {
@@ -144,20 +146,28 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
 
     // ON_CALL: dynamically calculate current time + travel time
     if (staff.availability === 'ON_CALL') {
+      let isFreeAfter = false;
       if (staff.travelTimeMins) {
         const now = new Date();
         now.setMinutes(now.getMinutes() + staff.travelTimeMins);
         const hh = now.getHours().toString().padStart(2, '0');
         const mm = now.getMinutes().toString().padStart(2, '0');
         label = tpl(t.status_freeAfter, { time: `${hh}:${mm}` });
+        isFreeAfter = true;
       } else if (staff.availableFrom) {
         label = tpl(t.status_freeAfter, { time: staff.availableFrom });
+        isFreeAfter = true;
+      }
+      
+      if (isFreeAfter) {
+        overrideStyle = STATUS_STYLES.BUSY.style;
+        overrideTextStyle = STATUS_STYLES.BUSY.textStyle;
       }
     }
 
     return (
-      <div className={`absolute top-5 left-5 ${cfg.style} px-3.5 py-1.5 rounded-full z-20`}>
-        <span className={cfg.textStyle}>{label}</span>
+      <div className={`absolute top-5 left-5 ${overrideStyle} px-3.5 py-1.5 rounded-full z-20`}>
+        <span className={overrideTextStyle}>{label}</span>
       </div>
     );
   };
