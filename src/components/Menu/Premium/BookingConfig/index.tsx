@@ -528,48 +528,11 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
               </div>
             </div>
 
-            {/* Checkbox Điều khoản (Chỉ hiển thị cho Booking Flow) */}
-            {isBookingFlow && (
-              <div className="flex items-start gap-2.5 mb-3 px-1">
-                <button
-                  type="button"
-                  onClick={() => setIsAgreedTerms(!isAgreedTerms)}
-                  className={`w-5 h-5 mt-0.5 rounded flex items-center justify-center border transition-colors shrink-0 ${
-                    isAgreedTerms 
-                      ? 'bg-green-500 border-green-500' 
-                      : 'bg-[#1b1b1d] border-[#4d463a] hover:border-[#e6c487]/50'
-                  }`}
-                >
-                  {isAgreedTerms && (
-                    <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </button>
-                <div className="text-[11px] text-[#998f81] leading-tight">
-                  {t.bc_agree_terms || 'Tôi đã đọc và đồng ý với '}
-                  <button 
-                    onClick={() => setShowTermsModal(true)}
-                    className="text-[#e6c487] underline underline-offset-2 hover:text-[#e4e2e4] transition-colors"
-                  >
-                    {t.bc_terms_link || 'Điều khoản & Chính sách'}
-                  </button>
-                  {' của Spa.'}
-                </div>
-              </div>
-            )}
-
             <button
               onClick={() => {
-                if (isBookingFlow && !isAgreedTerms) return;
                 onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: null, totalPrice, appointmentDate: selectedDateStr, customerNotes });
               }}
-              disabled={isBookingFlow && !isAgreedTerms}
-              className={`w-full py-4 rounded-full font-bold tracking-[0.12em] text-sm flex items-center justify-center gap-3 duration-200 uppercase shadow-[0_15px_30px_rgba(0,0,0,0.4)] transition-all ${
-                (!isBookingFlow || isAgreedTerms)
-                  ? 'bg-[#e6c487] text-[#412d00] hover:bg-[#e2c285] active:scale-95'
-                  : 'bg-[#4d463a]/40 text-[#998f81] cursor-not-allowed'
-              }`}
+              className={`w-full py-4 rounded-full font-bold tracking-[0.12em] text-sm flex items-center justify-center gap-3 duration-200 uppercase shadow-[0_15px_30px_rgba(0,0,0,0.4)] transition-all bg-[#e6c487] text-[#412d00] hover:bg-[#e2c285] active:scale-95`}
             >
               <span>{t.bc_confirmSelection}</span>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
