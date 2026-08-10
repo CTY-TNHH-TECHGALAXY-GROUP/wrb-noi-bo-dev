@@ -20,10 +20,16 @@ export default function OldUserSelectMenuPage({ params }: { params: Promise<{ la
 
     return (
         <div className="w-full min-h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden p-6">
-            <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-black/40 z-10" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/assets/backgrounds/bg-blur.webp" className="w-full h-full object-cover opacity-40" alt="background" />
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <video
+                    src="/Video/From Klickpin.com- Copy this guide to clever herb garden ideas everyone will ask you about using simple ideas you can actually pull off and turn s.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover object-center opacity-100"
+                />
+                <div className="absolute inset-0 bg-black/50 z-10" />
             </div>
 
             <div className="relative z-10 w-full">

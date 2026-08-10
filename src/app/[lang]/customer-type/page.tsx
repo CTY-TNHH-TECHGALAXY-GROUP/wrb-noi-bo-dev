@@ -56,34 +56,16 @@ export default function CustomerTypePage() {
       `}</style>
 
       {/* --- NỀN --- */}
-      <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-center overflow-hidden">
-        {/* Nền theo bản vẽ mới HTML */}
-        <div 
-          className="absolute inset-0 opacity-40" 
-          style={{
-            background: `
-              radial-gradient(circle at 50% 34%, rgba(222, 174, 72, 0.24), transparent 22%),
-              radial-gradient(circle at 20% 14%, rgba(255, 255, 255, 0.08), transparent 1px),
-              radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.08), transparent 1px),
-              radial-gradient(circle at 82% 52%, rgba(255, 255, 255, 0.07), transparent 1px),
-              linear-gradient(160deg, #080806 0%, #17120c 48%, #050505 100%)
-            `
-          }}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <video
+          src="/Video/From Klickpin.com- Copy this guide to clever herb garden ideas everyone will ask you about using simple ideas you can actually pull off and turn s.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-100"
         />
-        <div 
-          className="absolute inset-0 opacity-40"
-          style={{
-            backgroundImage: `radial-gradient(circle, rgba(255,255,255,.30) 0 1px, transparent 1.2px), radial-gradient(circle, rgba(224,183,88,.20) 0 1px, transparent 1.3px)`,
-            backgroundPosition: `0 0, 16px 24px`,
-            backgroundSize: `55px 55px, 72px 72px`
-          }}
-        />
-        {/* Giữ lại ảnh Galaxy mờ (opacity 15%) để giữ concept nhưng không phá UI HTML */}
-        <img
-          src="/assets/backgrounds/galaxy.webp"
-          alt="Spa Background"
-          className="w-full h-full object-cover opacity-15 mix-blend-screen"
-        />
+        <div className="absolute inset-0 bg-black/50 z-10" />
       </div>
 
       {/* --- MŨI TÊN QUAY LẠI (GÓC TRÁI TRÊN) --- */}

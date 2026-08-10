@@ -200,24 +200,38 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
     };
 
     return (
-        <AnimatePresence mode="wait">
-            {mode === 'PICKER' ? (
-                <CategoryPicker
-                    key="picker"
-                    categories={CATEGORIES}
-                    lang={lang}
-                    onSelect={(ids) => {
-                        const selectedId = ids[0] || 'Body';
-                        setActiveCategory(selectedId);
-                        setPendingScrollCategory(selectedId);
-                        setMode('MENU');
-                    }}
-                    onBack={onBack}
+        <>
+            {/* Background Video chung cho toàn bộ luồng Menu */}
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <video
+                    src="/Video/From Klickpin.com- Copy this guide to clever herb garden ideas everyone will ask you about using simple ideas you can actually pull off and turn s.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover object-center opacity-100"
                 />
-            ) : (
-                <motion.div
-                    key="menu"
-                    className="relative inset-0 z-20 bg-black flex flex-col h-[100dvh] w-full overflow-hidden font-sans"
+                <div className="absolute inset-0 bg-black/60 z-10" />
+            </div>
+
+            <AnimatePresence mode="wait">
+                {mode === 'PICKER' ? (
+                    <CategoryPicker
+                        key="picker"
+                        categories={CATEGORIES}
+                        lang={lang}
+                        onSelect={(ids) => {
+                            const selectedId = ids[0] || 'Body';
+                            setActiveCategory(selectedId);
+                            setPendingScrollCategory(selectedId);
+                            setMode('MENU');
+                        }}
+                        onBack={onBack}
+                    />
+                ) : (
+                    <motion.div
+                        key="menu"
+                        className="relative inset-0 z-20 bg-transparent flex flex-col h-[100dvh] w-full overflow-hidden font-sans"
                     initial={{ opacity: 0, x: 40 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -40 }}
@@ -364,5 +378,6 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
                 </motion.div>
             )}
         </AnimatePresence>
+        </>
     );
 }

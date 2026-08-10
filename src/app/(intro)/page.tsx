@@ -21,7 +21,7 @@ const getLayoutConfig = (isTabletOrAbove: boolean) => ({
   // 1. LOGO TRÊN CÙNG
   topLogo: {
     marginTop: isTabletOrAbove ? "80px" : "60px",
-    width: isTabletOrAbove ? "400px" : "280px",
+    width: isTabletOrAbove ? "480px" : "280px",
   },
 
   // 2. VÒNG TRÒN CỜ (ORBIT)

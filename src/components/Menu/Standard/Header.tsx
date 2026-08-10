@@ -70,7 +70,7 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
     };
 
     return (
-        <div className="glass-header w-full z-30 pt-safe-top pb-2 px-2 flex flex-col shadow-lg shrink-0 relative bg-black/80 backdrop-blur-md border-b border-gray-800/50 sticky top-0">
+        <div className="glass-header w-full z-30 pt-safe-top pb-2 px-2 flex flex-col shadow-lg shrink-0 relative bg-black/20 backdrop-blur-md border-b border-white/10 sticky top-0">
             <div 
                 ref={scrollRef}
                 onMouseDown={handleMouseDown}
@@ -88,7 +88,7 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
                             onClick={() => onSelectCategory(cat.id)}
                             className={`flex flex-col items-center gap-2 group focus:outline-none shrink-0 snap-center w-[4.5rem] md:w-[5.5rem] transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}
                         >
-                            <div className={`w-[60px] h-[60px] md:w-[72px] md:h-[72px] rounded-full border flex items-center justify-center transition-all shadow-md overflow-hidden relative ${isActive ? 'bg-[#1a1a1a] border-[#C9A96E]' : 'bg-[#1c1c1e] border-transparent group-hover:bg-[#252528] pointer-events-none'}`}>
+                            <div className={`w-[60px] h-[60px] md:w-[72px] md:h-[72px] rounded-full border flex items-center justify-center transition-all shadow-md overflow-hidden relative backdrop-blur-sm ${isActive ? 'bg-black/40 border-[#C9A96E]' : 'bg-black/10 border-white/10 group-hover:bg-black/30 pointer-events-none'}`}>
                                 <img
                                     src={cat.image || 'https://placehold.co/100x100'}
                                     className="w-[70%] h-[70%] object-contain transition-transform duration-500 group-hover:scale-110 pointer-events-none"

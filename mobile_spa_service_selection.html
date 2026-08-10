@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mobile Spa Service Selection</title>
+  <style>
+    :root {
+      --gold-light: #f5df8b;
+      --gold-main: #d8b34e;
+      --gold-dark: #9c701d;
+      --surface: rgba(20, 18, 14, 0.88);
+      --surface-strong: rgba(48, 37, 18, 0.94);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #050505;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 0;
+      color: white;
+    }
+
+    .spa-mobile-demo {
+      position: relative;
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      overflow: hidden;
+      color: white;
+      background:
+        radial-gradient(circle at 50% 34%, rgba(222, 174, 72, 0.24), transparent 22%),
+        radial-gradient(circle at 20% 14%, rgba(255, 255, 255, 0.08), transparent 1px),
+        radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.08), transparent 1px),
+        radial-gradient(circle at 82% 52%, rgba(255, 255, 255, 0.07), transparent 1px),
+        linear-gradient(160deg, #080806 0%, #17120c 48%, #050505 100%);
+    }
+
+    .spa-mobile-demo::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.4;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.30) 0 1px, transparent 1.2px),
+        radial-gradient(circle, rgba(224,183,88,.20) 0 1px, transparent 1.3px);
+      background-position: 0 0, 16px 24px;
+      background-size: 55px 55px, 72px 72px;
+      pointer-events: none;
+    }
+
+    .spa-content {
+      position: relative;
+      z-index: 1;
+      padding: 26px 20px 24px;
+    }
+
+    .spa-logo {
+      width: 112px;
+      height: 74px;
+      margin: 0 auto 8px;
+      color: var(--gold-light);
+      filter: drop-shadow(0 0 12px rgba(222, 180, 79, 0.22));
+    }
+
+    .spa-logo svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .spa-welcome {
+      margin: 5px 0 4px;
+      text-align: center;
+      color: var(--gold-light);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+    }
+
+    .spa-subtitle {
+      margin: 0 0 22px;
+      text-align: center;
+      color: rgba(255,255,255,.62);
+      font-size: 12px;
+    }
+
+    .spa-primary {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(236, 201, 100, 0.82);
+      border-radius: 22px;
+      padding: 19px;
+      background:
+        radial-gradient(circle at 20% 25%, rgba(229, 187, 77, 0.16), transparent 35%),
+        linear-gradient(135deg, rgba(72, 55, 24, 0.96), rgba(27, 23, 15, 0.96));
+      box-shadow: 0 14px 35px rgba(0,0,0,.28);
+    }
+
+    .spa-primary::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-120%);
+      background: linear-gradient(110deg, transparent 28%, rgba(255,234,160,.12), transparent 66%);
+      animation: spaSweep 4.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes spaSweep {
+      0%, 62% { transform: translateX(-120%); }
+      100% { transform: translateX(120%); }
+    }
+
+    .spa-badge {
+      display: inline-flex;
+      padding: 5px 9px;
+      border: 1px solid rgba(242, 213, 122, 0.28);
+      border-radius: 999px;
+      background: rgba(216, 179, 78, 0.12);
+      color: var(--gold-light);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .14em;
+    }
+
+    .spa-primary-title {
+      margin: 13px 0 5px;
+      color: #fae9a2;
+      font-size: 22px;
+      font-weight: 650;
+      line-height: 1.2;
+      letter-spacing: .02em;
+    }
+
+    .spa-description {
+      margin: 0;
+      color: rgba(255,255,255,.68);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .spa-button {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      margin-top: 16px;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 16px;
+      color: #2b1c04;
+      background: linear-gradient(90deg, #f5df8b, #c99932);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .spa-button:focus-visible,
+    .spa-action:focus-visible {
+      outline: 2px solid #f5df8b;
+      outline-offset: 3px;
+    }
+
+    .spa-section-label {
+      margin: 18px 2px 10px;
+      color: rgba(245,223,139,.72);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .18em;
+    }
+
+    .spa-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .spa-action {
+      min-height: 112px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid rgba(196, 151, 47, 0.56);
+      border-radius: 18px;
+      padding: 15px;
+      color: white;
+      background: rgba(18, 16, 12, 0.84);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .25s ease, background .25s ease, transform .25s ease;
+    }
+
+    .spa-action:hover {
+      border-color: rgba(241, 211, 118, 0.92);
+      background: rgba(38, 31, 18, 0.9);
+      transform: translateY(-2px);
+    }
+
+    .spa-action-icon {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--gold-light);
+      background: rgba(178, 134, 29, 0.24);
+      font-size: 17px;
+    }
+
+    .spa-action-title {
+      display: block;
+      color: #f5dd83;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .spa-action-copy {
+      display: block;
+      margin-top: 4px;
+      color: rgba(255,255,255,.5);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .spa-feedback {
+      min-height: 18px;
+      margin-top: 16px;
+      text-align: center;
+      color: rgba(245,223,139,.76);
+      font-size: 11px;
+    }
+
+    @media (max-width: 360px) {
+      .spa-content { padding-inline: 15px; }
+      .spa-primary-title { font-size: 20px; }
+      .spa-action { padding: 13px; min-height: 108px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .spa-primary::after { animation: none; }
+      .spa-action { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="spa-mobile-demo">
+    <div class="spa-content">
+      <div class="spa-logo" aria-label="Spa lotus logo">
+        <svg viewBox="0 0 160 100" role="img" aria-label="Golden lotus spa logo">
+          <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M80 19 C68 30 68 43 80 55 C92 43 92 30 80 19Z"/>
+            <path d="M80 24 C75 29 75 35 80 38 C85 35 85 29 80 24Z" fill="currentColor" stroke="none"/>
+            <path d="M68 58 C52 51 45 38 44 25 C59 30 69 42 72 56"/>
+            <path d="M92 58 C108 51 115 38 116 25 C101 30 91 42 88 56"/>
+            <path d="M58 61 C40 61 28 52 21 39 C38 38 53 45 65 58"/>
+            <path d="M102 61 C120 61 132 52 139 39 C122 38 107 45 95 58"/>
+            <path d="M60 65 C43 72 27 67 16 58 C34 56 49 59 67 63"/>
+            <path d="M100 65 C117 72 133 67 144 58 C126 56 111 59 93 63"/>
+            <path d="M42 72 C62 79 98 79 118 72"/>
+            <path d="M53 80 C69 84 91 84 107 80" opacity=".8"/>
+            <path d="M66 88 C76 90 84 90 94 88" opacity=".55"/>
+            <path d="M76 39 C72 45 73 51 79 57" opacity=".75"/>
+            <path d="M84 39 C88 45 87 51 81 57" opacity=".75"/>
+          </g>
+        </svg>
+      </div>
+
+      <h1 class="spa-welcome">WELCOME</h1>
+      <p class="spa-subtitle">Continue your spa journey</p>
+
+      <section class="spa-primary" aria-label="Recommended action">
+        <span class="spa-badge">RECOMMENDED</span>
+        <h2 class="spa-primary-title">View Orders &amp; History</h2>
+        <p class="spa-description">
+          Review active bookings, previous treatments and order status.
+        </p>
+        <button class="spa-button" type="button" data-action="orders">
+          Continue Journey&nbsp; →
+        </button>
+      </section>
+
+      <div class="spa-section-label">NEW VISIT</div>
+
+      <div class="spa-actions">
+        <button class="spa-action" type="button" data-action="walk-in">
+          <span class="spa-action-icon" aria-hidden="true">→</span>
+          <span>
+            <span class="spa-action-title">Walk-in</span>
+            <span class="spa-action-copy">Order directly at the spa today.</span>
+          </span>
+        </button>
+
+        <button class="spa-action" type="button" data-action="booking">
+          <span class="spa-action-icon" aria-hidden="true">▣</span>
+          <span>
+            <span class="spa-action-title">Advance Booking</span>
+            <span class="spa-action-copy">Reserve a treatment for a future date.</span>
+          </span>
+        </button>
+      </div>
+
+      <div class="spa-feedback" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <script>
+    const feedback = document.querySelector(".spa-feedback");
+
+    const labels = {
+      orders: "Opening orders and treatment history…",
+      "walk-in": "Starting a walk-in service…",
+      booking: "Opening advance booking…"
+    };
+
+    document.querySelectorAll("[data-action]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const action = button.dataset.action;
+        feedback.textContent = labels[action];
+
+        // Replace these blocks with your routing logic.
+        if (action === "orders") {
+          console.log("Navigate to order history");
+        }
+
+        if (action === "walk-in") {
+          console.log("Navigate to walk-in flow");
+        }
+
+        if (action === "booking") {
+          console.log("Navigate to advance booking flow");
+        }
+      });
+    });
+  </script>
+</body>
+</html>

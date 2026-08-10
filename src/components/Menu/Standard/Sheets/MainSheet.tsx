@@ -171,9 +171,18 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                 {/* --- HEADER CHUNG --- */}
                 {viewMode === 'ADD' && selectedService && (
                     <div className="w-full px-5 pt-6 pb-2 shrink-0">
-                        <h2 className="text-2xl font-bold text-[#C9A96E] font-luxury leading-tight">{groupName}</h2>
-                        <p className="text-sm text-gray-400 mt-1 opacity-80 leading-snug">
+                        <h2 className="text-3xl font-bold text-[#C9A96E] font-luxury leading-tight">{groupName}</h2>
+                        <p className="text-lg text-gray-400 mt-1.5 opacity-80 leading-snug">
                             {selectedService.descriptions[lang as keyof typeof selectedService.descriptions] || selectedService.descriptions['en']}
+                        </p>
+                        <p className="text-sm md:text-base text-white/50 italic mt-1.5 font-light">
+                            {{
+                                vi: '* Giá đã bao gồm VAT',
+                                en: '* VAT included',
+                                jp: '* VAT（付加価値税）込み',
+                                kr: '* VAT 포함',
+                                cn: '* 含增值税 (VAT)'
+                            }[lang] || '* VAT included'}
                         </p>
                     </div>
                 )}
@@ -204,8 +213,8 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                     </>
                                                 )}
                                             </div>
-                                            <div className="text-white font-medium mt-1">
-                                                {formatCurrency(svc.priceVND)} VND <span className="text-gray-600">/</span> <span className="text-emerald-600">{svc.priceUSD} USD</span>
+                                            <div className="text-white font-bold mt-1.5 text-lg">
+                                                {formatCurrency(svc.priceVND)} VND <span className="text-gray-600 font-normal text-base px-1">/</span> <span className="text-emerald-500">{svc.priceUSD} USD</span>
                                             </div>
                                             <div className="text-sm text-gray-400 mt-1 flex items-center gap-1">
                                                 <span>{t('qty')}:</span>
@@ -311,10 +320,10 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                         {svc.timeValue}{t('mins')}
                                                     </span>
                                                 )}
-                                                <div className="text-sm font-medium flex gap-1 items-center justify-center w-full">
-                                                    <span className="text-[#C9A96E] font-bold">{formatCurrency(svc.priceVND)}</span>
-                                                    <span className="text-gray-500">/</span>
-                                                    <span className="text-emerald-600 font-bold">{svc.priceUSD} USD</span>
+                                                <div className="text-base md:text-lg font-bold flex gap-1.5 items-center justify-center w-full mt-0.5">
+                                                    <span className="text-[#C9A96E]">{formatCurrency(svc.priceVND)}</span>
+                                                    <span className="text-gray-500 font-normal text-sm">/</span>
+                                                    <span className="text-emerald-500">{svc.priceUSD} USD</span>
                                                 </div>
 
                                                 {/* Badge số lượng nếu đã có trong giỏ (khi đang chọn món khác) */}
@@ -366,10 +375,10 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                             {svc.timeValue}{t('mins')}
                                                         </span>
                                                     )}
-                                                    <div className="text-sm font-medium flex gap-1 items-center justify-center w-full">
-                                                        <span className="text-[#C9A96E] font-bold">{formatCurrency(svc.priceVND)}</span>
-                                                        <span className="text-gray-500">/</span>
-                                                        <span className="text-emerald-600 font-bold">{svc.priceUSD} USD</span>
+                                                    <div className="text-base md:text-lg font-bold flex gap-1.5 items-center justify-center w-full mt-0.5">
+                                                        <span className="text-[#C9A96E]">{formatCurrency(svc.priceVND)}</span>
+                                                        <span className="text-gray-500 font-normal text-sm">/</span>
+                                                        <span className="text-emerald-500">{svc.priceUSD} USD</span>
                                                     </div>
                                                     {cart[svc.id] > 0 && selectedService.id !== svc.id && (
                                                         <div className="absolute top-2 right-2 w-5 h-5 bg-[#C9A96E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
@@ -419,12 +428,12 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                             </div>
                         </div>
 
-                        <button onClick={handleConfirm} className="w-full py-3.5 bg-gradient-to-r from-[#b6965b] to-[#C9A96E] text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-base uppercase hover:brightness-110 transition-all">
+                        <button onClick={handleConfirm} className="w-full py-4 bg-gradient-to-r from-[#b6965b] to-[#C9A96E] text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-base uppercase hover:brightness-110 transition-all">
                             <span>{cart[selectedService.id] ? t('update_cart') : t('add_to_cart')}</span>
-                            <span className="opacity-40">|</span>
-                            <span>{formatCurrency(selectedService.priceVND * qty)} VND</span>
-                            <span className="opacity-40">/</span>
-                            <span className="text-emerald-600 font-bold">{selectedService.priceUSD * qty} USD</span>
+                            <span className="opacity-40 font-normal text-xl ml-2">|</span>
+                            <span className="text-xl md:text-2xl font-extrabold ml-1">{formatCurrency(selectedService.priceVND * qty)} VND</span>
+                            <span className="opacity-40 font-normal text-lg mx-1">/</span>
+                            <span className="text-emerald-200 font-extrabold text-xl md:text-2xl">{selectedService.priceUSD * qty} USD</span>
                         </button>
                     </div>
                 )}

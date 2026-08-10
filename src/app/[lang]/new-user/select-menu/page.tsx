@@ -32,10 +32,16 @@ export default function SelectMenuPage({ params }: { params: Promise<{ lang: str
         <div className="w-full h-[var(--app-height)] bg-black flex flex-col items-center justify-center relative overflow-hidden p-6 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
 
             {/* Background */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-black/ z-10" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/assets/backgrounds/bg-blur.webp" className="w-full h-full object-cover opacity-40" />
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <video
+                    src="/Video/From Klickpin.com- Copy this guide to clever herb garden ideas everyone will ask you about using simple ideas you can actually pull off and turn s.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover object-center opacity-100"
+                />
+                <div className="absolute inset-0 bg-black/50 z-10" />
             </div>
 
             {/* Component Tái Sử Dụng */}
