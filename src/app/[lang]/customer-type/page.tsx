@@ -1,9 +1,9 @@
 /* File: src/app/[lang]/customer-type/page.tsx */
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { UserCheck, ArrowRight, X, Loader2, ArrowLeft, History, Search, Calendar } from "lucide-react";
+import React, { useState } from "react";
+import { useParams } from "next/navigation";
+import { ArrowRight, X, Loader2, ArrowLeft, History, Search, Calendar } from "lucide-react";
 import { useCustomerTypeLogic } from "./CustomerType.logic";
 import { GoogleLoginBtn } from '@/components/Auth/GoogleLoginBtn';
 
@@ -13,24 +13,10 @@ import { GoogleLoginBtn } from '@/components/Auth/GoogleLoginBtn';
 const LAYOUT_CONFIG = {
   // 1. CẤU HÌNH LOGO
   logo: {
-    size: "180px",           // Kích thước Logo (Vuông)
-    marginBottom: "20px",    // Khoảng cách từ Logo xuống Tiêu đề
+    width: "112px",          
+    height: "74px",    
+    marginBottom: "8px", 
   },
-
-  // 2. CẤU HÌNH TIÊU ĐỀ
-  text: {
-    titleSize: "28px",       // Cỡ chữ tiêu đề chính (WELCOME...)
-    marginBottom: "30px",    // Khoảng cách từ chữ xuống nút đầu tiên
-  },
-
-  // 3. CẤU HÌNH NÚT BẤM (BUTTONS)
-  buttons: {
-    height: "70px",          // Chiều cao của 2 nút chính
-    gap: "16px",             // Khoảng cách giữa 2 nút
-    fontSizeTitle: "16px",   // Cỡ chữ tiêu đề trong nút
-    fontSizeDesc: "11px",    // Cỡ chữ mô tả (nhỏ) trong nút KH mới
-    iconSize: 22,            // Kích thước Icon (số, không phải px)
-  }
 };
 // ============================================================================
 
@@ -59,22 +45,45 @@ export default function CustomerTypePage() {
   } = useCustomerTypeLogic(lang);
 
   return (
-    <div className="w-full h-[100dvh] flex flex-col justify-center items-center px-6 relative overflow-hidden bg-black pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+    <div className="w-full min-h-[100dvh] flex flex-col justify-center items-center relative overflow-hidden bg-[#050505] text-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] font-sans">
+      
+      {/* Định nghĩa Keyframes cho hiệu ứng quét sáng */}
+      <style>{`
+        @keyframes spaSweep {
+          0%, 62% { transform: translateX(-120%); }
+          100% { transform: translateX(120%); }
+        }
+      `}</style>
 
       {/* --- NỀN --- */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-black/0 z-0" />
+      <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-center overflow-hidden">
+        {/* Nền theo bản vẽ mới HTML */}
+        <div 
+          className="absolute inset-0 opacity-40" 
+          style={{
+            background: `
+              radial-gradient(circle at 50% 34%, rgba(222, 174, 72, 0.24), transparent 22%),
+              radial-gradient(circle at 20% 14%, rgba(255, 255, 255, 0.08), transparent 1px),
+              radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.08), transparent 1px),
+              radial-gradient(circle at 82% 52%, rgba(255, 255, 255, 0.07), transparent 1px),
+              linear-gradient(160deg, #080806 0%, #17120c 48%, #050505 100%)
+            `
+          }}
+        />
+        <div 
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage: `radial-gradient(circle, rgba(255,255,255,.30) 0 1px, transparent 1.2px), radial-gradient(circle, rgba(224,183,88,.20) 0 1px, transparent 1.3px)`,
+            backgroundPosition: `0 0, 16px 24px`,
+            backgroundSize: `55px 55px, 72px 72px`
+          }}
+        />
+        {/* Giữ lại ảnh Galaxy mờ (opacity 15%) để giữ concept nhưng không phá UI HTML */}
         <img
           src="/assets/backgrounds/galaxy.webp"
           alt="Spa Background"
-          className="w-full h-full object-cover opacity-100"
+          className="w-full h-full object-cover opacity-15 mix-blend-screen"
         />
-        <div className="absolute inset-0 bg-black/40 z-10" />
-        <img src="/assets/backgrounds/galaxy.webp" alt="Background" className="bg-image" />
-        <div className="shooting-star star-1"></div>
-        <div className="shooting-star star-2"></div>
-        <div className="shooting-star star-3"></div>
-
       </div>
 
       {/* --- MŨI TÊN QUAY LẠI (GÓC TRÁI TRÊN) --- */}
@@ -86,113 +95,125 @@ export default function CustomerTypePage() {
         <ArrowLeft className="text-white w-6 h-6" strokeWidth={1.5} />
       </button>
 
-      <div className={`z-10 w-full max-w-md md:max-w-lg flex flex-col ${getCommonAnimationClass()}`} style={{ gap: LAYOUT_CONFIG.buttons.gap }}>
+      {/* --- KHUNG NỘI DUNG CHÍNH --- */}
+      <div className={`relative z-10 w-full max-w-[430px] px-5 py-6 ${getCommonAnimationClass()}`}>
 
         {/* --- LOGO --- */}
         <div
-          className="mx-auto relative flex items-center justify-center"
+          className="mx-auto relative flex items-center justify-center text-[#f5df8b] drop-shadow-[0_0_12px_rgba(222,180,79,0.22)]"
           style={{
-            width: LAYOUT_CONFIG.logo.size,
-            height: LAYOUT_CONFIG.logo.size,
+            width: LAYOUT_CONFIG.logo.width,
+            height: LAYOUT_CONFIG.logo.height,
             marginBottom: LAYOUT_CONFIG.logo.marginBottom
           }}
         >
-          <div className="absolute inset-0 bg-yellow-500/20 rounded-full blur-xl animate-pulse"></div>
-          <img src="/assets/logos/logo-only-gold.webp" alt="Logo" className="w-full h-full object-contain relative z-10 drop-shadow-lg" />
+          {/* Logo SVG từ HTML hoặc ảnh hiện tại đều được. Dùng ảnh hiện tại để đồng bộ */}
+          <div className="absolute inset-0 bg-[#d8b34e]/20 rounded-full blur-xl animate-pulse"></div>
+          <div 
+            className="w-full h-full relative z-10" 
+            style={{
+                backgroundColor: "#f7ebc7",
+                WebkitMaskImage: "url('/Image/ria%20Spa-2.png')",
+                WebkitMaskSize: "contain",
+                WebkitMaskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskImage: "url('/Image/ria%20Spa-2.png')",
+                maskSize: "contain",
+                maskRepeat: "no-repeat",
+                maskPosition: "center",
+            }}
+          />
         </div>
 
-        {/* --- TIÊU ĐỀ (Dùng t() để dịch) --- */}
-        <div className="text-center flex flex-col items-center" style={{ marginBottom: LAYOUT_CONFIG.text.marginBottom }}>
-          <h1
-            className="font-bold uppercase tracking-[0.1em] mb-2 font-luxury gold-text-shiny drop-shadow-md md:text-4xl"
-            style={{ fontSize: LAYOUT_CONFIG.text.titleSize }}
-          >
-            {t('wc_title')}
-          </h1>
+        {/* --- TIÊU ĐỀ --- */}
+        <h1 className="mt-[5px] mb-1 text-center text-[#f5df8b] text-[22px] font-bold tracking-[0.28em] uppercase">
+          {t('wc_title')}
+        </h1>
+        <p className="m-0 mb-[22px] text-center text-white/60 text-xs">
+          {t('subtitle_journey')}
+        </p>
 
-        </div>
-
-        {/* --- NÚT ĐẶT ĐƠN TẠI TIỆM --- */}
-        <button
-          onClick={onSelectWalkIn}
-          style={{ height: LAYOUT_CONFIG.buttons.height }}
-          className="w-full h-auto py-4 md:py-5 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
-        >
-          <div className="flex flex-col items-start text-left">
-            <span
-              className="gold-text-shiny font-bold uppercase tracking-wider"
-              style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeTitle }}
-            >
-              {t('btn_walkin_title')}
-            </span>
-            <span
-              className="text-gray-400 font-normal tracking-tight italic"
-              style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeDesc }}
-            >
-              {t('btn_walkin_desc')}
-            </span>
-          </div>
-          <div className="w-10 h-10 bg-[#B38728]/30 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <ArrowRight size={LAYOUT_CONFIG.buttons.iconSize} className="text-[#D4AF37]" />
-          </div>
-        </button>
-
-        {/* --- NÚT ĐẶT LỊCH TRƯỚC --- */}
-        <button
-          onClick={onSelectAdvance}
-          style={{ height: LAYOUT_CONFIG.buttons.height }}
-          className="w-full h-auto py-4 md:py-5 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
-        >
-          <div className="flex flex-col items-start text-left">
-            <span
-              className="gold-text-shiny font-bold uppercase tracking-wider"
-              style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeTitle }}
-            >
-              {t('btn_booking_title')}
-            </span>
-            <span
-              className="text-gray-400 font-normal tracking-tight italic"
-              style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeDesc }}
-            >
-              {t('btn_booking_desc')}
-            </span>
-          </div>
-          <div className="w-10 h-10 bg-[#B38728]/30 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <Calendar size={LAYOUT_CONFIG.buttons.iconSize} className="text-[#D4AF37]" />
-          </div>
-        </button>
-
-        {/* --- NÚT KHÁCH HÀNG CŨ --- */}
-        <button
+        {/* --- PHẦN KHÁCH CŨ (PRIMARY CARD) --- */}
+        <section 
           onClick={onSelectOldUser}
-          style={{ height: LAYOUT_CONFIG.buttons.height }}
-          className="w-full h-auto py-4 md:py-5 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
+          className="relative overflow-hidden border border-[#ecc964]/80 rounded-[22px] p-[19px] shadow-[0_14px_35px_rgba(0,0,0,0.28)] cursor-pointer group"
+          style={{
+            background: `radial-gradient(circle at 20% 25%, rgba(229, 187, 77, 0.16), transparent 35%), linear-gradient(135deg, rgba(72, 55, 24, 0.96), rgba(27, 23, 15, 0.96))`
+          }}
         >
-          <span className="gold-text-shiny font-bold uppercase tracking-widest" style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeTitle }}>
-            {t('btn_old_title')}
+          {/* Hiệu ứng lướt sáng */}
+          <div 
+            className="absolute inset-0 pointer-events-none animate-[spaSweep_4.2s_ease-in-out_infinite]"
+            style={{ background: 'linear-gradient(110deg, transparent 28%, rgba(255,234,160,.12), transparent 66%)' }}
+          />
+          
+          <span className="inline-flex px-[9px] py-[5px] border border-[#f2d57a]/30 rounded-full bg-[#d8b34e]/10 text-[#f5df8b] text-[9px] font-bold tracking-[0.14em] uppercase">
+            {t('badge_recommended')}
           </span>
-          <div className="w-10 h-10 bg-[#B38728]/30 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <History size={LAYOUT_CONFIG.buttons.iconSize} className="text-[#D4AF37]" />
-          </div>
-        </button>
+          
+          <h2 className="mt-[13px] mb-[5px] text-[#fae9a2] text-[22px] font-semibold leading-tight tracking-[0.02em]">
+            {t('btn_old_title')}
+          </h2>
+          
+          <p className="m-0 text-white/70 text-xs leading-relaxed">
+            {t('desc_old_title')}
+          </p>
+          
+          <button className="relative z-10 w-full mt-4 border-0 rounded-full py-3 text-[#2b1c04] bg-gradient-to-r from-[#f5df8b] to-[#c99932] text-sm font-bold cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505] transition-transform active:scale-[0.98]">
+            {t('btn_continue_journey')}
+          </button>
+        </section>
 
+        {/* --- NHÃN PHÂN CÁCH (NEW VISIT) --- */}
+        <div className="mt-[18px] mb-[10px] mx-[2px] text-[#f5df8b]/70 text-[10px] font-bold tracking-[0.18em] uppercase">
+          {t('label_new_visit')}
+        </div>
+
+        {/* --- PHẦN KHÁCH MỚI (ACTIONS GRID) --- */}
+        <div className="grid grid-cols-2 gap-[10px]">
+          
+          {/* WALK-IN */}
+          <button 
+            onClick={onSelectWalkIn}
+            className="flex flex-col justify-between min-h-[112px] border border-[#c4972f]/50 rounded-[18px] p-[15px] text-white bg-[#12100c]/80 text-left outline-none transition-all duration-250 hover:border-[#f1d376]/90 hover:bg-[#261f12]/90 hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
+          >
+            <span className="w-8 h-8 rounded-full flex items-center justify-center text-[#f5df8b] bg-[#b2861d]/20 text-[17px]">
+              <ArrowRight size={18} />
+            </span>
+            <span className="block mt-2">
+              <span className="block text-[#f5dd83] text-sm font-bold leading-tight">{t('btn_walkin_title')}</span>
+              <span className="block mt-1 text-white/50 text-[10px] leading-relaxed">{t('btn_walkin_desc')}</span>
+            </span>
+          </button>
+
+          {/* ADVANCE BOOKING */}
+          <button 
+            onClick={onSelectAdvance}
+            className="flex flex-col justify-between min-h-[112px] border border-[#c4972f]/50 rounded-[18px] p-[15px] text-white bg-[#12100c]/80 text-left outline-none transition-all duration-250 hover:border-[#f1d376]/90 hover:bg-[#261f12]/90 hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
+          >
+            <span className="w-8 h-8 rounded-full flex items-center justify-center text-[#f5df8b] bg-[#b2861d]/20 text-[17px]">
+              <Calendar size={16} />
+            </span>
+            <span className="block mt-2">
+              <span className="block text-[#f5dd83] text-sm font-bold leading-tight">{t('btn_booking_title')}</span>
+              <span className="block mt-1 text-white/50 text-[10px] leading-relaxed">{t('btn_booking_desc')}</span>
+            </span>
+          </button>
+
+        </div>
 
       </div>
 
-      {/* --- POPUP --- */}
-      {/* Áp dụng class animation từ Logic */}
+      {/* --- POPUP (GIỮ NGUYÊN) --- */}
       <div className={getPopupOverlayClass(showPopup)}>
         <div className={`${getPopupContentClass(showPopup)} !bg-[#0f1218] !border-[#2a2f3e] !rounded-[32px] !p-8 !max-w-[400px]`}>
-          {/* Note: Override styles for dark theme look */}
-
+          
           {popupStep === 'input' ? (
             <div className="flex flex-col items-center text-center">
-              {/* Icon Clock Gold */}
               <div className="mb-6 relative">
                 <div className="w-20 h-20 rounded-full border-4 border-[#8B6E40]/30 flex items-center justify-center">
                   <History size={48} className="text-[#D4AF37]" strokeWidth={2.5} />
                 </div>
-                {/* Glow effect */}
                 <div className="absolute inset-0 bg-[#D4AF37] blur-3xl opacity-20 rounded-full"></div>
               </div>
 
@@ -203,12 +224,10 @@ export default function CustomerTypePage() {
                 {t('desc_enter_email')}
               </p>
 
-              {/* Google Login */}
               <div className="w-full mb-4 shadow-lg rounded-[8px]">
                 <GoogleLoginBtn lang={lang} />
               </div>
 
-              {/* Divider */}
               <div className="flex items-center gap-3 w-full mb-4">
                 <div className="flex-1 h-px bg-white/10" />
                 <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">{t('or_manual')}</span>
@@ -248,7 +267,6 @@ export default function CustomerTypePage() {
             </div>
           ) : (
             <div className="flex flex-col gap-4 text-center animate-in zoom-in duration-300">
-              {/* Not Found State - Keep somewhat consistent but dark */}
               <div className="mx-auto w-20 h-20 rounded-full bg-red-500/10 border-4 border-red-500/20 flex items-center justify-center text-red-500 mb-2">
                 <X size={40} strokeWidth={3} />
               </div>

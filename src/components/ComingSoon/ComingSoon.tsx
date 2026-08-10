@@ -62,10 +62,19 @@ const ComingSoon = ({ title, subtitle, lang = 'vi' }: ComingSoonProps) => {
                 {/* Logo */}
                 <div className="relative mb-8">
                     <div className="absolute inset-0 bg-yellow-500/20 blur-2xl rounded-full animate-pulse" />
-                    <img
-                        src="/assets/logos/logo-only-gold.webp"
-                        alt="Logo"
-                        className="w-24 h-24 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"
+                    <div
+                        className="w-24 h-24 relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"
+                        style={{
+                            backgroundColor: "#f7ebc7",
+                            WebkitMaskImage: "url('/Image/ria%20Spa-2.png')",
+                            WebkitMaskSize: "contain",
+                            WebkitMaskRepeat: "no-repeat",
+                            WebkitMaskPosition: "center",
+                            maskImage: "url('/Image/ria%20Spa-2.png')",
+                            maskSize: "contain",
+                            maskRepeat: "no-repeat",
+                            maskPosition: "center",
+                        }}
                     />
                 </div>
 

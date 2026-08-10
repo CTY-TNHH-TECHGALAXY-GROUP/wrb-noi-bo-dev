@@ -8,7 +8,7 @@
 /**
  * Type định nghĩa các key có thể dịch
  */
-export type TranslationKey = 'wc_title' | 'btn_walkin_title' | 'btn_walkin_desc' | 'btn_booking_title' | 'btn_booking_desc' | 'btn_old_title' | 'btn_back' | 'find_history' | 'desc_enter_email' | 'input_placeholder' | 'search' | 'cancel' | 'error_not_found' | 'error_desc' | 'btn_retry' | 'btn_register_new' | 'btn_logout' | 'or_manual';
+export type TranslationKey = 'wc_title' | 'subtitle_journey' | 'badge_recommended' | 'desc_old_title' | 'btn_continue_journey' | 'label_new_visit' | 'btn_walkin_title' | 'btn_walkin_desc' | 'btn_booking_title' | 'btn_booking_desc' | 'btn_old_title' | 'btn_back' | 'find_history' | 'desc_enter_email' | 'input_placeholder' | 'search' | 'cancel' | 'error_not_found' | 'error_desc' | 'btn_retry' | 'btn_register_new' | 'btn_logout' | 'or_manual';
 
 /**
  * Object chứa tất cả bản dịch theo ngôn ngữ
@@ -17,6 +17,11 @@ export type TranslationKey = 'wc_title' | 'btn_walkin_title' | 'btn_walkin_desc'
 export const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
     wc_title: 'Welcome',
+    subtitle_journey: 'Continue your spa journey',
+    badge_recommended: 'RECOMMENDED',
+    desc_old_title: 'Review active bookings, previous treatments and order status.',
+    btn_continue_journey: 'Continue Journey →',
+    label_new_visit: 'NEW VISIT',
 
     btn_walkin_title: 'Walk-in',
     btn_walkin_desc: 'Order at the Spa',
@@ -38,6 +43,11 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
   },
   vi: {
     wc_title: 'Chào mừng',
+    subtitle_journey: 'Tiếp tục hành trình của bạn',
+    badge_recommended: 'KHUYÊN DÙNG',
+    desc_old_title: 'Xem lại các lịch đặt, liệu trình đã làm và trạng thái đơn hàng.',
+    btn_continue_journey: 'Tiếp Tục →',
+    label_new_visit: 'KHÁCH MỚI',
 
     btn_walkin_title: 'Đặt Tại Tiệm',
     btn_walkin_desc: 'Làm dịch vụ ngay bây giờ',
@@ -59,6 +69,11 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
   },
   jp: {
     wc_title: 'ようこそ',
+    subtitle_journey: 'スパの旅を続ける',
+    badge_recommended: 'おすすめ',
+    desc_old_title: '予約、過去の施術、注文状況を確認します。',
+    btn_continue_journey: '次へ →',
+    label_new_visit: '初めての方',
 
     btn_walkin_title: 'ご来店注文',
     btn_walkin_desc: '今すぐサービスを受ける',
@@ -80,6 +95,11 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
   },
   kr: {
     wc_title: '환영합니다',
+    subtitle_journey: '스파 여정을 계속하세요',
+    badge_recommended: '추천',
+    desc_old_title: '예약, 이전 시술 및 주문 상태를 확인하세요.',
+    btn_continue_journey: '계속하기 →',
+    label_new_visit: '처음 방문',
 
     btn_walkin_title: '현장 주문',
     btn_walkin_desc: '지금 바로 서비스 이용',
@@ -101,6 +121,11 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
   },
   cn: {
     wc_title: '欢迎',
+    subtitle_journey: '继续您的水疗之旅',
+    badge_recommended: '推荐',
+    desc_old_title: '查看预约、过往疗程和订单状态。',
+    btn_continue_journey: '继续 →',
+    label_new_visit: '新访客',
 
     btn_walkin_title: '到店下单',
     btn_walkin_desc: '立即体验服务',

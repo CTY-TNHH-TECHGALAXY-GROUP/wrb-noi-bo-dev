@@ -33,14 +33,22 @@ export default function CheckoutHeader({ title, backLabel = "Menu", onBack, righ
             {/* Branding Row */}
             <div className="px-5 flex items-center justify-between">
                 <h2 className="text-white text-2xl font-bold tracking-tight">
-                    Ngan Ha Spa
+                    Ria Spa
                 </h2>
                 {/* Logo Placeholder */}
-                <img
-                    src="/assets/logos/logo-gold.webp"
-                    alt="Ngan Ha Spa Logo"
-                    className="w-12 h-12 object-contain opacity-90"
-                    onError={(e) => { e.currentTarget.src = '/assets/logos/logo-only-gold.webp' }}
+                <div
+                    className="w-12 h-12 opacity-90"
+                    style={{
+                        backgroundColor: "#f7ebc7",
+                        WebkitMaskImage: "url('/Image/ria%20Spa-2.png')",
+                        WebkitMaskSize: "contain",
+                        WebkitMaskRepeat: "no-repeat",
+                        WebkitMaskPosition: "center",
+                        maskImage: "url('/Image/ria%20Spa-2.png')",
+                        maskSize: "contain",
+                        maskRepeat: "no-repeat",
+                        maskPosition: "center",
+                    }}
                 />
             </div>
         </div>

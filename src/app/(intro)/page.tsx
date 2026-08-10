@@ -20,8 +20,8 @@ import { useDeviceType } from "@/lib/useDeviceType";
 const getLayoutConfig = (isTabletOrAbove: boolean) => ({
   // 1. LOGO TRÊN CÙNG
   topLogo: {
-    marginTop: "20px",
-    width: isTabletOrAbove ? "280px" : "200px",
+    marginTop: isTabletOrAbove ? "80px" : "60px",
+    width: isTabletOrAbove ? "400px" : "280px",
   },
 
   // 2. VÒNG TRÒN CỜ (ORBIT)
@@ -70,18 +70,15 @@ export default function LanguageSelectorPage() {
 
       {/* --- NỀN --- */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-black/0 z-0" />
-        <img
-          src="/assets/backgrounds/galaxy.webp"
-          alt="Spa Background"
-          className="w-full h-full object-cover opacity-100"
+        <video
+          src="/Video/From Klickpin.com- Copy this guide to clever herb garden ideas everyone will ask you about using simple ideas you can actually pull off and turn s.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-100"
         />
         <div className="absolute inset-0 bg-black/40 z-10" />
-        <img src="/assets/backgrounds/galaxy.webp" alt="Background" className="bg-image" />
-        <div className="shooting-star star-1"></div>
-        <div className="shooting-star star-2"></div>
-        <div className="shooting-star star-3"></div>
-
       </div>
 
       {/* LOGO TRÊN CÙNG */}
@@ -89,11 +86,22 @@ export default function LanguageSelectorPage() {
         className={animClasses.logoTopContainer}
         style={{ top: `calc(${LAYOUT_CONFIG.topLogo.marginTop} + env(safe-area-inset-top))` }}
       >
-        <img
-          src="/assets/logos/logo-gold.webp"
-          alt="Ngan Ha Spa"
+        <div
           className={animClasses.logoTop}
-          style={{ width: LAYOUT_CONFIG.topLogo.width }}
+          style={{ 
+            width: LAYOUT_CONFIG.topLogo.width,
+            aspectRatio: "2/1",
+            backgroundColor: "#f7ebc7",
+            WebkitMaskImage: "url('/Image/ria%20Spa-2.png')",
+            WebkitMaskSize: "contain",
+            WebkitMaskRepeat: "no-repeat",
+            WebkitMaskPosition: "center",
+            maskImage: "url('/Image/ria%20Spa-2.png')",
+            maskSize: "contain",
+            maskRepeat: "no-repeat",
+            maskPosition: "center",
+          }}
+          aria-label="Ria Spa"
         />
       </div>
 

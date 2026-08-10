@@ -105,13 +105,19 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     style={{ height: LAYOUT_CONFIG.header.logoHeight, width: LAYOUT_CONFIG.header.logoWidth }}
                 >
                     <div className="relative w-full h-full">
-                        <Image
-                            src="/assets/logos/logo-gold.webp"
-                            alt="Ngan Ha Spa"
-                            fill
-                            className="object-contain drop-shadow-[0_0_25px_rgba(234,179,8,0.6)]"
-                            priority
-                            sizes="(max-width: 768px) 100vw, 450px"
+                        <div
+                            className="w-full h-full drop-shadow-[0_0_25px_rgba(234,179,8,0.6)]"
+                            style={{ 
+                                backgroundColor: "#f7ebc7",
+                                WebkitMaskImage: "url('/Image/ria%20Spa-2.png')",
+                                WebkitMaskSize: "contain",
+                                WebkitMaskRepeat: "no-repeat",
+                                WebkitMaskPosition: "center",
+                                maskImage: "url('/Image/ria%20Spa-2.png')",
+                                maskSize: "contain",
+                                maskRepeat: "no-repeat",
+                                maskPosition: "center",
+                            }}
                         />
                     </div>
                 </div>

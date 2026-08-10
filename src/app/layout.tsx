@@ -31,17 +31,17 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Ngan Ha Spa",
-  description: "Booking System for Ngan Ha Spa",
+  title: "Ria Spa",
+  description: "Booking System for Ria Spa",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Ngan Ha Spa",
+    title: "Ria Spa",
   },
   icons: {
-    icon: "/assets/logos/logo-only-gold.webp",
-    apple: "/assets/logos/logo-only-gold.webp",
+    icon: "/Image/ria%20Spa-2.png",
+    apple: "/Image/ria%20Spa-2.png",
   },
 };
 
