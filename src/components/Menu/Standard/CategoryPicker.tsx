@@ -125,7 +125,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
 
             {/* Grid Area - Auto-fit Height */}
             <motion.div
-                className={`flex-1 min-h-0 overflow-y-auto px-6 hide-scrollbar flex flex-col`}
+                className={`flex-1 min-h-0 overflow-y-auto px-6 pb-32 hide-scrollbar flex flex-col`}
                 style={{ paddingTop: `${UI_LAYOUT_CONFIG.GRID_PADDING_TOP_PX}px` }}
                 variants={containerVariants}
                 initial="hidden"
@@ -165,7 +165,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
             </motion.div>
 
             {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
-            <div className="mt-4 mb-6 flex justify-center items-center gap-4 shrink-0">
+            <div className="absolute bottom-6 md:bottom-8 left-0 right-0 flex justify-center items-center gap-4 z-[110] pointer-events-none">
                 {languages.map((l) => (
                     <button
                         key={l.id}
