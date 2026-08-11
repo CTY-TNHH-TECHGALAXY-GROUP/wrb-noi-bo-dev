@@ -55,7 +55,18 @@ export const CATEGORIES: Category[] = [
         image: '/assets/icons/haircut.webp'
     },
     {
-        id: 'Premium',
+        id: 'Package',
+        names: {
+            en: 'Package',
+            vi: 'Gói Combo',
+            jp: 'パッケージ',
+            kr: '패키지',
+            cn: '套餐'
+        },
+        image: '/assets/icons/add-more.webp'
+    },
+    {
+        id: 'VIP',
         names: {
             en: 'VIP Package',
             vi: 'Gói VIP',
@@ -63,7 +74,7 @@ export const CATEGORIES: Category[] = [
             kr: 'VIP 코스',
             cn: 'VIP套餐'
         },
-        image: '/assets/icons/add-more.webp'
+        image: '/assets/icons/combo-king.webp'
     },
     {
         id: 'Additional',
