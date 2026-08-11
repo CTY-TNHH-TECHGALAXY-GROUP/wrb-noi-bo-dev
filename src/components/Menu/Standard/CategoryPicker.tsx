@@ -190,16 +190,16 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                 <motion.button
                                                     variants={cardVariants}
                                                     onClick={() => handleSelect(cat.id)}
-                                                    whileHover={{ scale: 1.05, borderColor: 'rgba(201,169,110,0.5)' }}
+                                                    whileHover={{ scale: 1.05, borderColor: '#ff7400' }}
                                                     whileTap={{ scale: 0.95 }}
                                                     style={{ 
                                                         width: 'min(22vw, 22vh, 180px)', 
                                                         height: 'min(22vw, 22vh, 180px)',
                                                         borderRadius: 'min(3vw, 3vh, 24px)'
                                                     }}
-                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-2 ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg`}
+                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-2 ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#ff7400] transition-colors relative overflow-hidden group shadow-lg`}
                                                 >
-                                                <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                <div className="absolute inset-0 bg-gradient-to-br from-[#ff7400]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
                                             <div 
                                                 style={{ 
@@ -213,13 +213,13 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     alt={name}
                                                     className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-all duration-300"
                                                     style={{
-                                                        filter: 'brightness(0) invert(78%) sepia(100%) saturate(250%) hue-rotate(-5deg) brightness(115%) contrast(105%) drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
+                                                        filter: 'brightness(0) invert(55%) sepia(100%) saturate(5000%) hue-rotate(-11deg) brightness(100%) contrast(100%) drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
                                                     }}
                                                 />
                                             </div>
                                             <span 
                                                 style={{ fontSize: 'min(3.2vw, 3.2vh, 24px)' }}
-                                                className="font-semibold tracking-wide text-center leading-tight relative z-10 w-full bg-gradient-to-br from-[#E6C280] via-[#C98B3E] to-[#995C1F] bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] group-hover:from-[#F0D59D] group-hover:via-[#DDA254] group-hover:to-[#B3702D] transition-all duration-300 px-2"
+                                                className="font-semibold tracking-wide text-center leading-tight relative z-10 w-full text-[#ff7400] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] group-hover:brightness-125 transition-all duration-300 px-2"
                                             >
                                                 {name}
                                             </span>
