@@ -199,7 +199,6 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     }}
                                                     className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-2 ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#BF815C] transition-colors relative overflow-hidden group shadow-lg`}
                                                 >
-                                                <div className="absolute inset-0 bg-gradient-to-br from-[#BF815C]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
                                             <div 
                                                 style={{ 
