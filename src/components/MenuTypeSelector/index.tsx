@@ -67,7 +67,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
     const handleLanguageChange = (newLang: string) => {
         if (!pathname) return;
         const newPath = pathname.replace(`/${lang}`, `/${newLang}`);
-        router.push(newPath);
+        router.replace(newPath); // Dùng replace thay vì push để tránh back nhầm ngôn ngữ cũ
     };
 
     // Fetch VIP config from SystemConfigs

@@ -93,7 +93,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
         const segments = pathname.split('/');
         if (segments.length > 1) {
             segments[1] = newLang; // Giả sử route là /[lang]/...
-            router.push(segments.join('/'));
+            router.replace(segments.join('/')); // Dùng replace để back button không bị kẹt
         }
     };
 

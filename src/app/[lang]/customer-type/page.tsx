@@ -31,7 +31,7 @@ export default function CustomerTypePage() {
   const handleLanguageChange = (newLang: string) => {
     // Replace the current language in the pathname
     const newPath = pathname.replace(`/${lang}`, `/${newLang}`);
-    router.push(newPath);
+    router.replace(newPath); // Dùng replace thay vì push để tránh sinh lịch sử rác
   };
 
   const {
