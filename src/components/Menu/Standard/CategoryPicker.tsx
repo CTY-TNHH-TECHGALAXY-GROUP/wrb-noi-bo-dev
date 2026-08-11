@@ -160,7 +160,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="relative w-full max-w-[800px] aspect-square flex items-center justify-center -mt-16 md:-mt-28 lg:-mt-36"
+                    className="relative w-full max-w-[800px] aspect-square flex items-center justify-center -mt-24 md:-mt-48 lg:-mt-64"
                 >
                     <div className="wheel-ring absolute inset-0 rounded-full origin-center">
                         {categories.map((cat, index) => {
@@ -206,19 +206,14 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     width: 'min(10vw, 10vh, 85px)', 
                                                     height: 'min(10vw, 10vh, 85px)' 
                                                 }}
-                                                className="flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                                                className="flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110"
                                             >
-                                                <div
-                                                    className="w-full h-full bg-gradient-to-br from-[#E6C280] via-[#C98B3E] to-[#995C1F] group-hover:from-[#F0D59D] group-hover:via-[#DDA254] group-hover:to-[#B3702D] transition-all duration-300 opacity-90 group-hover:opacity-100"
+                                                <img
+                                                    src={cat.image}
+                                                    alt={name}
+                                                    className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-all duration-300"
                                                     style={{
-                                                        WebkitMaskImage: `url(${cat.image})`,
-                                                        WebkitMaskSize: 'contain',
-                                                        WebkitMaskRepeat: 'no-repeat',
-                                                        WebkitMaskPosition: 'center',
-                                                        maskImage: `url(${cat.image})`,
-                                                        maskSize: 'contain',
-                                                        maskRepeat: 'no-repeat',
-                                                        maskPosition: 'center',
+                                                        filter: 'brightness(0) invert(65%) sepia(100%) saturate(350%) hue-rotate(-5deg) brightness(105%) contrast(120%) drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
                                                     }}
                                                 />
                                             </div>
@@ -240,7 +235,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
             </motion.div>
 
             {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
-            <div className="absolute bottom-20 md:bottom-28 lg:bottom-36 left-0 right-0 flex justify-center items-center gap-6 md:gap-10 z-[110] pointer-events-none">
+            <div className="absolute bottom-12 md:bottom-20 lg:bottom-28 left-0 right-0 flex justify-center items-center gap-6 md:gap-10 z-[110] pointer-events-none">
                 {languages.map((l) => (
                     <button
                         key={l.id}
