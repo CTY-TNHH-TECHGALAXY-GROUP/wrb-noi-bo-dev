@@ -159,11 +159,12 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                     <div className="wheel-ring absolute inset-0 rounded-full origin-center">
                         {categories.map((cat, index) => {
                             const name = cat.names[lang as keyof typeof cat.names] || cat.names['en'];
-                            // Cộng thêm 90 độ để Item đầu tiên bắt đầu ở vị trí 3h (khớp với tọa độ x,y của HTML gốc)
-                            const angle = index * (360 / categories.length) + 90;
+                            // Xóa bỏ offset 90 độ, để Nút số 1 luôn nằm ở đỉnh (12h)
+                            // Khi có 7 danh mục (số lẻ), việc nằm ở đỉnh sẽ giúp vòng tròn đối xứng hoàn hảo 2 bên trái/phải, không bị cảm giác "nghiêng"
+                            const angle = index * (360 / categories.length);
                             
-                            // Thu nhỏ vòng xoay để các icon gần nhau hơn, dễ bấm hơn
-                            const radius = 'min(26vw, 26vh, 210px)';
+                            // Tăng mạnh đường kính vòng tròn để giãn cách các nút xa nhau ra, dễ bấm hơn
+                            const radius = 'min(38vw, 38vh, 310px)';
                             
                             return (
                                 <div 
