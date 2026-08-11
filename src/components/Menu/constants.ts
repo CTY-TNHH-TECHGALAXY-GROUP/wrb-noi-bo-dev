@@ -33,50 +33,6 @@ export const CATEGORIES: Category[] = [
         image: '/assets/icons/foot.webp'
     },
     {
-        id: 'Hair Wash',
-        names: {
-            en: 'Hair Wash',
-            vi: 'Gội Đầu',
-            jp: '洗髪',
-            kr: '샴푸',
-            cn: '洗头'
-        },
-        image: '/assets/icons/hairwash.webp'
-    },
-    {
-        id: 'Facial',
-        names: {
-            en: 'Facial',
-            vi: 'Chăm Sóc Mặt',
-            jp: 'フェイシャル',
-            kr: '페이셜 케어',
-            cn: '面部护理'
-        },
-        image: '/assets/icons/facial.webp'
-    },
-    {
-        id: 'Heel Skin Shave',
-        names: {
-            en: 'Heel Care',
-            vi: 'Chà Gót Chân',
-            jp: 'かかとケア',
-            kr: '발뒤꿈치 케어',
-            cn: '磨脚皮'
-        },
-        image: '/assets/icons/heelskinshave.webp'
-    },
-    {
-        id: 'Manicure & Pedicure',
-        names: {
-            en: 'Nails',
-            vi: 'Làm Móng',
-            jp: 'ネイル',
-            kr: '네일 케어',
-            cn: '美甲'
-        },
-        image: '/assets/icons/nails.webp'
-    },
-    {
         id: 'Ear Clean',
         names: {
             en: 'Ear Clean',
