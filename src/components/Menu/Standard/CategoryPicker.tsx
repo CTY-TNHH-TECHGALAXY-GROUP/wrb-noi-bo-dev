@@ -163,8 +163,8 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                             // Khi có 7 danh mục (số lẻ), việc nằm ở đỉnh sẽ giúp vòng tròn đối xứng hoàn hảo 2 bên trái/phải, không bị cảm giác "nghiêng"
                             const angle = index * (360 / categories.length);
                             
-                            // Tăng mạnh đường kính vòng tròn để giãn cách các nút xa nhau ra, dễ bấm hơn
-                            const radius = 'min(38vw, 38vh, 320px)';
+                            // Thu hẹp bán kính vòng tròn một chút để các nút kéo sát lại gần nhau hơn
+                            const radius = 'min(35vw, 35vh, 300px)';
                             
                             return (
                                 <div 
@@ -186,18 +186,18 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     onClick={() => handleSelect(cat.id)}
                                                     whileHover={{ scale: 1.05, borderColor: 'rgba(201,169,110,0.5)' }}
                                                     whileTap={{ scale: 0.95 }}
-                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-3 px-1 py-3 md:py-4 rounded-3xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg w-28 h-28 sm:w-[150px] sm:h-[150px] md:w-[180px] md:h-[180px] lg:w-[210px] lg:h-[210px]`}
+                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-3 px-1 py-3 md:py-4 rounded-3xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg w-32 h-32 sm:w-[170px] sm:h-[170px] md:w-[220px] md:h-[220px] lg:w-[260px] lg:h-[260px]`}
                                                 >
                                                 <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
-                                            <div className="w-14 h-14 sm:w-[80px] sm:h-[80px] md:w-[95px] md:h-[95px] lg:w-[110px] lg:h-[110px] flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
+                                            <div className="w-16 h-16 sm:w-[90px] sm:h-[90px] md:w-[110px] md:h-[110px] lg:w-[130px] lg:h-[130px] flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
                                                 <img
                                                     src={cat.image}
                                                     alt={name}
                                                     className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
                                                 />
                                             </div>
-                                            <span className="font-medium text-[11px] sm:text-[14px] md:text-[16px] lg:text-[18px] tracking-wide text-center leading-snug relative z-10 w-full text-white/90 group-hover:text-white px-2">
+                                            <span className="font-medium text-[12px] sm:text-[16px] md:text-[18px] lg:text-[20px] tracking-wide text-center leading-snug relative z-10 w-full text-white/90 group-hover:text-white px-2">
                                                 {name}
                                             </span>
                                         </motion.button>
