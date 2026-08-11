@@ -136,7 +136,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
 
             {/* Grid Area - Auto-fit Height */}
             <motion.div
-                className={`flex-1 overflow-y-auto px-6 pb-28 hide-scrollbar flex flex-col`}
+                className={`flex-1 min-h-0 overflow-y-auto px-6 pb-28 hide-scrollbar flex flex-col`}
                 style={{ paddingTop: `${UI_LAYOUT_CONFIG.GRID_PADDING_TOP_PX}px` }}
                 variants={containerVariants}
                 initial="hidden"
