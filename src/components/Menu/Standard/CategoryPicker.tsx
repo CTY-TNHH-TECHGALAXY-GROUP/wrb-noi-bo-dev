@@ -228,7 +228,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                             );
                         })}
                     </div>
-                </div>
+                </motion.div>
             </motion.div>
 
             {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
