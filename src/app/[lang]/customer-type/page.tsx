@@ -2,8 +2,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, usePathname } from "next/navigation";
 import { ArrowRight, X, Loader2, ArrowLeft, History, Search, Calendar } from "lucide-react";
+import { languages } from "../../(intro)/LanguageSelector.lang";
 import { useCustomerTypeLogic } from "./CustomerType.logic";
 import { GoogleLoginBtn } from '@/components/Auth/GoogleLoginBtn';
 
@@ -22,8 +23,16 @@ const LAYOUT_CONFIG = {
 
 export default function CustomerTypePage() {
   const params = useParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const lang = (params?.lang as string) || "en";
   const [inputValue, setInputValue] = useState("");
+
+  const handleLanguageChange = (newLang: string) => {
+    // Replace the current language in the pathname
+    const newPath = pathname.replace(`/${lang}`, `/${newLang}`);
+    router.push(newPath);
+  };
 
   const {
     t,                    // <-- Lấy hàm dịch
@@ -182,6 +191,23 @@ export default function CustomerTypePage() {
             </span>
           </button>
 
+        </div>
+
+        {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
+        <div className="mt-8 flex justify-center items-center gap-4">
+          {languages.map((l) => (
+            <button
+              key={l.id}
+              onClick={() => handleLanguageChange(l.id)}
+              className={`w-12 h-12 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
+                lang === l.id 
+                  ? 'border-[#f5df8b] scale-110 shadow-[0_0_15px_rgba(245,223,139,0.5)]' 
+                  : 'border-white/20 opacity-60 hover:opacity-100 hover:scale-105'
+              }`}
+            >
+              <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
+            </button>
+          ))}
         </div>
 
       </div>
