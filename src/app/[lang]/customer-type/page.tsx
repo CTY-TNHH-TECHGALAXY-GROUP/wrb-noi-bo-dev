@@ -14,8 +14,8 @@ import { GoogleLoginBtn } from '@/components/Auth/GoogleLoginBtn';
 const LAYOUT_CONFIG = {
   // 1. CẤU HÌNH LOGO
   logo: {
-    width: "360px",          
-    height: "160px",    
+    width: "260px",          
+    height: "200px",    
     marginBottom: "8px", 
   },
 };
@@ -92,7 +92,7 @@ export default function CustomerTypePage() {
           }}
         >
           {/* Logo SVG từ HTML hoặc ảnh hiện tại đều được. Dùng ảnh hiện tại để đồng bộ */}
-          <div className="absolute inset-0 bg-[#d8b34e]/20 rounded-full blur-xl animate-pulse"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-[#d8b34e]/20 rounded-full blur-xl animate-pulse"></div>
           <div 
             className="w-full h-full relative z-10" 
             style={{
