@@ -176,12 +176,12 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
             </motion.div>
 
             {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
-            <div className="mt-4 mb-6 flex justify-center items-center gap-4 shrink-0 pb-[env(safe-area-inset-bottom)]">
+            <div className="absolute bottom-[env(safe-area-inset-bottom)] left-0 right-0 pb-6 pt-4 flex justify-center items-center gap-4 z-50 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
                 {languages.map((l) => (
                     <button
                         key={l.id}
                         onClick={() => changeLanguage(l.id)}
-                        className={`w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
+                        className={`pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
                             lang === l.id 
                                 ? 'border-[#f5df8b] scale-110 shadow-[0_0_15px_rgba(245,223,139,0.5)]' 
                                 : 'border-white/20 opacity-60 hover:opacity-100 hover:scale-105'
