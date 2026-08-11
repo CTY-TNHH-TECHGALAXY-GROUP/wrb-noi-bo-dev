@@ -148,22 +148,22 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
 
             {/* Circular Area */}
             <motion.div
-                className={`flex-1 min-h-0 px-6 pb-28 hide-scrollbar flex flex-col items-center justify-center wheel-container relative`}
-                style={{ paddingTop: `${UI_LAYOUT_CONFIG.GRID_PADDING_TOP_PX}px` }}
+                className={`flex-1 w-full h-full flex flex-col items-center justify-center wheel-container relative`}
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
             >
                 {/* Vùng chứa Vòng quay (Căn giữa) */}
-                <div className="relative w-[min(90vw,600px)] h-[min(90vw,600px)] lg:w-[700px] lg:h-[700px] flex items-center justify-center">
+                <div className="relative w-full max-w-[800px] aspect-square flex items-center justify-center">
                     <div className="wheel-ring absolute inset-0 rounded-full origin-center">
                         {categories.map((cat, index) => {
                             const name = cat.names[lang as keyof typeof cat.names] || cat.names['en'];
                             // Cộng thêm 90 độ để Item đầu tiên bắt đầu ở vị trí 3h (khớp với tọa độ x,y của HTML gốc)
                             const angle = index * (360 / categories.length) + 90;
-                            // Bán kính động: mobile ~140px, tablet/desktop ~240px -> 300px
-                            const radius = 'clamp(130px, 38vw, 300px)';
+                            
+                            // Thu nhỏ vòng xoay để các icon gần nhau hơn, dễ bấm hơn
+                            const radius = 'min(26vw, 26vh, 210px)';
                             
                             return (
                                 <div 
