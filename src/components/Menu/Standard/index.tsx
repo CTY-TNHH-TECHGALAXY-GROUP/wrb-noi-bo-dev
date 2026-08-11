@@ -279,6 +279,20 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
                                 const newIdx = allCategories.findIndex(c => c.id === id);
                                 setSlideDirection(newIdx > oldIdx ? 1 : -1);
                                 setActiveCategory(id);
+                                
+                                // Áp dụng chung logic tự động bật Popup nếu nhóm đó chỉ có 1 lựa chọn
+                                const categoryServices = services.filter(s => s.cat === id && s.ACTIVE !== false);
+                                const groups: Record<string, Service[]> = {};
+                                categoryServices.forEach(svc => {
+                                    const key = svc.names.en.trim().toLowerCase();
+                                    if (!groups[key]) groups[key] = [];
+                                    groups[key].push(svc);
+                                });
+                                const groupValues = Object.values(groups);
+                                
+                                if (groupValues.length === 1) {
+                                    setSheet({ isOpen: true, type: 'MAIN', data: groupValues[0] });
+                                }
                             }
                         }}
                     />
