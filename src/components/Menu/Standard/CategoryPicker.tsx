@@ -190,7 +190,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                 >
                                                 <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
-                                            <div className="w-12 h-12 sm:w-[60px] sm:h-[60px] md:w-[75px] md:h-[75px] lg:w-[90px] lg:h-[90px] flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
+                                            <div className="w-14 h-14 sm:w-[80px] sm:h-[80px] md:w-[95px] md:h-[95px] lg:w-[110px] lg:h-[110px] flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
                                                 <img
                                                     src={cat.image}
                                                     alt={name}
@@ -217,7 +217,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                     <button
                         key={l.id}
                         onClick={() => changeLanguage(l.id)}
-                        className={`pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
+                        className={`pointer-events-auto w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
                             lang === l.id 
                                 ? 'border-[#f5df8b] scale-110 shadow-[0_0_15px_rgba(245,223,139,0.5)]' 
                                 : 'border-white/20 opacity-60 hover:opacity-100 hover:scale-105'
