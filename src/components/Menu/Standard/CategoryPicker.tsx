@@ -125,7 +125,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
 
             {/* Grid Area - Auto-fit Height */}
             <motion.div
-                className={`flex-1 min-h-0 overflow-y-auto px-6 pb-28 hide-scrollbar flex flex-col`}
+                className={`flex-1 min-h-0 overflow-y-auto px-6 hide-scrollbar flex flex-col`}
                 style={{ paddingTop: `${UI_LAYOUT_CONFIG.GRID_PADDING_TOP_PX}px` }}
                 variants={containerVariants}
                 initial="hidden"
@@ -143,7 +143,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                 onClick={() => handleSelect(cat.id)}
                                 whileHover={{ scale: 1.04, borderColor: 'rgba(201,169,110,0.5)' }}
                                 whileTap={{ scale: 0.96 }}
-                                className={`w-full h-full flex flex-col items-center justify-center gap-3 px-3 rounded-2xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg`}
+                                className={`w-full h-full flex flex-col items-center justify-center gap-3 px-3 py-6 rounded-2xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg`}
                             >
                                 {/* Glow Effect */}
                                 <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -165,7 +165,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
             </motion.div>
 
             {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
-            <div className="absolute bottom-0 left-0 right-0 pb-8 pt-6 flex justify-center items-center gap-4 z-50 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
+            <div className="mt-4 mb-6 flex justify-center items-center gap-4 shrink-0">
                 {languages.map((l) => (
                     <button
                         key={l.id}
