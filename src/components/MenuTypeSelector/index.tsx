@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./style.module.css";
 import { ArrowLeft, X } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { languages } from "@/app/(intro)/LanguageSelector.lang";
 
 // ============================================================================
 // 👇 KHU VỰC CẤU HÌNH ẢNH SÁCH (SỬA LINK ẢNH Ở ĐÂY) 👇
@@ -59,6 +61,14 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
     const [comingSoon, setComingSoon] = useState<string | null>(null);
     const [vipEnabled, setVipEnabled] = useState(false);
     const [showVipGuide, setShowVipGuide] = useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
+
+    const handleLanguageChange = (newLang: string) => {
+        if (!pathname) return;
+        const newPath = pathname.replace(`/${lang}`, `/${newLang}`);
+        router.push(newPath);
+    };
 
     // Fetch VIP config from SystemConfigs
     useEffect(() => {
@@ -256,6 +266,22 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
 
             </div>
 
+            {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
+            <div className="mt-6 mb-4 flex justify-center items-center gap-4 shrink-0">
+                {languages.map((l) => (
+                    <button
+                        key={l.id}
+                        onClick={() => handleLanguageChange(l.id)}
+                        className={`w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
+                            lang === l.id 
+                                ? 'border-[#f5df8b] scale-110 shadow-[0_0_15px_rgba(245,223,139,0.5)]' 
+                                : 'border-white/20 opacity-60 hover:opacity-100 hover:scale-105'
+                        }`}
+                    >
+                        <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
+                    </button>
+                ))}
+            </div>
 
         </div>
 
