@@ -211,7 +211,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                 <img
                                                     src={cat.image}
                                                     alt={name}
-                                                    className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                                                    className="w-full h-full object-contain opacity-85 group-hover:opacity-100 transition-all duration-300 grayscale sepia saturate-[250%] hue-rotate-[5deg] brightness-105 contrast-110 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] group-hover:saturate-[350%] group-hover:brightness-125"
                                                 />
                                             </div>
                                             <span 
