@@ -160,7 +160,8 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                     <div className="wheel-ring absolute inset-0 rounded-full origin-center">
                         {categories.map((cat, index) => {
                             const name = cat.names[lang as keyof typeof cat.names] || cat.names['en'];
-                            const angle = index * (360 / categories.length);
+                            // Cộng thêm 90 độ để Item đầu tiên bắt đầu ở vị trí 3h (khớp với tọa độ x,y của HTML gốc)
+                            const angle = index * (360 / categories.length) + 90;
                             // Bán kính động: mobile ~140px, tablet/desktop ~240px -> 300px
                             const radius = 'clamp(130px, 38vw, 300px)';
                             
