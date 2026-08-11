@@ -17,10 +17,9 @@ const TOKENS = {
 
 // Cấu hình giao diện để người dùng dễ thay đổi bằng số Pixel (Dựa theo the rule)
 const UI_LAYOUT_CONFIG = {
-    HEADER_MARGIN_TOP_PX: 40,      // Thụt lề đầu trang xuống bao nhiêu Pixel 
     TITLE_SIZE: 'text-3xl',        // Cỡ chữ Select Category 
     LINE_WIDTH: 'w-32',            // Độ dài của dải ánh kim bên dưới chữ
-    GRID_PADDING_TOP_PX: 20,       // Khoảng cách từ Header xuống danh sách thẻ menu 
+    GRID_PADDING_TOP_PX: 80,       // Khoảng cách từ trên cùng xuống danh sách thẻ menu (chừa chỗ cho nút Back)
 };
 
 // Cấu hình thời gian và hiệu ứng chuyển cảnh của màn hình Chọn Danh Mục
@@ -111,27 +110,17 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
         >
-            {/* Header / Title */}
+            {/* Back Button (Fixed at top-left) */}
             <motion.div
-                className={`pt-safe-top pb-4 flex flex-col items-center justify-center relative w-full`}
-                style={{ paddingTop: `${UI_LAYOUT_CONFIG.HEADER_MARGIN_TOP_PX}px` }}
-                variants={headerVariants}
-                initial="hidden"
-                animate="visible"
+                className="absolute top-4 left-4 p-4 md:top-6 md:left-6 cursor-pointer opacity-60 hover:opacity-100 transition-opacity flex items-center z-[110] bg-black/20 rounded-full backdrop-blur-sm"
+                onClick={onBack}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
             >
-                {/* Wrapper chứa nút back */}
-                <div className="w-full flex items-center justify-center relative min-h-[40px]">
-                    <motion.div
-                        className="absolute left-4 p-2 cursor-pointer opacity-50 hover:opacity-100 transition-opacity flex items-center z-20"
-                        onClick={onBack}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                    >
-                        <ArrowLeft className="text-white w-6 h-6" strokeWidth={1.5} />
-                    </motion.div>
-                </div>
-
-                <div className={`h-[1px] w-48 md:w-64 bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent mt-6 opacity-30`}></div>
+                <ArrowLeft className="text-white w-6 h-6" strokeWidth={2} />
             </motion.div>
 
             {/* Grid Area - Auto-fit Height */}
