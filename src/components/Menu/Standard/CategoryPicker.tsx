@@ -197,7 +197,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
                                                 />
                                             </div>
-                                            <span className="font-semibold text-[14px] sm:text-[20px] md:text-[24px] lg:text-[28px] tracking-wide text-center leading-snug relative z-10 w-full bg-gradient-to-br from-[#F5DF8B] via-[#C9A96E] to-[#9E7A3D] bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] group-hover:from-[#FFF] group-hover:via-[#F5DF8B] group-hover:to-[#C9A96E] transition-all duration-300 px-2">
+                                            <span className="font-semibold text-[14px] sm:text-[20px] md:text-[24px] lg:text-[28px] tracking-wide text-center leading-snug relative z-10 w-full bg-gradient-to-br from-[#E6C280] via-[#C98B3E] to-[#995C1F] bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] group-hover:from-[#F0D59D] group-hover:via-[#DDA254] group-hover:to-[#B3702D] transition-all duration-300 px-2">
                                                 {name}
                                             </span>
                                         </motion.button>
