@@ -222,9 +222,30 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
                         lang={lang}
                         onSelect={(ids) => {
                             const selectedId = ids[0] || 'Body';
+                            
+                            // Tự động gom nhóm các dịch vụ thuộc Category này
+                            const categoryServices = services.filter(s => s.cat === selectedId && s.ACTIVE !== false);
+                            const groups: Record<string, Service[]> = {};
+                            categoryServices.forEach(svc => {
+                                const key = svc.names.en.trim().toLowerCase();
+                                if (!groups[key]) groups[key] = [];
+                                groups[key].push(svc);
+                            });
+                            
+                            const groupValues = Object.values(groups);
+                            
                             setActiveCategory(selectedId);
-                            setPendingScrollCategory(selectedId);
                             setMode('MENU');
+                            
+                            // Nếu danh mục chỉ có 1 lựa chọn dịch vụ duy nhất (VD: Pro Foot Care)
+                            // -> Tự động bật luôn Popup chọn giờ từ dưới lên
+                            if (groupValues.length === 1) {
+                                setTimeout(() => {
+                                    setSheet({ isOpen: true, type: 'MAIN', data: groupValues[0] });
+                                }, 50); // Delay nhẹ để Menu render xong
+                            } else {
+                                setPendingScrollCategory(selectedId);
+                            }
                         }}
                         onBack={onBack}
                     />
