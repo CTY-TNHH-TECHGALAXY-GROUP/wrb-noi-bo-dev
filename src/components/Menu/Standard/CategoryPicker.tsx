@@ -165,7 +165,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
             </motion.div>
 
             {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
-            <div className="absolute bottom-[env(safe-area-inset-bottom)] left-0 right-0 pb-6 pt-4 flex justify-center items-center gap-4 z-50 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
+            <div className="absolute bottom-0 left-0 right-0 pb-8 pt-6 flex justify-center items-center gap-4 z-50 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
                 {languages.map((l) => (
                     <button
                         key={l.id}
