@@ -163,8 +163,8 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                             // Khi có 7 danh mục (số lẻ), việc nằm ở đỉnh sẽ giúp vòng tròn đối xứng hoàn hảo 2 bên trái/phải, không bị cảm giác "nghiêng"
                             const angle = index * (360 / categories.length);
                             
-                            // Thu hẹp bán kính vòng tròn một chút để các nút kéo sát lại gần nhau hơn
-                            const radius = 'min(35vw, 35vh, 300px)';
+                            // Bán kính luôn = 33% cạnh nhỏ nhất của màn hình (tối đa 280px)
+                            const radius = 'min(33vw, 33vh, 280px)';
                             
                             return (
                                 <div 
@@ -186,18 +186,31 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     onClick={() => handleSelect(cat.id)}
                                                     whileHover={{ scale: 1.05, borderColor: 'rgba(201,169,110,0.5)' }}
                                                     whileTap={{ scale: 0.95 }}
-                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-3 px-1 py-3 md:py-4 rounded-3xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg w-32 h-32 sm:w-[170px] sm:h-[170px] md:w-[220px] md:h-[220px] lg:w-[260px] lg:h-[260px]`}
+                                                    style={{ 
+                                                        width: 'min(30vw, 30vh, 240px)', 
+                                                        height: 'min(30vw, 30vh, 240px)' 
+                                                    }}
+                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-2 rounded-3xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg`}
                                                 >
                                                 <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
-                                            <div className="w-16 h-16 sm:w-[90px] sm:h-[90px] md:w-[110px] md:h-[110px] lg:w-[130px] lg:h-[130px] flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
+                                            <div 
+                                                style={{ 
+                                                    width: 'min(14vw, 14vh, 110px)', 
+                                                    height: 'min(14vw, 14vh, 110px)' 
+                                                }}
+                                                className="flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110"
+                                            >
                                                 <img
                                                     src={cat.image}
                                                     alt={name}
                                                     className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
                                                 />
                                             </div>
-                                            <span className="font-semibold text-[14px] sm:text-[20px] md:text-[24px] lg:text-[28px] tracking-wide text-center leading-snug relative z-10 w-full bg-gradient-to-br from-[#E6C280] via-[#C98B3E] to-[#995C1F] bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] group-hover:from-[#F0D59D] group-hover:via-[#DDA254] group-hover:to-[#B3702D] transition-all duration-300 px-2">
+                                            <span 
+                                                style={{ fontSize: 'min(3vw, 3vh, 22px)' }}
+                                                className="font-semibold tracking-wide text-center leading-tight relative z-10 w-full bg-gradient-to-br from-[#E6C280] via-[#C98B3E] to-[#995C1F] bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] group-hover:from-[#F0D59D] group-hover:via-[#DDA254] group-hover:to-[#B3702D] transition-all duration-300 px-2"
+                                            >
                                                 {name}
                                             </span>
                                         </motion.button>
