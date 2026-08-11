@@ -119,8 +119,8 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                 initial="hidden"
                 animate="visible"
             >
-                {/* Wrapper chứa nút back và danh sách cờ cùng 1 hàng */}
-                <div className="w-full flex items-center justify-center relative">
+                {/* Wrapper chứa nút back */}
+                <div className="w-full flex items-center justify-center relative min-h-[40px]">
                     <motion.div
                         className="absolute left-4 p-2 cursor-pointer opacity-50 hover:opacity-100 transition-opacity flex items-center z-20"
                         onClick={onBack}
@@ -129,24 +129,6 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                     >
                         <ArrowLeft className="text-white w-6 h-6" strokeWidth={1.5} />
                     </motion.div>
-
-                    {/* 5 LÁ CỜ NẰM NGANG Ở GIỮA */}
-                    <div className="flex items-center justify-center gap-6 md:gap-10 px-12">
-                        {languages.map(l => (
-                            <button
-                                key={l.id}
-                                onClick={() => changeLanguage(l.id)}
-                                className={`w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden cursor-pointer shadow-md transition-all flex-shrink-0 flex items-center justify-center bg-black/40 ${
-                                    lang === l.id 
-                                        ? 'border-2 border-[#C9A96E] scale-110 shadow-[0_0_15px_rgba(201,169,110,0.5)] z-10' 
-                                        : 'border border-white/20 opacity-50 hover:opacity-100 hover:scale-105'
-                                }`}
-                                aria-label={l.name}
-                            >
-                                <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
-                            </button>
-                        ))}
-                    </div>
                 </div>
 
                 <div className={`h-[1px] w-48 md:w-64 bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent mt-6 opacity-30`}></div>
@@ -192,6 +174,23 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                     })}
                 </div>
             </motion.div>
+
+            {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
+            <div className="mt-4 mb-6 flex justify-center items-center gap-4 shrink-0 pb-[env(safe-area-inset-bottom)]">
+                {languages.map((l) => (
+                    <button
+                        key={l.id}
+                        onClick={() => changeLanguage(l.id)}
+                        className={`w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
+                            lang === l.id 
+                                ? 'border-[#f5df8b] scale-110 shadow-[0_0_15px_rgba(245,223,139,0.5)]' 
+                                : 'border-white/20 opacity-60 hover:opacity-100 hover:scale-105'
+                        }`}
+                    >
+                        <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
+                    </button>
+                ))}
+            </div>
 
         </motion.div>
     );
