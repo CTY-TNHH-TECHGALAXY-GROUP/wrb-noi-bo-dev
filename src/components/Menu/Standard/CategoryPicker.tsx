@@ -163,8 +163,8 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                             // Khi có 7 danh mục (số lẻ), việc nằm ở đỉnh sẽ giúp vòng tròn đối xứng hoàn hảo 2 bên trái/phải, không bị cảm giác "nghiêng"
                             const angle = index * (360 / categories.length);
                             
-                            // Bán kính luôn = 33% cạnh nhỏ nhất của màn hình (tối đa 280px)
-                            const radius = 'min(33vw, 33vh, 280px)';
+                            // Bán kính vòng quay luôn bằng 35% màn hình (tối đa 300px)
+                            const radius = 'min(35vw, 35vh, 300px)';
                             
                             return (
                                 <div 
@@ -187,17 +187,18 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     whileHover={{ scale: 1.05, borderColor: 'rgba(201,169,110,0.5)' }}
                                                     whileTap={{ scale: 0.95 }}
                                                     style={{ 
-                                                        width: 'min(30vw, 30vh, 240px)', 
-                                                        height: 'min(30vw, 30vh, 240px)' 
+                                                        width: 'min(29vw, 29vh, 250px)', 
+                                                        height: 'min(29vw, 29vh, 250px)',
+                                                        borderRadius: 'min(3vw, 3vh, 24px)'
                                                     }}
-                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-2 rounded-3xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg`}
+                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-2 ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg`}
                                                 >
                                                 <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
                                             <div 
                                                 style={{ 
-                                                    width: 'min(14vw, 14vh, 110px)', 
-                                                    height: 'min(14vw, 14vh, 110px)' 
+                                                    width: 'min(14vw, 14vh, 120px)', 
+                                                    height: 'min(14vw, 14vh, 120px)' 
                                                 }}
                                                 className="flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110"
                                             >
