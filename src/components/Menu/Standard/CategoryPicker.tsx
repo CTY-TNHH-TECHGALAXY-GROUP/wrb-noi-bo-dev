@@ -177,16 +177,17 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                     <div className="absolute left-0 top-0 w-0 h-0" style={{ transform: `rotate(-${angle}deg)` }}>
                                         {/* Wrapper quay ngược (bảo toàn tâm) chống lại trục quay của Ring */}
                                         <div className="wheel-node absolute left-0 top-0 w-0 h-0">
-                                            {/* Component Nút */}
-                                            <motion.button
-                                                variants={cardVariants}
-                                                onClick={() => handleSelect(cat.id)}
-                                                whileHover={{ scale: 1.05, borderColor: 'rgba(201,169,110,0.5)' }}
-                                                whileTap={{ scale: 0.95 }}
-                                                style={{ marginLeft: '-50%', marginTop: '-50%' }}
-                                                className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-3 md:py-4 rounded-3xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-[140px] lg:h-[140px]`}
-                                            >
-                                            <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                            {/* Wrapper Căn giữa tuyệt đối Nút vào tâm */}
+                                            <div className="absolute left-0 top-0 -translate-x-1/2 -translate-y-1/2">
+                                                {/* Component Nút */}
+                                                <motion.button
+                                                    variants={cardVariants}
+                                                    onClick={() => handleSelect(cat.id)}
+                                                    whileHover={{ scale: 1.05, borderColor: 'rgba(201,169,110,0.5)' }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-3 md:py-4 rounded-3xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-[140px] lg:h-[140px]`}
+                                                >
+                                                <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
                                             <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
                                                 <img
@@ -199,6 +200,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                 {name}
                                             </span>
                                         </motion.button>
+                                        </div>
                                         </div>
                                     </div>
                                 </div>
