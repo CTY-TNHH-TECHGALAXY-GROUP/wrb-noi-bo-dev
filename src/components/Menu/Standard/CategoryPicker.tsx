@@ -155,7 +155,13 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                 exit="exit"
             >
                 {/* Vùng chứa Vòng quay (Căn giữa) */}
-                <div className="relative w-full max-w-[800px] aspect-square flex items-center justify-center">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="relative w-full max-w-[800px] aspect-square flex items-center justify-center -mt-16 md:-mt-28 lg:-mt-36"
+                >
                     <div className="wheel-ring absolute inset-0 rounded-full origin-center">
                         {categories.map((cat, index) => {
                             const name = cat.names[lang as keyof typeof cat.names] || cat.names['en'];
@@ -226,14 +232,14 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
             </motion.div>
 
             {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
-            <div className="absolute bottom-12 md:bottom-20 left-0 right-0 flex justify-center items-center gap-4 z-[110] pointer-events-none">
+            <div className="absolute bottom-20 md:bottom-28 lg:bottom-36 left-0 right-0 flex justify-center items-center gap-6 md:gap-10 z-[110] pointer-events-none">
                 {languages.map((l) => (
                     <button
                         key={l.id}
                         onClick={() => changeLanguage(l.id)}
-                        className={`pointer-events-auto w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
+                        className={`pointer-events-auto w-[55px] h-[55px] sm:w-[70px] sm:h-[70px] md:w-[90px] md:h-[90px] lg:w-[110px] lg:h-[110px] rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
                             lang === l.id 
-                                ? 'border-[#f5df8b] scale-110 shadow-[0_0_15px_rgba(245,223,139,0.5)]' 
+                                ? 'border-[#f5df8b] scale-110 shadow-[0_0_20px_rgba(245,223,139,0.7)]' 
                                 : 'border-white/20 opacity-60 hover:opacity-100 hover:scale-105'
                         }`}
                     >
