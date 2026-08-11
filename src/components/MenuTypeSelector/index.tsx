@@ -24,8 +24,8 @@ const LAYOUT_CONFIG = {
         marginTop: "10px",       // Đẩy xuống một chút để không bị cắt Logo
         gapLogoText: "5px",      // Khoảng cách Logo - Chữ gần hơn
         marginBottom: "15px",    // Khoảng cách Chữ - Sách gần hơn
-        logoHeight: "80px",      // Giảm chiều cao Logo cho đỡ chiếm chỗ
-        logoWidth: "260px",      // Giảm chiều rộng tương ứng
+        logoHeight: "130px",     // Tăng chiều cao Logo theo yêu cầu
+        logoWidth: "390px",      // Tăng chiều rộng tương ứng
         titleSize: "18px",       // Giảm cỡ chữ tiêu đề 1 chút
     },
 
