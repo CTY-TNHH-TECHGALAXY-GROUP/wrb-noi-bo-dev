@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>OriaSpa Circular Category Demo – No Underline, No Blur</title>
+<style>
+  :root{
+    --bg:#050505;
+    --bg2:#09090a;
+    --gold:#d9a858;
+    --gold-soft:#f0c57d;
+    --text:#f7f0e6;
+    --card-top:#16171b;
+    --card-bottom:#101115;
+  }
+
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    min-height:100%;
+    background:linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
+    color:var(--text);
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  body{
+    display:flex;
+    justify-content:center;
+    padding:20px;
+  }
+
+  .phone{
+    width:min(100%, 980px);
+    aspect-ratio:9/16;
+    min-height:760px;
+    background:linear-gradient(180deg, #040404 0%, #070708 100%);
+    border-radius:34px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+
+  .header{
+    position:absolute;
+    inset:40px 36px auto 36px;
+    z-index:5;
+  }
+
+  .back{
+    position:absolute;
+    left:0; top:4px;
+    width:44px; height:44px;
+    border:0;
+    background:transparent;
+    color:var(--gold);
+    font-size:42px;
+    line-height:1;
+    cursor:pointer;
+  }
+
+  .title-wrap{text-align:center}
+
+  h1{
+    margin:0;
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:clamp(36px, 4.8vw, 64px);
+    line-height:1.04;
+    font-weight:600;
+    color:var(--gold-soft);
+    letter-spacing:.01em;
+  }
+
+  .divider{
+    width:min(360px, 58%);
+    margin:20px auto 0;
+    position:relative;
+    height:20px;
+  }
+
+  .divider:before{
+    content:"";
+    position:absolute;
+    inset:9px 0 auto 0;
+    height:1.5px;
+    background:linear-gradient(90deg, transparent, rgba(232,186,101,.85), rgba(255,230,180,.95), rgba(232,186,101,.85), transparent);
+  }
+
+  .divider span{
+    position:absolute;
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+    font-size:24px;
+    color:var(--gold-soft);
+  }
+
+  .scene{
+    position:absolute;
+    inset:170px 0 0 0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .wheel-wrap{
+    position:relative;
+    width:min(82vw, 760px);
+    height:min(82vw, 760px);
+  }
+
+  .ring{
+    position:absolute;
+    inset:0;
+    animation:spin 28s linear infinite;
+    transform-origin:center center;
+  }
+
+  .slot{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:0;
+    height:0;
+    transform:translate(calc(var(--x) - 50%), calc(var(--y) - 50%));
+  }
+
+  .node{
+    width:176px;
+    height:176px;
+    margin-left:-88px;
+    margin-top:-88px;
+    padding:22px 16px 18px;
+    border-radius:34px;
+    background:linear-gradient(180deg, var(--card-top) 0%, var(--card-bottom) 100%);
+    box-shadow:
+      0 14px 26px rgba(0,0,0,.30),
+      inset 0 0 0 1px rgba(255,255,255,.025);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    animation:counterSpin 28s linear infinite;
+  }
+
+  .node .icon{
+    width:78px;
+    height:78px;
+    display:grid;
+    place-items:center;
+  }
+
+  .node svg{
+    width:100%;
+    height:100%;
+    fill:none;
+    stroke:var(--gold-soft);
+    stroke-width:2.1;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+
+  .node .filled{
+    fill:var(--gold-soft);
+    stroke:var(--gold-soft);
+  }
+
+  .label{
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:20px;
+    text-align:center;
+    color:#fff8ee;
+    letter-spacing:.01em;
+    line-height:1.1;
+  }
+
+  .label.small{font-size:17px}
+
+  .footer-note{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:22px;
+    text-align:center;
+    color:rgba(255,239,215,.45);
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  @keyframes spin{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+  }
+  @keyframes counterSpin{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(-360deg)}
+  }
+
+  @media (max-width: 900px){
+    .scene{ inset:150px 0 0 0; }
+    .wheel-wrap{ width:min(88vw, 680px); height:min(88vw, 680px); }
+    .node{
+      width:152px; height:152px;
+      margin-left:-76px; margin-top:-76px;
+      border-radius:28px;
+      gap:10px;
+    }
+    .node .icon{ width:66px; height:66px; }
+    .label{ font-size:18px; }
+  }
+
+  @media (max-width: 640px){
+    body{padding:0}
+    .phone{
+      width:100%;
+      border-radius:0;
+      min-height:100vh;
+      aspect-ratio:auto;
+    }
+    .header{ inset:24px 20px auto 20px; }
+    .back{ font-size:38px; width:40px; height:40px; }
+    .scene{ inset:128px 0 28px; }
+    .wheel-wrap{ width:min(96vw, 560px); height:min(112vw, 650px); }
+    .node{
+      width:128px; height:128px;
+      margin-left:-64px; margin-top:-64px;
+      border-radius:24px;
+      padding:14px 10px;
+      gap:8px;
+    }
+    .node .icon{ width:54px; height:54px; }
+    .label{ font-size:16px; }
+    .label.small{ font-size:14px; }
+    .footer-note{ font-size:11px; bottom:14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .ring,.node{animation:none!important}
+  }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <header class="header">
+      <button class="back" aria-label="Back">←</button>
+      <div class="title-wrap">
+        <h1>Select Category</h1>
+        <div class="divider"><span>◈</span></div>
+      </div>
+    </header>
+
+    <main class="scene">
+      <div class="wheel-wrap">
+        <div class="ring" id="ring"></div>
+      </div>
+    </main>
+
+    <div class="footer-note">7 categories • no underline • no blur</div>
+  </div>
+
+<script>
+const items = [
+  { name: 'Body Care', icon: 'body', angle: -90, radius: 255 },
+  { name: 'Foot Care', icon: 'foot', angle: -38, radius: 255 },
+  { name: 'Barber', icon: 'barber', angle: 14, radius: 255 },
+  { name: 'Package', icon: 'package', angle: 66, radius: 255 },
+  { name: 'VIP', icon: 'vip', angle: 118, radius: 255 },
+  { name: 'Adds On', icon: 'addon', angle: 170, radius: 255 },
+  { name: 'Ear Clean', icon: 'ear', angle: 222, radius: 255 }
+];
+
+const ring = document.getElementById('ring');
+
+function iconSVG(type){
+  const common = `viewBox="0 0 64 64" aria-hidden="true"`;
+  const map = {
+    body: `<svg ${common}>
+      <circle class="filled" cx="22" cy="15" r="4"></circle>
+      <path d="M22 20c6 1 9 5 12 10"></path>
+      <path d="M16 24l-4 12"></path>
+      <path d="M30 30l-5 8"></path>
+      <path d="M8 42h48"></path>
+      <path d="M14 42v8M42 42v8"></path>
+      <path d="M28 37h18c5 0 8 3 8 6"></path>
+    </svg>`,
+    foot: `<svg ${common}>
+      <path class="filled" d="M31 10c-1 7-2 12-7 18-5 6-4 14 2 17 7 3 14-1 17-8 3-7 3-14 1-22-1-5-8-9-13-5z"></path>
+      <path d="M45 13c3 2 5 5 5 9"></path>
+      <path d="M49 10c2 1 4 3 5 5"></path>
+    </svg>`,
+    ear: `<svg ${common}>
+      <path d="M36 52c-2-6 6-8 8-15 2-7 0-14-7-17-8-3-16 2-19 9-3 9 1 18 9 21"></path>
+      <path d="M36 39c7-5 7-13 2-16-6-3-12 2-12 8 0 4 3 7 7 8"></path>
+      <path d="M13 52l9-17"></path>
+    </svg>`,
+    barber: `<svg ${common}>
+      <path class="filled" d="M18 18c2-7 7-11 14-11 8 0 13 4 15 11"></path>
+      <path d="M22 25c0 11 4 20 10 20 7 0 11-9 11-20"></path>
+      <path d="M24 31c5-3 12-3 17 0"></path>
+      <path d="M46 42l12 12M58 42 46 54"></path>
+    </svg>`,
+    package: `<svg ${common}>
+      <path d="M14 22h32v26H14z"></path>
+      <path d="M10 22h40"></path>
+      <path d="M23 22c-5 0-8-6-4-9 5-4 10 3 13 9"></path>
+      <path d="M41 22c5 0 8-6 4-9-5-4-10 3-13 9"></path>
+      <path d="M32 22v26"></path>
+      <path d="M50 10v8M46 14h8"></path>
+    </svg>`,
+    addon: `<svg ${common}>
+      <path d="M32 17v30M17 32h30"></path>
+      <circle class="filled" cx="14" cy="24" r="1.3"></circle>
+      <circle class="filled" cx="50" cy="24" r="1.3"></circle>
+      <circle class="filled" cx="14" cy="40" r="1.3"></circle>
+      <circle class="filled" cx="50" cy="40" r="1.3"></circle>
+      <path d="M48 16l3 3M13 16l3 3M48 48l3-3M13 48l3-3"></path>
+    </svg>`,
+    vip: `<svg ${common}>
+      <path d="M8 25l9 7 7-16 8 13 8-13 7 16 9-7-4 24H12L8 25z"></path>
+      <path d="M13 49h38M17 54h30"></path>
+    </svg>`
+  };
+  return map[type];
+}
+
+items.forEach(item => {
+  const slot = document.createElement('div');
+  slot.className = 'slot';
+
+  const rad = item.angle * Math.PI / 180;
+  const x = Math.cos(rad) * item.radius;
+  const y = Math.sin(rad) * item.radius;
+  slot.style.setProperty('--x', `${x}px`);
+  slot.style.setProperty('--y', `${y}px`);
+
+  const labelClass = item.name.length > 8 ? 'label small' : 'label';
+
+  slot.innerHTML = `
+    <div class="node">
+      <div class="icon">${iconSVG(item.icon)}</div>
+      <div class="${labelClass}">${item.name}</div>
+    </div>
+  `;
+
+  ring.appendChild(slot);
+});
+</script>
+</body>
+</html>

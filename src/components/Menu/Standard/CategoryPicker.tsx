@@ -19,7 +19,7 @@ const TOKENS = {
 const UI_LAYOUT_CONFIG = {
     TITLE_SIZE: 'text-3xl',        // Cỡ chữ Select Category 
     LINE_WIDTH: 'w-32',            // Độ dài của dải ánh kim bên dưới chữ
-    GRID_PADDING_TOP_PX: 80,       // Khoảng cách từ trên cùng xuống danh sách thẻ menu (chừa chỗ cho nút Back)
+    GRID_PADDING_TOP_PX: 40,       // Khoảng cách từ trên cùng xuống danh sách thẻ menu (chừa chỗ cho nút Back)
 };
 
 // Cấu hình thời gian và hiệu ứng chuyển cảnh của màn hình Chọn Danh Mục
@@ -123,44 +123,82 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                 <ArrowLeft className="text-white w-6 h-6" strokeWidth={2} />
             </motion.div>
 
-            {/* Grid Area - Auto-fit Height */}
+            {/* CSS Animation cho Vòng quay */}
+            <style>{`
+                @keyframes wheelSpin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+                @keyframes wheelCounterSpin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(-360deg); }
+                }
+                .wheel-ring {
+                    animation: wheelSpin 36s linear infinite;
+                }
+                .wheel-node {
+                    animation: wheelCounterSpin 36s linear infinite;
+                }
+                /* Tạm dừng quay khi hover vào vùng vòng quay */
+                .wheel-container:hover .wheel-ring,
+                .wheel-container:hover .wheel-node {
+                    animation-play-state: paused;
+                }
+            `}</style>
+
+            {/* Circular Area */}
             <motion.div
-                className={`flex-1 min-h-0 overflow-y-auto px-6 pb-32 hide-scrollbar flex flex-col`}
+                className={`flex-1 min-h-0 px-6 pb-28 hide-scrollbar flex flex-col items-center justify-center wheel-container relative`}
                 style={{ paddingTop: `${UI_LAYOUT_CONFIG.GRID_PADDING_TOP_PX}px` }}
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
             >
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-w-sm md:max-w-2xl w-full mx-auto flex-1">
-                    {categories.map((cat) => {
-                        const name = cat.names[lang as keyof typeof cat.names] || cat.names['en'];
-
-                        return (
-                            <motion.button
-                                key={cat.id}
-                                variants={cardVariants}
-                                onClick={() => handleSelect(cat.id)}
-                                whileHover={{ scale: 1.04, borderColor: 'rgba(201,169,110,0.5)' }}
-                                whileTap={{ scale: 0.96 }}
-                                className={`w-full h-full flex flex-col items-center justify-center gap-3 px-3 py-6 rounded-2xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg`}
-                            >
-                                {/* Glow Effect */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
-                                <div className="w-14 h-14 flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
-                                    <img
-                                        src={cat.image}
-                                        alt={name}
-                                        className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
-                                    />
+                {/* Vùng chứa Vòng quay (Căn giữa) */}
+                <div className="relative w-[min(90vw,600px)] h-[min(90vw,600px)] lg:w-[700px] lg:h-[700px] flex items-center justify-center">
+                    <div className="wheel-ring absolute inset-0 rounded-full origin-center">
+                        {categories.map((cat, index) => {
+                            const name = cat.names[lang as keyof typeof cat.names] || cat.names['en'];
+                            const angle = index * (360 / categories.length);
+                            // Bán kính động: mobile ~140px, tablet/desktop ~240px -> 300px
+                            const radius = 'clamp(130px, 38vw, 300px)';
+                            
+                            return (
+                                <div 
+                                    key={cat.id}
+                                    className="absolute left-1/2 top-1/2 w-0 h-0"
+                                    style={{ 
+                                        transform: `rotate(${angle}deg) translateY(calc(-1 * ${radius}))` 
+                                    }}
+                                >
+                                    {/* Component Nút */}
+                                    <motion.button
+                                        variants={cardVariants}
+                                        onClick={() => handleSelect(cat.id)}
+                                        whileHover={{ scale: 1.05, borderColor: 'rgba(201,169,110,0.5)' }}
+                                        whileTap={{ scale: 0.95 }}
+                                        style={{ marginLeft: '-50%', marginTop: '-50%' }}
+                                        className={`wheel-node flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-3 md:py-4 rounded-3xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg 
+                                                    w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-[140px] lg:h-[140px]`}
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        
+                                        <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
+                                            <img
+                                                src={cat.image}
+                                                alt={name}
+                                                className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                                            />
+                                        </div>
+                                        <span className="font-medium text-[10px] sm:text-[12px] lg:text-[14px] tracking-wide text-center leading-snug relative z-10 w-full text-white/90 group-hover:text-white px-1">
+                                            {name}
+                                        </span>
+                                    </motion.button>
                                 </div>
-                                <span className="font-medium text-[13px] tracking-wide text-center leading-snug relative z-10 w-full text-white">
-                                    {name}
-                                </span>
-                            </motion.button>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
             </motion.div>
 
