@@ -163,8 +163,8 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                             // Khi có 7 danh mục (số lẻ), việc nằm ở đỉnh sẽ giúp vòng tròn đối xứng hoàn hảo 2 bên trái/phải, không bị cảm giác "nghiêng"
                             const angle = index * (360 / categories.length);
                             
-                            // Tỷ lệ giới hạn toán học: Nút phải <= 0.679 Bán kính để các hình vuông thẳng đứng không bao giờ chạm góc nhau.
-                            const radius = 'min(37vw, 37vh, 320px)';
+                            // Thu nhỏ tỷ lệ chung của vòng quay theo yêu cầu
+                            const radius = 'min(33vw, 33vh, 280px)';
                             
                             return (
                                 <div 
@@ -187,8 +187,8 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     whileHover={{ scale: 1.05, borderColor: 'rgba(201,169,110,0.5)' }}
                                                     whileTap={{ scale: 0.95 }}
                                                     style={{ 
-                                                        width: 'min(25vw, 25vh, 210px)', 
-                                                        height: 'min(25vw, 25vh, 210px)',
+                                                        width: 'min(22vw, 22vh, 180px)', 
+                                                        height: 'min(22vw, 22vh, 180px)',
                                                         borderRadius: 'min(3vw, 3vh, 24px)'
                                                     }}
                                                     className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-2 ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg`}
@@ -197,8 +197,8 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
             
                                             <div 
                                                 style={{ 
-                                                    width: 'min(12vw, 12vh, 100px)', 
-                                                    height: 'min(12vw, 12vh, 100px)' 
+                                                    width: 'min(10vw, 10vh, 85px)', 
+                                                    height: 'min(10vw, 10vh, 85px)' 
                                                 }}
                                                 className="flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110"
                                             >
@@ -209,7 +209,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                 />
                                             </div>
                                             <span 
-                                                style={{ fontSize: 'min(2.5vw, 2.5vh, 20px)' }}
+                                                style={{ fontSize: 'min(3.2vw, 3.2vh, 24px)' }}
                                                 className="font-semibold tracking-wide text-center leading-tight relative z-10 w-full bg-gradient-to-br from-[#E6C280] via-[#C98B3E] to-[#995C1F] bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] group-hover:from-[#F0D59D] group-hover:via-[#DDA254] group-hover:to-[#B3702D] transition-all duration-300 px-2"
                                             >
                                                 {name}
