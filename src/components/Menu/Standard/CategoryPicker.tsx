@@ -190,14 +190,13 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                 <motion.button
                                                     variants={cardVariants}
                                                     onClick={() => handleSelect(cat.id)}
-                                                    whileHover={{ scale: 1.05, borderColor: '#BF815C' }}
+                                                    whileHover={{ scale: 1.1 }}
                                                     whileTap={{ scale: 0.95 }}
                                                     style={{ 
                                                         width: 'min(22vw, 22vh, 180px)', 
                                                         height: 'min(22vw, 22vh, 180px)',
-                                                        borderRadius: 'min(4vw, 4vh, 32px)'
                                                     }}
-                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-2 ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#BF815C] transition-colors relative overflow-hidden group shadow-lg`}
+                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-2 transition-colors relative group`}
                                                 >
             
                                             <div 
