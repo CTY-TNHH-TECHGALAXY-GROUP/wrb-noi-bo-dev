@@ -13,9 +13,9 @@ import { GoogleLoginBtn } from '@/components/Auth/GoogleLoginBtn';
 const LAYOUT_CONFIG = {
   // 1. CẤU HÌNH LOGO
   logo: {
-    width: "112px",          
-    height: "74px",    
-    marginBottom: "8px", 
+    width: "170px",          
+    height: "112px",    
+    marginBottom: "12px", 
   },
 };
 // ============================================================================

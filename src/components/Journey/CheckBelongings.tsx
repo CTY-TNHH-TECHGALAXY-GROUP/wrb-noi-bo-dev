@@ -56,7 +56,7 @@ export default function CheckBelongings({ onConfirm, lang = 'vi' }: CheckBelongi
             >
                 {t.check_confirm}
             </button>
-            <p className="text-xs text-gray-400 italic mt-6">{lang === 'vi' ? 'Cảm ơn quý khách đã sử dụng dịch vụ tại Ngân Hà' : 'Thank you for visiting Ngan Ha Spa'}</p>
+            <p className="text-xs text-gray-400 italic mt-6">{lang === 'vi' ? 'Cảm ơn quý khách đã sử dụng dịch vụ tại OriaSpa' : 'Thank you for visiting OriaSpa'}</p>
         </div>
     );
 }

@@ -30,35 +30,35 @@ export const languages: Language[] = [
   {
     id: "en",
     name: "English",
-    greeting: "Welcome to Ngan Ha",
+    greeting: "Welcome to OriaSpa",
     flag: "/assets/flags/gb.webp",
     emoji: "🇬🇧"
   },
   {
     id: "vi",
     name: "Tiếng Việt",
-    greeting: "Ngân Hà Xin Chào",
+    greeting: "OriaSpa Xin Chào",
     flag: "/assets/flags/vn.webp",
     emoji: "🇻🇳"
   },
   {
     id: "jp",
     name: "日本語",
-    greeting: "Ngan Ha ようこそ",
+    greeting: "OriaSpa ようこそ",
     flag: "/assets/flags/jp.webp",
     emoji: "🇯🇵"
   },
   {
     id: "kr",
     name: "한국어",
-    greeting: "Ngan Ha 의 인사",
+    greeting: "OriaSpa 의 인사",
     flag: "/assets/flags/kr.webp",
     emoji: "🇰🇷"
   },
   {
     id: "cn",
     name: "中文",
-    greeting: "Ngan Ha 向您问候",
+    greeting: "OriaSpa 向您问候",
     flag: "/assets/flags/cn.webp",
     emoji: "🇨🇳"
   }

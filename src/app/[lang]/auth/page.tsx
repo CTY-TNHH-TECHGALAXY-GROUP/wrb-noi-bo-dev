@@ -16,31 +16,31 @@ const LAYOUT = {
 
 const t = {
     vi: {
-        welcome: 'Welcome to Ngân Hà',
+        welcome: 'Welcome to OriaSpa',
         askLogin: 'Bạn có muốn đăng nhập không? Tại sao ?',
         benefit: 'Nếu đăng nhập bạn sẽ được đổi KTV 01 lần duy nhất trong vòng 15 phút đầu',
         skip: 'Bỏ qua',
     },
     en: {
-        welcome: 'Welcome to Ngân Hà',
+        welcome: 'Welcome to OriaSpa',
         askLogin: 'Do you want to sign in? Why ?',
         benefit: 'By signing in, you are eligible for 1 free staff switch within the first 15 minutes of your session',
         skip: 'Skip',
     },
     jp: {
-        welcome: 'Ngan Ha へようこそ',
+        welcome: 'OriaSpa へようこそ',
         askLogin: 'ログインしますか？その理由は？',
         benefit: 'ログインすると、最初の15分間に1回無料でスタッフの変更が可能です',
         skip: 'スキップ',
     },
     kr: {
-        welcome: 'Ngan Ha 에 오신 것을 환영합니다',
+        welcome: 'OriaSpa 에 오신 것을 환영합니다',
         askLogin: '로그인하시겠습니까? 이유는 무엇인가요?',
         benefit: '로그인하시면 첫 15분 내에 1회 무료 직원 변경이 가능합니다',
         skip: '건너뛰기',
     },
     cn: {
-        welcome: '欢迎来到 Ngan Ha',
+        welcome: '欢迎来到 OriaSpa',
         askLogin: '您要登录吗？为什么？',
         benefit: '登录后，您有资格在开始的前15分钟内免费更换一次技师',
         skip: '跳过',
