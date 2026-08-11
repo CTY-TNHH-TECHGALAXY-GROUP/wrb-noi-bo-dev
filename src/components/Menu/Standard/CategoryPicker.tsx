@@ -164,7 +164,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                             const angle = index * (360 / categories.length);
                             
                             // Tăng mạnh đường kính vòng tròn để giãn cách các nút xa nhau ra, dễ bấm hơn
-                            const radius = 'min(38vw, 38vh, 310px)';
+                            const radius = 'min(38vw, 38vh, 320px)';
                             
                             return (
                                 <div 
@@ -186,18 +186,18 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     onClick={() => handleSelect(cat.id)}
                                                     whileHover={{ scale: 1.05, borderColor: 'rgba(201,169,110,0.5)' }}
                                                     whileTap={{ scale: 0.95 }}
-                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-3 px-1 py-3 md:py-4 rounded-3xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg w-24 h-24 sm:w-28 sm:h-28 md:w-[165px] md:h-[165px] lg:w-[200px] lg:h-[200px]`}
+                                                    className={`flex flex-col items-center justify-center gap-1 md:gap-3 px-1 py-3 md:py-4 rounded-3xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg w-28 h-28 sm:w-[150px] sm:h-[150px] md:w-[180px] md:h-[180px] lg:w-[210px] lg:h-[210px]`}
                                                 >
                                                 <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
-                                            <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-[70px] md:h-[70px] lg:w-[90px] lg:h-[90px] flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
+                                            <div className="w-12 h-12 sm:w-[60px] sm:h-[60px] md:w-[75px] md:h-[75px] lg:w-[90px] lg:h-[90px] flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
                                                 <img
                                                     src={cat.image}
                                                     alt={name}
                                                     className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
                                                 />
                                             </div>
-                                            <span className="font-medium text-[10px] sm:text-[12px] md:text-[15px] lg:text-[18px] tracking-wide text-center leading-snug relative z-10 w-full text-white/90 group-hover:text-white px-2">
+                                            <span className="font-medium text-[11px] sm:text-[14px] md:text-[16px] lg:text-[18px] tracking-wide text-center leading-snug relative z-10 w-full text-white/90 group-hover:text-white px-2">
                                                 {name}
                                             </span>
                                         </motion.button>
