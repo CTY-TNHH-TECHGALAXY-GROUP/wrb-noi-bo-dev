@@ -77,14 +77,7 @@ export default function CustomerTypePage() {
         <div className="absolute inset-0 bg-black/50 z-10" />
       </div>
 
-      {/* --- MŨI TÊN QUAY LẠI (GÓC TRÁI TRÊN) --- */}
-      <button
-        onClick={user ? handleLogoutClick : handleBack}
-        className="absolute top-4 left-4 z-20 p-2 cursor-pointer opacity-50 hover:opacity-100 transition-opacity flex items-center"
-        style={{ top: 'calc(16px + env(safe-area-inset-top))' }}
-      >
-        <ArrowLeft className="text-white w-6 h-6" strokeWidth={1.5} />
-      </button>
+      {/* Đã xóa mũi tên quay lại vì đây là trang chủ mới */}
 
       {/* --- KHUNG NỘI DUNG CHÍNH --- */}
       <div className={`relative z-10 w-full max-w-[430px] px-5 py-6 ${getCommonAnimationClass()}`}>
