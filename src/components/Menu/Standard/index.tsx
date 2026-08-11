@@ -232,9 +232,9 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
                     <motion.div
                         key="menu"
                         className="relative inset-0 z-20 bg-transparent flex flex-col h-[100dvh] w-full overflow-hidden font-sans"
-                    initial={{ opacity: 0, x: 40 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -40 }}
+                    initial={{ opacity: 0, y: 100 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 100 }}
                     transition={{ type: 'spring', stiffness: PAGE_TRANSITION_CONFIG.MENU_SPRING_STIFFNESS, damping: PAGE_TRANSITION_CONFIG.MENU_SPRING_DAMPING }}
                     onAnimationComplete={() => {
                         if (pendingScrollCategory) {
