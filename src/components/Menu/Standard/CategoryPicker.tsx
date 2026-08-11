@@ -213,7 +213,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     alt={name}
                                                     className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-all duration-300"
                                                     style={{
-                                                        filter: 'brightness(0) invert(65%) sepia(100%) saturate(350%) hue-rotate(-5deg) brightness(105%) contrast(120%) drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
+                                                        filter: 'brightness(0) invert(78%) sepia(100%) saturate(250%) hue-rotate(-5deg) brightness(115%) contrast(105%) drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
                                                     }}
                                                 />
                                             </div>
