@@ -63,7 +63,7 @@ export const CATEGORIES: Category[] = [
             kr: 'VIP 코스',
             cn: 'VIP套餐'
         },
-        image: '/assets/icons/combo-king.webp'
+        image: '/assets/icons/add-more.webp'
     },
     {
         id: 'Additional',
@@ -74,6 +74,6 @@ export const CATEGORIES: Category[] = [
             kr: '추가 서비스',
             cn: '额外服务'
         },
-        image: '/assets/icons/add-more.webp'
+        image: '/assets/icons/adds-on.svg'
     }
 ];
