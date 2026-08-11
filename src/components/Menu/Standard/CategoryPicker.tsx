@@ -206,12 +206,20 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     width: 'min(10vw, 10vh, 85px)', 
                                                     height: 'min(10vw, 10vh, 85px)' 
                                                 }}
-                                                className="flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110"
+                                                className="flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
                                             >
-                                                <img
-                                                    src={cat.image}
-                                                    alt={name}
-                                                    className="w-full h-full object-contain opacity-85 group-hover:opacity-100 transition-all duration-300 grayscale sepia saturate-[250%] hue-rotate-[5deg] brightness-105 contrast-110 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] group-hover:saturate-[350%] group-hover:brightness-125"
+                                                <div
+                                                    className="w-full h-full bg-gradient-to-br from-[#E6C280] via-[#C98B3E] to-[#995C1F] group-hover:from-[#F0D59D] group-hover:via-[#DDA254] group-hover:to-[#B3702D] transition-all duration-300 opacity-90 group-hover:opacity-100"
+                                                    style={{
+                                                        WebkitMaskImage: `url(${cat.image})`,
+                                                        WebkitMaskSize: 'contain',
+                                                        WebkitMaskRepeat: 'no-repeat',
+                                                        WebkitMaskPosition: 'center',
+                                                        maskImage: `url(${cat.image})`,
+                                                        maskSize: 'contain',
+                                                        maskRepeat: 'no-repeat',
+                                                        maskPosition: 'center',
+                                                    }}
                                                 />
                                             </div>
                                             <span 
