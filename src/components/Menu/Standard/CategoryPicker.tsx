@@ -148,7 +148,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
 
             {/* Circular Area */}
             <motion.div
-                className={`flex-1 w-full h-full flex flex-col items-center justify-center wheel-container relative`}
+                className={`flex-1 w-full h-full flex flex-col items-center justify-center pb-12 md:pb-24 wheel-container relative`}
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
@@ -212,7 +212,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
             </motion.div>
 
             {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
-            <div className="absolute bottom-6 md:bottom-8 left-0 right-0 flex justify-center items-center gap-4 z-[110] pointer-events-none">
+            <div className="absolute bottom-12 md:bottom-20 left-0 right-0 flex justify-center items-center gap-4 z-[110] pointer-events-none">
                 {languages.map((l) => (
                     <button
                         key={l.id}
