@@ -3,7 +3,7 @@
 
 import React, { useState } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
-import { ArrowRight, X, Loader2, ArrowLeft, History, Search, Calendar } from "lucide-react";
+import { ArrowRight, X, Loader2, ArrowLeft, History, Search, Phone } from "lucide-react";
 import { languages } from "../../(intro)/LanguageSelector.lang";
 import { useCustomerTypeLogic } from "./CustomerType.logic";
 import { GoogleLoginBtn } from '@/components/Auth/GoogleLoginBtn';
@@ -176,7 +176,7 @@ export default function CustomerTypePage() {
             className="flex flex-col justify-between min-h-[112px] border border-[#c4972f]/50 rounded-[18px] p-[15px] text-white bg-[#12100c]/80 text-left outline-none transition-all duration-250 hover:border-[#f1d376]/90 hover:bg-[#261f12]/90 hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
           >
             <span className="w-8 h-8 rounded-full flex items-center justify-center text-[#f5df8b] bg-[#b2861d]/20 text-[17px]">
-              <Calendar size={16} />
+              <Phone size={16} />
             </span>
             <span className="block mt-2">
               <span className="block text-[#f5dd83] text-sm font-bold leading-tight">{t('btn_booking_title')}</span>
