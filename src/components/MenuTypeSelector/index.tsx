@@ -9,7 +9,7 @@ import { languages } from "@/app/(intro)/LanguageSelector.lang";
 
 interface Props {
     lang: string;
-    onSelect: (type: 'standard' | 'vip' | 'homespa' | 'spa') => void;
+    onSelect: (type: 'standard' | 'vip' | 'homespa' | 'spa' | 'therapy') => void;
     onBack?: () => void;
 }
 
@@ -142,10 +142,10 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     </div>
                 </div>
                 
-                {/* 3. Spa Therapy -> spa (mã NHT) */}
+                {/* 3. Spa Therapy -> therapy */}
                 <div 
                     className={styles.card}
-                    onClick={() => onSelect('spa')}
+                    onClick={() => onSelect('therapy')}
                     aria-label="Spa Therapy"
                 >
                     <Image

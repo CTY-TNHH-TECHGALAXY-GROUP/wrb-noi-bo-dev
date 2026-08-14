@@ -155,4 +155,5 @@ export interface VipStaffInfo {
   turnsCompleted?: number;    // Number of completed turns today (số tua đã làm)
   travelTimeMins?: number;    // Only available when availability === 'ON_CALL'
   availableFrom?: string | null; // HH:mm for ON_CALL KTVs
+  certificateUrl?: string | null; // Therapy Menu
 }

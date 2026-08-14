@@ -227,7 +227,7 @@ export default function ServiceList({ categories, services, cart, lang, selected
                                                 onClick={() => {
                                                     sessionStorage.setItem('standard_menu_mode', 'MENU');
                                                     sessionStorage.setItem('standard_menu_category', 'Body');
-                                                    router.push(`/${lang}/new-user/${menu.id === 'Therapy' ? 'spa' : 'vip'}/menu`);
+                                                    router.push(`/${lang}/new-user/${menu.id === 'Therapy' ? 'therapy' : 'vip'}/menu`);
                                                 }}
                                                 className="relative w-full rounded-2xl p-3 flex flex-row gap-4 items-center overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] bg-black/10 border border-white/10 backdrop-blur-sm shadow-lg hover:bg-black/20"
                                             >
