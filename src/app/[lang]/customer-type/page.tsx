@@ -109,13 +109,7 @@ export default function CustomerTypePage() {
           />
         </div>
 
-        {/* --- TIÊU ĐỀ --- */}
-        <h1 className="mt-[5px] mb-1 text-center text-[#f5df8b] text-[22px] font-bold tracking-[0.28em] uppercase">
-          {t('wc_title')}
-        </h1>
-        <p className="m-0 mb-[22px] text-center text-white/60 text-xs">
-          {t('subtitle_journey')}
-        </p>
+        {/* --- ĐÃ XÓA TIÊU ĐỀ WELCOME --- */}
 
         {/* --- PHẦN KHÁCH CŨ (PRIMARY CARD) --- */}
         <section 
