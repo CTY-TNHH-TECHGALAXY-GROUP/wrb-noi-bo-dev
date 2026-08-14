@@ -40,9 +40,9 @@ export default function MenuPage() {
 
     // 5. LOGIC ĐIỀU PHỐI (ROUTING)
 
-    // Trường hợp 1: Menu Thường
-    if (menuType === 'standard') {
-        return <StandardMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} />;
+    // Trường hợp 1: Menu Thường & Spa
+    if (menuType === 'standard' || menuType === 'spa') {
+        return <StandardMenu lang={lang} menuType={menuType} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} showHiddenServices={true} />;
     }
 
     // Trường hợp 2: Menu VIP (Premium)

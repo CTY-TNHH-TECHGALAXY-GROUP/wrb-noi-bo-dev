@@ -37,7 +37,7 @@ export interface Service {
   timeDisplay?: string; // "60 mins" (dùng để hiển thị)
 
   // Logic phân loại
-  menuType?: 'standard' | 'vip';
+  menuType?: 'standard' | 'vip' | 'spa';
 
   // Custom For You Data
   FOCUS_POSITION?: Record<string, boolean>; // HEAD, NECK...

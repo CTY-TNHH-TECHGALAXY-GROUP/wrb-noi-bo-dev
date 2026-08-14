@@ -21,8 +21,8 @@ export default function OldUserMenuPage() {
         router.push(`/${lang}/old-user/${menuType}/checkout`);
     };
 
-    if (menuType === 'standard') {
-        return <StandardMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} />;
+    if (menuType === 'standard' || menuType === 'spa') {
+        return <StandardMenu lang={lang} menuType={menuType} onBack={handleBack} onCheckout={handleCheckout} />;
     }
 
     if (menuType === 'vip' || menuType === 'premium') {

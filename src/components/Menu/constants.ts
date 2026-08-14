@@ -66,7 +66,7 @@ export const CATEGORIES: Category[] = [
         image: '/assets/icons/add-more.webp'
     },
     {
-        id: 'VIP',
+        id: 'Premium',
         names: {
             en: 'VIP Package',
             vi: 'Gói VIP',
@@ -87,4 +87,26 @@ export const CATEGORIES: Category[] = [
         },
         image: '/assets/icons/adds-on.svg'
     }
+];
+
+// --- Cấu hình riêng cho Luồng Khách Mới (để lọc bỏ các dịch vụ cũ/rác mà không sửa DB) ---
+export const NEW_USER_CONTROLLED_CATEGORIES = ['Body', 'Foot', 'Package', 'Ear Clean', 'Premium'];
+
+export const NEW_USER_ALLOWED_IDS = [
+    // Body Care
+    'NHS0008', 'NHS0009', 'NHS0010', 'NHS0011', 'NHS0012', 'NHS0013', 'NHS0014', // Tinh dầu dừa
+    'NHS0022', 'NHS0023', 'NHS0024', 'NHS0025', 'NHS0026', 'NHS0027',
+    'NHS0034', 'NHS0035', 'NHS0036', 'NHS0037', 'NHS0038', 'NHS0039',
+    'NHS0040', 'NHS0041', 'NHS0042', 'NHS0043', 'NHS0044', 'NHS0045', 'NHS0046', 'NHS0047', 'NHS0048', 'NHS0049',
+    'NHS0050', 'NHS0051', 'NHS0052', 'NHS0053', 'NHS0054', 'NHS0055', 'NHS0056',
+    'NHS0060', 'NHS0061', 'NHS0062', 'NHS0063', 'NHS0064', 'NHS0065', 'NHS0066', 'NHS0067',
+    'NHS0090', 'NHS0091', 'NHS0092', 'NHS0093', 'NHS0094', 'NHS0095', 'NHS0096',
+    // Foot Care
+    'NHS0100', 'NHS0101', 'NHS0102', 'NHS0103', 'NHS0104', 'NHS0105', 'NHS0106', 'NHS0107',
+    // Package Combo
+    'NHS1000', 'NHS1009', 'NHS1010', 'NHS1011', 'NHS1012', 'NHS1013', 'NHS1014', 'NHS1015', 'NHS1016', 'NHS1017', 'NHS1018', 'NHS1019',
+    // Ear Clean
+    'NHS0600', 'NHS0601', 'NHS0602', 'NHS1001', 'NHS1002', 'NHS1003', 'NHS1004', 'NHS1005', 'NHS1006', 'NHS1007',
+    // VIP Package
+    'NHS0800'
 ];

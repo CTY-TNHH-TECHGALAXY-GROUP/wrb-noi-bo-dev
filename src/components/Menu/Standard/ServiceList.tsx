@@ -11,10 +11,12 @@
  * Ngày cập nhật: 2026-01-31
  */
 import React, { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star } from 'lucide-react';
+import { Star, ArrowRight, ChevronLeft } from 'lucide-react';
 import ServiceItem from '@/components/Menu/Standard/ServiceItem';
 import { Category, Service, CartState } from '@/components/Menu/types';
+import { NEW_USER_CONTROLLED_CATEGORIES, NEW_USER_ALLOWED_IDS } from '../constants';
 
 interface ServiceListProps {
     categories: Category[];
@@ -24,6 +26,7 @@ interface ServiceListProps {
     selectedTags?: string[]; // [NEW] Truyền tag khách chọn xuống để List biết cách sort
     direction?: number; // Hướng trượt (1 là -> trái, -1 là <- phải)
     onItemClick: (services: Service[]) => void; // Thay đổi: Truyền vào 1 mảng các biến thể
+    showHiddenServices?: boolean;
 }
 
 // 🔧 UI CONFIGURATION
@@ -77,14 +80,53 @@ const gridItemVariants = {
     },
 };
 
-export default function ServiceList({ categories, services, cart, lang, selectedTags = [], direction = 1, onItemClick }: ServiceListProps) {
+const BODY_SUB_MENUS = [
+    {
+        id: 'Design your journey',
+        img: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?q=80&w=200&auto=format&fit=crop',
+        names: { en: 'Design your journey', vi: 'Thiết kế hành trình', jp: 'ジャーニーをデザイン', kr: '여정 디자인', cn: '定制旅程' },
+        descs: {
+            en: 'Customize your own spa experience tailored to your specific needs.',
+            vi: 'Tự thiết kế liệu trình spa riêng biệt theo nhu cầu của chính bạn.',
+            jp: 'お客様のニーズに合わせた独自のスパ体験をカスタマイズ。',
+            kr: '고객님의 요구에 맞춘 특별한 스파 경험을 직접 디자인하세요.',
+            cn: '根据您的特定需求定制专属水疗体验。'
+        }
+    },
+    {
+        id: 'Therapy',
+        img: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=200&auto=format&fit=crop',
+        names: { en: 'Therapy', vi: 'Trị liệu', jp: 'セラピー', kr: '테라피', cn: '理疗' },
+        descs: {
+            en: 'Specialized treatments designed to heal, relieve pain and restore balance.',
+            vi: 'Trị liệu chuyên sâu giúp giảm đau, phục hồi và cân bằng cơ thể.',
+            jp: '痛みを和らげ、バランスを取り戻すために設計された専門的な治療。',
+            kr: '통증 완화와 신체 균형 회복을 위해 고안된 전문 테라피.',
+            cn: '旨在治愈、缓解疼痛和恢复平衡的专业护理。'
+        }
+    }
+];
+
+export default function ServiceList({ categories, services, cart, lang, selectedTags = [], direction = 1, onItemClick, showHiddenServices = false }: ServiceListProps) {
+    const router = useRouter();
 
     // 1. Hàm Gộp nhóm: Gom các món có cùng Tên Tiếng Anh (names.en) vào chung 1 mảng
     const groupedServices: Record<string, Service[]> = useMemo(() => {
         const groups: Record<string, Service[]> = {};
         services.forEach(svc => {
-            // [LOGIC NEW] Chỉ ẩn nếu ACTIVE = false (Hỗ trợ data cũ chưa có trường này)
-            if (svc.ACTIVE === false) return;
+            // [LOGIC NEW] Lọc dịch vụ rác cho luồng Khách Mới
+            if (showHiddenServices) {
+                // Nếu thuộc danh mục kiểm soát khắt khe (Body, Foot, Ear Clean...)
+                if (NEW_USER_CONTROLLED_CATEGORIES.includes(svc.cat)) {
+                    if (!NEW_USER_ALLOWED_IDS.includes(svc.id)) return;
+                } else {
+                    // Nếu thuộc danh mục tự do (VD: Dịch vụ lẻ), chỉ hiển thị món Đang Bán
+                    if (svc.ACTIVE === false) return;
+                }
+            } else {
+                // Luồng Main Branch: Chỉ hiển thị món Đang Bán
+                if (svc.ACTIVE === false) return;
+            }
 
             // Dùng tên tiếng Anh làm khóa để gộp nhóm (Normalize: Trim + Lowercase)
             const key = svc.names.en.trim().toLowerCase();
@@ -170,6 +212,42 @@ export default function ServiceList({ categories, services, cart, lang, selected
                                                 isBestSeller={isBestSellerGroup} // Truyền prop mới
                                                 onClick={() => onItemClick(group)} // Quan trọng: Truyền CẢ NHÓM vào để MainSheet xử lý
                                             />
+                                        </motion.div>
+                                    );
+                                })}
+
+                                {/* 2 Thẻ to nằm cuối cùng của nhánh Body */}
+                                {cat.id === 'Body' && BODY_SUB_MENUS.map((menu) => {
+                                    const name = menu.names[lang as keyof typeof menu.names] || menu.names['en'];
+                                    const desc = menu.descs[lang as keyof typeof menu.descs] || menu.descs['en'];
+                                    
+                                    return (
+                                        <motion.div key={menu.id} variants={gridItemVariants}>
+                                            <div
+                                                onClick={() => {
+                                                    sessionStorage.setItem('standard_menu_mode', 'MENU');
+                                                    sessionStorage.setItem('standard_menu_category', 'Body');
+                                                    router.push(`/${lang}/new-user/${menu.id === 'Therapy' ? 'spa' : 'vip'}/menu`);
+                                                }}
+                                                className="relative w-full rounded-2xl p-3 flex flex-row gap-4 items-center overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] bg-black/10 border border-white/10 backdrop-blur-sm shadow-lg hover:bg-black/20"
+                                            >
+                                                <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-black/20 relative shadow-sm">
+                                                    <img src={menu.img} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" alt={name} />
+                                                </div>
+                                                <div className="flex flex-col justify-center flex-1 min-w-0 pr-12 py-1">
+                                                    <h3 className="font-bold text-white text-[26px] md:text-[28px] leading-[1.35] mb-1.5 line-clamp-2 font-luxury tracking-wide">
+                                                        {name}
+                                                    </h3>
+                                                    <p className="text-[16px] md:text-[18px] text-gray-400 line-clamp-2 leading-[1.45] font-light">
+                                                        {desc}
+                                                    </p>
+                                                </div>
+                                                <div className="absolute bottom-3 right-3 z-10">
+                                                    <div className="w-9 h-9 rounded-full bg-gray-700/80 text-[#C9A96E] flex items-center justify-center backdrop-blur-sm hover:bg-gray-600 hover:text-white transition-colors">
+                                                        <ArrowRight size={18} strokeWidth={2.5} />
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </motion.div>
                                     );
                                 })}

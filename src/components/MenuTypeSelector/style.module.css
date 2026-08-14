@@ -1,82 +1,156 @@
-/* Container tạo không gian 3D */
-.perspective1000 {
-    perspective: 1000px;
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
 }
 
-/* Class chung cho bìa sách */
-.bookCover {
-    position: relative;
-    width: 19.5vh;
-    height: 26vh;
-    /* Mobile: 23% height per book -> 46% total. More breathing room for header/footer. */
-    /* Maintain ~0.75 aspect ratio */
-    /* iPhone SE (667px) -> ~187px height (safe) */
-    /* iPhone 14 Pro Max (932px) -> ~260px height (bigger & nice) */
-
-    border-radius: 0 0.5rem 0.5rem 0;
-    /* Bo tròn cạnh phải giống gáy sách */
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    /* shadow-2xl */
-    overflow: hidden;
-    transform-style: preserve-3d;
-    transition: transform 0.3s ease-out;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: min(100vw - 32px, 600px);
+  margin: 0 auto;
 }
 
-@media (min-width: 768px) {
-    .bookCover {
-        width: 20rem;
-        height: 26rem;
-        /* Desktop: Larger and more premium */
-    }
+.card {
+  position: relative;
+  aspect-ratio: 391 / 541;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #111;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
 }
 
-/* Hiệu ứng khi hover vào container thì xoay sách */
-.bookWrapper:hover .bookCover {
-    transform: rotateY(-6deg) translateY(-5px);
-    box-shadow: 10px 30px 60px -12px rgba(234, 179, 8, 0.2);
+.card:hover, .card:active {
+  transform: translateY(-4px) scale(0.98);
+  box-shadow: 0 12px 32px rgba(218,164,73,0.3);
 }
 
-/* Hiệu ứng tia sáng quét qua (Shine Sweep) */
-@keyframes shine-sweep {
-    0% {
-        left: -100%;
-        opacity: 0;
-    }
-
-    10% {
-        opacity: 1;
-    }
-
-    50% {
-        left: 200%;
-        opacity: 0;
-    }
-
-    100% {
-        left: 200%;
-        opacity: 0;
-    }
+.poster {
+  object-fit: cover !important;
+  user-select: none;
+  pointer-events: none;
 }
 
-.shineEffect {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 20%;
-    background: linear-gradient(to right, transparent, rgba(255, 215, 0, 0.2), transparent);
-    transform: skewX(-25deg);
-    pointer-events: none;
-    animation: shine-sweep 2s infinite;
-    animation-delay: 1.0s;
+/* Vẽ lại một viền vàng CSS hoàn hảo cho thẻ */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  border: 1px solid rgba(229,180,87,0.4);
+  pointer-events: none;
+  transition: border-color 0.2s ease;
+  z-index: 1; /* Nổi lên trên poster */
 }
 
-/* Ảnh bìa sách (Background Image) */
-.bgCover {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+.card:hover::after, .card:active::after {
+  border-color: rgba(229,180,87,0.9);
+}
+
+/* Overlay cho card Spa Therapy */
+.spaTitleFix {
+  position: absolute;
+  left: 0;
+  top: 45%; /* Đẩy lên cao hơn nữa */
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: transparent;
+  color: #e8c27b;
+  font-family: var(--font-luxury), Georgia, "Times New Roman", serif;
+  font-size: clamp(24px, 7vw, 36px); /* Tăng kích cỡ chữ */
+  line-height: 1.1;
+  letter-spacing: .02em;
+  text-shadow: 0 2px 8px rgba(0,0,0,1);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Base styles for overlays */
+.textOverlayPure, .textOverlayJourney, .textOverlayHome {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: transparent;
+  color: #e8c27b;
+  font-family: var(--font-luxury), Georgia, "Times New Roman", serif;
+  pointer-events: none;
+  z-index: 2;
+  text-shadow: 0 2px 8px rgba(0,0,0,1);
+}
+
+.textOverlayPure {
+  top: 50%;
+  font-size: clamp(16px, 5vw, 26px);
+  line-height: 1.2;
+}
+
+.textOverlayJourney {
+  top: 50%; /* Nằm lên cao hơn */
+  font-size: clamp(16px, 5vw, 26px);
+  line-height: 1.2;
+}
+
+.textOverlayHome {
+  top: 40%; /* Nằm cao hơn nữa */
+  font-size: clamp(22px, 6vw, 32px); /* Chữ to hơn */
+  line-height: 1.1;
+  color: #000; /* Màu chữ đen */
+  text-shadow: none; /* Bỏ viền bóng mờ để chữ đen sắc nét */
+}
+
+.homeCareText {
+  font-size: clamp(12px, 4vw, 20px); /* Tăng nhẹ cỡ chữ Home Care cho cân đối */
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+}
+
+.divider {
+  width: 20px;
+  height: 1px;
+  background-color: currentColor; /* Đổi divider theo màu chữ (vàng hoặc đen) */
+  margin: 6px 0;
+  opacity: 0.5;
+}
+
+.backBtn {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 10;
+  transition: background 0.2s ease;
+}
+
+.backBtn:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+@media (max-width: 600px) {
+  .grid {
+    gap: 12px;
     width: 100%;
-    height: 100%;
-    position: absolute;
-    inset: 0;
+  }
 }

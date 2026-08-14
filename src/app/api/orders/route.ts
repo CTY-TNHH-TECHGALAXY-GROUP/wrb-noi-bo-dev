@@ -16,7 +16,7 @@ export async function POST(request: Request) {
         const supabaseAdmin = getSupabaseAdmin();
         if (!supabaseAdmin) throw new Error("Supabase Admin client not initialized");
         const body = await request.json();
-        const { customer, items, paymentMethod, amountPaid, totalVND, lang, vatInvoice } = body;
+        const { customer, items, paymentMethod, amountPaid, totalVND, lang, vatInvoice, preBookingId } = body;
 
         // Normalize language code to prevent mismatch (e.g. 'VN' → 'vi', 'vn' → 'vi')
         const VALID_LANGS = ['vi', 'en', 'kr', 'jp', 'cn'];
@@ -164,6 +164,18 @@ export async function POST(request: Request) {
             .single();
 
         if (bookingError) throw bookingError;
+
+        // 3.5 Update PreBookings if applicable
+        if (preBookingId) {
+            const { error: preBookingError } = await supabaseAdmin
+                .from('PreBookings')
+                .update({ status: 'CONVERTED' })
+                .eq('id', preBookingId);
+            
+            if (preBookingError) {
+                console.error("⚠️ [API Order] Lỗi cập nhật PreBookings:", preBookingError);
+            }
+        }
 
         // 4. Delegate to handlers (separated for isolation)
         if (hasStandard) {

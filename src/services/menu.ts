@@ -25,9 +25,10 @@ export const getMenuData = async (): Promise<Service[]> => {
 
         const services: Service[] = data.map((item: any) => {
             // Helper để xác định menuType
-            const getMenuTypeFromId = (id: string): 'standard' | 'vip' | 'unknown' => {
-                if (id.startsWith('NHS')) return 'standard';
+            const getMenuTypeFromId = (id: string): 'standard' | 'vip' | 'spa' | 'unknown' => {
                 if (id.startsWith('NHP')) return 'vip';
+                if (id.startsWith('NHT')) return 'spa';
+                if (id.startsWith('NHS')) return 'standard';
                 return 'unknown';
             };
 
@@ -53,7 +54,7 @@ export const getMenuData = async (): Promise<Service[]> => {
                 priceUSD: Number(item.priceUSD) || 0,
                 timeValue: Number(item.duration) || 0,
                 timeDisplay: `${item.duration || 0} mins`,
-                menuType: getMenuTypeFromId(item.id) as 'standard' | 'vip',
+                menuType: getMenuTypeFromId(item.id) as 'standard' | 'vip' | 'spa',
                 TAGS: item.tags || [],
                 FOCUS_POSITION: item.focusConfig,
                 comboTags: item.comboTags || [],

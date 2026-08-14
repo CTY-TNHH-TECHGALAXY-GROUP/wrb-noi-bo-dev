@@ -51,14 +51,13 @@ export const useCustomerTypeLogic = (lang: string) => {
     }, 500);
   };
 
-  // --- 4. LOGIC XỬ LÝ ĐẶT LỊCH (Advance Booking) ---
   const onSelectAdvance = () => {
     setShowPopup(false);
     clearCart();
     setIsExiting(true);
 
     setTimeout(() => {
-      router.push(`/${lang}/new-user/booking/select-menu`);
+      router.push(`/${lang}/contacted-first`);
     }, 500);
   };
 

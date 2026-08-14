@@ -3,73 +3,69 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./style.module.css";
-import { ArrowLeft, X } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { languages } from "@/app/(intro)/LanguageSelector.lang";
-
-// ============================================================================
-// 👇 KHU VỰC CẤU HÌNH ẢNH SÁCH (SỬA LINK ẢNH Ở ĐÂY) 👇
-// ============================================================================
-const BOOK_IMAGES = {
-    standard: "/assets/logos/menu-standard.webp",
-    vip: "/assets/logos/menu-premium.webp",
-    homespa: "/assets/logos/menu-premium.webp" // Thay link sách HomeSpa tại đây
-};
-// ============================================================================
-
-// ============================================================================
-// 👇 KHU VỰC CHỈNH SỬA GIAO DIỆN (CHỈ CẦN SỬA SỐ Ở ĐÂY) 👇
-// ============================================================================
-const LAYOUT_CONFIG = {
-    // 1. CẤU HÌNH LOGO & TIÊU ĐỀ
-    header: {
-        marginTop: "10px",       // Đẩy xuống một chút để không bị cắt Logo
-        gapLogoText: "5px",      // Khoảng cách Logo - Chữ gần hơn
-        marginBottom: "15px",    // Khoảng cách Chữ - Sách gần hơn
-        logoHeight: "130px",     // Tăng chiều cao Logo theo yêu cầu
-        logoWidth: "390px",      // Tăng chiều rộng tương ứng
-        titleSize: "18px",       // Giảm cỡ chữ tiêu đề 1 chút
-    },
-
-    // 2. CẤU HÌNH CUỐN SÁCH MENU
-    books: {
-        width: "155px",          // Giảm chiều rộng một chút để vừa 3 sách
-        height: "195px",         // Giảm chiều cao một chút để vừa màn hình điện thoại
-        gap: "20px",             // Giảm khoảng cách giữa 2 sách
-        titleSize: "20px",       // Cỡ chữ tên gói
-        descSize: "11px",        // Cỡ chữ mô tả
-    }
-};
-// ============================================================================
 
 interface Props {
     lang: string;
-    onSelect: (type: 'standard' | 'vip' | 'homespa') => void;
+    onSelect: (type: 'standard' | 'vip' | 'homespa' | 'spa') => void;
     onBack?: () => void;
 }
 
 const texts: Record<string, any> = {
-    en: { title: "Select Service Menu", std: "Standard", std_desc: "(Random Staff & Room)", vip: "Premium", vip_desc: "(Design your own journey)", hms: "HomeSpa", hms_desc: "(Spa at your place)", btn_back: "Back" },
-    vi: { title: "Chọn Thực Đơn", std: "Tiêu Chuẩn", std_desc: "(KTV & Phòng Ngẫu nhiên)", vip: "Cao Cấp", vip_desc: "(Tự chọn KTV & Dịch vụ)", hms: "HomeSpa", hms_desc: "(Spa tận nhà)", btn_back: "Quay lại" },
-    kr: { title: "서비스 메뉴 선택", std: "스탠다드", std_desc: "(직원 및 객실 무작위)", vip: "프리미엄", vip_desc: "(나만의 코스 설계)", hms: "홈스파", hms_desc: "(출장 스파)", btn_back: "돌아가기" },
-    cn: { title: "选择服务菜单", std: "标准", std_desc: "(随机员工和房间)", vip: "高级", vip_desc: "(定制您的旅程)", hms: "上门水疗", hms_desc: "(在家享受水疗)", btn_back: "返回" },
-    jp: { title: "サービスメニュー", std: "標準", std_desc: "(スタッフ・部屋おまかせ)", vip: "プレミアム", vip_desc: "(カスタムコース)", hms: "ホームスパ", hms_desc: "(出張スパ)", btn_back: "戻る" }
+    en: {
+        pure_title: <React.Fragment>PURE<br/>RELAXATION</React.Fragment>,
+        journey_title: <React.Fragment>DESIGN<br/>YOUR<br/>JOURNEY</React.Fragment>,
+        spa_title: "Spa Therapy",
+        home_title: <React.Fragment>HOME<br/>THERAPY</React.Fragment>,
+        home_care: "HOME CARE"
+    },
+    vi: {
+        pure_title: <React.Fragment>THƯ GIÃN<br/>TINH KHIẾT</React.Fragment>,
+        journey_title: <React.Fragment>THIẾT KẾ<br/>HÀNH TRÌNH<br/>CỦA BẠN</React.Fragment>,
+        spa_title: "Trị Liệu Spa",
+        home_title: <React.Fragment>TRỊ LIỆU<br/>TẠI NHÀ</React.Fragment>,
+        home_care: "CHĂM SÓC TẠI NHÀ"
+    },
+    kr: {
+        pure_title: <React.Fragment>순수한<br/>휴식</React.Fragment>,
+        journey_title: <React.Fragment>나만의<br/>여정<br/>디자인</React.Fragment>,
+        spa_title: "스파 테라피",
+        home_title: <React.Fragment>홈<br/>테라피</React.Fragment>,
+        home_care: "홈 케어"
+    },
+    cn: {
+        pure_title: <React.Fragment>纯粹<br/>放松</React.Fragment>,
+        journey_title: <React.Fragment>设计<br/>您的<br/>旅程</React.Fragment>,
+        spa_title: "水疗理疗",
+        home_title: <React.Fragment>家庭<br/>理疗</React.Fragment>,
+        home_care: "家庭护理"
+    },
+    jp: {
+        pure_title: <React.Fragment>純粋な<br/>リラクゼーション</React.Fragment>,
+        journey_title: <React.Fragment>あなたの<br/>旅を<br/>デザイン</React.Fragment>,
+        spa_title: "スパセラピー",
+        home_title: <React.Fragment>ホーム<br/>セラピー</React.Fragment>,
+        home_care: "ホームケア"
+    }
 };
 
 export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
     const t = texts[lang] || texts['en'];
     const [comingSoon, setComingSoon] = useState<string | null>(null);
     const [vipEnabled, setVipEnabled] = useState(false);
-    const [showVipGuide, setShowVipGuide] = useState(false);
+    
     const router = useRouter();
     const pathname = usePathname();
 
     const handleLanguageChange = (newLang: string) => {
         if (!pathname) return;
-        const newPath = pathname.replace(`/${lang}`, `/${newLang}`);
-        router.replace(newPath); // Dùng replace thay vì push để tránh back nhầm ngôn ngữ cũ
+        const segments = pathname.split('/');
+        segments[1] = newLang;
+        router.push(segments.join('/'));
     };
-
+    
     // Fetch VIP config from SystemConfigs
     useEffect(() => {
         fetch('/api/config/menu-vip')
@@ -89,317 +85,140 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
     const cs = csText[lang] || csText['en'];
 
     return (
-    <>
-        <div className="flex flex-col items-center justify-between h-full w-full max-h-full py-2 relative">
-
-            {/* MŨI TÊN QUAY LẠI (GÓC TRÁI TRÊN) */}
+        <div className={styles.container}>
             {onBack && (
-                <button
+                <button 
+                    className={styles.backBtn} 
+                    aria-label="Back" 
                     onClick={onBack}
-                    className="absolute top-4 left-2 z-30 p-2 cursor-pointer opacity-50 hover:opacity-100 transition-opacity flex items-center"
                 >
-                    <ArrowLeft className="text-white w-6 h-6" strokeWidth={1.5} />
+                    <ArrowLeft className="w-5 h-5 md:w-8 md:h-8 text-white/80" strokeWidth={2} />
                 </button>
             )}
 
-            {/* 1. HEADER */}
-            <div
-                className="text-center animate-in fade-in slide-in-from-bottom-4 duration-700 shrink-0"
-                style={{
-                    marginTop: LAYOUT_CONFIG.header.marginTop,
-                    marginBottom: LAYOUT_CONFIG.header.marginBottom // Áp dụng khoảng cách xuống sách
-                }}
-            >
-                <div
-                    className="mx-auto relative animate-pulse z-10"
-                    style={{ height: LAYOUT_CONFIG.header.logoHeight, width: LAYOUT_CONFIG.header.logoWidth }}
-                >
-                    <div className="relative w-full h-full">
-                        <div
-                            className="w-full h-full drop-shadow-[0_0_25px_rgba(234,179,8,0.6)]"
-                            style={{ 
-                                backgroundColor: "#f7ebc7",
-                                WebkitMaskImage: "url('/Image/ria%20Spa-2.png')",
-                                WebkitMaskSize: "contain",
-                                WebkitMaskRepeat: "no-repeat",
-                                WebkitMaskPosition: "center",
-                                maskImage: "url('/Image/ria%20Spa-2.png')",
-                                maskSize: "contain",
-                                maskRepeat: "no-repeat",
-                                maskPosition: "center",
-                            }}
-                        />
-                    </div>
-                </div>
-                <p
-                    className="gold-text-shiny font-bold text-yellow-500/90 mt-0 italic"
-                    style={{
-                        fontSize: LAYOUT_CONFIG.header.titleSize,
-                        marginTop: LAYOUT_CONFIG.header.gapLogoText // Áp dụng khoảng cách Logo - Text
-                    }}
-                >
-                    {t.title}
-                </p>
-            </div>
-
-            {/* 2. BOOKS CONTAINER */}
-            <div
-                className="flex flex-col md:flex-row justify-center items-center w-full flex-1 min-h-0"
-                style={{ gap: LAYOUT_CONFIG.books.gap }}
-            >
-
-                {/* === BOOK 1: STANDARD === */}
-                <div
+            <main className={styles.grid} aria-label="Oria Spa service menu">
+                
+                {/* 1. Pure Relaxation -> standard */}
+                <div 
+                    className={styles.card}
                     onClick={() => onSelect('standard')}
-                    className={`group ${styles.bookWrapper} cursor-pointer active:scale-95 transition-transform duration-300 animate-in fade-in slide-in-from-left-8 delay-150 fill-mode-forwards relative`}
+                    aria-label="Pure Relaxation"
                 >
-                    <div
-                        className={`${styles.bookCover} ${styles.perspective1000} relative`}
-                        style={{ width: LAYOUT_CONFIG.books.width, height: LAYOUT_CONFIG.books.height }}
-                    >
-                        <div className={`${styles.bgCover} relative overflow-hidden`}>
-                            <Image
-                                src={BOOK_IMAGES.standard}
-                                alt="Standard Menu Book"
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 500px"
-                            />
-                        </div>
-
-                        {/* TEXT ON STANDARD BOOK */}
-                        <div className="absolute left-[14%] top-[26%] w-[78%] h-[55%] z-20 flex flex-col items-center justify-center text-center">
-                            <h3
-                                className="font-bold -luxury text-[#4a3800] drop-shadow-sm leading-tight mb-1 w-full"
-                                style={{ fontSize: LAYOUT_CONFIG.books.titleSize }}
-                            >
-                                {t.std}
-                            </h3>
-                            <p
-                                className="font-bold-body text-[#5c4000] font-semibold w-full px-1"
-                                style={{ fontSize: LAYOUT_CONFIG.books.descSize }}
-                            >
-                                {t.std_desc}
-                            </p>
-                            <div className="mt-2 w-20 bg-[#000000] opacity-50 rounded-full" />
-                        </div>
+                    <Image
+                        className={styles.poster}
+                        alt="Pure Relaxation"
+                        src="/assets/logos/menu-pure-v5.png"
+                        fill
+                        priority
+                        sizes="(max-width: 600px) 50vw, 300px"
+                    />
+                    <div className={styles.textOverlayPure}>
+                        {t.pure_title}
                     </div>
                 </div>
-
-                {/* === BOOK 2: PREMIUM === */}
-                <div
-                    onClick={() => vipEnabled ? setShowVipGuide(true) : setComingSoon('vip')}
-                    className={`group ${styles.bookWrapper} cursor-pointer active:scale-95 transition-transform duration-300 animate-in fade-in slide-in-from-right-8 delay-300 fill-mode-forwards relative`}
+                
+                {/* 2. Design Your Journey -> vip */}
+                <div 
+                    className={styles.card}
+                    onClick={() => {
+                        if (vipEnabled) {
+                            onSelect('vip');
+                        } else {
+                            setComingSoon('vip');
+                        }
+                    }}
+                    aria-label="Design Your Journey"
                 >
-                    <div
-                        className={`${styles.bookCover} ${styles.perspective1000} relative`}
-                        style={{ width: LAYOUT_CONFIG.books.width, height: LAYOUT_CONFIG.books.height }}
-                    >
-                        <div className={`${styles.bgCover} relative overflow-hidden`}>
-                            <Image
-                                src={BOOK_IMAGES.vip}
-                                alt="Premium Menu Book"
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 500px"
-                            />
-                        </div>
-                        <div className={styles.shineEffect} />
-
-                        {/* TEXT ON PREMIUM BOOK */}
-                        <div className="absolute left-[14%] top-[34%] w-[78%] h-[50%] z-20 flex flex-col items-center justify-center text-center">
-                            <h3
-                                className="gold-text-shiny font-bold uppercase tracking-wider group-hover:brightness-125 mb-1"
-                                style={{ fontSize: LAYOUT_CONFIG.books.titleSize }}
-                            >
-                                {t.vip}
-                            </h3>
-                            <p
-                                className="gold-text-shiny font-bold uppercase tracking-wider group-hover:brightness-125"
-                                style={{ fontSize: LAYOUT_CONFIG.books.descSize }}
-                            >
-                                {t.vip_desc}
-                            </p>
-                            <div className="mt-3 w-12 bg-yellow-500 opacity-60 rounded-full shadow-[0_0_8px_rgba(234,179,8,0.8)]" />
-                        </div>
+                    <Image
+                        className={styles.poster}
+                        alt="Design Your Journey"
+                        src="/assets/logos/menu-journey-v5.png"
+                        fill
+                        priority
+                        sizes="(max-width: 600px) 50vw, 300px"
+                    />
+                    <div className={styles.textOverlayJourney}>
+                        {t.journey_title}
                     </div>
                 </div>
-
-                {/* === BOOK 3: HOMESPA (NEW) === */}
-                <div
+                
+                {/* 3. Spa Therapy -> spa (mã NHT) */}
+                <div 
+                    className={styles.card}
+                    onClick={() => onSelect('spa')}
+                    aria-label="Spa Therapy"
+                >
+                    <Image
+                        className={styles.poster}
+                        alt="Spa Therapy"
+                        src="/assets/logos/menu-spa-v5.png"
+                        fill
+                        priority
+                        sizes="(max-width: 600px) 50vw, 300px"
+                    />
+                    <div className={styles.spaTitleFix}>{t.spa_title}</div>
+                </div>
+                
+                {/* 4. Home Therapy -> homespa (coming soon) */}
+                <div 
+                    className={styles.card}
                     onClick={() => setComingSoon('homespa')}
-                    className={`group ${styles.bookWrapper} cursor-pointer active:scale-95 transition-transform duration-300 animate-in fade-in slide-in-from-right-8 delay-500 fill-mode-forwards relative`}
+                    aria-label="Home Therapy"
                 >
-                    <div
-                        className={`${styles.bookCover} ${styles.perspective1000} relative`}
-                        style={{ width: LAYOUT_CONFIG.books.width, height: LAYOUT_CONFIG.books.height }}
-                    >
-                        <div className={`${styles.bgCover} relative overflow-hidden`}>
-                            <Image
-                                src={BOOK_IMAGES.homespa}
-                                alt="HomeSpa Menu Book"
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 500px"
-                            />
-                        </div>
-                        <div className={styles.shineEffect} />
-
-                        {/* TEXT ON HOMESPA BOOK */}
-                        <div className="absolute left-[14%] top-[34%] w-[78%] h-[50%] z-20 flex flex-col items-center justify-center text-center">
-                            <h3
-                                className="gold-text-shiny font-bold uppercase tracking-wider group-hover:brightness-125 mb-1"
-                                style={{ fontSize: LAYOUT_CONFIG.books.titleSize }}
-                            >
-                                {t.hms}
-                            </h3>
-                            <p
-                                className="gold-text-shiny font-bold uppercase tracking-wider group-hover:brightness-125"
-                                style={{ fontSize: LAYOUT_CONFIG.books.descSize }}
-                            >
-                                {t.hms_desc}
-                            </p>
-                            <div className="mt-3 w-12 bg-yellow-500 opacity-60 rounded-full shadow-[0_0_8px_rgba(234,179,8,0.8)]" />
-                        </div>
+                    <Image
+                        className={styles.poster}
+                        alt="Home Therapy"
+                        src="/assets/logos/menu-home-v5.png"
+                        fill
+                        priority
+                        sizes="(max-width: 600px) 50vw, 300px"
+                    />
+                    <div className={styles.textOverlayHome}>
+                        <span>{t.home_title}</span>
+                        <div className={styles.divider}></div>
+                        <span className={styles.homeCareText}>{t.home_care}</span>
                     </div>
                 </div>
 
-            </div>
+            </main>
 
             {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
-            <div className="mt-6 mb-4 flex justify-center items-center gap-4 shrink-0">
+            <div className="mt-8 flex justify-center items-center gap-4">
                 {languages.map((l) => (
                     <button
                         key={l.id}
                         onClick={() => handleLanguageChange(l.id)}
-                        className={`w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
+                        className={`w-12 h-12 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
                             lang === l.id 
                                 ? 'border-[#f5df8b] scale-110 shadow-[0_0_15px_rgba(245,223,139,0.5)]' 
                                 : 'border-white/20 opacity-60 hover:opacity-100 hover:scale-105'
                         }`}
                     >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
                     </button>
                 ))}
             </div>
 
-        </div>
-
-            {/* VIP Guide Modal */}
-            {showVipGuide && (
-                <div
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
-                    onClick={() => setShowVipGuide(false)}
-                >
-                    <div
-                        className="relative bg-[#0f1218] border border-[#B38728]/30 rounded-3xl p-6 md:p-8 max-w-[400px] w-[90%] text-center animate-in zoom-in-95 duration-300 shadow-[0_0_40px_rgba(179,135,40,0.15)]"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {/* Close button top right */}
-                        <button
-                            onClick={() => setShowVipGuide(false)}
-                            className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
-                        >
-                            <X size={20} />
-                        </button>
-
-                        <p className="text-[17px] md:text-xl text-[#d0c5b5] leading-relaxed mb-6 mt-4 font-bold">
-                            {
-                                lang === 'en' ? 'First, choose your preferred therapist. Then, select your total duration and customize your services to fit your time.' :
-                                lang === 'cn' ? '首先请选择您心仪的理疗师，接着选择您的总时长，最后随心定制该时段内的服务项目。' :
-                                lang === 'jp' ? 'まずお好みのセラピストをお選びください。次に総所要時間を選択し、その時間内でお好みのサービスをカスタマイズしてください。' :
-                                lang === 'kr' ? '먼저 원하시는 테라피스트를 선택해 주세요. 그 다음 총 이용 시간을 선택하신 후, 해당 시간 내에 원하시는 서비스를 맞춤 설정해 보세요.' :
-                                'Trước tiên, vui lòng chọn kỹ thuật viên yêu thích của bạn. Sau đó chọn tổng thời gian và tự do phối các dịch vụ theo ý muốn trong khung giờ đã chọn.'
-                            }
-                        </p>
-                        
-                        <p className="text-[17px] md:text-xl text-[#e6c487] font-bold mb-8">
-                            {
-                                lang === 'en' ? 'Every booking includes a complimentary private room. ✨' :
-                                lang === 'cn' ? '所有预约均已包含免费独立私密包厢。✨' :
-                                lang === 'jp' ? 'すべてのプランに無料の個室利用が含まれています。✨' :
-                                lang === 'kr' ? '모든 예약에는 독립된 프라이빗 룸 이용이 무료로 포함되어 있습니다. ✨' :
-                                'Mỗi lượt đặt lịch đều đã bao gồm phòng riêng miễn phí. ✨'
-                            }
-                        </p>
-
-                        <button
-                            onClick={() => {
-                                setShowVipGuide(false);
-                                onSelect('vip');
-                            }}
-                            className="w-full py-3.5 rounded-2xl bg-[#D4AF37] hover:bg-[#B38728] text-black font-extrabold text-[15px] uppercase tracking-widest transition-all active:scale-95 shadow-[0_0_15px_rgba(212,175,55,0.4)]"
-                        >
-                            {lang === 'vi' ? 'Bắt đầu' : lang === 'en' ? 'Start' : lang === 'kr' ? '시작하기' : lang === 'cn' ? '开始' : '開始'}
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Coming Soon Modal */}
+            {/* COMING SOON OVERLAY */}
             {comingSoon && (
-                <div
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-300"
-                    onClick={() => setComingSoon(null)}
-                >
-                    <div
-                        className="relative bg-[#0f1218] border border-[#B38728]/30 rounded-3xl p-8 max-w-[340px] w-[90%] text-center animate-in zoom-in-95 duration-300 shadow-[0_0_40px_rgba(179,135,40,0.15)]"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {/* Close button */}
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setComingSoon(null)}></div>
+                    <div className="bg-[#1a1412] border border-[#d4af37]/30 p-8 rounded-2xl z-10 max-w-sm w-full text-center shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="w-16 h-16 mx-auto mb-4 border-2 border-[#d4af37] rounded-full flex items-center justify-center bg-[#d4af37]/10">
+                            <span className="text-2xl">⏳</span>
+                        </div>
+                        <h3 className="gold-text-shiny font-bold text-2xl mb-3">{cs.title}</h3>
+                        <p className="text-[#c8bfb2] mb-6">{cs.desc}</p>
                         <button
                             onClick={() => setComingSoon(null)}
-                            className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
-                        >
-                            <X size={20} />
-                        </button>
-
-                        {/* Coming Soon icon */}
-                        <div className="flex items-center justify-center mb-5">
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-[#D4AF37] blur-2xl opacity-20 rounded-full" />
-                                <div className="w-16 h-16 rounded-full border-2 border-[#B38728]/40 flex items-center justify-center bg-[#B38728]/10">
-                                    <span className="text-3xl">⏳</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Title */}
-                        <h3 className="text-2xl font-black uppercase tracking-[0.15em] gold-text-shiny mb-2">
-                            {cs.title}
-                        </h3>
-
-                        {/* Book name */}
-                        <p className="text-white/80 font-bold text-base mb-1">
-                            {comingSoon === 'vip' ? t.vip : t.hms}
-                        </p>
-
-                        {/* Description */}
-                        <p className="text-sm text-gray-400 mb-6 font-medium">
-                            {cs.desc}
-                        </p>
-
-                        {/* Animated dots */}
-                        <div className="flex gap-2 justify-center mb-6">
-                            {[0, 1, 2].map((i) => (
-                                <div
-                                    key={i}
-                                    className="w-2 h-2 rounded-full bg-[#D4AF37] animate-bounce"
-                                    style={{ animationDelay: `${i * 0.2}s` }}
-                                />
-                            ))}
-                        </div>
-
-                        {/* Close button */}
-                        <button
-                            onClick={() => setComingSoon(null)}
-                            className="px-8 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-[#B38728]/40 text-[#D4AF37] font-bold text-sm uppercase tracking-widest transition-all active:scale-95"
+                            className="w-full py-3 bg-gradient-to-r from-[#d4af37] to-[#aa8022] text-black font-bold rounded-xl active:scale-95 transition-transform"
                         >
                             {cs.close}
                         </button>
                     </div>
                 </div>
             )}
-    </>
+        </div>
     );
-};
+}

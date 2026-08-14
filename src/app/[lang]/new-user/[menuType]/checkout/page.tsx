@@ -101,6 +101,19 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthUser, user]);
 
+    // [NEW] Auto-fill từ Contacted First
+    useEffect(() => {
+        try {
+            const contactedStr = localStorage.getItem('contactedFirstInfo');
+            if (contactedStr) {
+                const info = JSON.parse(contactedStr);
+                if (!customerInfo.name && info.customerName) updateCustomerInfo('name', info.customerName);
+                if (!customerInfo.phone && info.customerPhone) updateCustomerInfo('phone', info.customerPhone);
+            }
+        } catch (e) {}
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const handleBack = () => {
         router.back();
     };
@@ -178,6 +191,15 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     // ... (Final Submit remains same) ...
     const handleFinalSubmit = async () => {
         console.log('[Checkout new-user] handleFinalSubmit — vatInvoice state:', JSON.stringify(vatInvoice));
+        
+        let preBookingId = undefined;
+        try {
+            const contactedStr = localStorage.getItem('contactedFirstInfo');
+            if (contactedStr) {
+                preBookingId = JSON.parse(contactedStr).preBookingId;
+            }
+        } catch (e) {}
+
         const payload = {
             customer: customerInfo,
             items: cart,
@@ -187,6 +209,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             totalVND, // Keep for legacy backend compatibility
             lang: rawLang,
             vatInvoice,
+            preBookingId
         };
 
         const res = await fetch('/api/orders', {
@@ -202,6 +225,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
 
         const data = await res.json();
         resetCustomerInfo();
+        localStorage.removeItem('contactedFirstInfo');
         return data.accessToken || data.bookingId;
     };
 

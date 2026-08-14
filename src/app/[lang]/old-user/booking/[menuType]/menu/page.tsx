@@ -28,8 +28,8 @@ export default function OldUserBookingMenuPage({ params }: { params: Promise<{ l
         router.push(`/${lang}/old-user/booking/standard/menu`);
     };
 
-    if (menuType === 'standard') {
-        return <StandardMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} />;
+    if (menuType === 'standard' || menuType === 'spa') {
+        return <StandardMenu lang={lang} menuType={menuType} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} />;
     }
 
     if (menuType === 'vip') {

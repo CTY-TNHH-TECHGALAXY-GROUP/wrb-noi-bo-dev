@@ -9,10 +9,12 @@
  * Tác giả: TunHisu
  * Ngày cập nhật: 2026-01-31
  */
-'use client';
-import React from 'react';
-import { ShoppingCart, ArrowLeft, ArrowRight, Crown } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingCart, ArrowLeft, ArrowRight } from 'lucide-react';
 import { formatCurrency } from '@/components/Menu/utils';
+import { languages } from '@/app/(intro)/LanguageSelector.lang';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface FooterProps {
     totalVND: number;
@@ -20,9 +22,9 @@ interface FooterProps {
     totalItems: number;
     maxMinutes: number;
     lang: string;
+    activeCategory: string;
     onBack: () => void;
     onToggleCart: () => void;
-    onSwitchToVip?: () => void;
 }
 
 const TEXT = {
@@ -31,8 +33,38 @@ const TEXT = {
     mins: { vi: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
 };
 
-export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lang, onBack, onToggleCart, onSwitchToVip }: FooterProps) {
+export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lang, activeCategory, onBack, onToggleCart }: FooterProps) {
     const t = (key: keyof typeof TEXT) => TEXT[key][lang as keyof typeof TEXT['total_est']] || TEXT[key]['en'];
+
+    const router = useRouter();
+    const pathname = usePathname();
+    const [isLangOpen, setIsLangOpen] = useState(false);
+    const langRef = useRef<HTMLDivElement>(null);
+
+    const handleLanguageChange = (newLang: string) => {
+        if (!pathname) return;
+        
+        // Save current view state before hard navigation
+        sessionStorage.setItem('standard_menu_mode', 'MENU');
+        sessionStorage.setItem('standard_menu_category', activeCategory);
+
+        const segments = pathname.split('/');
+        segments[1] = newLang; // /[lang]/...
+        router.push(segments.join('/'));
+        setIsLangOpen(false);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (langRef.current && !langRef.current.contains(e.target as Node)) {
+                setIsLangOpen(false);
+            }
+        };
+        if (isLangOpen) document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isLangOpen]);
+
+    const currentLang = languages.find(l => l.id === lang) || languages[0];
 
     return (
         <div
@@ -52,13 +84,41 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
                 <ArrowLeft size={20} />
             </button>
 
-            {/* Nút VIP */}
-            {onSwitchToVip && (
-                <button onClick={onSwitchToVip} className="h-12 shrink-0 px-3 rounded-full bg-[#e6c487]/10 border border-[#e6c487]/30 flex items-center justify-center gap-1.5 hover:bg-[#e6c487]/20 active:scale-95 transition-all">
-                    <Crown size={16} className="text-[#e6c487]" />
-                    <span className="text-[10px] font-bold text-[#e6c487] tracking-wider">VIP</span>
+            {/* Language Flags Dropup (Thay thế VIP) */}
+            <div className="relative shrink-0 flex items-center" ref={langRef}>
+                <button
+                    onClick={() => setIsLangOpen(!isLangOpen)}
+                    className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shrink-0"
+                >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={currentLang.flag} alt={currentLang.name} className="w-full h-full object-cover" />
                 </button>
-            )}
+
+                <AnimatePresence>
+                    {isLangOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                            transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 25 }}
+                            className="absolute bottom-[calc(100%+12px)] left-0 p-2 flex flex-col gap-2 z-[60]"
+                        >
+                            {languages.map((l) => (
+                                <button
+                                    key={l.id}
+                                    onClick={() => handleLanguageChange(l.id)}
+                                    className={`w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 shadow-md ${
+                                        lang === l.id ? 'opacity-100 scale-110 shadow-lg' : 'opacity-50 hover:opacity-100'
+                                    }`}
+                                >
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
+                                </button>
+                            ))}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
 
             {/* Thông tin Tiền & Thời gian */}
             <div className="flex-1 flex flex-col items-center justify-center min-w-0">

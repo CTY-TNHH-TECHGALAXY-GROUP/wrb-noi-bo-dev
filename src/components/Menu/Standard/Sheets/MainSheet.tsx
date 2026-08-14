@@ -171,11 +171,11 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                 {/* --- HEADER CHUNG --- */}
                 {viewMode === 'ADD' && selectedService && (
                     <div className="w-full px-5 pt-6 pb-2 shrink-0">
-                        <h2 className="text-3xl font-bold text-[#C9A96E] font-luxury leading-tight">{groupName}</h2>
-                        <p className="text-lg text-gray-400 mt-1.5 opacity-80 leading-snug">
+                        <h2 className="text-4xl md:text-[46px] font-bold text-[#C9A96E] font-luxury leading-tight">{groupName}</h2>
+                        <p className="text-xl md:text-[22px] text-gray-400 mt-2 opacity-80 leading-snug">
                             {selectedService.descriptions[lang as keyof typeof selectedService.descriptions] || selectedService.descriptions['en']}
                         </p>
-                        <p className="text-sm md:text-base text-white/50 italic mt-1.5 font-light">
+                        <p className="text-base md:text-lg text-white/50 italic mt-1.5 font-light">
                             {{
                                 vi: '* Giá đã bao gồm VAT',
                                 en: '* VAT included',
@@ -316,13 +316,13 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                 )}
 
                                                 {svc.timeValue > 0 && (
-                                                    <span className={`text-xl font-bold mb-1 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
+                                                    <span className={`text-3xl md:text-[32px] font-bold mb-2 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
                                                         {svc.timeValue}{t('mins')}
                                                     </span>
                                                 )}
-                                                <div className="text-base md:text-lg font-bold flex gap-1.5 items-center justify-center w-full mt-0.5">
+                                                <div className="text-xl md:text-[24px] font-bold flex gap-1.5 items-center justify-center w-full mt-0.5">
                                                     <span className="text-[#C9A96E]">{formatCurrency(svc.priceVND)}</span>
-                                                    <span className="text-gray-500 font-normal text-sm">/</span>
+                                                    <span className="text-gray-500 font-normal text-lg">/</span>
                                                     <span className="text-emerald-500">{svc.priceUSD} USD</span>
                                                 </div>
 
@@ -371,13 +371,13 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                         </div>
                                                     )}
                                                     {svc.timeValue > 0 && (
-                                                        <span className={`text-xl font-bold mb-1 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
+                                                        <span className={`text-3xl md:text-[32px] font-bold mb-2 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
                                                             {svc.timeValue}{t('mins')}
                                                         </span>
                                                     )}
-                                                    <div className="text-base md:text-lg font-bold flex gap-1.5 items-center justify-center w-full mt-0.5">
+                                                    <div className="text-xl md:text-[24px] font-bold flex gap-1.5 items-center justify-center w-full mt-0.5">
                                                         <span className="text-[#C9A96E]">{formatCurrency(svc.priceVND)}</span>
-                                                        <span className="text-gray-500 font-normal text-sm">/</span>
+                                                        <span className="text-gray-500 font-normal text-lg">/</span>
                                                         <span className="text-emerald-500">{svc.priceUSD} USD</span>
                                                     </div>
                                                     {cart[svc.id] > 0 && selectedService.id !== svc.id && (
@@ -401,14 +401,14 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                 >
                                     <button
                                         onClick={() => setShowAll(true)}
-                                        className="text-gray-400 flex items-center gap-1 text-sm hover:text-white transition-colors"
+                                        className="text-gray-400 flex items-center gap-1.5 text-base md:text-lg hover:text-white transition-colors"
                                     >
                                         <span>{t('view_more')}</span>
                                         <motion.span
-                                            animate={{ y: [0, 3, 0] }}
+                                            animate={{ y: [0, 4, 0] }}
                                             transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
                                         >
-                                            <ChevronDown size={16} />
+                                            <ChevronDown size={20} />
                                         </motion.span>
                                     </button>
                                 </motion.div>
@@ -421,19 +421,19 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                 {viewMode === 'ADD' && selectedService && (
                     <div className="p-5 pt-2 bg-[#0d0d0d] border-t border-gray-700/50">
                         <div className="flex items-center justify-center mb-6">
-                            <div className="flex items-center gap-6 bg-[#1c1c1e] rounded-full p-2 border border-gray-700 px-6">
-                                <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition-colors"><Minus size={18} /></button>
-                                <span className="text-xl font-bold text-white min-w-[30px] text-center font-mono">{qty}</span>
-                                <button onClick={() => setQty(q => q + 1)} className="w-10 h-10 rounded-full bg-[#C9A96E] text-white flex items-center justify-center hover:bg-[#dfc599] transition-colors"><Plus size={18} /></button>
+                            <div className="flex items-center gap-6 md:gap-8 bg-[#1c1c1e] rounded-full p-2 border border-gray-700 px-8 md:px-10">
+                                <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition-colors shadow-md"><Minus size={24} /></button>
+                                <span className="text-2xl md:text-3xl font-bold text-white min-w-[40px] md:min-w-[50px] text-center font-mono">{qty}</span>
+                                <button onClick={() => setQty(q => q + 1)} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-[#C9A96E] text-white flex items-center justify-center hover:bg-[#dfc599] transition-colors shadow-md"><Plus size={24} /></button>
                             </div>
                         </div>
 
-                        <button onClick={handleConfirm} className="w-full py-4 bg-gradient-to-r from-[#b6965b] to-[#C9A96E] text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-base uppercase hover:brightness-110 transition-all">
+                        <button onClick={handleConfirm} className="w-full py-4 md:py-5 bg-gradient-to-r from-[#b6965b] to-[#C9A96E] text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-3 text-xl md:text-2xl uppercase hover:brightness-110 transition-all">
                             <span>{cart[selectedService.id] ? t('update_cart') : t('add_to_cart')}</span>
-                            <span className="opacity-40 font-normal text-xl ml-2">|</span>
-                            <span className="text-xl md:text-2xl font-extrabold ml-1">{formatCurrency(selectedService.priceVND * qty)} VND</span>
-                            <span className="opacity-40 font-normal text-lg mx-1">/</span>
-                            <span className="text-emerald-200 font-extrabold text-xl md:text-2xl">{selectedService.priceUSD * qty} USD</span>
+                            <span className="opacity-40 font-normal text-3xl ml-2">|</span>
+                            <span className="text-3xl md:text-[36px] font-extrabold ml-1">{formatCurrency(selectedService.priceVND * qty)} VND</span>
+                            <span className="opacity-40 font-normal text-2xl mx-1">/</span>
+                            <span className="text-emerald-200 font-extrabold text-3xl md:text-[36px]">{selectedService.priceUSD * qty} USD</span>
                         </button>
                     </div>
                 )}

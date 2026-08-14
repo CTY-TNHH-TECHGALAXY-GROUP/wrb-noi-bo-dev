@@ -53,12 +53,14 @@ import { useMenuData } from '@/components/Menu/MenuContext'; // Import Hook Cont
 
 interface StandardMenuProps {
     lang: string;
+    menuType?: string;
     onBack: () => void;
     onCheckout: () => void;
     onSwitchToVip?: () => void;
+    showHiddenServices?: boolean;
 }
 
-export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }: StandardMenuProps) {
+export default function StandardMenu({ lang, menuType = 'standard', onBack, onCheckout, onSwitchToVip, showHiddenServices = false }: StandardMenuProps) {
     // --- STATE DỮ LIỆU ---
     // Remove local loading state (duplicate)
     const [services, setServices] = useState<Service[]>([]);
@@ -84,19 +86,32 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
 
     useEffect(() => {
         if (!contextLoading) {
-            // Filter đúng loại Standard (NHS...)
-            const standardServices = allServices.filter(s => s.menuType === 'standard');
+            // Filter đúng loại (Standard: NHS..., Spa: NHT...)
+            const standardServices = allServices.filter(s => s.menuType === menuType);
             setServices(standardServices);
         }
     }, [allServices, contextLoading]);
 
-    // Check query string for auto-opening cart (e.g. from Modify Order)
+    // Check query string for auto-opening cart (e.g. from Modify Order) or sessionStorage for state persistence
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('cart') === 'open') {
+            const savedMode = sessionStorage.getItem('standard_menu_mode');
+            const savedCategory = sessionStorage.getItem('standard_menu_category');
+
+            if (savedMode === 'MENU') {
                 setMode('MENU');
-                setSheet({ isOpen: true, type: 'CART', data: null });
+                if (savedCategory) {
+                    setActiveCategory(savedCategory);
+                }
+                // Clear so it doesn't affect subsequent normal visits
+                sessionStorage.removeItem('standard_menu_mode');
+                sessionStorage.removeItem('standard_menu_category');
+            } else {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('cart') === 'open') {
+                    setMode('MENU');
+                    setSheet({ isOpen: true, type: 'CART', data: null });
+                }
             }
         }
     }, []);
@@ -224,7 +239,7 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
                             const selectedId = ids[0] || 'Body';
                             
                             // Tự động gom nhóm các dịch vụ thuộc Category này
-                            const categoryServices = services.filter(s => s.cat === selectedId && s.ACTIVE !== false);
+                            const categoryServices = services.filter(s => s.cat === selectedId && (showHiddenServices || s.ACTIVE !== false));
                             const groups: Record<string, Service[]> = {};
                             categoryServices.forEach(svc => {
                                 const key = svc.names.en.trim().toLowerCase();
@@ -281,7 +296,7 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
                                 setActiveCategory(id);
                                 
                                 // Áp dụng chung logic tự động bật Popup nếu nhóm đó chỉ có 1 lựa chọn
-                                const categoryServices = services.filter(s => s.cat === id && s.ACTIVE !== false);
+                                const categoryServices = services.filter(s => s.cat === id && (showHiddenServices || s.ACTIVE !== false));
                                 const groups: Record<string, Service[]> = {};
                                 categoryServices.forEach(svc => {
                                     const key = svc.names.en.trim().toLowerCase();
@@ -331,19 +346,19 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
                             direction={slideDirection}
                             lang={lang}
                             onItemClick={handleServiceClick}
+                            showHiddenServices={showHiddenServices}
                         />
                     )}
 
-                    {/* C. FOOTER */}
                     <Footer
                         totalVND={totalVND}
                         totalUSD={totalUSD}
                         totalItems={totalItems}
                         maxMinutes={maxMinutes}
                         lang={lang}
+                        activeCategory={activeCategory}
                         onBack={() => setMode('PICKER')}
                         onToggleCart={handleOpenCart}
-                        onSwitchToVip={onSwitchToVip}
                     />
 
                     {/* D. KHU VỰC CÁC SHEET */}

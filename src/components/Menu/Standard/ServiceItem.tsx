@@ -31,7 +31,7 @@ export default function ServiceItem({ service, quantity, lang, isBestSeller, onC
         <div
             onClick={onClick}
             className={`
-        relative w-full rounded-2xl p-3 flex flex-row gap-4 items-center overflow-hidden
+        relative w-full h-full rounded-2xl p-3 flex flex-row gap-4 items-center overflow-hidden
         transition-all duration-300 cursor-pointer active:scale-[0.98]
         ${isSelected ? 'bg-black/40 border border-[#C9A96E]/50' : 'bg-black/10 border border-white/10'}
         backdrop-blur-sm shadow-lg hover:bg-black/20
@@ -55,11 +55,11 @@ export default function ServiceItem({ service, quantity, lang, isBestSeller, onC
             </div>
 
             {/* 2. Nội dung text (Không hiện giá) */}
-            <div className="flex flex-col justify-center flex-1 min-w-0 pr-12 py-1 h-24">
-                <h3 className="font-bold text-white text-[20px] leading-tight mb-1.5 line-clamp-2 font-luxury tracking-wide">
+            <div className="flex flex-col justify-center flex-1 min-w-0 pr-12 py-1">
+                <h3 className="font-bold text-white text-[26px] md:text-[28px] leading-[1.35] mb-1.5 line-clamp-2 font-luxury tracking-wide">
                     {name}
                 </h3>
-                <p className="text-[15px] text-gray-400 line-clamp-2 leading-relaxed font-light">
+                <p className="text-[16px] md:text-[18px] text-gray-400 line-clamp-2 leading-[1.45] font-light">
                     {desc}
                 </p>
             </div>
