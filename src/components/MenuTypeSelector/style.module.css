@@ -107,16 +107,17 @@
 
 .textOverlayHome {
   top: 40%; /* Nằm cao hơn nữa */
-  font-size: clamp(22px, 6vw, 32px); /* Chữ to hơn */
+  font-size: clamp(18px, 5.2vw, 28px); /* Tăng thêm khoảng 15% */
+  font-weight: 600; /* Nét mảnh hơn */
   line-height: 1.1;
   color: #000; /* Màu chữ đen */
   text-shadow: none; /* Bỏ viền bóng mờ để chữ đen sắc nét */
 }
 
 .homeCareText {
-  font-size: clamp(12px, 4vw, 20px); /* Tăng nhẹ cỡ chữ Home Care cho cân đối */
-  letter-spacing: 0.1em;
-  margin-top: 4px;
+  /* Xóa font-size và font-weight để kế thừa (giống hệt) từ class cha .textOverlayHome */
+  letter-spacing: 0.05em; /* Giảm nhẹ khoảng cách chữ cho vừa khung */
+  margin-top: 6px;
 }
 
 .divider {

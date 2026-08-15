@@ -86,16 +86,16 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
                         <button
                             key={`${cat.id}-${index}`}
                             onClick={() => onSelectCategory(cat.id)}
-                            className={`flex flex-col items-center gap-2 group focus:outline-none shrink-0 snap-center w-[4.5rem] md:w-[5.5rem] transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}
+                            className={`flex flex-col items-center gap-2 group focus:outline-none shrink-0 snap-center w-[5.5rem] md:w-[7rem] transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}
                         >
-                            <div className={`w-[60px] h-[60px] md:w-[72px] md:h-[72px] rounded-full border flex items-center justify-center transition-all shadow-md overflow-hidden relative backdrop-blur-sm ${isActive ? 'bg-black/40 border-[#C9A96E]' : 'bg-black/10 border-white/10 group-hover:bg-black/30 pointer-events-none'}`}>
+                            <div className={`w-[75px] h-[75px] md:w-[90px] md:h-[90px] rounded-full border flex items-center justify-center transition-all shadow-md overflow-hidden relative backdrop-blur-sm ${isActive ? 'bg-black/40 border-[#C9A96E]' : 'bg-black/10 border-white/10 group-hover:bg-black/30 pointer-events-none'}`}>
                                 <img
                                     src={cat.image || 'https://placehold.co/100x100'}
-                                    className="w-[70%] h-[70%] object-contain transition-transform duration-500 group-hover:scale-110 pointer-events-none"
+                                    className="w-[75%] h-[75%] object-contain transition-transform duration-500 group-hover:scale-110 pointer-events-none"
                                     alt={cat.names['en']}
                                 />
                             </div>
-                            <span className={`pointer-events-none text-[10px] font-medium uppercase tracking-tight text-center w-full truncate px-0.5 leading-tight ${isActive ? 'text-[#C9A96E]' : 'text-gray-400 group-hover:text-gray-300'}`}>
+                            <span className={`pointer-events-none text-xs md:text-sm font-medium uppercase tracking-tight text-center w-full truncate px-0.5 leading-tight ${isActive ? 'text-[#C9A96E]' : 'text-gray-400 group-hover:text-gray-300'}`}>
                                 {cat.names[lang as keyof typeof cat.names] || cat.names['en']}
                             </span>
                         </button>

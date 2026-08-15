@@ -193,16 +193,16 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                     whileHover={{ scale: 1.1 }}
                                                     whileTap={{ scale: 0.95 }}
                                                     style={{ 
-                                                        width: 'min(22vw, 22vh, 180px)', 
-                                                        height: 'min(22vw, 22vh, 180px)',
+                                                        width: 'min(28vw, 28vh, 180px)', 
+                                                        height: 'min(28vw, 28vh, 180px)',
                                                     }}
                                                     className={`flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-2 transition-colors relative group`}
                                                 >
             
                                             <div 
                                                 style={{ 
-                                                    width: 'min(10vw, 10vh, 85px)', 
-                                                    height: 'min(10vw, 10vh, 85px)' 
+                                                    width: 'min(14vw, 14vh, 95px)', 
+                                                    height: 'min(14vw, 14vh, 95px)' 
                                                 }}
                                                 className="flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110"
                                             >
@@ -216,7 +216,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                                 />
                                             </div>
                                             <span 
-                                                style={{ fontSize: 'min(3.2vw, 3.2vh, 24px)' }}
+                                                style={{ fontSize: 'min(4vw, 4vh, 26px)' }}
                                                 className="font-semibold tracking-wide text-center leading-tight relative z-10 w-full text-[#BF815C] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] group-hover:brightness-125 transition-all duration-300 px-2"
                                             >
                                                 {name}

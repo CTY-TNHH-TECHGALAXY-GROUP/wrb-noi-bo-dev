@@ -67,58 +67,71 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
     const currentLang = languages.find(l => l.id === lang) || languages[0];
 
     return (
-        <div
-            className="glass-footer w-full px-4 md:px-8 pt-6 flex items-center justify-between gap-3 animate-[slide-up_0.3s_ease-out] bg-black/90 backdrop-blur-xl border-t border-gray-800"
-            style={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                zIndex: 50,
-                paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' // 1.25rem = 20px. Đảm bảo luôn cách đáy 20px + tai thỏ
-            }}
-        >
+        <>
+            <AnimatePresence>
+                {isLangOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[40] bg-black/50 backdrop-blur-sm"
+                        onClick={() => setIsLangOpen(false)}
+                    />
+                )}
+            </AnimatePresence>
 
-            {/* Nút Back */}
-            <button onClick={onBack} className="w-12 h-12 shrink-0 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 active:scale-95 transition-all shadow-lg backdrop-blur-md">
-                <ArrowLeft size={20} />
-            </button>
+            <div
+                className="glass-footer w-full px-4 md:px-8 pt-6 flex items-center justify-between gap-3 animate-[slide-up_0.3s_ease-out] bg-black/90 backdrop-blur-xl border-t border-gray-800"
+                style={{
+                    position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 50,
+                    paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' // 1.25rem = 20px. Đảm bảo luôn cách đáy 20px + tai thỏ
+                }}
+            >
 
-            {/* Language Flags Dropup (Thay thế VIP) */}
-            <div className="relative shrink-0 flex items-center" ref={langRef}>
-                <button
-                    onClick={() => setIsLangOpen(!isLangOpen)}
-                    className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shrink-0"
-                >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={currentLang.flag} alt={currentLang.name} className="w-full h-full object-cover" />
+                {/* Nút Back */}
+                <button onClick={onBack} className="w-12 h-12 shrink-0 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 active:scale-95 transition-all shadow-lg backdrop-blur-md">
+                    <ArrowLeft size={20} />
                 </button>
 
-                <AnimatePresence>
-                    {isLangOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                            transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 25 }}
-                            className="absolute bottom-[calc(100%+12px)] left-0 p-2 flex flex-col gap-2 z-[60]"
-                        >
-                            {languages.map((l) => (
-                                <button
-                                    key={l.id}
-                                    onClick={() => handleLanguageChange(l.id)}
-                                    className={`w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 shadow-md ${
-                                        lang === l.id ? 'opacity-100 scale-110 shadow-lg' : 'opacity-50 hover:opacity-100'
-                                    }`}
-                                >
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
-                                </button>
-                            ))}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
+                {/* Language Flags Dropup (Thay thế VIP) */}
+                <div className="relative shrink-0 flex items-center" ref={langRef}>
+                    <button
+                        onClick={() => setIsLangOpen(!isLangOpen)}
+                        className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shrink-0"
+                    >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={currentLang.flag} alt={currentLang.name} className="w-full h-full object-cover" />
+                    </button>
+
+                    <AnimatePresence>
+                        {isLangOpen && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                                transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 25 }}
+                                className="absolute bottom-[calc(100%+16px)] left-0 p-2 flex flex-col gap-4 z-[60]"
+                            >
+                                {languages.map((l) => (
+                                    <button
+                                        key={l.id}
+                                        onClick={() => handleLanguageChange(l.id)}
+                                        className={`w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 shadow-md ${
+                                            lang === l.id ? 'opacity-100 scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'opacity-50 hover:opacity-100'
+                                        }`}
+                                    >
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
+                                    </button>
+                                ))}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
 
             {/* Thông tin Tiền & Thời gian */}
             <div className="flex-1 flex flex-col items-center justify-center min-w-0">
@@ -145,5 +158,6 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
                 <span className={`absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-black transition-all transform duration-300 ${totalItems > 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>{totalItems}</span>
             </button>
         </div>
+        </>
     );
 }
