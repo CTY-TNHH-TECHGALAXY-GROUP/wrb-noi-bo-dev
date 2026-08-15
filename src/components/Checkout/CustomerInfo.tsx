@@ -1,30 +1,90 @@
 'use client';
 import React, { useState } from 'react';
+import { COUNTRY_CODES, getDefaultCountryCode } from '@/lib/countryCodes';
 
 interface CustomerInfoProps {
     lang: string;
-    dict: any; // Accept dict
+    dict: any;
     info: { name: string; email: string; phone: string; gender: string; room?: string };
     onChange: (field: string, value: string) => void;
     isBookingFlow?: boolean;
 }
 
 export default function CustomerInfo({ lang, dict, info, onChange, isBookingFlow }: CustomerInfoProps) {
-    // Determine which tab to show by default
     const [contactMethod, setContactMethod] = useState<'email' | 'phone'>(
         info.phone ? 'phone' : 'email'
     );
 
-    // Auto-switch to phone tab if phone number is provided (e.g. from history restore)
+    const [countryCode, setCountryCode] = useState(() => getDefaultCountryCode(lang));
+    const [localPhone, setLocalPhone] = useState('');
+
+    // Sync from parent if info.phone changes externally (e.g. history restore)
     React.useEffect(() => {
         if (info.phone) {
             setContactMethod('phone');
         }
-    }, [info.phone]);
+        
+        const combined = `${countryCode} ${localPhone}`.trim();
+        const combinedNoSpace = `${countryCode}${localPhone}`.trim();
+        
+        if (info.phone && info.phone !== combined && info.phone !== combinedNoSpace) {
+            // Sort by length to match longer prefix first (e.g. +1242 before +1)
+            const sortedCodes = [...COUNTRY_CODES].sort((a, b) => b.dialCode.length - a.dialCode.length);
+            const matchedCountry = sortedCodes.find(c => info.phone.startsWith(c.dialCode));
+            
+            if (matchedCountry) {
+                setCountryCode(matchedCountry.dialCode);
+                setLocalPhone(info.phone.substring(matchedCountry.dialCode.length).trim());
+            } else {
+                setLocalPhone(info.phone);
+            }
+        }
+    }, [info.phone]); // Only depend on info.phone to avoid loop
 
-    // Extract raw labels for buttons (removing the placeholder hints in parenthesis if any)
+    const handlePhoneChange = (newLocalPhone: string) => {
+        setLocalPhone(newLocalPhone);
+        onChange('phone', `${countryCode} ${newLocalPhone}`);
+    };
+
+    const handleCountryCodeChange = (newCode: string) => {
+        setCountryCode(newCode);
+        onChange('phone', `${newCode} ${localPhone}`);
+    };
+
+    // Extract raw labels for buttons
     const emailLabel = dict.checkout.email?.split('(')[0]?.trim() || 'Email';
-    const phoneLabel = dict.checkout.phone?.split('(')[0]?.trim() || 'Phone';
+    const phoneLabel = dict.checkout.phone?.split('(')[0]?.trim() || 'Phone No.';
+
+    const renderPhoneInput = (placeholder: string) => (
+        <div className="flex gap-4">
+            <div className="w-[120px] shrink-0 relative">
+                <select
+                    value={countryCode}
+                    onChange={(e) => handleCountryCodeChange(e.target.value)}
+                    className="w-full bg-[#0d0d0d] border border-white/10 rounded-xl pl-4 pr-10 py-4 text-white appearance-none focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
+                >
+                    {COUNTRY_CODES.map((c) => (
+                        <option key={c.code} value={c.dialCode}>
+                            {c.flag} {c.dialCode}
+                        </option>
+                    ))}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                </div>
+            </div>
+            
+            <div className="flex-1 relative">
+                <input
+                    type="tel"
+                    value={localPhone}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    placeholder={placeholder}
+                    className="w-full min-w-0 bg-[#0d0d0d] border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
+                />
+            </div>
+        </div>
+    );
 
     return (
         <div className="bg-[#1c1c1e] text-white p-5 rounded-3xl shadow-sm border border-white/5">
@@ -65,15 +125,8 @@ export default function CustomerInfo({ lang, dict, info, onChange, isBookingFlow
                 {isBookingFlow ? (
                     // Hiển thị cả 2 ô nếu là luồng đặt lịch
                     <div className="space-y-4 animate-[fade-in-up_0.2s_ease-out]">
-                        <div className="relative">
-                            <input
-                                type="tel"
-                                value={info.phone}
-                                onChange={(e) => onChange('phone', e.target.value)}
-                                placeholder={phoneLabel + ' *'}
-                                className="w-full bg-[#0d0d0d] border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
-                            />
-                        </div>
+                        {renderPhoneInput(phoneLabel + ' *')}
+                        
                         <div className="relative">
                             <input
                                 type="email"
@@ -122,13 +175,7 @@ export default function CustomerInfo({ lang, dict, info, onChange, isBookingFlow
                                     className="w-full bg-[#0d0d0d] border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
                                 />
                             ) : (
-                                <input
-                                    type="tel"
-                                    value={info.phone}
-                                    onChange={(e) => onChange('phone', e.target.value)}
-                                    placeholder={dict.checkout.phone}
-                                    className="w-full bg-[#0d0d0d] border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
-                                />
+                                renderPhoneInput(dict.checkout.phone)
                             )}
                         </div>
                     </>
