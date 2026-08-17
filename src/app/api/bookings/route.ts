@@ -71,12 +71,27 @@ export async function POST(request: Request) {
         const dateCode = `${day}${month}${year}`;
 
         // 1. Generate Bill Number
-        const { count } = await supabaseAdmin
+        // Lấy tất cả mã bill trong ngày để tìm số lớn nhất (tránh lỗi khi có đơn bị xoá)
+        const { data: existingBookings } = await supabaseAdmin
             .from('Bookings')
-            .select('*', { count: 'exact', head: true })
+            .select('billCode')
             .ilike('billCode', `%-${dateCode}`);
 
-        const nextNum = (count || 0) + 1;
+        let maxNumber = 0;
+        
+        if (existingBookings && existingBookings.length > 0) {
+            existingBookings.forEach((item: any) => {
+                if (item.billCode) {
+                    const codePart = item.billCode.split('-')[0];
+                    const num = parseInt(codePart, 10);
+                    if (!isNaN(num) && num > maxNumber) {
+                        maxNumber = num;
+                    }
+                }
+            });
+        }
+
+        const nextNum = maxNumber + 1;
         const billNum = `${String(nextNum).padStart(3, '0')}-${dateCode}`;
         const branchCode = '11NDK';
         const customId = `BK-${branchCode}-${billNum}`; // Prefix BK for bookings

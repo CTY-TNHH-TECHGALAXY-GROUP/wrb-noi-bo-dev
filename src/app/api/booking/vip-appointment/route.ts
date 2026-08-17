@@ -223,12 +223,26 @@ export async function POST(request: NextRequest) {
     const dateCode = `${String(vnTime.getDate()).padStart(2, '0')}${String(vnTime.getMonth() + 1).padStart(2, '0')}${vnTime.getFullYear()}`;
 
     // Count to generate billCode
-    const { count } = await supabase
+    const { data: existingBookings } = await supabase
       .from('Bookings')
-      .select('*', { count: 'exact', head: true })
+      .select('billCode')
       .ilike('billCode', `%-${dateCode}`);
 
-    const nextNum = (count || 0) + 1;
+    let maxNumber = 0;
+    
+    if (existingBookings && existingBookings.length > 0) {
+        existingBookings.forEach((item: any) => {
+            if (item.billCode) {
+                const codePart = item.billCode.split('-')[0];
+                const num = parseInt(codePart, 10);
+                if (!isNaN(num) && num > maxNumber) {
+                    maxNumber = num;
+                }
+            }
+        });
+    }
+
+    const nextNum = maxNumber + 1;
     const billCode = `${String(nextNum).padStart(3, '0')}-${dateCode}`;
     const branchCode = '11NDK'; // TODO: Dynamically pass this from frontend later
     const bookingId = `${branchCode}-${billCode}`;

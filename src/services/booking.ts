@@ -62,12 +62,26 @@ export const createBooking = async (data: BookingRequest, calculatedTotal: numbe
         const dateCode = `${String(now.getDate()).padStart(2, '0')}${String(now.getMonth() + 1).padStart(2, '0')}${now.getFullYear()}`;
 
         // Count to generate billCode
-        const { count } = await supabase
+        const { data: existingBookings } = await supabase
             .from('Bookings')
-            .select('*', { count: 'exact', head: true })
+            .select('billCode')
             .ilike('billCode', `%-${dateCode}`);
 
-        const nextNum = (count || 0) + 1;
+        let maxNumber = 0;
+        
+        if (existingBookings && existingBookings.length > 0) {
+            existingBookings.forEach((item: any) => {
+                if (item.billCode) {
+                    const codePart = item.billCode.split('-')[0];
+                    const num = parseInt(codePart, 10);
+                    if (!isNaN(num) && num > maxNumber) {
+                        maxNumber = num;
+                    }
+                }
+            });
+        }
+
+        const nextNum = maxNumber + 1;
         const billNum = `${String(nextNum).padStart(3, '0')}-${dateCode}`;
         const branchCode = '11NDK'; // TODO: Dynamically pass this from frontend later
         const customId = `${branchCode}-${billNum}`;
