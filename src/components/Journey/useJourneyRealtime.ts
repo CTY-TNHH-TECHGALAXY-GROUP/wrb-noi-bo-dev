@@ -134,7 +134,7 @@ export function useJourneyRealtime(bookingId: string, guestId?: string) {
                 
                 // 🔧 Lọc theo khách (guestId) nếu có truyền vào URL (hỗ trợ tách khách)
                 if (guestId) {
-                    rateableItems = rateableItems.filter((i: any) => i.guestId === guestId || i.customerGroupId === guestId);
+                    rateableItems = rateableItems.filter((i: any) => i.guest_id === guestId || i.customer_group_id === guestId || i.guestId === guestId || i.customerGroupId === guestId);
                 }
 
                 const processedItems: ServiceItem[] = [];
