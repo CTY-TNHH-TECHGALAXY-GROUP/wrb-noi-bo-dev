@@ -39,7 +39,7 @@ export default function SelectMenuPage({ params }: { params: Promise<{ lang: str
                     loop
                     muted
                     playsInline
-                    className="absolute inset-0 w-full h-full object-cover object-center opacity-100"
+                    className="absolute inset-0 w-full h-full object-cover object-center opacity-100 pointer-events-none"
                 />
                 <div className="absolute inset-0 bg-black/50 z-10" />
             </div>
