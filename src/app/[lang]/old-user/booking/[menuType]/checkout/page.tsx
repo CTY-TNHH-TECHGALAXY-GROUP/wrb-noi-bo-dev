@@ -212,8 +212,8 @@ export default function OldUserBookingCheckoutPage({ params }: { params: Promise
         }
 
         const data = await res.json();
-        clearCart();
-        resetCustomerInfo();
+        // clearCart(); -> moved to BookingConfirmModal on close to prevent early redirect
+        // resetCustomerInfo(); -> moved to BookingConfirmModal on close to preserve customerInfo in success UI
         return data.bookingId;
     };
 
@@ -357,6 +357,8 @@ export default function OldUserBookingCheckoutPage({ params }: { params: Promise
                 amountPaid={parseInt(amountPaid.replace(/\./g, '') || '0', 10)}
                 appointmentDate={selectedDateStr!}
                 timeSlot={selectedSlot!}
+                clearCart={clearCart}
+                resetCustomerInfo={resetCustomerInfo}
             />
 
             <BookingTermsModal

@@ -1,0 +1,443 @@
+﻿/*
+ * File: Standard/Sheets/MainSheet.tsx
+ * Chß╗⌐c n─âng: Bß║úng chß╗ìn thß╗¥i gian chi tiß║┐t (Popup ch├¡nh).
+ * Logic chi tiß║┐t:
+ * - Render 2 chß║┐ ─æß╗Ö:
+ *   1. 'ADD': Grid c├íc mß╗æc thß╗¥i gian (60', 90'...) ─æß╗â kh├ích chß╗ìn mß╗¢i.
+ *   2. 'LIST': Danh s├ích c├íc option ─æ├ú chß╗ìn cß╗ºa nh├│m n├áy (nß║┐u c├│).
+ * - Xß╗¡ l├╜ animation slide-up (Entrance) m╞░ß╗út m├á vß╗¢i state isVisible.
+ * - ─Éiß╗üu chß╗ënh giao diß╗çn ß║únh header (tß╗╖ lß╗ç) t├╣y theo nß╗Öi dung b├¬n d╞░ß╗¢i.
+ * T├íc giß║ú: TunHisu
+ * Ng├áy cß║¡p nhß║¡t: 2026-01-31
+ */
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Minus, Plus, ChevronDown, List, Pencil, PlusCircle } from 'lucide-react';
+import { Service, CartState } from '../../types';
+import { formatCurrency } from '../../utils';
+
+interface MainSheetProps {
+    group: Service[]; // Nhß║¡n v├áo cß║ú nh├│m m├│n ─ân
+    cart: Record<string, number>;  // Nhß║¡n v├áo Lookup Map
+    isOpen: boolean;
+    lang: string;
+    onClose: () => void;
+    onAddToCart: (id: string, quantity: number, options?: any) => void;
+}
+
+// ≡ƒöº UI CONFIGURATION
+const CONFIG = {
+    ANIMATION_DURATION: 300,
+    BORDER_RADIUS: '30px',
+    MAX_HEIGHT: '85vh',
+    HEADER_IMAGE_HEIGHT: '12rem', // h-48 = 12rem = 192px
+    OVERLAY_COLOR: 'bg-black/60',
+    BG_COLOR: 'bg-[#0d0d0d]',
+    // Time slot button stagger
+    SLOT_STAGGER_DELAY: 0.06,     // Delay between each button appearing
+    SLOT_START_DELAY: 0.15,       // Delay before first button
+    SLOT_ANIMATION_DURATION: 0.3, // Each button's animation duration
+};
+
+// DICTIONARY
+const TEXT = {
+    selected_options: { vi: 'Dß╗ïch vß╗Ñ ─æ├ú chß╗ìn', en: 'Selected Options', cn: 'σ╖▓ΘÇëµ£ìσèí', jp: 'Θü╕µè₧πüòπéîπüƒπé╡πâ╝πâôπé╣', kr: '∞äáφâ¥δÉ£ ∞ä£δ╣ä∞èñ' },
+    selected_msg: {
+        vi: (n: number, name: string) => `Bß║ín ─æ├ú chß╗ìn ${n} mß╗Ñc cho ${name}`,
+        en: (n: number, name: string) => `You have selected ${n} options for ${name}`,
+        cn: (n: number, name: string) => `µé¿σ╖▓Σ╕║ ${name} ΘÇëµï⌐ ${n} Σ╕¬ΘÇëΘí╣`,
+        jp: (n: number, name: string) => `${name} πü«πüƒπéüπü½ ${n} πüñπü«πé¬πâùπé╖πâºπâ│πéÆΘü╕µè₧πüùπü╛πüùπüƒ`,
+        kr: (n: number, name: string) => `${name}∞ùÉ δîÇφò┤ ${n}Ω░£∞¥ÿ ∞ÿ╡∞àÿ∞¥ä ∞äáφâ¥φûê∞è╡δïêδïñ`
+    },
+    duration: { vi: 'THß╗£I L╞»ß╗óNG', en: 'DURATION', cn: 'µù╢Θò┐', jp: 'µ£ƒΘûô', kr: '∞åî∞Üö ∞ï£Ω░ä' },
+    qty: { vi: 'SL', en: 'Qty', cn: 'µò░ΘçÅ', jp: 'µò░ΘçÅ', kr: '∞êÿδƒë' },
+    pax: { vi: 'kh├ích', en: 'pax', cn: 'Σ║║', jp: 'σÉì', kr: 'δ¬à' },
+    add_another: { vi: 'TH├èM Lß╗░A CHß╗îN KH├üC', en: 'Add another option', cn: 'µ╖╗σèáσà╢Σ╗ûΘÇëΘí╣', jp: 'σêÑπü«πé¬πâùπé╖πâºπâ│πéÆΦ┐╜σèá', kr: 'δïñδÑ╕ ∞ÿ╡∞àÿ ∞╢öΩ░Ç' },
+    select_duration: { vi: 'CHß╗îN THß╗£I GIAN', en: 'Select Duration', cn: 'ΘÇëµï⌐µù╢Θò┐', jp: 'µ£ƒΘûôπéÆΘü╕µè₧', kr: '∞ï£Ω░ä ∞äáφâ¥' },
+    back_to_list: { vi: 'Quay lß║íi danh s├ích', en: 'Back to list', cn: 'Φ┐öσ¢₧σêùΦí¿', jp: 'πâ¬πé╣πâêπü½µê╗πéï', kr: 'δ¬⌐δí¥∞£╝δí£ δÅî∞òäΩ░ÇΩ╕░' },
+    view_more: { vi: 'Xem th├¬m', en: 'View More', cn: 'µƒÑτ£ïµ¢┤σñÜ', jp: 'πééπüúπü¿Φªïπéï', kr: 'δìö δ│┤Ω╕░' },
+    update_cart: { vi: 'Cß║¡p Nhß║¡t Giß╗Å', en: 'Update Cart', cn: 'µ¢┤µû░Φ┤¡τë⌐Φ╜ª', jp: 'πé½πâ╝πâêπéÆµ¢┤µû░', kr: '∞₧Ñδ░öΩ╡¼δïê ∞ùàδì░∞¥┤φè╕' },
+    add_to_cart: { vi: 'Th├¬m V├áo Giß╗Å', en: 'Add to Cart', cn: 'σèáσàÑΦ┤¡τë⌐Φ╜ª', jp: 'πé½πâ╝πâêπü½Φ┐╜σèá', kr: '∞₧Ñδ░öΩ╡¼δïê δï┤Ω╕░' },
+    mins: { vi: 'ph├║t', en: 'mins', cn: 'σêåΘÆƒ', jp: 'σêå', kr: 'δ╢ä' },
+    custom_for_you: { vi: 'T├╣y chß╗ënh dß╗ïch vß╗Ñ', en: 'Custom for you', cn: 'σ«Üσê╢µ£ìσèí', jp: 'πé½πé╣πé┐πâáπé╡πâ╝πâôπé╣', kr: 'δº₧∞╢ñ ∞ä£δ╣ä∞èñ' },
+    custom_selected: { vi: '─É├ú t├╣y chß╗ënh', en: 'Customized', cn: 'σ╖▓σ«Üσê╢', jp: 'πé½πé╣πé┐πâ₧πéñπé║µ╕êπü┐', kr: 'δº₧∞╢ñ ∞äñ∞áòδÉ¿' },
+    recommended: { vi: 'Gß╗úi ├╜', en: 'Recommended', cn: 'µÄ¿ΦìÉ', jp: 'πüèπüÖπüÖπéü', kr: '∞╢ö∞▓£' }
+};
+
+export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToCart }: MainSheetProps) {
+    // Helper translate
+    const t = (key: Exclude<keyof typeof TEXT, 'selected_msg'>) => {
+        const dict = TEXT[key] as Record<string, string>;
+        return dict[lang] || dict['en'];
+    };
+    // Helper translate msg (function)
+    const tMsg = (n: number, name: string) => {
+        const func = TEXT['selected_msg'][lang as keyof typeof TEXT['selected_msg']] || TEXT['selected_msg']['en'];
+        return func(n, name);
+    };
+
+    // State l╞░u m├│n ─æang ─æ╞░ß╗úc chß╗ìn trong nh├│m (Mß║╖c ─æß╗ïnh l├á m├│n ─æß║ºu ti├¬n)
+    const [selectedService, setSelectedService] = useState<Service | null>(null);
+    const [qty, setQty] = useState(1);
+    const [showAll, setShowAll] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
+    const [isVisible, setIsVisible] = useState(false); // State cho hiß╗çu ß╗⌐ng mß╗ƒ (Entrance Animation)
+
+    // MODE: 'LIST' (Xem danh s├ích ─æ├ú chß╗ìn) | 'ADD' (Th├¬m mß╗¢i)
+    const [viewMode, setViewMode] = useState<'LIST' | 'ADD'>('ADD');
+
+    useEffect(() => {
+        if (isOpen && group.length > 0) {
+            // 1. Sort lß║íi group
+            const sortedGroup = [...group].sort((a, b) => a.timeValue - b.timeValue);
+
+            // 2. Kiß╗âm tra xem trong cart ─æ├ú c├│ m├│n n├áo thuß╗Öc group n├áy ch╞░a
+            const purchasedItems = sortedGroup.filter(svc => cart[svc.id] && cart[svc.id] > 0);
+
+            if (purchasedItems.length > 0) {
+                // Nß║┐u c├│ -> Chuyß╗ân sang chß║┐ ─æß╗Ö xem danh s├ích
+                setViewMode('LIST');
+            } else {
+                // Nß║┐u ch╞░a -> Chuyß╗ân sang chß║┐ ─æß╗Ö th├¬m mß╗¢i (Chß╗ìn giß╗¥ default)
+                setViewMode('ADD');
+                setSelectedService(sortedGroup[0]);
+                setQty(1);
+            }
+
+            setShowAll(false);
+            setIsClosing(false);
+
+            // Trigger animation mß╗ƒ sau khi render
+            // setTimeout nhß╗Å ─æß╗â ─æß║úm bß║úo tr├¼nh duyß╗çt nhß║¡n diß╗çn trß║íng th├íi ban ─æß║ºu (translate-y-full) tr╞░ß╗¢c
+            const timer = setTimeout(() => setIsVisible(true), 10);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen, group, cart]); // Th├¬m cart v├áo dependencies ─æß╗â cß║¡p nhß║¡t realtime
+
+    if (!isOpen) return null;
+
+    // Lß╗ìc ra danh s├ích c├íc m├│n ─æ├ú mua trong group n├áy
+    const purchasedServices = group.filter(svc => cart[svc.id] && cart[svc.id] > 0);
+
+    // Nß║┐u ─æang ß╗ƒ mode LIST m├á user lß║íi x├│a hß║┐t item trong cart -> Tß╗▒ back vß╗ü ADD
+    if (viewMode === 'LIST' && purchasedServices.length === 0 && isOpen) {
+        setViewMode('ADD');
+    }
+
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(onClose, 300);
+    };
+
+    const handleConfirm = () => {
+        if (selectedService) {
+            onAddToCart(selectedService.id, qty);
+            // logic ─æ├│ng sheet sß║╜ ─æ╞░ß╗úc StandardMenu quß║ún l├╜ (chuyß╗ân sang CUSTOM hoß║╖c ─æ├│ng)
+        }
+    };
+
+    // Chuyß╗ân sang sß╗¡a 1 m├│n cß╗Ñ thß╗â
+    const handleEditItem = (svc: Service) => {
+        setSelectedService(svc);
+        setQty(cart[svc.id]); // Load sß╗æ l╞░ß╗úng hiß╗çn tß║íi
+        setViewMode('ADD');
+    };
+
+    // Lß║Ñy t├¬n chung cß╗ºa nh├│m (Lß║Ñy tß╗½ m├│n ─æß║ºu ti├¬n)
+    const representative = group[0];
+    const groupName = representative?.names[lang as keyof typeof representative.names] || representative?.names['en'];
+
+    // --- RENDER GIAO DIß╗åN ---
+    return (
+        <>
+            <div className={`fixed inset-0 ${CONFIG.OVERLAY_COLOR} z-40 transition-opacity duration-${CONFIG.ANIMATION_DURATION} ${isClosing ? 'opacity-0' : 'opacity-100'}`} onClick={handleClose} />
+
+            <div className={`
+          fixed bottom-0 left-0 w-full ${CONFIG.BG_COLOR} rounded-t-[${CONFIG.BORDER_RADIUS}] z-50 overflow-hidden flex flex-col shadow-2xl
+          transform transition-transform 
+          duration-${CONFIG.ANIMATION_DURATION}
+          ease-out
+          pb-safe
+          ${(isClosing || !isVisible) ? 'translate-y-full' : 'translate-y-0'}
+        `} style={{ maxHeight: CONFIG.MAX_HEIGHT }}>
+
+                {/* N├║t ─æ├│ng */}
+                <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 bg-black/20 rounded-full flex items-center justify-center text-white z-20 hover:bg-black/40 transition-colors">
+                    <X size={18} />
+                </button>
+
+                {/* --- HEADER CHUNG --- */}
+                {viewMode === 'ADD' && selectedService && (
+                    <div className="w-full px-5 pt-6 pb-2 shrink-0">
+                        <h2 className="text-3xl font-bold text-[#C9A96E] font-luxury leading-tight">{groupName}</h2>
+                        <p className="text-lg text-gray-400 mt-1.5 opacity-80 leading-snug">
+                            {selectedService.descriptions[lang as keyof typeof selectedService.descriptions] || selectedService.descriptions['en']}
+                        </p>
+                        <p className="text-sm md:text-base text-white/50 italic mt-1.5 font-light">
+                            {{
+                                vi: '* Gi├í ─æ├ú bao gß╗ôm VAT',
+                                en: '* VAT included',
+                                jp: '* VAT∩╝êΣ╗ÿσèáΣ╛íσÇñτ¿Ä∩╝ëΦ╛╝πü┐',
+                                kr: '* VAT φÅ¼φò¿',
+                                cn: '* σÉ½σó₧σÇ╝τ¿Ä (VAT)'
+                            }[lang] || '* VAT included'}
+                        </p>
+                    </div>
+                )}
+
+                {/* Scrollable Content */}
+                <div className="overflow-y-auto flex-1 pt-4 pb-6">
+
+                    {/* ================= MODE: LIST (Danh s├ích ─æ├ú chß╗ìn) ================= */}
+                    {viewMode === 'LIST' && (
+                        <div className="px-5 pt-4">
+                            <div className="flex items-center gap-3 mb-6">
+                                <List className="text-[#C9A96E]" size={24} />
+                                <div>
+                                    <h2 className="text-xl font-bold text-white">{t('selected_options')}</h2>
+                                    <p className="text-sm text-gray-400">{tMsg(purchasedServices.length, groupName)}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3">
+                                {purchasedServices.map(svc => (
+                                    <div key={svc.id} className="bg-[#1c1c1e]/80 p-4 rounded-xl border border-gray-700 flex justify-between items-center group hover:border-gray-500 transition-colors">
+                                        <div>
+                                            <div className="flex items-baseline gap-2">
+                                                {svc.timeValue > 0 && (
+                                                    <>
+                                                        <span className="text-[#C9A96E] font-bold text-xl">{svc.timeValue}{t('mins')}</span>
+                                                        <span className="text-gray-500 text-xs uppercase tracking-wider">{t('duration')}</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <div className="text-white font-bold mt-1.5 text-lg">
+                                                {formatCurrency(svc.priceVND)} VND <span className="text-gray-600 font-normal text-base px-1">/</span> <span className="text-emerald-500">{svc.priceUSD} USD</span>
+                                            </div>
+                                            <div className="text-sm text-gray-400 mt-1 flex items-center gap-1">
+                                                <span>{t('qty')}:</span>
+                                                <span className="text-white font-bold">{cart[svc.id]}</span>
+                                                <span>{t('pax')}</span>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => handleEditItem(svc)}
+                                            className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-[#C9A96E] hover:text-black transition-all shadow-lg"
+                                        >
+                                            <Pencil size={18} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* N├║t Add Option */}
+                            <button
+                                onClick={() => {
+                                    setViewMode('ADD');
+                                    // Reset vß╗ü c├íi ─æß║ºu ti├¬n ch╞░a chß╗ìn hoß║╖c c├íi ─æß║ºu list
+                                    const sorted = [...group].sort((a, b) => a.timeValue - b.timeValue);
+                                    setSelectedService(sorted[0]);
+                                    setQty(1);
+                                }}
+                                className="w-full mt-6 py-4 border border-dashed border-gray-600 text-gray-400 rounded-xl flex items-center justify-center gap-2 hover:border-[#C9A96E] hover:text-[#C9A96E] hover:bg-[#C9A96E]/5 transition-all text-sm font-bold uppercase tracking-wide"
+                            >
+                                <PlusCircle size={20} />
+                                <span>{t('add_another')}</span>
+                            </button>
+                        </div>
+                    )}
+
+
+                    {/* ================= MODE: ADD (Th├¬m/Sß╗¡a) ================= */}
+                    {viewMode === 'ADD' && selectedService && (
+                        <div className="px-5 mt-2">
+                            {/* KHU Vß╗░C CHß╗îN THß╗£I GIAN */}
+                            <div className="mb-6">
+                                {/* Nß║┐u list c├│ item -> Cho n├║t Back to list */}
+                                {purchasedServices.length > 0 && (
+                                    <div className="flex justify-end mb-3">
+                                        <button onClick={() => setViewMode('LIST')} className="text-xs text-[#C9A96E] font-bold hover:underline">
+                                            {t('back_to_list')}
+                                        </button>
+                                    </div>
+                                )}
+
+                                <motion.div
+                                    className="grid grid-cols-2 gap-3"
+                                    initial="hidden"
+                                    animate="visible"
+                                    variants={{
+                                        hidden: { opacity: 1 },
+                                        visible: {
+                                            opacity: 1,
+                                            transition: {
+                                                staggerChildren: CONFIG.SLOT_STAGGER_DELAY,
+                                                delayChildren: CONFIG.SLOT_START_DELAY,
+                                            },
+                                        },
+                                    }}
+                                >
+                                    {group
+                                        .filter((svc, idx, arr) => arr.findIndex(s => s.timeValue === svc.timeValue && s.priceVND === svc.priceVND) === idx) // Dedup by time and price
+                                        .sort((a, b) => a.timeValue - b.timeValue)
+                                        .slice(0, 4)
+                                        .map((svc) => (
+                                            <motion.button
+                                                key={svc.id}
+                                                onClick={() => setSelectedService(svc)}
+                                                variants={{
+                                                    hidden: { opacity: 0, scale: 0.85, y: 10 },
+                                                    visible: {
+                                                        opacity: 1,
+                                                        scale: 1,
+                                                        y: 0,
+                                                        transition: {
+                                                            duration: CONFIG.SLOT_ANIMATION_DURATION,
+                                                            ease: [0.25, 0.46, 0.45, 0.94],
+                                                        },
+                                                    },
+                                                }}
+                                                whileTap={{ scale: 0.95 }}
+                                                className={`
+                                        flex flex-col items-center justify-center py-4 px-2 rounded-xl border transition-colors relative overflow-hidden
+                                        ${selectedService.id === svc.id
+                                                        ? 'bg-[#1c1c1e] text-white border-[#C9A96E] border-2 shadow-lg shadow-[#C9A96E]/10'
+                                                        : 'bg-[#0d0d0d] text-gray-400 border-gray-700 hover:border-gray-500'}
+                                    `}
+                                            >
+                                                {/* [LOGIC NEW] Badge Best Choice */}
+                                                {svc.BEST_CHOICE && (
+                                                    <div className="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl-md z-10 uppercase tracking-wider">
+                                                        {t('recommended')}
+                                                    </div>
+                                                )}
+
+                                                {svc.timeValue > 0 && (
+                                                    <span className={`text-xl font-bold mb-1 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
+                                                        {svc.timeValue}{t('mins')}
+                                                    </span>
+                                                )}
+                                                <div className="text-base md:text-lg font-bold flex gap-1.5 items-center justify-center w-full mt-0.5">
+                                                    <span className="text-[#C9A96E]">{formatCurrency(svc.priceVND)}</span>
+                                                    <span className="text-gray-500 font-normal text-sm">/</span>
+                                                    <span className="text-emerald-500">{svc.priceUSD} USD</span>
+                                                </div>
+
+                                                {/* Badge sß╗æ l╞░ß╗úng nß║┐u ─æ├ú c├│ trong giß╗Å (khi ─æang chß╗ìn m├│n kh├íc) */}
+                                                {cart[svc.id] > 0 && selectedService.id !== svc.id && (
+                                                    <div className="absolute top-2 right-2 w-5 h-5 bg-[#C9A96E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                                                        {cart[svc.id]}
+                                                    </div>
+                                                )}
+                                            </motion.button>
+                                        ))}
+
+                                    {/* Expanded items (appear with animation after View More) */}
+                                    <AnimatePresence>
+                                        {showAll && group
+                                            .filter((svc, idx, arr) => arr.findIndex(s => s.timeValue === svc.timeValue && s.priceVND === svc.priceVND) === idx)
+                                            .sort((a, b) => a.timeValue - b.timeValue)
+                                            .slice(4)
+                                            .map((svc, idx) => (
+                                                <motion.button
+                                                    key={`extra-${svc.id}`}
+                                                    onClick={() => setSelectedService(svc)}
+                                                    initial={{ opacity: 0, scale: 0.85, y: 10 }}
+                                                    animate={{
+                                                        opacity: 1,
+                                                        scale: 1,
+                                                        y: 0,
+                                                        transition: {
+                                                            duration: CONFIG.SLOT_ANIMATION_DURATION,
+                                                            delay: idx * CONFIG.SLOT_STAGGER_DELAY,
+                                                            ease: [0.25, 0.46, 0.45, 0.94],
+                                                        },
+                                                    }}
+                                                    exit={{ opacity: 0, scale: 0.85 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    className={`
+                                            flex flex-col items-center justify-center py-4 px-2 rounded-xl border transition-colors relative overflow-hidden
+                                            ${selectedService.id === svc.id
+                                                            ? 'bg-[#1c1c1e] text-white border-[#C9A96E] border-2 shadow-lg shadow-[#C9A96E]/10'
+                                                            : 'bg-[#0d0d0d] text-gray-400 border-gray-700 hover:border-gray-500'}
+                                        `}
+                                                >
+                                                    {svc.BEST_CHOICE && (
+                                                        <div className="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl-md z-10 uppercase tracking-wider">
+                                                            {t('recommended')}
+                                                        </div>
+                                                    )}
+                                                    {svc.timeValue > 0 && (
+                                                        <span className={`text-xl font-bold mb-1 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
+                                                            {svc.timeValue}{t('mins')}
+                                                        </span>
+                                                    )}
+                                                    <div className="text-base md:text-lg font-bold flex gap-1.5 items-center justify-center w-full mt-0.5">
+                                                        <span className="text-[#C9A96E]">{formatCurrency(svc.priceVND)}</span>
+                                                        <span className="text-gray-500 font-normal text-sm">/</span>
+                                                        <span className="text-emerald-500">{svc.priceUSD} USD</span>
+                                                    </div>
+                                                    {cart[svc.id] > 0 && selectedService.id !== svc.id && (
+                                                        <div className="absolute top-2 right-2 w-5 h-5 bg-[#C9A96E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                                                            {cart[svc.id]}
+                                                        </div>
+                                                    )}
+                                                </motion.button>
+                                            ))}
+                                    </AnimatePresence>
+                                </motion.div>
+                            </div>
+
+                            {/* Button View More Logic */}
+                            {!showAll && group.length > 4 && (
+                                <motion.div
+                                    className="flex justify-center mb-6"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.4 }}
+                                >
+                                    <button
+                                        onClick={() => setShowAll(true)}
+                                        className="text-gray-400 flex items-center gap-1 text-sm hover:text-white transition-colors"
+                                    >
+                                        <span>{t('view_more')}</span>
+                                        <motion.span
+                                            animate={{ y: [0, 3, 0] }}
+                                            transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+                                        >
+                                            <ChevronDown size={16} />
+                                        </motion.span>
+                                    </button>
+                                </motion.div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* FOOTER ACTION - CHß╗ê HIß╗åN ß╗₧ MODE ADD */}
+                {viewMode === 'ADD' && selectedService && (
+                    <div className="p-5 pt-2 bg-[#0d0d0d] border-t border-gray-700/50">
+                        <div className="flex items-center justify-center mb-6">
+                            <div className="flex items-center gap-6 bg-[#1c1c1e] rounded-full p-2 border border-gray-700 px-6">
+                                <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition-colors"><Minus size={18} /></button>
+                                <span className="text-xl font-bold text-white min-w-[30px] text-center font-mono">{qty}</span>
+                                <button onClick={() => setQty(q => q + 1)} className="w-10 h-10 rounded-full bg-[#C9A96E] text-white flex items-center justify-center hover:bg-[#dfc599] transition-colors"><Plus size={18} /></button>
+                            </div>
+                        </div>
+
+                        <button onClick={handleConfirm} className="w-full py-4 bg-gradient-to-r from-[#b6965b] to-[#C9A96E] text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-base uppercase hover:brightness-110 transition-all">
+                            <span>{cart[selectedService.id] ? t('update_cart') : t('add_to_cart')}</span>
+                            <span className="opacity-40 font-normal text-xl ml-2">|</span>
+                            <span className="text-xl md:text-2xl font-extrabold ml-1">{formatCurrency(selectedService.priceVND * qty)} VND</span>
+                            <span className="opacity-40 font-normal text-lg mx-1">/</span>
+                            <span className="text-emerald-200 font-extrabold text-xl md:text-2xl">{selectedService.priceUSD * qty} USD</span>
+                        </button>
+                    </div>
+                )}
+            </div>
+        </>
+    );
+}
