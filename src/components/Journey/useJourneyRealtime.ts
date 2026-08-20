@@ -55,7 +55,7 @@ export interface JourneyData {
 }
 
 
-export function useJourneyRealtime(bookingId: string) {
+export function useJourneyRealtime(bookingId: string, guestId?: string) {
     const [data, setData] = useState<JourneyData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -121,7 +121,7 @@ export function useJourneyRealtime(bookingId: string) {
                 }
 
                 // 🔧 Filter out "Phòng riêng" (addon, not a real service to rate)
-                const rateableItems = (items || []).filter((i: any) => {
+                let rateableItems = (items || []).filter((i: any) => {
                     const sId = String(i.serviceId || '').trim().toLowerCase();
                     const svc = svcMap.get(sId);
                     const nameVN = typeof svc?.nameVN === 'object' 
@@ -131,6 +131,11 @@ export function useJourneyRealtime(bookingId: string) {
                     if (nameLower.includes('phòng riêng') || nameLower.includes('phong rieng')) return false;
                     return true;
                 });
+                
+                // 🔧 Lọc theo khách (guestId) nếu có truyền vào URL (hỗ trợ tách khách)
+                if (guestId) {
+                    rateableItems = rateableItems.filter((i: any) => i.guestId === guestId || i.customerGroupId === guestId);
+                }
 
                 const processedItems: ServiceItem[] = [];
 

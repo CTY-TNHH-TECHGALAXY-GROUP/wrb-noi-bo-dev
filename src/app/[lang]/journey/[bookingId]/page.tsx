@@ -10,12 +10,14 @@ import { translations } from '@/components/Journey/Journey.i18n';
 import { useAuthStore } from '@/lib/authStore.logic';
 import { createClient } from '@/lib/supabase';
 
-export default function JourneyPage({ params }: { params: Promise<{ lang: string, bookingId: string }> }) {
+export default function JourneyPage({ params, searchParams }: { params: Promise<{ lang: string, bookingId: string }>, searchParams?: Promise<{ guestId?: string }> }) {
     const resolvedParams = React.use(params);
+    const resolvedSearchParams = searchParams ? React.use(searchParams) : {};
     const bookingId = resolvedParams.bookingId;
     const lang = resolvedParams.lang;
+    const guestId = resolvedSearchParams.guestId;
 
-    const { data: journeyData, loading, error, refresh } = useJourneyRealtime(bookingId);
+    const { data: journeyData, loading, error, refresh } = useJourneyRealtime(bookingId, guestId);
     const { isAuthUser } = useAuthStore();
     const [isSosLoading, setIsSosLoading] = React.useState(false);
     const [sosSent, setSosSent] = React.useState(false);
