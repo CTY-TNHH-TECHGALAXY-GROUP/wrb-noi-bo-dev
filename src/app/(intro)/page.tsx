@@ -101,7 +101,7 @@ export default function LanguageSelectorPage() {
             maskRepeat: "no-repeat",
             maskPosition: "center",
           }}
-          aria-label="Ria Spa"
+          aria-label="Oria Spa"
         />
       </div>
 

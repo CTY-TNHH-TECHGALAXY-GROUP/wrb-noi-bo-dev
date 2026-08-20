@@ -31,13 +31,13 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Ria Spa",
-  description: "Booking System for Ria Spa",
+  title: "Oria Spa",
+  description: "Booking System for Oria Spa",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Ria Spa",
+    title: "Oria Spa",
   },
   icons: {
     icon: "/Image/ria%20Spa-2.png",
