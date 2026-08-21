@@ -372,7 +372,7 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                                 if (lang === 'jp' && item.serviceNameJP) localizedName = item.serviceNameJP;
                                 if (lang === 'kr' && item.serviceNameKR) localizedName = item.serviceNameKR;
                                 
-                                const durationStr = item.duration ? `${item.duration}p` : '-';
+                                const durationStr = item.duration ? `${item.duration}'` : '-';
                                 
                                 return (
                                     <tr key={item.id || idx}>
