@@ -61,6 +61,8 @@ export function useJourneyRealtime(bookingId: string) {
     const [error, setError] = useState<string | null>(null);
     // booking.id thật (có thể khác bookingId URL param nếu user dùng billCode)
     const [resolvedId, setResolvedId] = useState<string>(bookingId);
+    // Danh sách id của đơn cha + các đơn con (nếu bị tách)
+    const [resolvedIds, setResolvedIds] = useState<string[]>([bookingId]);
 
     const fetchState = useCallback(async () => {
         if (!bookingId) {
@@ -92,11 +94,33 @@ export function useJourneyRealtime(bookingId: string) {
                 const realId = booking.id;
                 setResolvedId(realId);
 
+                let allBookingIds = [realId];
+                let aggregatedTotal = booking.totalAmount || 0;
+
+                // Nếu đơn cha bị tách (SPLIT), tìm tất cả đơn con để lấy dịch vụ và cộng dồn tiền
+                if (booking.status === 'SPLIT') {
+                    const { data: childBookings } = await supabase
+                        .from('Bookings')
+                        .select('id, totalAmount')
+                        .eq('parent_booking_id', realId);
+                    
+                    if (childBookings && childBookings.length > 0) {
+                        allBookingIds = [realId, ...childBookings.map((b: any) => b.id)];
+                        
+                        // Cộng dồn totalAmount từ các đơn con (Đơn cha gốc thường = 0 khi đã tách)
+                        aggregatedTotal = childBookings.reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0);
+                        // Cập nhật lại booking tổng trong bộ nhớ để UI hiển thị đúng
+                        booking.totalAmount = aggregatedTotal;
+                    }
+                }
+                
+                setResolvedIds(prev => allBookingIds.join(',') !== prev.join(',') ? allBookingIds : prev);
+
                 // 🔧 EGRESS FIX: Select only needed columns instead of select('*')
                 const { data: items } = await supabase
                     .from('BookingItems')
                     .select('*')
-                    .eq('bookingId', realId); // Dùng booking.id thật, KHÔNG dùng URL param
+                    .in('bookingId', allBookingIds); // Dùng in thay vì eq để lấy cả cha + con
 
                 // ⚠️ NO Staff query — khách hàng KHÔNG biết tên nhân viên
 
@@ -284,7 +308,7 @@ export function useJourneyRealtime(bookingId: string) {
                     event: 'UPDATE',
                     schema: 'public',
                     table: 'Bookings',
-                    filter: `id=eq.${resolvedId}`,
+                    filter: resolvedIds.length > 1 ? `id=in.(${resolvedIds.join(',')})` : `id=eq.${resolvedId}`,
                 },
                 (payload: any) => {
                     console.log('[Journey] Booking Realtime Update:', payload.new);
@@ -292,6 +316,11 @@ export function useJourneyRealtime(bookingId: string) {
                     
                     setData((prev) => {
                         if (!prev) return prev;
+                        // Nếu update không phải của đơn cha, ta nên fetch lại toàn bộ vì update manual phức tạp
+                        if (newBooking.id !== resolvedId) {
+                            fetchState();
+                            return prev;
+                        }
                         return {
                             ...prev,
                             status: (newBooking.status as JourneyStatus) || prev.status,
@@ -316,7 +345,7 @@ export function useJourneyRealtime(bookingId: string) {
                     event: '*', // Lắng nghe cả INSERT, UPDATE, DELETE
                     schema: 'public',
                     table: 'BookingItems',
-                    filter: `bookingId=eq.${resolvedId}`,
+                    filter: resolvedIds.length > 1 ? `bookingId=in.(${resolvedIds.join(',')})` : `bookingId=eq.${resolvedId}`,
                 },
                 (payload: any) => {
                     if (payload.eventType === 'INSERT') {
@@ -391,7 +420,7 @@ export function useJourneyRealtime(bookingId: string) {
             clearInterval(pollInterval);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [bookingId, resolvedId, fetchState]);
+    }, [bookingId, resolvedId, resolvedIds, fetchState]);
 
     return { data, loading, error, refresh: fetchState };
 }
