@@ -211,8 +211,8 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
     const t = DICT[lang] || DICT['vi'];
     // Current date/time formatted
     const now = bookingData?.createdAt ? new Date(bookingData.createdAt) : new Date();
-    const formattedDate = now.toLocaleDateString('vi-VN');
-    const formattedTime = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    const formattedDate = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+    const formattedTime = now.toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' });
 
     // Customer
     const cName = bookingData?.customerName || t.walkIn;
@@ -352,11 +352,13 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                                 if (lang === 'jp' && item.serviceNameJP) localizedName = item.serviceNameJP;
                                 if (lang === 'kr' && item.serviceNameKR) localizedName = item.serviceNameKR;
                                 
+                                const durationStr = item.duration ? ` (${item.duration}p)` : '';
+                                
                                 return (
                                     <tr key={item.id || idx}>
                                         <td>{idx + 1}</td>
                                         <td>
-                                            <div className={styles.serviceName}>{localizedName}</div>
+                                            <div className={styles.serviceName}>{localizedName}{durationStr}</div>
                                             <div className={styles.serviceNote}>{t.vatNote}</div>
                                         </td>
                                         <td>{qty}</td>

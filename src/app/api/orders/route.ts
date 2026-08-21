@@ -350,16 +350,16 @@ export async function GET(request: Request) {
             try {
                 let dateStr = String(rawDate);
                 if (dateStr && !dateStr.endsWith('Z') && !dateStr.match(/([+-]\d{2}:?\d{2})$/)) {
+                    // Nếu thời gian lưu trong DB chưa có múi giờ, mặc định nó là UTC do server push lên
                     dateStr += 'Z';
                 }
                 const d = new Date(dateStr);
-                const vnDate = new Date(d.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
-                const dd = String(vnDate.getDate()).padStart(2, '0');
-                const mm = String(vnDate.getMonth() + 1).padStart(2, '0');
-                const yyyy = vnDate.getFullYear();
-                const hh = String(vnDate.getHours()).padStart(2, '0');
-                const mi = String(vnDate.getMinutes()).padStart(2, '0');
-                formattedDate = `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+                const formatter = new Intl.DateTimeFormat('en-GB', {
+                    timeZone: 'Asia/Ho_Chi_Minh',
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', hour12: false
+                });
+                formattedDate = formatter.format(d).replace(',', '');
             } catch {
                 formattedDate = rawDate ? String(rawDate).split('T')[0] : '';
             }
