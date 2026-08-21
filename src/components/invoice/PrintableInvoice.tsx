@@ -51,10 +51,10 @@ const DICT: Record<string, Record<string, string>> = {
         footerInvoice: 'Hóa đơn dịch vụ Spa',
         footerVat: 'Giá dịch vụ đã bao gồm VAT.',
         paymentUnpaid: 'Chưa thanh toán',
-        paymentCash: 'Tiền Mặt',
-        paymentUsd: 'USD',
-        paymentCard: 'CARD',
-        paymentTransfer: 'TRANSFER',
+        paymentCash: 'Tiền mặt VNĐ',
+        paymentUsd: 'Tiền mặt USD',
+        paymentCard: 'Thẻ',
+        paymentTransfer: 'Chuyển Khoản',
         noService: 'Chưa có dịch vụ',
         duration: 'T.Gian'
     },
@@ -89,10 +89,10 @@ const DICT: Record<string, Record<string, string>> = {
         footerInvoice: 'Spa Service Invoice',
         footerVat: 'Prices include VAT.',
         paymentUnpaid: 'Unpaid',
-        paymentCash: 'CASH',
-        paymentUsd: 'USD',
-        paymentCard: 'CARD',
-        paymentTransfer: 'TRANSFER',
+        paymentCash: 'Cash (VND)',
+        paymentUsd: 'Cash (USD)',
+        paymentCard: 'Card',
+        paymentTransfer: 'Transfer',
         noService: 'No service',
         duration: 'Time'
     },
@@ -127,8 +127,8 @@ const DICT: Record<string, Record<string, string>> = {
         footerInvoice: '水疗服务发票',
         footerVat: '价格包含增值税。',
         paymentUnpaid: '未付款',
-        paymentCash: '现金',
-        paymentUsd: '美元',
+        paymentCash: '现金 (VND)',
+        paymentUsd: '现金 (USD)',
         paymentCard: '刷卡',
         paymentTransfer: '转账',
         noService: '无服务',
@@ -165,8 +165,8 @@ const DICT: Record<string, Record<string, string>> = {
         footerInvoice: 'スパサービス請求書',
         footerVat: '価格は税込です。',
         paymentUnpaid: '未払い',
-        paymentCash: '現金',
-        paymentUsd: '米ドル',
+        paymentCash: '現金 (VND)',
+        paymentUsd: '現金 (USD)',
         paymentCard: 'カード',
         paymentTransfer: '振込',
         noService: 'サービスなし',
@@ -203,8 +203,8 @@ const DICT: Record<string, Record<string, string>> = {
         footerInvoice: '스파 서비스 청구서',
         footerVat: '가격은 VAT 포함입니다.',
         paymentUnpaid: '미결제',
-        paymentCash: '현금',
-        paymentUsd: '달러',
+        paymentCash: '현금 (VND)',
+        paymentUsd: '현금 (USD)',
         paymentCard: '카드',
         paymentTransfer: '계좌이체',
         noService: '서비스 없음',
@@ -236,9 +236,9 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
     const rawMethod = String(method).trim().toUpperCase();
     if (!method) {
         method = t.paymentUnpaid;
-    } else if (rawMethod === 'CASH' || rawMethod === 'TIỀN MẶT') {
+    } else if (rawMethod === 'CASH_VND' || rawMethod === 'CASH' || rawMethod === 'TIỀN MẶT') {
         method = t.paymentCash;
-    } else if (rawMethod === 'USD') {
+    } else if (rawMethod === 'CASH_USD' || rawMethod === 'USD') {
         method = t.paymentUsd;
     } else if (rawMethod === 'CARD' || rawMethod === 'QUẸT THẺ') {
         method = t.paymentCard;
