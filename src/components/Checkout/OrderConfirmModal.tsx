@@ -230,6 +230,13 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                             {dict.checkout.qr_timer_reminder || 'Scan the QR code above to track your journey.'}
                         </p>
 
+                        <button 
+                            onClick={() => window.location.href = `/invoice/${bookingId}?lang=${lang}`}
+                            className="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-full font-medium transition-colors border border-white/20 flex items-center gap-2 mt-2"
+                        >
+                            📄 Xem Hóa Đơn
+                        </button>
+
                         {/* Info */}
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-4 w-full space-y-2">
                             <div className="flex justify-between text-sm">

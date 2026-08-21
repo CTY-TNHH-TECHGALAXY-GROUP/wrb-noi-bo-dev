@@ -503,6 +503,13 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                                         )}
                                     </>
                                 )}
+                                <button
+                                    onClick={() => window.location.href = `/invoice/${visit.id}?lang=${lang}`}
+                                    className="w-12 flex-shrink-0 bg-white/5 hover:bg-white/10 text-[#D4AF37] border border-white/10 rounded-xl flex items-center justify-center transition-colors"
+                                    title="Xem Hóa Đơn"
+                                >
+                                    🧾
+                                </button>
                             </div>
                         </div>
                     ))}
