@@ -22,7 +22,7 @@ export default function InvoicePrintPage() {
         hotline: '0964090277',
         note1: 'Cảm ơn Quý khách đã sử dụng dịch vụ tại ORIA SPA.',
         note2: 'Vui lòng giữ hóa đơn để thuận tiện đối chiếu khi cần hỗ trợ.',
-        logoUrl: ''
+        logoUrl: '/Image/ria Spa-2.png'
     });
 
     const [bookingData, setBookingData] = useState<any>(null);
@@ -57,6 +57,7 @@ export default function InvoicePrintPage() {
                         phone: loaded.phone === '0900 000 000' ? '0964090277' : (loaded.phone || prev.phone),
                         hotline: loaded.hotline === '0900 000 000' ? '0964090277' : (loaded.hotline || prev.hotline),
                         email: loaded.email || prev.email,
+                        logoUrl: loaded.logoUrl || prev.logoUrl,
                     }));
                 }
 
