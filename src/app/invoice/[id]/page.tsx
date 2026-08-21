@@ -78,16 +78,7 @@ export default function InvoicePrintPage() {
         init();
     }, [orderId]);
 
-    // Automatically trigger print when ready
-    useEffect(() => {
-        if (!isLoading && bookingData && !error) {
-            // Small delay to ensure CSS and images are loaded
-            const timer = setTimeout(() => {
-                window.print();
-            }, 500);
-            return () => clearTimeout(timer);
-        }
-    }, [isLoading, bookingData, error]);
+    // Remove auto print as requested by user
 
     if (isLoading) {
         return (
