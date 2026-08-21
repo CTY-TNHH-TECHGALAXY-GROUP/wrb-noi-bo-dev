@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
 
 export async function GET(
     request: Request,
@@ -9,10 +11,15 @@ export async function GET(
 ) {
     try {
         const { id: bookingId } = await params;
-        const supabase = getSupabaseAdmin();
-        if (!supabase) {
-            return NextResponse.json({ success: false, error: 'Supabase not initialized' }, { status: 500 });
-        }
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+        
+        console.log('[API Invoice] supabaseServiceKey length:', supabaseServiceKey.length);
+        
+        const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+            auth: { persistSession: false },
+            global: { fetch: (url, opts) => fetch(url, { ...opts, cache: 'no-store' }) }
+        });
 
         if (!bookingId) {
             return NextResponse.json({ success: false, error: 'Booking ID is required' }, { status: 400 });
@@ -33,9 +40,9 @@ export async function GET(
         const actualBookingId = booking.id;
         const { data: childBookings } = await supabase
             .from('Bookings')
-            .select('id, totalAmount, discountAmount')
+            .select('id, totalAmount')
             .eq('parent_booking_id', actualBookingId);
-            
+
         const allBookingIds = [actualBookingId, ...(childBookings || []).map(b => b.id)];
         
         let aggregatedDiscount = booking.discountAmount || 0;

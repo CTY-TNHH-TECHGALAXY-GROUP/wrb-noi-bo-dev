@@ -14,6 +14,13 @@ export const getSupabaseAdmin = () => {
         return null;
     }
 
-    return createClient(supabaseUrl, supabaseServiceKey);
+    return createClient(supabaseUrl, supabaseServiceKey, {
+        auth: { persistSession: false },
+        global: {
+            fetch: (url, options) => {
+                return fetch(url, { ...options, cache: 'no-store' });
+            }
+        }
+    });
 };
 
