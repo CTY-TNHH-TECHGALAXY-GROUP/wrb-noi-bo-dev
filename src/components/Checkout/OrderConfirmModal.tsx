@@ -237,7 +237,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                             onClick={() => window.location.href = `/invoice/${bookingId}?lang=${lang}`}
                             className="bg-white/5 hover:bg-white/10 text-[#C9A96E] px-6 py-3 rounded-full font-bold uppercase text-sm tracking-wider transition-colors border border-white/10 flex items-center gap-2 mt-2"
                         >
-                            📄 Xem Hóa Đơn
+                            📄 {({ vi: 'Xem Hóa Đơn', en: 'View Invoice', cn: '查看发票', jp: '請求書を見る', kr: '청구서 보기' } as Record<string, string>)[lang] || 'View Invoice'}
                         </button>
 
                         {/* Order Summary Info */}
