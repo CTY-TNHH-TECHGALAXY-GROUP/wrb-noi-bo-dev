@@ -56,7 +56,9 @@ const DICT: Record<string, Record<string, string>> = {
         paymentCard: 'Thẻ',
         paymentTransfer: 'Chuyển Khoản',
         noService: 'Chưa có dịch vụ',
-        duration: 'T.Gian'
+        duration: 'T.Gian',
+        note1: 'Cảm ơn Quý khách đã sử dụng dịch vụ tại ORIA SPA.',
+        note2: 'Vui lòng giữ hóa đơn để thuận tiện đối chiếu khi cần hỗ trợ.'
     },
     en: {
         invoice: 'INVOICE',
@@ -94,7 +96,9 @@ const DICT: Record<string, Record<string, string>> = {
         paymentCard: 'Card',
         paymentTransfer: 'Transfer',
         noService: 'No service',
-        duration: 'Time'
+        duration: 'Time',
+        note1: 'Thank you for choosing ORIA SPA.',
+        note2: 'Please keep this invoice for future reference if you need support.'
     },
     cn: {
         invoice: '发票',
@@ -132,7 +136,9 @@ const DICT: Record<string, Record<string, string>> = {
         paymentCard: '刷卡',
         paymentTransfer: '转账',
         noService: '无服务',
-        duration: '时间'
+        duration: '时间',
+        note1: '感谢您选择 ORIA SPA。',
+        note2: '请保留此发票以便日后需要协助时核对。'
     },
     jp: {
         invoice: '請求書',
@@ -170,7 +176,9 @@ const DICT: Record<string, Record<string, string>> = {
         paymentCard: 'カード',
         paymentTransfer: '振込',
         noService: 'サービスなし',
-        duration: '時間'
+        duration: '時間',
+        note1: 'ORIA SPAをご利用いただきありがとうございます。',
+        note2: 'サポートが必要な場合に備えて、この請求書を保管してください。'
     },
     kr: {
         invoice: '청구서',
@@ -208,7 +216,9 @@ const DICT: Record<string, Record<string, string>> = {
         paymentCard: '카드',
         paymentTransfer: '계좌이체',
         noService: '서비스 없음',
-        duration: '시간'
+        duration: '시간',
+        note1: 'ORIA SPA를 이용해 주셔서 감사합니다.',
+        note2: '향후 지원이 필요할 경우를 대비하여 이 청구서를 보관해 주십시오.'
     }
 };
 
@@ -417,8 +427,8 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                     <div className={styles.payment}>
                         <div>
                             <div className={styles.sectionTitle} style={{ marginTop: 0 }}>{t.noteTitle}</div>
-                            <p>{config.note1 || 'Cảm ơn Quý khách đã sử dụng dịch vụ tại ORIA SPA.'}</p>
-                            <p>{config.note2 || 'Vui lòng giữ hóa đơn để thuận tiện đối chiếu khi cần hỗ trợ.'}</p>
+                            <p>{t.note1}</p>
+                            <p>{t.note2}</p>
                         </div>
                         <div className={styles.stamp}>
                             <span>{t.cashier}</span>
