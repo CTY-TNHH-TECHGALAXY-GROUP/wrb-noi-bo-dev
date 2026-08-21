@@ -54,6 +54,14 @@ const POPUP_I18N: Record<string, any> = {
     }
 };
 
+const INVOICE_I18N: Record<string, string> = {
+    vi: "Xem Hóa Đơn",
+    en: "View Invoice",
+    cn: "查看发票",
+    jp: "請求書を見る",
+    kr: "청구서 보기"
+};
+
 export default function HistoryPage({ params }: { params: Promise<{ lang: string }> }) {
     const [lang, setLang] = useState<string>('en');
     const [dict, setDict] = useState<any>(null);
@@ -506,7 +514,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                                 <button
                                     onClick={() => window.location.href = `/invoice/${visit.id}?lang=${lang}`}
                                     className="w-12 flex-shrink-0 bg-white/5 hover:bg-white/10 text-[#D4AF37] border border-white/10 rounded-xl flex items-center justify-center transition-colors"
-                                    title="Xem Hóa Đơn"
+                                    title={INVOICE_I18N[lang] || INVOICE_I18N['en']}
                                 >
                                     🧾
                                 </button>

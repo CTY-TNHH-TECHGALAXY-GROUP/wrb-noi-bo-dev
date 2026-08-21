@@ -10,6 +10,13 @@ import { translations } from '@/components/Journey/Journey.i18n';
 import { useAuthStore } from '@/lib/authStore.logic';
 import { createClient } from '@/lib/supabase';
 
+const INVOICE_I18N: Record<string, string> = {
+    vi: "Xem Hóa Đơn Điện Tử",
+    en: "View Electronic Invoice",
+    cn: "查看电子发票",
+    jp: "電子請求書を見る",
+    kr: "전자 청구서 보기"
+};
 export default function JourneyPage({ params }: { params: Promise<{ lang: string, bookingId: string }> }) {
     const resolvedParams = React.use(params);
     const bookingId = resolvedParams.bookingId;
@@ -453,7 +460,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         <div className="flex flex-col gap-3 mt-8">
                             <button onClick={() => window.location.href = `/${lang}/customer-type`} className="px-8 py-3 bg-[#C9A96E] border-none rounded-2xl font-bold text-black uppercase tracking-widest shadow-lg hover:bg-[#b09461] transition-colors">{t.goHome}</button>
                             <button onClick={() => window.location.href = `/invoice/${bookingId}?lang=${lang}`} className="px-8 py-3 bg-white/5 border border-white/10 rounded-2xl font-bold text-[#C9A96E] hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
-                                🧾 Xem Hóa Đơn Điện Tử
+                                🧾 {INVOICE_I18N[lang] || INVOICE_I18N['en']}
                             </button>
                         </div>
                     </div>
