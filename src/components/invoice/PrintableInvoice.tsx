@@ -55,7 +55,8 @@ const DICT: Record<string, Record<string, string>> = {
         paymentUsd: 'USD',
         paymentCard: 'CARD',
         paymentTransfer: 'TRANSFER',
-        noService: 'Chưa có dịch vụ'
+        noService: 'Chưa có dịch vụ',
+        duration: 'T.Gian'
     },
     en: {
         invoice: 'INVOICE',
@@ -92,7 +93,8 @@ const DICT: Record<string, Record<string, string>> = {
         paymentUsd: 'USD',
         paymentCard: 'CARD',
         paymentTransfer: 'TRANSFER',
-        noService: 'No service'
+        noService: 'No service',
+        duration: 'Time'
     },
     cn: {
         invoice: '发票',
@@ -129,7 +131,8 @@ const DICT: Record<string, Record<string, string>> = {
         paymentUsd: '美元',
         paymentCard: '刷卡',
         paymentTransfer: '转账',
-        noService: '无服务'
+        noService: '无服务',
+        duration: '时间'
     },
     jp: {
         invoice: '請求書',
@@ -166,7 +169,8 @@ const DICT: Record<string, Record<string, string>> = {
         paymentUsd: '米ドル',
         paymentCard: 'カード',
         paymentTransfer: '振込',
-        noService: 'サービスなし'
+        noService: 'サービスなし',
+        duration: '時間'
     },
     kr: {
         invoice: '청구서',
@@ -203,14 +207,19 @@ const DICT: Record<string, Record<string, string>> = {
         paymentUsd: '달러',
         paymentCard: '카드',
         paymentTransfer: '계좌이체',
-        noService: '서비스 없음'
+        noService: '서비스 없음',
+        duration: '시간'
     }
 };
 
 export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: PrintableInvoiceProps) => {
     const t = DICT[lang] || DICT['vi'];
     // Current date/time formatted
-    const now = bookingData?.createdAt ? new Date(bookingData.createdAt) : new Date();
+    let dateStr = bookingData?.createdAt ? String(bookingData.createdAt) : '';
+    if (dateStr && !dateStr.endsWith('Z') && !dateStr.match(/([+-]\d{2}:?\d{2})$/)) {
+        dateStr += 'Z';
+    }
+    const now = dateStr ? new Date(dateStr) : new Date();
     const formattedDate = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
     const formattedTime = now.toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' });
 
@@ -334,6 +343,7 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                             <tr>
                                 <th>{t.stt}</th>
                                 <th>{t.service}</th>
+                                <th>{t.duration}</th>
                                 <th>{t.qty}</th>
                                 <th>{t.price}</th>
                                 <th>{t.amount}</th>
@@ -352,15 +362,16 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                                 if (lang === 'jp' && item.serviceNameJP) localizedName = item.serviceNameJP;
                                 if (lang === 'kr' && item.serviceNameKR) localizedName = item.serviceNameKR;
                                 
-                                const durationStr = item.duration ? ` (${item.duration}p)` : '';
+                                const durationStr = item.duration ? `${item.duration}p` : '-';
                                 
                                 return (
                                     <tr key={item.id || idx}>
                                         <td>{idx + 1}</td>
                                         <td>
-                                            <div className={styles.serviceName}>{localizedName}{durationStr}</div>
+                                            <div className={styles.serviceName}>{localizedName}</div>
                                             <div className={styles.serviceNote}>{t.vatNote}</div>
                                         </td>
+                                        <td>{durationStr}</td>
                                         <td>{qty}</td>
                                         <td>{formatVND(pr)}</td>
                                         <td>{formatVND(total)}</td>
@@ -372,6 +383,7 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                                     <td>
                                         <div className={styles.serviceName}>{t.noService}</div>
                                     </td>
+                                    <td>-</td>
                                     <td>0</td>
                                     <td>0 ₫</td>
                                     <td>0 ₫</td>
