@@ -22,7 +22,7 @@ export async function GET(
         const { data: booking, error: bError } = await supabase
             .from('Bookings')
             .select('*')
-            .eq('id', bookingId)
+            .or(`id.eq.${bookingId},accessToken.eq.${bookingId}`)
             .single();
 
         if (bError || !booking) {
@@ -30,12 +30,13 @@ export async function GET(
         }
 
         // Fetch child bookings if this is a parent booking
+        const actualBookingId = booking.id;
         const { data: childBookings } = await supabase
             .from('Bookings')
             .select('id, totalAmount, discountAmount')
-            .eq('parent_booking_id', bookingId);
+            .eq('parent_booking_id', actualBookingId);
             
-        const allBookingIds = [bookingId, ...(childBookings || []).map(b => b.id)];
+        const allBookingIds = [actualBookingId, ...(childBookings || []).map(b => b.id)];
         
         let aggregatedDiscount = booking.discountAmount || 0;
         let aggregatedTotal = booking.totalAmount || 0;
