@@ -49,16 +49,13 @@
 }
 
 .back {
-  position: absolute;
-  left: 26px;
-  top: 28px;
-  width: 56px;
-  height: 56px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: grid;
   place-items: center;
   color: var(--gold);
-  font-size: 34px;
+  font-size: 28px;
   line-height: 1;
   text-decoration: none;
   background: rgba(255,255,255,.02);
@@ -66,6 +63,7 @@
   backdrop-filter: blur(10px);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
   transition: all 0.2s;
+  margin-bottom: 10px;
 }
 
 .back:hover {
@@ -390,7 +388,7 @@
 
 @media (max-width:850px){
   .screen { padding: 18px 16px 28px; }
-  .back { left: 16px; top: 18px; width: 48px; height: 48px; font-size: 29px; }
+  .back { width: 44px; height: 44px; font-size: 24px; }
   .brand { max-width: 64vw; }
   .brandMark { width: 62px; height: 62px; }
   .brandName { font-size: 28px; margin-top: -45px; margin-left: 58px; }

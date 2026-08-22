@@ -83,7 +83,7 @@ export default function CustomerTypePage() {
       {/* Đã xóa mũi tên quay lại vì đây là trang chủ mới */}
 
       {/* --- KHUNG NỘI DUNG CHÍNH --- */}
-      <div className={`relative z-10 w-full max-w-[430px] px-5 py-6 ${getCommonAnimationClass()}`}>
+      <div className={`relative z-10 w-full max-w-[460px] md:max-w-[540px] px-5 py-6 ${getCommonAnimationClass()}`}>
 
         {/* --- LOGO --- */}
         <div
@@ -115,12 +115,12 @@ export default function CustomerTypePage() {
         {/* --- ĐÃ XÓA TIÊU ĐỀ WELCOME --- */}
 
         {/* --- ACTIONS GRID (4 BUTTONS) --- */}
-        <div className="grid grid-cols-2 gap-[10px] w-full">
+        <div className="grid grid-cols-2 gap-3 md:gap-5 w-full">
           
           {/* HISTORY (HIGHLIGHTED) */}
           <button 
             onClick={onSelectOldUser}
-            className="relative overflow-hidden flex flex-col justify-between min-h-[112px] border border-[#ecc964]/80 rounded-[18px] p-[15px] text-white text-left outline-none transition-all duration-250 hover:border-[#f1d376] hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505] shadow-[0_4px_20px_rgba(236,201,100,0.15)] group"
+            className="relative overflow-hidden flex flex-col justify-between min-h-[135px] md:min-h-[155px] border border-[#ecc964]/80 rounded-[22px] p-[18px] md:p-6 text-white text-left outline-none transition-all duration-250 hover:border-[#f1d376] hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505] shadow-[0_4px_20px_rgba(236,201,100,0.15)] group"
             style={{
               background: 'linear-gradient(135deg, rgba(72, 55, 24, 0.9), rgba(27, 23, 15, 0.9))'
             }}
@@ -132,56 +132,56 @@ export default function CustomerTypePage() {
             />
             
             <div className="flex justify-between items-start w-full relative z-10">
-              <span className="w-8 h-8 rounded-full flex items-center justify-center text-[#2b1c04] bg-gradient-to-r from-[#f5df8b] to-[#c99932] text-[17px] shadow-lg">
-                <History size={18} />
+              <span className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-[#2b1c04] bg-gradient-to-r from-[#f5df8b] to-[#c99932] text-[20px] md:text-[24px] shadow-lg">
+                <History size={22} className="md:w-6 md:h-6" />
               </span>
               
             </div>
-            <span className="block mt-2 relative z-10">
-              <span className="block text-[#fae9a2] text-[15px] font-bold leading-tight">{t('btn_history_title')}</span>
-              <span className="block mt-1 text-white/70 text-[10px] leading-relaxed">{t('btn_history_desc')}</span>
+            <span className="block mt-3 md:mt-4 relative z-10">
+              <span className="block text-[#fae9a2] text-[16px] md:text-[19px] font-bold leading-tight">{t('btn_history_title')}</span>
+              <span className="block mt-1.5 md:mt-2 text-white/70 text-[11.5px] md:text-[13px] leading-relaxed">{t('btn_history_desc')}</span>
             </span>
           </button>
 
           {/* WALK-IN */}
           <button 
             onClick={onSelectWalkIn}
-            className="flex flex-col justify-between min-h-[112px] border border-[#c4972f]/50 rounded-[18px] p-[15px] text-white bg-[#12100c]/80 text-left outline-none transition-all duration-250 hover:border-[#f1d376]/90 hover:bg-[#261f12]/90 hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
+            className="flex flex-col justify-between min-h-[135px] md:min-h-[155px] border border-[#c4972f]/50 rounded-[22px] p-[18px] md:p-6 text-white bg-[#12100c]/80 text-left outline-none transition-all duration-250 hover:border-[#f1d376]/90 hover:bg-[#261f12]/90 hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
           >
-            <span className="w-8 h-8 rounded-full flex items-center justify-center text-[#f5df8b] bg-[#b2861d]/20 text-[17px]">
-              <ArrowRight size={18} />
+            <span className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-[#f5df8b] bg-[#b2861d]/20 text-[20px] md:text-[24px]">
+              <ArrowRight size={22} className="md:w-6 md:h-6" />
             </span>
-            <span className="block mt-2">
-              <span className="block text-[#f5dd83] text-sm font-bold leading-tight">{t('btn_walkin_title')}</span>
-              <span className="block mt-1 text-white/50 text-[10px] leading-relaxed">{t('btn_walkin_desc')}</span>
+            <span className="block mt-3 md:mt-4">
+              <span className="block text-[#f5dd83] text-[16px] md:text-[19px] font-bold leading-tight">{t('btn_walkin_title')}</span>
+              <span className="block mt-1.5 md:mt-2 text-white/50 text-[11.5px] md:text-[13px] leading-relaxed">{t('btn_walkin_desc')}</span>
             </span>
           </button>
 
           {/* ADVANCE BOOKING */}
           <button 
             onClick={onSelectAdvance}
-            className="flex flex-col justify-between min-h-[112px] border border-[#c4972f]/50 rounded-[18px] p-[15px] text-white bg-[#12100c]/80 text-left outline-none transition-all duration-250 hover:border-[#f1d376]/90 hover:bg-[#261f12]/90 hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
+            className="flex flex-col justify-between min-h-[135px] md:min-h-[155px] border border-[#c4972f]/50 rounded-[22px] p-[18px] md:p-6 text-white bg-[#12100c]/80 text-left outline-none transition-all duration-250 hover:border-[#f1d376]/90 hover:bg-[#261f12]/90 hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
           >
-            <span className="w-8 h-8 rounded-full flex items-center justify-center text-[#f5df8b] bg-[#b2861d]/20 text-[17px]">
-              <Calendar size={18} />
+            <span className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-[#f5df8b] bg-[#b2861d]/20 text-[20px] md:text-[24px]">
+              <Calendar size={22} className="md:w-6 md:h-6" />
             </span>
-            <span className="block mt-2">
-              <span className="block text-[#f5dd83] text-sm font-bold leading-tight">{t('btn_advance_title')}</span>
-              <span className="block mt-1 text-white/50 text-[10px] leading-relaxed">{t('btn_advance_desc')}</span>
+            <span className="block mt-3 md:mt-4">
+              <span className="block text-[#f5dd83] text-[16px] md:text-[19px] font-bold leading-tight">{t('btn_advance_title')}</span>
+              <span className="block mt-1.5 md:mt-2 text-white/50 text-[11.5px] md:text-[13px] leading-relaxed">{t('btn_advance_desc')}</span>
             </span>
           </button>
 
           {/* CONTACTED FIRST */}
           <button 
             onClick={onSelectContactedFirst}
-            className="flex flex-col justify-between min-h-[112px] border border-[#c4972f]/50 rounded-[18px] p-[15px] text-white bg-[#12100c]/80 text-left outline-none transition-all duration-250 hover:border-[#f1d376]/90 hover:bg-[#261f12]/90 hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
+            className="flex flex-col justify-between min-h-[135px] md:min-h-[155px] border border-[#c4972f]/50 rounded-[22px] p-[18px] md:p-6 text-white bg-[#12100c]/80 text-left outline-none transition-all duration-250 hover:border-[#f1d376]/90 hover:bg-[#261f12]/90 hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
           >
-            <span className="w-8 h-8 rounded-full flex items-center justify-center text-[#f5df8b] bg-[#b2861d]/20 text-[17px]">
-              <Phone size={16} />
+            <span className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-[#f5df8b] bg-[#b2861d]/20 text-[20px] md:text-[24px]">
+              <Phone size={22} className="md:w-6 md:h-6" />
             </span>
-            <span className="block mt-2">
-              <span className="block text-[#f5dd83] text-sm font-bold leading-tight">{t('btn_booking_title')}</span>
-              <span className="block mt-1 text-white/50 text-[10px] leading-relaxed">{t('btn_booking_desc')}</span>
+            <span className="block mt-3 md:mt-4">
+              <span className="block text-[#f5dd83] text-[16px] md:text-[19px] font-bold leading-tight">{t('btn_booking_title')}</span>
+              <span className="block mt-1.5 md:mt-2 text-white/50 text-[11.5px] md:text-[13px] leading-relaxed">{t('btn_booking_desc')}</span>
             </span>
           </button>
 
