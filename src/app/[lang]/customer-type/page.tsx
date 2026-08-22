@@ -3,7 +3,7 @@
 
 import React, { useState } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
-import { ArrowRight, X, Loader2, ArrowLeft, History, Search, Phone } from "lucide-react";
+import { ArrowRight, X, Loader2, ArrowLeft, History, Search, Phone, Calendar } from "lucide-react";
 import { languages } from "../../(intro)/LanguageSelector.lang";
 import { useCustomerTypeLogic } from "./CustomerType.logic";
 import { GoogleLoginBtn } from '@/components/Auth/GoogleLoginBtn';
@@ -39,9 +39,12 @@ export default function CustomerTypePage() {
     showPopup,
     popupStep,
     isLoading,
+    failedEmail,
+    onRegisterNewCustomer,
     onSelectOldUser,
     onSelectWalkIn,
     onSelectAdvance,
+    onSelectContactedFirst,
     handleCheckUserEmail,
     handleRetry,
     closePopup,
@@ -111,45 +114,35 @@ export default function CustomerTypePage() {
 
         {/* --- ĐÃ XÓA TIÊU ĐỀ WELCOME --- */}
 
-        {/* --- PHẦN KHÁCH CŨ (PRIMARY CARD) --- */}
-        <section 
-          onClick={onSelectOldUser}
-          className="relative overflow-hidden border border-[#ecc964]/80 rounded-[22px] p-[19px] shadow-[0_14px_35px_rgba(0,0,0,0.28)] cursor-pointer group"
-          style={{
-            background: `radial-gradient(circle at 20% 25%, rgba(229, 187, 77, 0.16), transparent 35%), linear-gradient(135deg, rgba(72, 55, 24, 0.96), rgba(27, 23, 15, 0.96))`
-          }}
-        >
-          {/* Hiệu ứng lướt sáng */}
-          <div 
-            className="absolute inset-0 pointer-events-none animate-[spaSweep_4.2s_ease-in-out_infinite]"
-            style={{ background: 'linear-gradient(110deg, transparent 28%, rgba(255,234,160,.12), transparent 66%)' }}
-          />
+        {/* --- ACTIONS GRID (4 BUTTONS) --- */}
+        <div className="grid grid-cols-2 gap-[10px] w-full">
           
-          <span className="inline-flex px-[9px] py-[5px] border border-[#f2d57a]/30 rounded-full bg-[#d8b34e]/10 text-[#f5df8b] text-[9px] font-bold tracking-[0.14em] uppercase">
-            {t('badge_recommended')}
-          </span>
-          
-          <h2 className="mt-[13px] mb-[5px] text-[#fae9a2] text-[22px] font-semibold leading-tight tracking-[0.02em]">
-            {t('btn_old_title')}
-          </h2>
-          
-          <p className="m-0 text-white/70 text-xs leading-relaxed">
-            {t('desc_old_title')}
-          </p>
-          
-          <button className="relative z-10 w-full mt-4 border-0 rounded-full py-3 text-[#2b1c04] bg-gradient-to-r from-[#f5df8b] to-[#c99932] text-sm font-bold cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505] transition-transform active:scale-[0.98]">
-            {t('btn_continue_journey')}
+          {/* HISTORY (HIGHLIGHTED) */}
+          <button 
+            onClick={onSelectOldUser}
+            className="relative overflow-hidden flex flex-col justify-between min-h-[112px] border border-[#ecc964]/80 rounded-[18px] p-[15px] text-white text-left outline-none transition-all duration-250 hover:border-[#f1d376] hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505] shadow-[0_4px_20px_rgba(236,201,100,0.15)] group"
+            style={{
+              background: 'linear-gradient(135deg, rgba(72, 55, 24, 0.9), rgba(27, 23, 15, 0.9))'
+            }}
+          >
+            {/* Hiệu ứng quét sáng */}
+            <div 
+              className="absolute inset-0 pointer-events-none animate-[spaSweep_4.2s_ease-in-out_infinite]"
+              style={{ background: 'linear-gradient(110deg, transparent 28%, rgba(255,234,160,.12), transparent 66%)' }}
+            />
+            
+            <div className="flex justify-between items-start w-full relative z-10">
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-[#2b1c04] bg-gradient-to-r from-[#f5df8b] to-[#c99932] text-[17px] shadow-lg">
+                <History size={18} />
+              </span>
+              
+            </div>
+            <span className="block mt-2 relative z-10">
+              <span className="block text-[#fae9a2] text-[15px] font-bold leading-tight">{t('btn_history_title')}</span>
+              <span className="block mt-1 text-white/70 text-[10px] leading-relaxed">{t('btn_history_desc')}</span>
+            </span>
           </button>
-        </section>
 
-        {/* --- NHÃN PHÂN CÁCH (NEW VISIT) --- */}
-        <div className="mt-[18px] mb-[10px] mx-[2px] text-[#f5df8b]/70 text-[10px] font-bold tracking-[0.18em] uppercase">
-          {t('label_new_visit')}
-        </div>
-
-        {/* --- PHẦN KHÁCH MỚI (ACTIONS GRID) --- */}
-        <div className="grid grid-cols-2 gap-[10px]">
-          
           {/* WALK-IN */}
           <button 
             onClick={onSelectWalkIn}
@@ -170,6 +163,20 @@ export default function CustomerTypePage() {
             className="flex flex-col justify-between min-h-[112px] border border-[#c4972f]/50 rounded-[18px] p-[15px] text-white bg-[#12100c]/80 text-left outline-none transition-all duration-250 hover:border-[#f1d376]/90 hover:bg-[#261f12]/90 hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
           >
             <span className="w-8 h-8 rounded-full flex items-center justify-center text-[#f5df8b] bg-[#b2861d]/20 text-[17px]">
+              <Calendar size={18} />
+            </span>
+            <span className="block mt-2">
+              <span className="block text-[#f5dd83] text-sm font-bold leading-tight">{t('btn_advance_title')}</span>
+              <span className="block mt-1 text-white/50 text-[10px] leading-relaxed">{t('btn_advance_desc')}</span>
+            </span>
+          </button>
+
+          {/* CONTACTED FIRST */}
+          <button 
+            onClick={onSelectContactedFirst}
+            className="flex flex-col justify-between min-h-[112px] border border-[#c4972f]/50 rounded-[18px] p-[15px] text-white bg-[#12100c]/80 text-left outline-none transition-all duration-250 hover:border-[#f1d376]/90 hover:bg-[#261f12]/90 hover:-translate-y-0.5 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f5df8b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
+          >
+            <span className="w-8 h-8 rounded-full flex items-center justify-center text-[#f5df8b] bg-[#b2861d]/20 text-[17px]">
               <Phone size={16} />
             </span>
             <span className="block mt-2">
@@ -179,6 +186,7 @@ export default function CustomerTypePage() {
           </button>
 
         </div>
+
 
         {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
         <div className="mt-8 flex justify-center items-center gap-4">
@@ -269,15 +277,20 @@ export default function CustomerTypePage() {
               <div>
                 <h3 className="text-xl font-bold text-white mb-1">{t('error_not_found')}</h3>
                 <p className="text-sm text-gray-400">{t('error_desc')}</p>
-              </div>
+                {failedEmail && (
+                  <div className="mt-3 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <p className="text-red-400 font-medium text-sm text-center break-all">{failedEmail}</p>
+                  </div>
+                )}
+                </div>
 
               <div className="flex flex-col gap-3 mt-4">
                 <button onClick={handleRetry} className="w-full bg-[#2a2f3e] hover:bg-[#353b4d] text-white font-bold py-3.5 rounded-xl border border-white/5 transition-colors">
                   {t('btn_retry')}
                 </button>
-                <button onClick={closePopup} className="w-full bg-[#EAB308] hover:bg-[#d9a507] text-black font-bold py-3.5 rounded-xl uppercase tracking-wide shadow-md transition-colors">
-                  {t('btn_register_new')}
-                </button>
+                <button onClick={onRegisterNewCustomer} className="w-full bg-[#EAB308] hover:bg-[#d9a507] text-black font-bold py-3.5 rounded-xl uppercase tracking-wide shadow-md transition-colors">
+                    {t('btn_register_new')}
+                  </button>
               </div>
             </div>
           )}

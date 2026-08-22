@@ -8,7 +8,7 @@
 /**
  * Type định nghĩa các key có thể dịch
  */
-export type TranslationKey = 'wc_title' | 'subtitle_journey' | 'badge_recommended' | 'desc_old_title' | 'btn_continue_journey' | 'label_new_visit' | 'btn_walkin_title' | 'btn_walkin_desc' | 'btn_booking_title' | 'btn_booking_desc' | 'btn_old_title' | 'btn_back' | 'find_history' | 'desc_enter_email' | 'input_placeholder' | 'search' | 'cancel' | 'error_not_found' | 'error_desc' | 'btn_retry' | 'btn_register_new' | 'btn_logout' | 'or_manual';
+export type TranslationKey = 'wc_title' | 'subtitle_journey' | 'badge_recommended' | 'desc_old_title' | 'btn_continue_journey' | 'label_new_visit' | 'btn_walkin_title' | 'btn_walkin_desc' | 'btn_booking_title' | 'btn_booking_desc' | 'btn_advance_title' | 'btn_advance_desc' | 'btn_history_title' | 'btn_history_desc' | 'btn_old_title' | 'btn_back' | 'find_history' | 'desc_enter_email' | 'input_placeholder' | 'search' | 'cancel' | 'error_not_found' | 'error_desc' | 'btn_retry' | 'btn_register_new' | 'btn_logout' | 'or_manual';
 
 /**
  * Object chứa tất cả bản dịch theo ngôn ngữ
@@ -27,6 +27,10 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     btn_walkin_desc: 'Order at the Spa • Ready in about 15 mins',
     btn_booking_title: 'Contacted First',
     btn_booking_desc: 'Called or contacted in advance, service not selected yet',
+    btn_advance_title: 'Advance Booking',
+    btn_advance_desc: 'Book a specific date & time',
+    btn_history_title: 'Order History',
+    btn_history_desc: 'Review your active bookings',
     btn_old_title: 'View Order History',
     btn_back: 'Back',
     find_history: 'Find History',
@@ -53,6 +57,10 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     btn_walkin_desc: 'Đặt tại tiệm • Sẵn sàng trong khoảng 15 phút',
     btn_booking_title: 'Đã Liên Hệ Trước',
     btn_booking_desc: 'Đã gọi hoặc liên hệ trước, chưa chọn dịch vụ',
+    btn_advance_title: 'Đặt lịch trước',
+    btn_advance_desc: 'Đặt trước ngày giờ cụ thể',
+    btn_history_title: 'Lịch sử đơn hàng',
+    btn_history_desc: 'Xem lại các lịch đặt',
     btn_old_title: 'Xem lịch sử đơn hàng',
     btn_back: 'Quay lại',
     find_history: 'Tìm Lịch Sử',
@@ -79,6 +87,10 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     btn_walkin_desc: '店頭でのご注文 • 約15分でご案内可能です',
     btn_booking_title: '事前連絡済み',
     btn_booking_desc: '事前に電話や連絡済みですが、サービスは未定です',
+    btn_advance_title: '事前予約',
+    btn_advance_desc: '特定の日時を予約する',
+    btn_history_title: '注文履歴',
+    btn_history_desc: '予約を確認する',
     btn_old_title: '注文履歴を表示',
     btn_back: '戻る',
     find_history: '履歴検索',
@@ -105,6 +117,10 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     btn_walkin_desc: '매장 예약 • 약 15분 후 서비스 가능',
     btn_booking_title: '사전 연락 완료',
     btn_booking_desc: '사전 연락을 했으나 서비스는 미정',
+    btn_advance_title: '사전 예약',
+    btn_advance_desc: '특정 날짜 및 시간 예약',
+    btn_history_title: '주문 내역',
+    btn_history_desc: '활성 예약 검토',
     btn_old_title: '주문 내역 보기',
     btn_back: '돌아가기',
     find_history: '기록 찾기',
@@ -131,6 +147,10 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     btn_walkin_desc: '到店下单 • 约15分钟后可服务',
     btn_booking_title: '已提前联系',
     btn_booking_desc: '已提前沟通，尚未选择服务',
+    btn_advance_title: '提前预订',
+    btn_advance_desc: '预订特定日期和时间',
+    btn_history_title: '订单历史',
+    btn_history_desc: '查看您的有效预订',
     btn_old_title: '查看订单历史',
     btn_back: '返回',
     find_history: '查找记录',

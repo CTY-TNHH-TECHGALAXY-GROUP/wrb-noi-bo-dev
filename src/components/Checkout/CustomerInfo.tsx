@@ -1,6 +1,93 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { COUNTRY_CODES, getDefaultCountryCode } from '@/lib/countryCodes';
+
+const SearchableCountrySelect = ({
+    value,
+    onChange
+}: {
+    value: string;
+    onChange: (val: string) => void;
+}) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    const currentCountry = COUNTRY_CODES.find(c => c.dialCode === value) || COUNTRY_CODES[0];
+    
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const filteredCountries = COUNTRY_CODES.filter(c => 
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        c.dialCode.includes(searchQuery) ||
+        c.code.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return (
+        <div ref={containerRef} className="w-[120px] shrink-0 relative">
+            <div 
+                className="w-full h-full bg-[#0d0d0d] border border-white/10 rounded-xl pl-4 pr-10 py-4 text-white cursor-pointer focus-within:border-[#C9A96E] transition-colors shadow-sm relative flex items-center"
+                onClick={() => {
+                    if (!isOpen) {
+                        setIsOpen(true);
+                        setSearchQuery('');
+                    }
+                }}
+            >
+                {isOpen ? (
+                    <input
+                        autoFocus
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="bg-transparent w-full focus:outline-none text-white text-sm"
+                        placeholder="Search..."
+                    />
+                ) : (
+                    <div className="flex items-center gap-1 overflow-hidden whitespace-nowrap">
+                        <span>{currentCountry?.flag}</span>
+                        <span className="truncate">{currentCountry?.dialCode}</span>
+                    </div>
+                )}
+                
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                </div>
+            </div>
+
+            {isOpen && (
+                <ul className="absolute z-50 left-0 right-0 top-full mt-1 max-h-[250px] overflow-y-auto bg-[#1c1c1e] border border-white/10 rounded-xl shadow-xl py-1" style={{ scrollbarWidth: 'thin' }}>
+                    {filteredCountries.length > 0 ? (
+                        filteredCountries.map((c) => (
+                            <li 
+                                key={c.code}
+                                onClick={() => {
+                                    onChange(c.dialCode);
+                                    setIsOpen(false);
+                                }}
+                                className={`px-3 py-3 hover:bg-[#2a2a2c] cursor-pointer flex items-center gap-2 text-sm transition-colors ${value === c.dialCode ? 'bg-[#2a2a2c] text-[#C9A96E] font-medium' : 'text-gray-300'}`}
+                            >
+                                <span>{c.flag}</span>
+                                <span>{c.dialCode}</span>
+                            </li>
+                        ))
+                    ) : (
+                        <li className="px-4 py-3 text-sm text-gray-500 text-center">No match</li>
+                    )}
+                </ul>
+            )}
+        </div>
+    );
+};
+
 
 interface CustomerInfoProps {
     lang: string;
@@ -57,22 +144,10 @@ export default function CustomerInfo({ lang, dict, info, onChange, isBookingFlow
 
     const renderPhoneInput = (placeholder: string) => (
         <div className="flex gap-4">
-            <div className="w-[120px] shrink-0 relative">
-                <select
-                    value={countryCode}
-                    onChange={(e) => handleCountryCodeChange(e.target.value)}
-                    className="w-full bg-[#0d0d0d] border border-white/10 rounded-xl pl-4 pr-10 py-4 text-white appearance-none focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
-                >
-                    {COUNTRY_CODES.map((c) => (
-                        <option key={c.code} value={c.dialCode}>
-                            {c.flag} {c.dialCode}
-                        </option>
-                    ))}
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                </div>
-            </div>
+                        <SearchableCountrySelect 
+                value={countryCode} 
+                onChange={handleCountryCodeChange} 
+            />
             
             <div className="flex-1 relative">
                 <input

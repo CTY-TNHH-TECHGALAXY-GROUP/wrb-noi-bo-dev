@@ -21,13 +21,14 @@ export const useCustomerTypeLogic = (lang: string) => {
   const router = useRouter();
   const { user } = useAuthStore();
   const { handleLogout } = useGoogleLogin(lang);
-  const { clearCart } = useMenuData();
+  const { clearCart, updateCustomerInfo } = useMenuData();
 
   // --- 1. CÁC STATE QUẢN LÝ ---
   const [isExiting, setIsExiting] = useState(false); // Animation chuyển trang
   const [showPopup, setShowPopup] = useState(false); // Bật/Tắt Popup
   const [popupStep, setPopupStep] = useState<'input' | 'error'>('input'); // Bước của popup
-  const [isLoading, setIsLoading] = useState(false); // Loading khi gọi Firebase
+  const [isLoading, setIsLoading] = useState(false);
+  const [failedEmail, setFailedEmail] = useState(""); // Loading khi gọi Firebase
 
   // --- 2. HÀM DỊCH NGÔN NGỮ ---
   const t = (key: TranslationKey) => {
@@ -52,6 +53,16 @@ export const useCustomerTypeLogic = (lang: string) => {
   };
 
   const onSelectAdvance = () => {
+    setShowPopup(false);
+    clearCart();
+    setIsExiting(true);
+
+    setTimeout(() => {
+      router.push(`/${lang}/new-user/booking/select-menu`);
+    }, 500);
+  };
+
+  const onSelectContactedFirst = () => {
     setShowPopup(false);
     clearCart();
     setIsExiting(true);
@@ -108,11 +119,23 @@ export const useCustomerTypeLogic = (lang: string) => {
         router.push(`/${targetLang}/old-user/history`);
       }, 500);
     } else {
+      setFailedEmail(trimmedValue);
       setPopupStep('error');
     }
   };
 
   // --- 6. CÁC HÀM PHỤ TRỢ ---
+  const onRegisterNewCustomer = () => {
+    setShowPopup(false);
+    clearCart();
+    updateCustomerInfo('email', failedEmail);
+    setIsExiting(true);
+
+    setTimeout(() => {
+      router.push(`/${lang}/new-user/select-menu`);
+    }, 500);
+  };
+
   const handleRetry = () => setPopupStep('input');
   const closePopup = () => setShowPopup(false);
 
@@ -139,13 +162,16 @@ export const useCustomerTypeLogic = (lang: string) => {
     showPopup,
     popupStep,
     isLoading,
+    failedEmail,
 
     // Functions
     t,
     onSelectWalkIn,
     onSelectAdvance,
+    onSelectContactedFirst,
     onSelectOldUser,
     handleCheckUserEmail,
+    onRegisterNewCustomer,
     handleRetry,
     closePopup,
     handleBack,
