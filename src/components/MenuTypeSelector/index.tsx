@@ -145,7 +145,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                 {/* 3. Spa Therapy -> therapy */}
                 <div 
                     className={styles.card}
-                    onClick={() => onSelect('therapy')}
+                    onClick={() => setComingSoon('therapy')}
                     aria-label="Spa Therapy"
                 >
                     <Image
