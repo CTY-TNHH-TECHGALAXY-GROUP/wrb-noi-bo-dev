@@ -24,7 +24,7 @@ export default function CheckoutLanguageDropdown({ activeLang, onSelect }: Props
     const activeLanguage = languages.find(l => l.id === activeLang) || languages[0];
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative mr-2" ref={dropdownRef}>
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
@@ -36,7 +36,7 @@ export default function CheckoutLanguageDropdown({ activeLang, onSelect }: Props
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 top-full mt-2 flex flex-col gap-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200 pt-1">
+                <div className="absolute right-0 top-full mt-2 flex flex-col gap-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200 pt-2">
                     {languages.map((l) => {
                         if (l.id === activeLang) return null;
                         return (
