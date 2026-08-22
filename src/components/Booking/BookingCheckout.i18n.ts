@@ -13,7 +13,9 @@ export type BookingTranslationKey =
   // Terms Step
   | 'step_terms_title' | 'step_terms_desc' | 'terms_agree' | 'terms_link'
   // Confirm
-  | 'btn_confirm' | 'btn_back' | 'btn_next' | 'error_incomplete' | 'error_agree_terms';
+  | 'btn_confirm' | 'btn_back' | 'btn_next' | 'error_incomplete' | 'error_agree_terms'
+  // Success
+  | 'success_title' | 'success_greeting' | 'success_desc' | 'btn_home';
 
 export const bookingTranslations: Record<string, Record<BookingTranslationKey, string>> = {
   en: {
@@ -46,6 +48,10 @@ export const bookingTranslations: Record<string, Record<BookingTranslationKey, s
     btn_next: 'Next',
     error_incomplete: 'Please complete all required fields.',
     error_agree_terms: 'Please agree to the Terms & Conditions.',
+    success_title: 'Booking Confirmed!',
+    success_greeting: 'Thank you, {name}!',
+    success_desc: 'We have received your appointment.',
+    btn_home: 'Return Home',
   },
   vi: {
     step_info_title: 'Thông Tin Khách',
@@ -77,6 +83,10 @@ export const bookingTranslations: Record<string, Record<BookingTranslationKey, s
     btn_next: 'Tiếp Tục',
     error_incomplete: 'Vui lòng điền đủ thông tin bắt buộc.',
     error_agree_terms: 'Vui lòng đồng ý với Điều Khoản & Chính Sách.',
+    success_title: 'Đặt Lịch Thành Công!',
+    success_greeting: 'Cảm ơn {name}!',
+    success_desc: 'Chúng tôi đã nhận được thông tin hẹn của bạn.',
+    btn_home: 'Về Trang Chủ',
   },
   kr: {
     step_info_title: '고객 정보',
@@ -108,6 +118,10 @@ export const bookingTranslations: Record<string, Record<BookingTranslationKey, s
     btn_next: '다음',
     error_incomplete: '필수 항목을 모두 작성해주세요.',
     error_agree_terms: '이용 약관 및 정책에 동의해주세요.',
+    success_title: '예약 확인됨!',
+    success_greeting: '감사합니다, {name}님!',
+    success_desc: '예약 정보를 받았습니다.',
+    btn_home: '홈으로 돌아가기',
   },
   jp: {
     step_info_title: 'お客様情報',
@@ -139,6 +153,10 @@ export const bookingTranslations: Record<string, Record<BookingTranslationKey, s
     btn_next: '次へ',
     error_incomplete: '必須項目をすべて記入してください。',
     error_agree_terms: '利用規約とポリシーに同意してください。',
+    success_title: '予約完了！',
+    success_greeting: 'ありがとうございます、{name}様！',
+    success_desc: 'ご予約を承りました。',
+    btn_home: 'ホームに戻る',
   },
   cn: {
     step_info_title: '客户信息',
@@ -170,6 +188,10 @@ export const bookingTranslations: Record<string, Record<BookingTranslationKey, s
     btn_next: '下一步',
     error_incomplete: '请填写所有必填字段。',
     error_agree_terms: '请同意条款和政策。',
+    success_title: '预约成功！',
+    success_greeting: '谢谢您，{name}！',
+    success_desc: '我们已收到您的预约信息。',
+    btn_home: '返回首页',
   }
   // Thêm các ngôn ngữ khác nếu cần (jp, kr, cn)
 };

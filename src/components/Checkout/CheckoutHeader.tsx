@@ -33,7 +33,7 @@ export default function CheckoutHeader({ title, backLabel = "Menu", onBack, righ
             {/* Branding Row */}
             <div className="px-5 flex items-center justify-between">
                 <h2 className="text-white text-2xl font-bold tracking-tight">
-                    Ria Spa
+                    Oria Spa
                 </h2>
                 {/* Logo Placeholder */}
                 <div

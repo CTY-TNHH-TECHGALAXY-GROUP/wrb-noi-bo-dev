@@ -21,6 +21,8 @@ interface BookingConfirmModalProps {
     amountPaid: number;
     appointmentDate: string;
     timeSlot: string;
+    clearCart?: () => void;
+    resetCustomerInfo?: () => void;
 }
 
 const UI_CONFIG = {
@@ -46,6 +48,8 @@ export default function BookingConfirmModal({
     amountPaid,
     appointmentDate,
     timeSlot,
+    clearCart,
+    resetCustomerInfo,
 }: BookingConfirmModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -69,6 +73,8 @@ export default function BookingConfirmModal({
     };
 
     const handleDone = () => {
+        if (clearCart) clearCart();
+        if (resetCustomerInfo) resetCustomerInfo();
         window.location.href = `/${lang}`;
     };
 
@@ -83,33 +89,67 @@ export default function BookingConfirmModal({
                     <div className="w-20 h-20 bg-[#0d0d0d] rounded-full flex items-center justify-center mb-2 border-4 border-[#C9A96E]/30 shadow-inner">
                         <Check size={40} className="text-[#C9A96E]" strokeWidth={4} />
                     </div>
-                    <h2 className="text-2xl font-bold text-white">
-                        {lang === 'en' ? 'Booking Confirmed!' : 'Đặt Lịch Thành Công!'}
+                    <h2 className="text-3xl font-bold text-white">
+                        {t.success_title}
                     </h2>
-                    <p className="text-[#998f81] text-sm">
-                        {lang === 'en' ? 'We have received your appointment.' : 'Chúng tôi đã nhận được thông tin hẹn của bạn.'}
+                    <p className="text-[#C9A96E] font-bold text-xl mt-1">
+                        {t.success_greeting.replace('{name}', customerInfo.name)}
+                    </p>
+                    <p className="text-[#998f81] text-base">
+                        {t.success_desc}
                     </p>
 
-                    <div className="bg-[#0d0d0d] border border-[#C9A96E]/30 rounded-2xl p-4 space-y-2 w-full text-left">
-                        <div className="flex items-center gap-2 text-[#C9A96E] font-bold mb-1 border-b border-white/10 pb-2">
-                            <Calendar size={18} />
-                            <span>{appointmentDate} | {timeSlot}</span>
+                    <div className="bg-[#0d0d0d] border border-[#C9A96E]/30 rounded-2xl p-5 space-y-4 w-full text-left max-h-[45vh] overflow-y-auto custom-scrollbar">
+                        <div className="flex flex-col gap-3 border-b border-white/10 pb-4">
+                            <div className="flex items-center gap-2 text-[#C9A96E] font-bold text-lg">
+                                <Calendar size={20} />
+                                <span>{appointmentDate} | {timeSlot}</span>
+                            </div>
+                            <div className="flex justify-between text-base text-white">
+                                <span className="text-gray-400">{dict.checkout?.name || 'Name'}</span>
+                                <span className="font-bold">{customerInfo.name}</span>
+                            </div>
+                            {customerInfo.phone && (
+                                <div className="flex justify-between text-base text-white">
+                                    <span className="text-gray-400">{dict.checkout?.phone || 'Phone'}</span>
+                                    <span className="font-bold">{customerInfo.phone}</span>
+                                </div>
+                            )}
+                            {customerInfo.email && (
+                                <div className="flex justify-between text-base text-white">
+                                    <span className="text-gray-400">{(dict.checkout?.email || 'Email').split('(')[0].trim()}</span>
+                                    <span className="font-bold">{customerInfo.email}</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex justify-between text-sm text-white pt-1">
-                            <span className="text-gray-400">{dict.checkout?.name || 'Name'}</span>
-                            <span className="font-bold">{customerInfo.name}</span>
+
+                        <div className="space-y-4">
+                            {cart.map((item, idx) => {
+                                const isVipItem = item.itemType === 'vip';
+                                return (
+                                    <div key={item.cartId} className="flex justify-between items-start text-base">
+                                        <div className="text-white pr-2">
+                                            {idx + 1}. {isVipItem ? (item.vipDisplayName || 'VIP Bespoke') : (item.names[lang] || item.names.en)} {item.qty > 1 && <span className="text-[#C9A96E]">(x{item.qty})</span>}
+                                        </div>
+                                        <div className="font-bold text-[#C9A96E] whitespace-nowrap">
+                                            {formatCurrency(item.priceVND * item.qty)} VND
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
-                        <div className="flex justify-between text-sm text-white">
+                        
+                        <div className="border-t border-white/10 pt-4 flex justify-between items-center text-base">
                             <span className="text-gray-400">{dict.checkout?.total_bill || 'Total'}</span>
-                            <span className="font-bold text-[#C9A96E]">{formatCurrency(totalVND)} VND</span>
+                            <span className="font-bold text-[#C9A96E] text-2xl">{formatCurrency(totalVND)} VND</span>
                         </div>
                     </div>
 
                     <button
                         onClick={handleDone}
-                        className="w-full py-4 rounded-xl font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-all active:scale-95 text-sm bg-[#C9A96E] text-black"
+                        className="w-full py-4 rounded-xl font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-all active:scale-95 text-base bg-[#C9A96E] text-black"
                     >
-                        {lang === 'en' ? 'Return Home' : 'Về Trang Chủ'}
+                        {t.btn_home}
                     </button>
                 </div>
             </div>
