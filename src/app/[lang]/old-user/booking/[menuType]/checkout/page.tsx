@@ -19,6 +19,7 @@ import BookingTimePicker from '@/components/Booking/BookingTimePicker';
 import BookingTermsModal from '@/components/Booking/BookingTermsModal';
 import BookingConfirmModal from '@/components/Booking/BookingConfirmModal';
 import { getBookingT } from '@/components/Booking/BookingCheckout.i18n';
+import { languages } from '@/app/(intro)/LanguageSelector.lang';
 
 // 🔧 UI CONFIGURATION
 const PAGE_CONFIG = {
@@ -226,13 +227,24 @@ export default function OldUserBookingCheckoutPage({ params }: { params: Promise
                 backLabel={t.btn_back}
                 onBack={handleBack}
                 rightAction={
-                    <button
-                        type="button"
-                        onClick={() => setActiveLang(activeLang === 'vi' ? originalLang : 'vi')}
-                        className="bg-[#131315]/40 hover:bg-[#1b1b1d]/80 text-[#e6c487]/70 hover:text-[#e6c487] text-[9px] font-black tracking-widest uppercase px-2.5 py-1.5 rounded-lg border border-[#4d463a]/20 shadow-sm active:scale-95 transition-all flex items-center gap-1"
-                    >
-                        🌐 {activeLang === 'vi' ? `ORIG (${originalLang.toUpperCase()})` : 'DỊCH VN'}
-                    </button>
+                    <div className="flex gap-1.5 items-center">
+                        {languages.map((l) => (
+                            <button
+                                key={l.id}
+                                type="button"
+                                onClick={() => setActiveLang(l.id)}
+                                className={`w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
+                                    activeLang === l.id 
+                                        ? 'border-[#f5df8b] scale-110 shadow-[0_0_10px_rgba(245,223,139,0.3)]' 
+                                        : 'border-white/10 opacity-60 hover:opacity-100 hover:scale-105'
+                                }`}
+                                aria-label={l.name}
+                            >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
+                            </button>
+                        ))}
+                    </div>
                 }
             />
 
