@@ -100,11 +100,11 @@ export default function CustomerTypePage() {
             className="w-full h-full relative z-10" 
             style={{
                 backgroundColor: "#f7ebc7",
-                WebkitMaskImage: "url('/Image/ria%20Spa-2.png')",
+                WebkitMaskImage: "url('/Image/oria-spa-logo.png')",
                 WebkitMaskSize: "contain",
                 WebkitMaskRepeat: "no-repeat",
                 WebkitMaskPosition: "center",
-                maskImage: "url('/Image/ria%20Spa-2.png')",
+                maskImage: "url('/Image/oria-spa-logo.png')",
                 maskSize: "contain",
                 maskRepeat: "no-repeat",
                 maskPosition: "center",
