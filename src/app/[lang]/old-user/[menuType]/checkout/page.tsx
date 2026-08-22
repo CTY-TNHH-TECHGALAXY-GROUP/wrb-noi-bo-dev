@@ -16,7 +16,7 @@ import AlertModal from '@/components/Shared/AlertModal';
 import { ServiceOptions, CartItem } from '@/components/Menu/types';
 import { type VatInvoiceData } from '@/components/Checkout/VatInvoiceSection';
 import { getDictionary } from '@/lib/dictionaries';
-import { languages } from '@/app/(intro)/LanguageSelector.lang';
+import CheckoutLanguageDropdown from '@/components/Checkout/CheckoutLanguageDropdown';
 
 export default function CheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
     const router = useRouter();
@@ -233,24 +233,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 backLabel={dict.common?.back_to_menu}
                 onBack={handleBack}
                 rightAction={
-                    <div className="flex gap-1.5 items-center">
-                        {languages.map((l) => (
-                            <button
-                                key={l.id}
-                                type="button"
-                                onClick={() => setActiveLang(l.id)}
-                                className={`w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
-                                    activeLang === l.id 
-                                        ? 'border-[#f5df8b] scale-110 shadow-[0_0_10px_rgba(245,223,139,0.3)]' 
-                                        : 'border-white/10 opacity-60 hover:opacity-100 hover:scale-105'
-                                }`}
-                                aria-label={l.name}
-                            >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
-                            </button>
-                        ))}
-                    </div>
+                    <CheckoutLanguageDropdown activeLang={activeLang} onSelect={setActiveLang} />
                 }
             />
 
