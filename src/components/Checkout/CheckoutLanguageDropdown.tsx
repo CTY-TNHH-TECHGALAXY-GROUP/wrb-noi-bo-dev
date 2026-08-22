@@ -36,7 +36,7 @@ export default function CheckoutLanguageDropdown({ activeLang, onSelect }: Props
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 top-full mt-2 flex flex-col gap-2 bg-[#1a1412] border border-[#d4af37]/30 p-2 rounded-xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 top-full mt-2 flex flex-col gap-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200 pt-1">
                     {languages.map((l) => {
                         if (l.id === activeLang) return null;
                         return (
@@ -47,7 +47,7 @@ export default function CheckoutLanguageDropdown({ activeLang, onSelect }: Props
                                     onSelect(l.id);
                                     setIsOpen(false);
                                 }}
-                                className="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden border-2 border-white/10 opacity-70 hover:opacity-100 hover:scale-105 hover:border-white/30 transition-all flex items-center justify-center"
+                                className="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden opacity-70 hover:opacity-100 hover:scale-110 transition-all flex items-center justify-center shadow-md bg-black/20"
                                 aria-label={l.name}
                             >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
