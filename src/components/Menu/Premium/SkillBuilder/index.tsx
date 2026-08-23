@@ -110,12 +110,12 @@ export default function SkillBuilder({ lang, selectedStaffIds, onConfirmSkills }
           >
             <div className="flex justify-between items-end mb-4 px-2">
               <div>
-                <div className="text-gray-400 text-sm">{isVi ? 'Thời gian phục vụ' : 'Total Duration'}</div>
-                <div className="text-2xl font-light text-white">{totalDuration} {isVi ? 'phút' : 'mins'}</div>
+                <div className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">{isVi ? 'Thời gian phục vụ' : 'Total Duration'}</div>
+                <div className="text-3xl font-black text-white">{totalDuration} <span className="text-xl font-medium">{isVi ? 'phút' : 'mins'}</span></div>
               </div>
               <div className="text-right">
-                <div className="text-[#C9A96E] text-xs font-semibold tracking-wider uppercase mb-1">Bespoke Pricing</div>
-                <div className="text-2xl font-medium text-[#C9A96E]">{totalPrice.toLocaleString('vi-VN')} đ</div>
+                <div className="text-[#C9A96E] text-xs font-bold tracking-wider uppercase mb-1">Bespoke Pricing</div>
+                <div className="text-3xl font-black text-[#C9A96E]">{totalPrice.toLocaleString('vi-VN')} <span className="text-xl font-medium">đ</span></div>
               </div>
             </div>
 
