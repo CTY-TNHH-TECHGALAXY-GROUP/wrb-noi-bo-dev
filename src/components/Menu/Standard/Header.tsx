@@ -102,7 +102,7 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
                     );
                 })}
             </div>
-            <div className="text-[9px] text-center text-gray-500 uppercase tracking-widest mt-2 border-t border-gray-800 pt-1">
+            <div className="text-xs text-center text-gray-400 uppercase tracking-[0.2em] mt-2 border-t border-white/5 pt-2">
                 — Random Staff & Room —
             </div>
         </div>

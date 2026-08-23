@@ -520,11 +520,11 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
             <div className="flex justify-between items-end mb-2 px-1">
               <div>
                 <div className="text-[10px] text-[#998f81] uppercase tracking-wider">{t.bc_selected}</div>
-                <div className="text-lg font-bold text-[#e4e2e4]">{effectiveDuration} {t.bc_mins}</div>
+                <div className="text-2xl font-black text-[#e4e2e4]">{effectiveDuration} {t.bc_mins}</div>
               </div>
               <div className="text-right">
                 <div className="text-[10px] text-[#e6c487] tracking-wider uppercase font-bold">Bespoke</div>
-                <div className="text-lg font-bold text-[#e6c487]">{totalPrice.toLocaleString('vi-VN')}đ</div>
+                <div className="text-2xl font-black text-[#e6c487]">{totalPrice.toLocaleString('vi-VN')}đ</div>
               </div>
             </div>
 

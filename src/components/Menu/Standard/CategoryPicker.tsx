@@ -232,6 +232,17 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                 </motion.div>
             </motion.div>
 
+            {/* --- MARQUEE (RANDOM STAFF & ROOM) --- */}
+            <div className="absolute bottom-[22vh] md:bottom-[25vh] lg:bottom-[30vh] left-0 right-0 overflow-hidden z-[100] opacity-50 border-y border-white/5 py-1.5 pointer-events-none">
+                <div className="animate-scroll flex w-max">
+                    {[...Array(10)].map((_, i) => (
+                        <span key={i} className="text-xs md:text-sm text-gray-400 uppercase tracking-[0.2em] whitespace-nowrap px-6 md:px-12">
+                            — RANDOM STAFF & ROOM —
+                        </span>
+                    ))}
+                </div>
+            </div>
+
             {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
             <div className="absolute bottom-12 md:bottom-20 lg:bottom-28 left-0 right-0 flex justify-center items-center gap-6 md:gap-10 z-[110] pointer-events-none">
                 {languages.map((l) => (
