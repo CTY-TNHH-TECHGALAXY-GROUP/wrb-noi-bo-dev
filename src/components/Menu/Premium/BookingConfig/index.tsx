@@ -465,15 +465,15 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
                     <button
                       key={dur}
                       onClick={() => setSelectedDuration(dur)}
-                      className={`flex flex-col items-center justify-center min-w-[85px] sm:min-w-[100px] py-3.5 px-2 sm:px-3 rounded-2xl transition-all shrink-0 border-2 ${
+                      className={`flex flex-col items-center justify-center min-w-[95px] sm:min-w-[110px] py-4 px-2 sm:px-3 rounded-3xl transition-all shrink-0 border-2 ${
                         isSelected
                           ? 'bg-[#e6c487]/15 border-[#e6c487] text-[#e6c487] shadow-[0_0_15px_rgba(230,196,135,0.15)]'
                           : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                       }`}
                     >
-                      <span className="text-base sm:text-xl font-bold">{dur}</span>
-                      <span className="text-[10px] sm:text-xs opacity-70">{t.bc_mins}</span>
-                      <span className={`text-xs sm:text-sm font-bold mt-1.5 ${isSelected ? 'text-[#e6c487]' : 'text-[#c9a96e]'}`}>
+                      <span className="text-2xl sm:text-3xl font-black">{dur}</span>
+                      <span className="text-xs sm:text-sm opacity-80 font-medium">{t.bc_mins}</span>
+                      <span className={`text-base sm:text-lg font-bold mt-2 tracking-wide ${isSelected ? 'text-[#e6c487]' : 'text-[#c9a96e]'}`}>
                         {(price / 1000).toFixed(0)}k
                       </span>
                     </button>
