@@ -101,27 +101,27 @@ export const CHINH_SKILLS: VipSkill[] = [
   {
     id: 'thaiBody',
     type: 'CHINH',
-    name: { vi: 'Body Thái', en: 'Thai Body', cn: '泰式 Body', jp: 'タイ古式 Body', kr: '타이 Body' },
+    name: { vi: 'Thai Body', en: 'Thai Body', cn: 'Thai Body', jp: 'Thai Body', kr: 'Thai Body' },
   },
   {
     id: 'shiatsuBody',
     type: 'CHINH',
-    name: { vi: 'Body Shiatsu', en: 'Shiatsu Body', cn: '指压 Body', jp: '指圧 Body', kr: '시아추 Body' },
+    name: { vi: 'Shiatsu Body', en: 'Shiatsu Body', cn: 'Shiatsu Body', jp: 'Shiatsu Body', kr: 'Shiatsu Body' },
   },
   {
     id: 'oilBody',
     type: 'CHINH',
-    name: { vi: 'Body Tinh dầu', en: 'Oil Body', cn: '精油 Body', jp: 'オイル Body', kr: '오일 Body' },
+    name: { vi: 'Oil Body', en: 'Oil Body', cn: 'Oil Body', jp: 'Oil Body', kr: 'Oil Body' },
   },
   {
     id: 'hotStoneBody',
     type: 'CHINH',
-    name: { vi: 'Body Đá nóng', en: 'Hot Stone Body', cn: '热石 Body', jp: 'ホットストーン Body', kr: '핫스톤 Body' },
+    name: { vi: 'Hot Stone Body', en: 'Hot Stone Body', cn: 'Hot Stone Body', jp: 'Hot Stone Body', kr: 'Hot Stone Body' },
   },
   {
     id: 'bodyMix',
     type: 'CHINH',
-    name: { vi: 'Body Mix 4 loại', en: 'Mix of four Body', cn: '四合一综合 Body', jp: '4種ミックス Body', kr: '4가지 믹스 Body' },
+    name: { vi: 'Mix of four Body', en: 'Mix of four Body', cn: 'Mix of four Body', jp: 'Mix of four Body', kr: 'Mix of four Body' },
   },
   {
     id: 'foot',
