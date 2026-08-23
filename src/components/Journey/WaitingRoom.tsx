@@ -61,9 +61,9 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
                 
                 <button 
                     onClick={() => window.location.href = `/invoice/${orderId}?lang=${lang}`} 
-                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 rounded-2xl font-bold text-[#C9A96E] hover:bg-white/10 transition-colors shadow-sm"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-white/5 border border-white/10 rounded-xl font-medium text-sm text-[#C9A96E] hover:bg-white/10 transition-colors shadow-sm"
                 >
-                    🧾 {({ vi: 'Xem Hóa Đơn Điện Tử', en: 'View Electronic Invoice', cn: '查看电子发票', jp: '電子請求書を見る', kr: '전자 청구서 보기' } as Record<string, string>)[lang] || 'View Electronic Invoice'}
+                    🧾 {({ vi: 'Xem Hoá Đơn', en: 'View Invoice', cn: '查看发票', jp: '請求書を見る', kr: '청구서 보기' } as Record<string, string>)[lang] || 'View Invoice'}
                 </button>
             </div>
 
