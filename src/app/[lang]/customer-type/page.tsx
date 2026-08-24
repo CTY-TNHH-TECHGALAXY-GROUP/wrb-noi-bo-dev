@@ -51,15 +51,47 @@ export default function CustomerTypePage() {
     handleBack,           // <-- Lấy hàm quay lại
     handleLogoutClick,    // <-- Lấy hàm đăng xuất
     user,                 // <-- Lấy thông tin user đăng nhập
+    showSplash,           // <-- Lấy state hiển thị Splash Screen
     getCommonAnimationClass,
     getPopupOverlayClass, // <-- Lấy animation popup
     getPopupContentClass  // <-- Lấy animation content
   } = useCustomerTypeLogic(lang);
 
   return (
-    <div className="w-full min-h-[100dvh] flex flex-col justify-center items-center relative overflow-hidden bg-[#050505] text-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] font-sans">
-      
-      {/* Định nghĩa Keyframes cho hiệu ứng quét sáng */}
+    <>
+      {/* --- SPLASH SCREEN OVERLAY --- */}
+      <div 
+        className={`fixed inset-0 z-50 flex items-center justify-center bg-[#050505] transition-opacity duration-500 pointer-events-none ${showSplash ? 'opacity-100' : 'opacity-0'}`}
+        style={{ zIndex: 9999 }}
+      >
+        <div 
+          className="relative flex items-center justify-center text-[#f5df8b] drop-shadow-[0_0_20px_rgba(222,180,79,0.3)] animate-pulse"
+          style={{
+            width: "300px",          
+            height: "240px",    
+          }}
+        >
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-[#d8b34e]/20 rounded-full blur-2xl"></div>
+          <div 
+            className="w-full h-full relative z-10" 
+            style={{
+                backgroundColor: "#f7ebc7",
+                WebkitMaskImage: "url('/Image/oria-spa-logo.png')",
+                WebkitMaskSize: "contain",
+                WebkitMaskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskImage: "url('/Image/oria-spa-logo.png')",
+                maskSize: "contain",
+                maskRepeat: "no-repeat",
+                maskPosition: "center",
+            }}
+          />
+        </div>
+      </div>
+
+      <div className={`w-full min-h-[100dvh] flex flex-col justify-center items-center relative overflow-hidden bg-[#050505] text-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] font-sans transition-opacity duration-500 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>
+        
+        {/* Định nghĩa Keyframes cho hiệu ứng quét sáng */}
       <style>{`
         @keyframes spaSweep {
           0%, 62% { transform: translateX(-120%); }
@@ -297,5 +329,6 @@ export default function CustomerTypePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

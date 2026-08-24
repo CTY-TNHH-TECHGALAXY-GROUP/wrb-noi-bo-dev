@@ -18,7 +18,7 @@ const UI_CONFIG = {
     ANIMATION_DURATION: '300ms',
     TABLET_RESET_SECONDS: 180, // Auto-reset countdown for tablet (3 phút)
     QR_SIZE: 200,
-    JOURNEY_BASE_URL: 'https://nganha.vercel.app',
+    JOURNEY_BASE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://oriaspa.com', // Fallback to a generic production URL if env is missing
 };
 
 // 🔧 Payment method → emoji icon mapping (language-agnostic for receptionist)
