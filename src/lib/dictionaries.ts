@@ -346,7 +346,7 @@ const dictionaries = {
             no_visits: "Không tìm thấy chuyến ghé thăm nào."
         },
         vat_invoice: {
-            checkbox_label: "Bạn có cần xuất hoá đơn không ?",
+            checkbox_label: "Bạn có cần xuất hoá đơn VAT không ?",
             tax_code_placeholder: "Nhập mã số thuế (VD: 0316794479)",
             lookup_btn: "Tra cứu",
             looking_up: "Đang tra cứu...",
