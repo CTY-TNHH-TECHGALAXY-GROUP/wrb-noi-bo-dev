@@ -1,153 +1,163 @@
-# Web Nội Bộ Ngân Hà (Ngan Ha Internal Web)
+# 🌟 Hệ thống Quản lý Oria / Ngan Ha Spa (Web Nội Bộ)
 
-Hệ thống đặt lịch, chọn menu và quản lý trải nghiệm khách hàng tại **Ngan Ha Spa**. Dự án được xây dựng với công nghệ hiện đại, tối ưu hóa cho trải nghiệm người dùng trên thiết bị di động và máy tính bảng.
-
----
-
-## 🚀 Công Nghệ Sử Dụng (Tech Stack)
-
-*   **Frontend**: [Next.js 16.1.4](https://nextjs.org/) (App Router, Turbopack)
-*   **Language**: [TypeScript](https://www.typescriptlang.org/) (Strict mode)
-*   **UI/Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-*   **Backend/Database**: [Supabase](https://supabase.com/) (PostgreSQL, Realtime, Auth)
-*   **Database Client**: `postgres.js`, `@supabase/supabase-js`, `@supabase/ssr`
-*   **Analytics**: Vercel Analytics & Speed Insights
-*   **Icons**: [Lucide React](https://lucide.dev/)
-*   **Animation**: Tailwind animate, Custom CSS keyframes
-*   **Utilities**: `date-fns` (time processing), `sharp` (image optimization)
+<div align="center">
+  <p><em>Hệ thống đặt lịch, chọn menu, và quản lý toàn trình trải nghiệm khách hàng tại Spa.</em></p>
+</div>
 
 ---
 
-## 🛠️ Cài Đặt & Chạy Dự Án (Installation & Setup)
-
-### 1. Yêu cầu (Prerequisites)
-*   **Node.js**: Phiên bản 20.x trở lên (Khuyến nghị).
-*   **Package Manager**: npm, yarn, hoặc pnpm.
-
-### 2. Cài đặt (Install)
-
-```bash
-# Clone dự án về máy
-git clone <repository_url>
-cd wrb-noi-bo-dev
-
-# Cài đặt thư viện dependencies
-npm install
-```
-
-### 3. Cấu hình Môi trường (.env.local)
-Tạo file `.env.local` tại thư mục gốc và điền thông tin kết nối (Supabase & Firebase - nếu vẫn sử dụng song song cho một số tính năng cũ):
-
-```env
-# --- SUPABASE CONFIGURATION ---
-DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
-DIRECT_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
-NEXT_PUBLIC_SUPABASE_URL=https://[PROJECT-REF].supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-# --- FIREBASE CONFIGURATION (Nếu còn giữ Auth/Storage) ---
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-```
-
-### 4. Database Setup (Supabase & PostgreSQL)
-
-Dự án sử dụng Supabase (PostgreSQL) làm cơ sở dữ liệu chính. Có thể sử dụng các file SQL trong thư mục `scripts/` để chạy migrate hoặc setup table nếu cần:
-
-```bash
-# Ví dụ: thực thi file schema vào database bằng postgres.js hoặc psql
-```
-
-### 5. Chạy ứng dụng (Run)
-
-```bash
-# Chạy môi trường phát triển (Development)
-npm run dev
-
-# Mở trình duyệt tại: http://localhost:3000
-```
+## 📑 Mục lục
+1. [Giới thiệu](#-giới-thiệu)
+2. [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
+3. [Kiến trúc & Thư mục](#-kiến-trúc--thư-mục)
+4. [Luồng Khách Hàng (Customer Flow)](#-luồng-khách-hàng-customer-flow)
+5. [Cài đặt & Khởi chạy](#-cài-đặt--khởi-chạy)
+6. [Quy chuẩn Code & Phát triển](#-quy-chuẩn-code--phát-triển)
 
 ---
 
-## 📂 Cấu Trúc Thư Mục (Project Structure)
+## 🚀 Giới thiệu
+**Oria / Ngan Ha Spa Internal Web** là một ứng dụng web nội bộ được phát triển nhằm số hóa toàn bộ quy trình tiếp đón, phục vụ và quản lý hành trình của khách hàng. Hệ thống được tối ưu hóa đặc biệt cho thiết bị máy tính bảng (Tablet) đặt tại quầy lễ tân hoặc trong phòng dịch vụ, đồng thời hỗ trợ đa ngôn ngữ (EN, VN, JP, CN, KR).
 
-Dự án tuân theo kiến trúc **Feature-based** và **Modular** của Next.js App Router.
+---
 
-```
+## 🛠 Công nghệ sử dụng
+
+### Frontend
+- **Framework**: [Next.js 16.1.4](https://nextjs.org/) (Sử dụng App Router, Turbopack)
+- **Ngôn ngữ**: [TypeScript](https://www.typescriptlang.org/) (Strict mode)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Icons & UI**: [Lucide React](https://lucide.dev/)
+- **State Management**: React Context API & Zustand (Tùy chọn)
+
+### Backend & Database
+- **Platform**: [Supabase](https://supabase.com/)
+- **Cơ sở dữ liệu**: PostgreSQL
+- **Tính năng Supabase**: Realtime (Theo dõi tiến độ dịch vụ), Authentication (Google Login), Storage.
+- **ORM / Client**: `postgres.js`, `@supabase/supabase-js`, `@supabase/ssr`
+
+---
+
+## 📂 Kiến trúc & Thư mục
+
+Dự án tuân thủ kiến trúc **Feature-based** và tách biệt Logic khỏi UI (Logic Hooks Pattern):
+
+```text
 src/
-├── app/                        # App Router (Pages & Layouts)
-│   ├── (intro)/                # Nhóm trang Introduction (Layout riêng)
-│   ├── [lang]/                 # Dynamic Route cho đa ngôn ngữ (vn, en, jp, cn, kr)
-│   │   ├── customer-type/      # Màn hình chọn loại khách (Mới / Cũ)
-│   │   ├── new-user/           # Luồng Khách Hàng Mới
-│   │   │   ├── select-menu/    # Chọn gói (Standard / Premium)
-│   │   │   ├── [menuType]/     # Chi tiết menu & Checkout
-│   │   │   └── ...
-│   │   └── old-user/           # Luồng Khách Hàng Cũ
-│   │       ├── history/        # Xem lịch sử đơn hàng
-│   │       └── ...
+├── app/                        # Next.js App Router
+│   ├── (intro)/                # Trang Intro / Chào mừng
+│   ├── [lang]/                 # Dynamic Route cho Đa ngôn ngữ (i18n)
+│   │   ├── auth/               # Các trang xác thực
+│   │   ├── customer-type/      # Màn hình chọn loại khách hàng
+│   │   ├── new-user/           # Luồng dành cho khách hàng mới (Walk-in)
+│   │   ├── old-user/           # Luồng dành cho khách hàng cũ
+│   │   ├── contacted-first/    # Luồng khách đã liên hệ trước
+│   │   └── journey/            # Bảng theo dõi tiến độ dịch vụ (Realtime)
+│   ├── api/                    # Next.js Route Handlers (API Backend)
+│   ├── invoice/                # Trang in hóa đơn điện tử
 │   ├── layout.tsx              # Root Layout
 │   └── globals.css             # Global Styles
 │
-├── components/                 # UI Components (Reusable)
-│   ├── Menu/                   # Components liên quan đến hiển thị Menu (Book, Card, List)
-│   ├── SelectLanguage/         # Component chọn ngôn ngữ (3D Orbit)
-│   └── shared/                 # Các component chung (Button, Modal, Input...)
+├── components/                 # UI Components tái sử dụng
+│   ├── Auth/                   # Các component Đăng nhập / Xác thực
+│   ├── Checkout/               # Components liên quan đến Giỏ hàng & Thanh toán
+│   ├── Menu/                   # Hiển thị Danh sách Dịch vụ (Standard, Premium)
+│   └── Shared/                 # Các component dùng chung (Modals, Buttons)
 │
-├── lib/                        # Libraries & Config (Supabase, Firebase, Utils)
-├── services/                   # Business Logic & API Calls (User Service, Order Service)
-└── types/                      # TypeScript Definitions
+├── lib/                        # Thư viện tiện ích, cấu hình Supabase, Helpers
+├── services/                   # Business Logic, thao tác gọi Database
+└── constants/                  # Các hằng số cấu hình toàn cục (Constants)
 ```
 
 ---
 
-## 🗺️ Luồng Người Dùng (User Flow)
+## 🗺 Luồng Khách Hàng (Customer Flow)
 
-Hệ thống được thiết kế theo luồng phân nhánh rõ ràng để cá nhân hóa trải nghiệm khách hàng:
+Hệ thống được thiết kế theo các luồng phân nhánh rõ ràng để tối ưu hóa trải nghiệm khách hàng:
 
-### 1. Màn Hình Chào (Intro)
-*   **URL**: `/`
-*   **Chức năng**: Hiển thị Logo, hiệu ứng và cho phép người dùng chọn ngôn ngữ (VN, EN, JP, CN, KR).
-*   **Hành động**: Sau khi chọn ngôn ngữ -> Chuyển hướng sang màn hình **Phân Loại Khách**.
+1. **Phân loại Khách hàng (`/[lang]/customer-type`)**:
+   - Khách cũ (History): Đăng nhập / Nhập email để tìm lại lịch sử -> Nhảy sang trang `history`.
+   - Khách lẻ (Walk-in): Tạo mới phiên dịch vụ.
+   - Khách đặt trước (Advance Booking): Chuyển đến luồng chọn dịch vụ đặt trước.
+   - Khách đã liên hệ (Contacted First): Nhập thông tin Sale/CSKH đã ghi nhận.
 
-### 2. Phân Loại Khách (Customer Type)
-*   **URL**: `/[lang]/customer-type`
-*   **Chức năng**: Xác định người dùng là khách mới hay khách quen.
-*   **Lựa chọn**:
-    *   **Khách Hàng Mới**: Chuyển hướng ngay đến trang **Chọn Menu** (`/new-user/select-menu`).
-    *   **Khách Hàng Cũ**: Hiển thị **Popup Kiểm Tra Thành Viên**.
-        *   *Nhập Email*: Hệ thống check Supabase / Database.
-        *   *Có thông tin*: Chuyển đến trang **Lịch Sử** (`/old-user/history`).
-        *   *Không có*: Báo lỗi, gợi ý đăng ký mới hoặc nhập lại.
+2. **Chọn Dịch vụ (`/[lang]/new-user/.../menu`)**:
+   - Lựa chọn hạng mục dịch vụ (Standard / Premium).
+   - Thêm các dịch vụ vào giỏ hàng (Cart).
+   - Tùy chỉnh dịch vụ (Chọn KTV, lực ấn, điểm cần tránh/tập trung).
 
-### 3. Chọn Menu (Select Menu) - Dành cho Khách Mới
-*   **URL**: `/[lang]/new-user/select-menu`
-*   **Giao diện**: Hiển thị 2 cuốn sách 3D đại diện cho 2 hạng dịch vụ:
-    *   **Standard**: Ngẫu nhiên nhân viên & phòng (Giá tiêu chuẩn).
-    *   **Premium**: Tự chọn thiết kế lộ trình & nhân viên (Giá cao cấp) - *Đang phát triển (Coming Soon)*.
+3. **Thanh toán & Xác nhận (`/[lang]/new-user/.../checkout`)**:
+   - Điền thông tin cá nhân.
+   - Chọn phương thức thanh toán & tùy chọn xuất hóa đơn VAT.
+   - Chốt đơn hàng qua API `POST /api/orders`.
 
-    > **Lưu ý**: Hiện tại chỉ có luồng **Standard** là hoạt động, luồng Premium chưa hoàn thiện.
-*   **Hành động**: Chọn sách -> Chuyển đến trang danh sách dịch vụ chi tiết tương ứng.
+4. **Hành trình Dịch vụ - Customer Journey (`/[lang]/journey/[id]`)**:
+   - Sử dụng Supabase Realtime để đồng bộ trạng thái thực tế.
+   - Các giai đoạn: `PREPARING` (Chờ) -> `IN_PROGRESS` (Đang làm/Đếm ngược) -> `CHECK` (Dọn dẹp) -> `RATING` (Đánh giá).
+   - Hỗ trợ gọi SOS khẩn cấp, thêm dịch vụ, đổi KTV giữa chừng.
 
-### 4. Luồng Khách Hàng Cũ (Old User Flow)
-*   **URL**: `/[lang]/old-user/history`
-*   **Chức năng**: Sau khi check email thành công, khách hàng truy cập trang Lịch Sử và có 3 lựa chọn:
-    *   **Rebook**: Đặt lại y nguyên dịch vụ của đơn hàng cũ (Giữ nguyên Staff, Room...).
-    *   **Modify**: Sử dụng thông tin đơn cũ nhưng cho phép chỉnh sửa (Đổi giờ, đổi KTV...).
-    *   **Create New Booking**: Tạo đơn hàng hoàn toàn mới (Quay lại màn hình **Chọn Menu** để chọn lại Standard/Premium).
+5. **Kết thúc & In hóa đơn (`/invoice/[id]`)**:
+   - Hiển thị hóa đơn điện tử để in hoặc gửi cho khách hàng.
+
+*(Lưu ý: Bạn có thể xem biểu đồ dạng hình ảnh chi tiết tại file `customer_flow.html` ở thư mục gốc của dự án)*
 
 ---
 
-## 📝 Ghi Chú Phát Triển (Dev Notes)
+## 💻 Cài đặt & Khởi chạy
 
-1.  **Barrel Files**: Các module trong `src/services` hoặc `src/components` nên dùng `index.ts` để export gọn gàng (VD: `import { checkUserEmail } from '@/services/user'`).
-2.  **Images**: Ảnh tĩnh (Logo, Menu Cover) nên được lưu trong `public/images/` để tải nhanh và ổn định hơn so với link ngoài.
-3.  **Animation**: Sử dụng `tailwind-animate` và CSS Keyframes cho các hiệu ứng chuyển cảnh mượt mà.
+### 1. Yêu cầu hệ thống
+- **Node.js**: Phiên bản 20.x trở lên.
+- **Package Manager**: `npm`.
 
------
+### 2. Cài đặt Dependencies
+```bash
+# Clone repository
+git clone <repository_url>
+cd wrb-noi-bo-dev
 
-*© 2026 Ngan Ha Spa Internal System.*
+# Cài đặt các gói thư viện
+npm install
+```
+
+### 3. Cấu hình Biến môi trường
+Tạo file `.env.local` tại thư mục gốc và cung cấp các cấu hình kết nối tới cơ sở dữ liệu Supabase:
+
+```env
+# Kết nối PostgreSQL (Dùng cho Prisma / postgres.js)
+DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@[REGION].pooler.supabase.com:5432/postgres"
+
+# Kết nối Supabase Client (Auth, Realtime, Storage)
+NEXT_PUBLIC_SUPABASE_URL=https://[PROJECT-REF].supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 4. Khởi chạy Môi trường Phát triển (Development)
+```bash
+npm run dev
+# Ứng dụng sẽ chạy tại: http://localhost:3000
+```
+
+---
+
+## 🛡 Quy chuẩn Code & Phát triển
+
+Để đảm bảo tính đồng nhất và dễ bảo trì, dự án áp dụng các nguyên tắc sau:
+
+1. **Tách Biệt Logic (Logic Separation)**: 
+   - **KHÔNG** nhét toàn bộ Business Logic vào file UI (`.tsx`). 
+   - Sử dụng mô hình `*.logic.ts` (Custom Hooks) để quản lý State và Logic nghiệp vụ.
+   
+2. **Đa Ngôn Ngữ (i18n)**:
+   - Hạn chế hard-code text trực tiếp vào file `.tsx`. 
+   - Khuyến khích sử dụng mô hình dictionary (`*.i18n.ts` hoặc `dictionaries.ts`) để dễ dàng scale ra nhiều ngôn ngữ.
+
+3. **Cấu hình UI / Animations**:
+   - Gom các tham số cấu hình (Thời gian chuyển cảnh, thông số kích thước UI, margin cố định) vào đầu file dưới dạng Hằng số (`PAGE_CONFIG`, `LAYOUT_CONFIG`).
+
+4. **Database & API**:
+   - Luôn kiểm tra schema database tại file `TableInSupabase.md` trước khi viết code truy vấn.
+   - Backend Next.js APIs (`route.ts`) chỉ đóng vai trò Điều phối (Orchestrator). Các thao tác DB phức tạp nên được module hóa thành các Service handlers riêng biệt.
+
+---
+*Developed with ❤️ by Ngan Ha Spa Tech Team.*
