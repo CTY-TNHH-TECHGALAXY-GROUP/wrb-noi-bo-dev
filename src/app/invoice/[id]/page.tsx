@@ -29,6 +29,27 @@ export default function InvoicePrintPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const [isTabletDevice, setIsTabletDevice] = useState(false);
+    const [tabletResetCountdown, setTabletResetCountdown] = useState(180);
+
+    useEffect(() => {
+        const checkDevice = async () => {
+            const deviceId = localStorage.getItem('REGISTERED_DEVICE_ID');
+            if (!deviceId) return;
+            try {
+                const supabase = createClient();
+                const { data } = await supabase
+                    .from('RegisteredDevices')
+                    .select('id')
+                    .eq('device_id', deviceId)
+                    .eq('is_active', true)
+                    .single();
+                if (data) setIsTabletDevice(true);
+            } catch { /* not a tablet */ }
+        };
+        checkDevice();
+    }, []);
+
     useEffect(() => {
         const init = async () => {
             if (!orderId) {
@@ -79,6 +100,23 @@ export default function InvoicePrintPage() {
         init();
     }, [orderId]);
 
+    // Auto-reset countdown for TABLET devices
+    useEffect(() => {
+        if (isTabletDevice && !isLoading && !error) {
+            const interval = setInterval(() => {
+                setTabletResetCountdown(prev => {
+                    if (prev <= 1) {
+                        window.location.href = '/';
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
+            return () => clearInterval(interval);
+        }
+    }, [isTabletDevice, isLoading, error]);
+
     // Remove auto print as requested by user
 
     if (isLoading) {
@@ -118,6 +156,13 @@ export default function InvoicePrintPage() {
                     {lang === 'en' ? 'Back' : lang === 'cn' ? '返回' : lang === 'jp' ? '戻る' : lang === 'kr' ? '뒤로' : 'Trở về'}
                 </button>
             </div>
+            
+            {/* Auto reset indicator cho Tablet (ẩn khi in) */}
+            {isTabletDevice && (
+                <div className="print:hidden fixed bottom-4 right-4 z-50 bg-gray-900/80 text-white px-4 py-2 rounded-full font-medium shadow-lg backdrop-blur-md flex items-center gap-2 text-sm">
+                    {lang === 'en' ? 'Auto-reset in' : lang === 'cn' ? '自动重置在' : lang === 'jp' ? '自動リセットまで' : lang === 'kr' ? '자동 재설정 시간' : 'Trở về trang chủ sau'} <span className="font-bold text-[#C9A96E]">{tabletResetCountdown}s</span>
+                </div>
+            )}
             
             <PrintableInvoice config={config} bookingData={bookingData} lang={lang} />
         </div>

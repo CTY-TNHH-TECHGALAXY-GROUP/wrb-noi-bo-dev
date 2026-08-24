@@ -102,11 +102,15 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
         window.location.href = '/';
     };
 
-    // Auto-redirect effect (for NON-tablet devices)
+    // Auto-redirect effect
     useEffect(() => {
-        if (success && bookingId && !isTabletDevice) {
+        if (success && bookingId) {
             const timer = setTimeout(() => {
-                handleDone();
+                if (isTabletDevice) {
+                    window.location.href = `/invoice/${bookingId}?lang=${lang}`;
+                } else {
+                    handleDone();
+                }
             }, UI_CONFIG.REDIRECT_DELAY);
 
             const interval = setInterval(() => {
@@ -119,23 +123,6 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
             };
         }
     }, [success, bookingId, lang, isTabletDevice]);
-
-    // Auto-reset countdown for TABLET devices
-    useEffect(() => {
-        if (success && bookingId && isTabletDevice) {
-            const interval = setInterval(() => {
-                setTabletResetCountdown(prev => {
-                    if (prev <= 1) {
-                        handleTabletReset();
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
-
-            return () => clearInterval(interval);
-        }
-    }, [success, bookingId, isTabletDevice]);
 
     // Prevent interaction if closed - This MUST be after hooks but before JSX
     if (!isOpen) return null;
@@ -182,112 +169,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
         }
     };
     if (success) {
-        const baseUrl = typeof window !== 'undefined' ? window.location.origin : UI_CONFIG.JOURNEY_BASE_URL;
-        const journeyUrl = `${baseUrl}/${lang}/journey/${bookingId}`;
-
-        // === TABLET MODE: Show QR Code ===
-        if (isTabletDevice && bookingId) {
-            return (
-                <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 backdrop-blur-md">
-                    <div
-                        className="w-full max-w-lg p-10 flex flex-col items-center text-center space-y-6 m-4 bg-[#1c1c1e] border border-white/10 shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-500"
-                        style={{ borderRadius: UI_CONFIG.BORDER_RADIUS }}
-                    >
-                        {/* Gold Glow Background */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-[#C9A96E]/20 rounded-full blur-3xl -z-10 opacity-60"></div>
-
-                        {/* Success Check */}
-                        <div className="w-20 h-20 bg-[#0d0d0d] rounded-full flex items-center justify-center border-4 border-[#C9A96E]/30 shadow-inner">
-                            <Check size={40} className="text-[#C9A96E]" strokeWidth={4} />
-                        </div>
-
-                        <div>
-                            <h2 className="text-2xl font-bold text-white mb-2 tracking-wide uppercase">
-                                {dict.checkout.order_submitted || 'Order Submitted!'}
-                            </h2>
-                            <p className="text-gray-400 text-sm">
-                                {dict.checkout.scan_qr || 'Scan QR code to track your service on your phone'}
-                            </p>
-                        </div>
-
-                        {/* QR Code Container */}
-                        <div className="bg-white p-6 rounded-3xl shadow-[0_0_30px_rgba(201,169,110,0.15)] border-4 border-white">
-                            <QRCodeSVG
-                                value={journeyUrl}
-                                size={UI_CONFIG.QR_SIZE}
-                                level="H"
-                                includeMargin={false}
-                                imageSettings={{
-                                    src: '/logo.png',
-                                    x: undefined,
-                                    y: undefined,
-                                    height: 48,
-                                    width: 48,
-                                    excavate: true,
-                                }}
-                            />
-                        </div>
-
-                        {/* Timer Reminder for Customer */}
-                        <p className="text-gray-500 text-sm text-center leading-relaxed max-w-sm px-2">
-                            {dict.checkout.qr_timer_reminder || 'Scan the QR code above to track your journey.'}
-                        </p>
-
-                        <button 
-                            onClick={() => window.location.href = `/invoice/${bookingId}?lang=${lang}`}
-                            className="bg-white/5 hover:bg-white/10 text-[#C9A96E] px-6 py-3 rounded-full font-bold uppercase text-sm tracking-wider transition-colors border border-white/10 flex items-center gap-2 mt-2"
-                        >
-                            📄 {({ vi: 'Xem Hóa Đơn', en: 'View Invoice', cn: '查看发票', jp: '請求書を見る', kr: '청구서 보기' } as Record<string, string>)[lang] || 'View Invoice'}
-                        </button>
-
-                        {/* Order Summary Info */}
-                        <div className="bg-[#0d0d0d] border border-white/5 rounded-2xl p-5 w-full space-y-3">
-                            <div className="flex justify-between items-center text-sm border-b border-white/5 pb-3">
-                                <span className="text-gray-400 font-medium">{dict.checkout.total_bill || 'Total'}</span>
-                                <span className="font-bold text-[#C9A96E] text-xl">{formatCurrency(totalVND)} VND</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <div className="flex gap-2 items-center text-gray-400">
-                                    <Clock size={16} />
-                                    <span>{dict.checkout?.time || (lang === 'en' ? 'Time' : 'Thời gian')}</span>
-                                </div>
-                                <span className="font-bold text-white">{totalTime} {dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins')}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-400">{dict.checkout?.payment_method || (lang === 'en' ? 'Payment Method' : 'Thanh toán')}</span>
-                                <span className="font-bold text-white uppercase flex items-center gap-1.5">
-                                    <span className="text-base">{getPaymentIcon(paymentMethod)}</span>
-                                    {dict.payment_methods?.[paymentMethod] || paymentMethod || 'Cash'}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Auto-reset countdown */}
-                        <div className="space-y-3 w-full pt-2">
-                            <div className="w-full bg-[#0d0d0d] rounded-full h-1.5 overflow-hidden border border-white/5">
-                                <div
-                                    className="h-full bg-[#C9A96E] rounded-full transition-all duration-1000 ease-linear shadow-[0_0_10px_rgba(201,169,110,0.8)]"
-                                    style={{ width: `${(tabletResetCountdown / UI_CONFIG.TABLET_RESET_SECONDS) * 100}%` }}
-                                />
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <p className="text-xs text-gray-500">
-                                    {dict.checkout.screen_resets_in || 'Screen resets in'} <span className="font-bold text-white">{tabletResetCountdown}s</span>
-                                </p>
-                                <button
-                                    onClick={handleTabletReset}
-                                    className="text-[#C9A96E] text-xs font-bold uppercase tracking-widest hover:text-white transition-colors"
-                                >
-                                    {dict.checkout.reset_now || 'Reset now'} &rarr;
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        // === NORMAL MODE: Auto-redirect to Journey ===
+        // === NORMAL MODE: Auto-redirect to Journey / Invoice ===
         return (
             <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
                 <div 
