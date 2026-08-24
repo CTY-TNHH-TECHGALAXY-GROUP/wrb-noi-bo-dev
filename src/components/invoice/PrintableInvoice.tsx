@@ -275,7 +275,8 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
     // Luôn tính toán lại totalAmount từ items để đảm bảo hóa đơn không bao giờ bị sai lệch toán học
     const totalAmount = Math.max(0, subTotal - discount);
 
-    const formatVND = (val: number) => new Intl.NumberFormat('vi-VN').format(val) + ' VNĐ';
+    const formatNumber = (val: number) => new Intl.NumberFormat('vi-VN').format(val);
+    const formatVND = (val: number) => formatNumber(val) + ' VNĐ';
 
     // QR Journey URL
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://oriaspa.com');
@@ -398,7 +399,7 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                                         </td>
                                         <td>{durationStr}</td>
                                         <td>{qty}</td>
-                                        <td>{formatVND(pr)}</td>
+                                        <td>{formatNumber(pr)}</td>
                                         <td>{formatVND(total)}</td>
                                     </tr>
                                 )
@@ -410,7 +411,7 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                                     </td>
                                     <td>-</td>
                                     <td>0</td>
-                                    <td>0 VNĐ</td>
+                                    <td>0</td>
                                     <td>0 VNĐ</td>
                                 </tr>
                             )}
