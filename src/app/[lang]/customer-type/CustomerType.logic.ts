@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { translations, TranslationKey } from "./CustomerType.i18n";
 // Animation imports
@@ -29,6 +29,25 @@ export const useCustomerTypeLogic = (lang: string) => {
   const [popupStep, setPopupStep] = useState<'input' | 'error'>('input'); // Bước của popup
   const [isLoading, setIsLoading] = useState(false);
   const [failedEmail, setFailedEmail] = useState(""); // Loading khi gọi Firebase
+  const [showSplash, setShowSplash] = useState(true); // Trạng thái hiển thị Splash Screen
+
+  // --- SPLASH SCREEN EFFECT ---
+  useEffect(() => {
+    // Check if splash screen has been shown in this session
+    const hasSeenSplash = sessionStorage.getItem("hasSeenSplash");
+    if (hasSeenSplash) {
+      setShowSplash(false);
+      return;
+    }
+
+    // Show splash screen for 1.8 seconds, then hide
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+      sessionStorage.setItem("hasSeenSplash", "true");
+    }, 1800); // 1.8 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // --- 2. HÀM DỊCH NGÔN NGỮ ---
   const t = (key: TranslationKey) => {
@@ -163,6 +182,7 @@ export const useCustomerTypeLogic = (lang: string) => {
     popupStep,
     isLoading,
     failedEmail,
+    showSplash,
 
     // Functions
     t,

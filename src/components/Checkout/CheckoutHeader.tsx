@@ -40,11 +40,11 @@ export default function CheckoutHeader({ title, backLabel = "Menu", onBack, righ
                     className="w-12 h-12 opacity-90"
                     style={{
                         backgroundColor: "#f7ebc7",
-                        WebkitMaskImage: "url('/Image/ria%20Spa-2.png')",
+                        WebkitMaskImage: "url('/Image/oria-spa-logo.png')",
                         WebkitMaskSize: "contain",
                         WebkitMaskRepeat: "no-repeat",
                         WebkitMaskPosition: "center",
-                        maskImage: "url('/Image/ria%20Spa-2.png')",
+                        maskImage: "url('/Image/oria-spa-logo.png')",
                         maskSize: "contain",
                         maskRepeat: "no-repeat",
                         maskPosition: "center",

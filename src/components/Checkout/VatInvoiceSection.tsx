@@ -160,7 +160,7 @@ const VatInvoiceSection = ({ lang, dict, invoiceData, onInvoiceChange }: VatInvo
                     )}
                 </div>
                 <span
-                    className={`text-sm font-medium transition-colors ${
+                    className={`text-base md:text-lg font-semibold transition-colors ${
                         wantInvoice ? 'text-[#C9A96E]' : 'text-gray-400 group-hover:text-gray-300'
                     }`}
                     onClick={handleToggle}

@@ -40,8 +40,8 @@ export const metadata: Metadata = {
     title: "Oria Spa",
   },
   icons: {
-    icon: "/Image/ria%20Spa-2.png",
-    apple: "/Image/ria%20Spa-2.png",
+    icon: "/Image/oria-spa-logo.png",
+    apple: "/Image/oria-spa-logo.png",
   },
 };
 

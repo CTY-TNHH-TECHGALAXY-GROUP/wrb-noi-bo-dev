@@ -66,11 +66,11 @@ const ComingSoon = ({ title, subtitle, lang = 'vi' }: ComingSoonProps) => {
                         className="w-24 h-24 relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"
                         style={{
                             backgroundColor: "#f7ebc7",
-                            WebkitMaskImage: "url('/Image/ria%20Spa-2.png')",
+                            WebkitMaskImage: "url('/Image/oria-spa-logo.png')",
                             WebkitMaskSize: "contain",
                             WebkitMaskRepeat: "no-repeat",
                             WebkitMaskPosition: "center",
-                            maskImage: "url('/Image/ria%20Spa-2.png')",
+                            maskImage: "url('/Image/oria-spa-logo.png')",
                             maskSize: "contain",
                             maskRepeat: "no-repeat",
                             maskPosition: "center",

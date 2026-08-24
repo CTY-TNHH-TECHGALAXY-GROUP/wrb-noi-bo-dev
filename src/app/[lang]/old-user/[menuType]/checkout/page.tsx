@@ -16,6 +16,7 @@ import AlertModal from '@/components/Shared/AlertModal';
 import { ServiceOptions, CartItem } from '@/components/Menu/types';
 import { type VatInvoiceData } from '@/components/Checkout/VatInvoiceSection';
 import { getDictionary } from '@/lib/dictionaries';
+import CheckoutLanguageDropdown from '@/components/Checkout/CheckoutLanguageDropdown';
 
 export default function CheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
     const router = useRouter();
@@ -232,13 +233,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 backLabel={dict.common?.back_to_menu}
                 onBack={handleBack}
                 rightAction={
-                    <button
-                        type="button"
-                        onClick={() => setActiveLang(activeLang === 'vi' ? originalLang : 'vi')}
-                        className="bg-[#131315]/40 hover:bg-[#1b1b1d]/80 text-[#e6c487]/70 hover:text-[#e6c487] text-[9px] font-black tracking-widest uppercase px-2.5 py-1.5 rounded-lg border border-[#4d463a]/20 shadow-sm active:scale-95 transition-all flex items-center gap-1"
-                    >
-                        🌐 {activeLang === 'vi' ? `ORIG (${originalLang.toUpperCase()})` : 'DỊCH VN'}
-                    </button>
+                    <CheckoutLanguageDropdown activeLang={activeLang} onSelect={setActiveLang} />
                 }
             />
 

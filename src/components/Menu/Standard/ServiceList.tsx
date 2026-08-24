@@ -10,7 +10,7 @@
  * Tác giả: TunHisu
  * Ngày cập nhật: 2026-01-31
  */
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ArrowRight, ChevronLeft } from 'lucide-react';
@@ -109,6 +109,17 @@ const BODY_SUB_MENUS = [
 
 export default function ServiceList({ categories, services, cart, lang, selectedTags = [], direction = 1, onItemClick, showHiddenServices = false }: ServiceListProps) {
     const router = useRouter();
+
+    const [comingSoon, setComingSoon] = useState<string | null>(null);
+
+    const csText: Record<string, { title: string; desc: string; close: string }> = {
+        en: { title: 'Coming Soon', desc: 'This service is being prepared. Stay tuned!', close: 'Close' },
+        vi: { title: 'Sắp Ra Mắt', desc: 'Dịch vụ đang được chuẩn bị. Hãy đón chờ nhé!', close: 'Đóng' },
+        kr: { title: '곧 출시', desc: '서비스를 준비 중입니다. 기대해 주세요!', close: '닫기' },
+        cn: { title: '即将推出', desc: '服务正在筹备中，敬请期待！', close: '关闭' },
+        jp: { title: '近日公開', desc: 'サービス準備中です。お楽しみに！', close: '閉じる' },
+    };
+    const cs = csText[lang] || csText['en'];
 
     // 1. Hàm Gộp nhóm: Gom các món có cùng Tên Tiếng Anh (names.en) vào chung 1 mảng
     const groupedServices: Record<string, Service[]> = useMemo(() => {
@@ -225,9 +236,13 @@ export default function ServiceList({ categories, services, cart, lang, selected
                                         <motion.div key={menu.id} variants={gridItemVariants}>
                                             <div
                                                 onClick={() => {
+                                                    if (menu.id === 'Therapy') {
+                                                        setComingSoon('therapy');
+                                                        return;
+                                                    }
                                                     sessionStorage.setItem('standard_menu_mode', 'MENU');
                                                     sessionStorage.setItem('standard_menu_category', 'Body');
-                                                    router.push(`/${lang}/new-user/${menu.id === 'Therapy' ? 'therapy' : 'vip'}/menu`);
+                                                    router.push(`/${lang}/new-user/vip/menu`);
                                                 }}
                                                 className="relative w-full rounded-2xl p-3 flex flex-row gap-4 items-center overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] bg-black/10 border border-white/10 backdrop-blur-sm shadow-lg hover:bg-black/20"
                                             >
@@ -256,6 +271,26 @@ export default function ServiceList({ categories, services, cart, lang, selected
                     );
                 })}
             </AnimatePresence>
+
+            {/* COMING SOON OVERLAY */}
+            {comingSoon && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setComingSoon(null)}></div>
+                    <div className="bg-[#1a1412] border border-[#d4af37]/30 p-8 rounded-2xl z-10 max-w-sm w-full text-center shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="w-16 h-16 mx-auto mb-4 border-2 border-[#d4af37] rounded-full flex items-center justify-center bg-[#d4af37]/10">
+                            <span className="text-2xl">⏳</span>
+                        </div>
+                        <h3 className="text-[#d4af37] font-bold text-2xl mb-3">{cs.title}</h3>
+                        <p className="text-[#c8bfb2] mb-6">{cs.desc}</p>
+                        <button
+                            onClick={() => setComingSoon(null)}
+                            className="w-full py-3 bg-gradient-to-r from-[#d4af37] to-[#aa8022] text-black font-bold rounded-xl active:scale-95 transition-transform"
+                        >
+                            {cs.close}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

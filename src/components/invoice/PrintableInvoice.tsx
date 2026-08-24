@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './PrintableInvoice.module.css';
+import { QRCodeSVG } from 'qrcode.react';
 
 export interface InvoiceConfig {
     spaName: string;
@@ -58,7 +59,9 @@ const DICT: Record<string, Record<string, string>> = {
         noService: 'Chưa có dịch vụ',
         duration: 'T.Gian',
         note1: 'Cảm ơn Quý khách đã sử dụng dịch vụ tại ORIA SPA.',
-        note2: 'Vui lòng giữ hóa đơn để thuận tiện đối chiếu khi cần hỗ trợ.'
+        note2: 'Vui lòng giữ hóa đơn để thuận tiện đối chiếu khi cần hỗ trợ.',
+        scanQr: 'Quét mã để xem lộ trình',
+        payInAdvance: 'Vui lòng thanh toán trước.'
     },
     en: {
         invoice: 'INVOICE',
@@ -98,7 +101,9 @@ const DICT: Record<string, Record<string, string>> = {
         noService: 'No service',
         duration: 'Time',
         note1: 'Thank you for choosing ORIA SPA.',
-        note2: 'Please keep this invoice for future reference if you need support.'
+        note2: 'Please keep this invoice for future reference if you need support.',
+        scanQr: 'Scan QR to track journey',
+        payInAdvance: 'Please pay in advance.'
     },
     cn: {
         invoice: '发票',
@@ -138,7 +143,9 @@ const DICT: Record<string, Record<string, string>> = {
         noService: '无服务',
         duration: '时间',
         note1: '感谢您选择 ORIA SPA。',
-        note2: '请保留此发票以便日后需要协助时核对。'
+        note2: '请保留此发票以便日后需要协助时核对。',
+        scanQr: '扫码查看行程',
+        payInAdvance: '请提前付款。'
     },
     jp: {
         invoice: '請求書',
@@ -178,7 +185,9 @@ const DICT: Record<string, Record<string, string>> = {
         noService: 'サービスなし',
         duration: '時間',
         note1: 'ORIA SPAをご利用いただきありがとうございます。',
-        note2: 'サポートが必要な場合に備えて、この請求書を保管してください。'
+        note2: 'サポートが必要な場合に備えて、この請求書を保管してください。',
+        scanQr: 'QRをスキャンして進行状況を確認',
+        payInAdvance: '事前にお支払いをお願いいたします。'
     },
     kr: {
         invoice: '청구서',
@@ -218,7 +227,9 @@ const DICT: Record<string, Record<string, string>> = {
         noService: '서비스 없음',
         duration: '시간',
         note1: 'ORIA SPA를 이용해 주셔서 감사합니다.',
-        note2: '향후 지원이 필요할 경우를 대비하여 이 청구서를 보관해 주십시오.'
+        note2: '향후 지원이 필요할 경우를 대비하여 이 청구서를 보관해 주십시오.',
+        scanQr: '여정을 확인하려면 QR 스캔',
+        payInAdvance: '선불 결제 부탁드립니다.'
     }
 };
 
@@ -264,7 +275,12 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
     // Luôn tính toán lại totalAmount từ items để đảm bảo hóa đơn không bao giờ bị sai lệch toán học
     const totalAmount = Math.max(0, subTotal - discount);
 
-    const formatVND = (val: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+    const formatNumber = (val: number) => new Intl.NumberFormat('vi-VN').format(val);
+    const formatVND = (val: number) => formatNumber(val) + ' VNĐ';
+
+    // QR Journey URL
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://oriaspa.com');
+    const journeyUrl = bookingData?.id ? `${baseUrl}/${lang}/journey/${bookingData.id}` : baseUrl;
 
     return (
         <div className={styles.invoiceContainer}>
@@ -383,7 +399,7 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                                         </td>
                                         <td>{durationStr}</td>
                                         <td>{qty}</td>
-                                        <td>{formatVND(pr)}</td>
+                                        <td>{formatNumber(pr)}</td>
                                         <td>{formatVND(total)}</td>
                                     </tr>
                                 )
@@ -395,14 +411,31 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                                     </td>
                                     <td>-</td>
                                     <td>0</td>
-                                    <td>0 ₫</td>
-                                    <td>0 ₫</td>
+                                    <td>0</td>
+                                    <td>0 VNĐ</td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
 
                     <div className={styles.totals}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', paddingTop: '10px' }}>
+                            <QRCodeSVG
+                                value={journeyUrl}
+                                size={100}
+                                level="H"
+                                includeMargin={false}
+                                imageSettings={{
+                                    src: '/logo.png',
+                                    x: undefined,
+                                    y: undefined,
+                                    height: 24,
+                                    width: 24,
+                                    excavate: true,
+                                }}
+                            />
+                            <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#666', textAlign: 'center', maxWidth: '120px' }}>{t.scanQr}</span>
+                        </div>
                         <div className={styles.totalsCard}>
                             <div className={styles.totalLine}>
                                 <span>{t.subtotal}</span>
@@ -411,7 +444,7 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                             {discount > 0 && (
                                 <div className={styles.totalLine}>
                                     <span>{t.discount}</span>
-                                    <strong>{formatVND(discount)}</strong>
+                                    <strong>-{formatVND(discount)}</strong>
                                 </div>
                             )}
                             <div className={`${styles.totalLine} ${styles.grand}`}>
@@ -422,6 +455,10 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                                 {t.vatTotalNote}
                             </div>
                         </div>
+                    </div>
+
+                    <div className={styles.payInAdvance}>
+                        {t.payInAdvance}
                     </div>
 
                     <div className={styles.payment}>
@@ -451,3 +488,4 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
         </div>
     );
 };
+

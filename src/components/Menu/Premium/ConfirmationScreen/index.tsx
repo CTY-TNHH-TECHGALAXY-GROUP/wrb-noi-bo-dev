@@ -405,12 +405,12 @@ const ConfirmationScreen = ({
         {/* Duration & Price */}
         <div className="flex gap-3">
           <div className="flex-1 bg-[#1b1b1d] p-4 rounded-2xl border border-[#4d463a]/20 text-center">
-            <div className="text-[10px] text-[#998f81] tracking-wider uppercase">{t.totalDuration}</div>
-            <div className="text-lg font-bold text-[#e4e2e4] mt-1">{totalDuration} {t.mins}</div>
+            <div className="text-[10px] text-[#998f81] tracking-wider uppercase mb-1">{t.totalDuration}</div>
+            <div className="text-3xl font-black text-[#e4e2e4]">{totalDuration} <span className="text-xl font-medium">{t.mins}</span></div>
           </div>
           <div className="flex-1 bg-[#1b1b1d] p-4 rounded-2xl border border-[#e6c487]/20 text-center">
-            <div className="text-[10px] text-[#e6c487] tracking-wider uppercase font-bold">{t.pricing}</div>
-            <div className="text-lg font-bold text-[#e6c487] mt-1">{totalPrice.toLocaleString('vi-VN')}đ</div>
+            <div className="text-[10px] text-[#e6c487] tracking-wider uppercase font-bold mb-1">{t.pricing}</div>
+            <div className="text-3xl font-black text-[#e6c487]">{totalPrice.toLocaleString('vi-VN')}<span className="text-xl font-medium">đ</span></div>
           </div>
         </div>
 

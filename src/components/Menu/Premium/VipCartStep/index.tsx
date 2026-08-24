@@ -415,11 +415,11 @@ const VipCartStep = ({
                 <div className="p-5 bg-[#1c1c1e] border-t border-white/5 shrink-0">
                     {/* Total */}
                     <div className="flex justify-between items-end mb-5">
-                        <span className="text-gray-400 font-bold tracking-widest text-sm uppercase">{t.total}</span>
+                        <span className="text-gray-400 font-bold tracking-widest text-sm uppercase mb-1">{t.total}</span>
                         <div className="text-right">
-                            <div className="text-xl font-black text-[#e6c487] tracking-tight">
+                            <div className="text-3xl font-black text-[#e6c487] tracking-tight">
                                 {formatCurrency(grandTotal)}
-                                <span className="text-sm font-normal ml-1 text-[#e6c487]/70">VND</span>
+                                <span className="text-xl font-normal ml-1 text-[#e6c487]/70">đ</span>
                             </div>
                         </div>
                     </div>

@@ -325,6 +325,28 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
     setSelectedDuration(null);
   };
 
+  // Scroll indicators
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth - 2);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(checkScroll, 100);
+    window.addEventListener('resize', checkScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [availableDurations]);
+
   const isReady = effectiveDuration !== null;
 
   return (
@@ -447,38 +469,103 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
             exit={{ opacity: 0, height: 0 }}
             className="mb-5 overflow-hidden"
           >
-            <div className={`p-4 rounded-2xl bg-[#c9a96e]/5 border border-[#e6c487]/20 transition-all duration-500 ${
+            <div className={`p-5 rounded-3xl bg-[#0f0f0f] border border-white/5 transition-all duration-500 shadow-2xl ${
               allSelectedSkillIds.length === 0 ? 'opacity-30 grayscale blur-[1px] pointer-events-none' : ''
             }`}>
-              <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#e6c487] font-bold mb-1">
-                {t.bc_selectDuration}
-              </h3>
-              <p className="text-[10px] text-[#998f81] mb-3">
-                {t.bc_vatIncluded}
+              <div className="flex items-center gap-2 mb-1">
+                <svg className="w-[18px] h-[18px] text-[#e6c487]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="text-xs tracking-[0.2em] uppercase text-[#e6c487] font-bold">
+                  {t.bc_selectDuration}
+                </h3>
+              </div>
+              <p className="text-[11px] text-[#998f81] mb-5 font-medium flex items-center gap-1.5 opacity-80">
+                Prices in VND <span className="w-[3px] h-[3px] rounded-full bg-[#998f81]/60"></span> {t.bc_vatIncluded}
               </p>
-              {/* Horizontal scroll row */}
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                {availableDurations.map(dur => {
-                  const price = lookupPrice(pricingTable, selectedStaffIds.length, dur);
-                  const isSelected = effectiveDuration === dur;
-                  return (
-                    <button
-                      key={dur}
-                      onClick={() => setSelectedDuration(dur)}
-                      className={`flex flex-col items-center justify-center min-w-[85px] sm:min-w-[100px] py-3.5 px-2 sm:px-3 rounded-2xl transition-all shrink-0 border-2 ${
-                        isSelected
-                          ? 'bg-[#e6c487]/15 border-[#e6c487] text-[#e6c487] shadow-[0_0_15px_rgba(230,196,135,0.15)]'
-                          : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
-                      }`}
+              
+              {/* Horizontal scroll row with arrow indicators */}
+              <div className="relative">
+                {/* Left Arrow Indicator */}
+                <AnimatePresence>
+                  {canScrollLeft && (
+                    <motion.div 
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[#0f0f0f] to-transparent z-10 flex items-center justify-start pointer-events-none rounded-l-[20px]"
                     >
-                      <span className="text-base sm:text-xl font-bold">{dur}</span>
-                      <span className="text-[10px] sm:text-xs opacity-70">{t.bc_mins}</span>
-                      <span className={`text-xs sm:text-sm font-bold mt-1.5 ${isSelected ? 'text-[#e6c487]' : 'text-[#c9a96e]'}`}>
-                        {(price / 1000).toFixed(0)}k
-                      </span>
-                    </button>
-                  );
-                })}
+                      <motion.svg 
+                        animate={{ x: [0, -4, 0] }}
+                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                        className="w-5 h-5 text-[#e6c487] opacity-60 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                      </motion.svg>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div 
+                  ref={scrollContainerRef}
+                  onScroll={checkScroll}
+                  className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x relative z-0"
+                >
+                  {availableDurations.map(dur => {
+                    const price = lookupPrice(pricingTable, selectedStaffIds.length, dur);
+                    const isSelected = effectiveDuration === dur;
+                    return (
+                      <button
+                        key={dur}
+                        onClick={() => setSelectedDuration(dur)}
+                        className={`relative flex flex-col items-center justify-between w-[115px] sm:w-[125px] h-[155px] p-5 rounded-[24px] transition-all shrink-0 snap-center border ${
+                          isSelected
+                            ? 'bg-[#1b1918] border-[#e6c487] text-[#e6c487] shadow-[0_0_20px_rgba(230,196,135,0.15)]'
+                            : 'bg-[#151515] border-white/5 text-[#d0c5b5] hover:bg-[#1a1a1a]'
+                        }`}
+                      >
+                        <div className="flex flex-col items-center mt-1">
+                          <span className="text-[38px] sm:text-[42px] font-bold leading-none mb-1">{dur}</span>
+                          <span className="text-[12px] font-medium opacity-70 tracking-wider">min</span>
+                        </div>
+                        
+                        <div className={`w-12 h-px mb-2 mt-auto ${isSelected ? 'bg-[#e6c487]/30' : 'bg-[#4d463a]/30'}`}></div>
+                        
+                        <span className={`text-[14px] sm:text-[15px] font-bold tracking-wider whitespace-nowrap ${isSelected ? 'text-[#e6c487]' : 'text-[#d0c5b5]'}`}>
+                          {price.toLocaleString('vi-VN').replace(/\./g, ' ')}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Right Arrow Indicator */}
+                <AnimatePresence>
+                  {canScrollRight && (
+                    <motion.div 
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[#0f0f0f] to-transparent z-10 flex items-center justify-end pointer-events-none rounded-r-[20px]"
+                    >
+                      <motion.svg 
+                        animate={{ x: [0, 4, 0] }}
+                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                        className="w-5 h-5 text-[#e6c487] opacity-60 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                      </motion.svg>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Logo Bottom */}
+              <div className="mt-3 flex justify-center opacity-60">
+                <div className="flex items-center gap-2">
+                  <svg className="w-[18px] h-[18px] text-[#c9a96e]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 3C12 3 14 7 14 11C14 14.5 12 18 12 18C12 18 10 14.5 10 11C10 7 12 3 12 3Z" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 18C12 18 16 16.5 18 12.5C20 8.5 18 6 18 6C18 6 16.5 10 14 11" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 18C12 18 8 16.5 6 12.5C4 8.5 6 6 6 6C6 6 7.5 10 10 11" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[10px] tracking-[0.3em] font-semibold text-[#c9a96e]">ORIASPA</span>
+                </div>
               </div>
             </div>
           </motion.section>
@@ -519,12 +606,12 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
           >
             <div className="flex justify-between items-end mb-2 px-1">
               <div>
-                <div className="text-[10px] text-[#998f81] uppercase tracking-wider">{t.bc_selected}</div>
-                <div className="text-lg font-bold text-[#e4e2e4]">{effectiveDuration} {t.bc_mins}</div>
+                <div className="text-xs text-[#998f81] uppercase tracking-wider font-bold mb-1">{t.bc_selected}</div>
+                <div className="text-3xl font-black text-[#e4e2e4]">{effectiveDuration} <span className="text-xl font-medium">{t.bc_mins}</span></div>
               </div>
               <div className="text-right">
-                <div className="text-[10px] text-[#e6c487] tracking-wider uppercase font-bold">Bespoke</div>
-                <div className="text-lg font-bold text-[#e6c487]">{totalPrice.toLocaleString('vi-VN')}đ</div>
+                <div className="text-xs text-[#e6c487] tracking-wider uppercase font-bold mb-1">Bespoke</div>
+                <div className="text-3xl font-black text-[#e6c487]">{totalPrice.toLocaleString('vi-VN')}<span className="text-xl font-medium">đ</span></div>
               </div>
             </div>
 

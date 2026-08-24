@@ -1,7 +1,7 @@
 {
-  "name": "Ngan Ha Spa",
-  "short_name": "Ngan Ha",
-  "description": "Booking System for Ngan Ha Spa",
+  "name": "Oria Spa",
+  "short_name": "Oria Spa",
+  "description": "Booking System for Oria Spa",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",

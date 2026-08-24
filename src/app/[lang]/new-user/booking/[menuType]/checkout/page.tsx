@@ -19,6 +19,7 @@ import BookingTimePicker from '@/components/Booking/BookingTimePicker';
 import BookingTermsModal from '@/components/Booking/BookingTermsModal';
 import BookingConfirmModal from '@/components/Booking/BookingConfirmModal';
 import { getBookingT } from '@/components/Booking/BookingCheckout.i18n';
+import CheckoutLanguageDropdown from '@/components/Checkout/CheckoutLanguageDropdown';
 
 // 🔧 UI CONFIGURATION
 const PAGE_CONFIG = {
@@ -196,13 +197,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
                 backLabel={t.btn_back}
                 onBack={handleBack}
                 rightAction={
-                    <button
-                        type="button"
-                        onClick={() => setActiveLang(activeLang === 'vi' ? originalLang : 'vi')}
-                        className="bg-[#131315]/40 hover:bg-[#1b1b1d]/80 text-[#e6c487]/70 hover:text-[#e6c487] text-[9px] font-black tracking-widest uppercase px-2.5 py-1.5 rounded-lg border border-[#4d463a]/20 shadow-sm active:scale-95 transition-all flex items-center gap-1"
-                    >
-                        🌐 {activeLang === 'vi' ? `ORIG (${originalLang.toUpperCase()})` : 'DỊCH VN'}
-                    </button>
+                    <CheckoutLanguageDropdown activeLang={activeLang} onSelect={setActiveLang} />
                 }
             />
 
