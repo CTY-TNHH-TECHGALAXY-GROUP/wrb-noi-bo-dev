@@ -98,7 +98,27 @@ export default function InvoicePrintPage() {
     }
 
     return (
-        <div className="bg-white min-h-screen">
+        <div className="bg-white min-h-screen relative pb-10">
+            {/* Nút quay lại (ẩn khi in) */}
+            <div className="print:hidden fixed top-4 left-4 z-50">
+                <button
+                    onClick={() => {
+                        // Nếu trang có history, quay lại. Nếu không (mở từ tab mới), về trang chủ
+                        if (window.history.length > 1) {
+                            window.history.back();
+                        } else {
+                            window.location.href = `/${lang}`;
+                        }
+                    }}
+                    className="flex items-center gap-2 bg-gray-900/80 hover:bg-black text-white px-4 py-2.5 rounded-full font-medium transition-all shadow-lg backdrop-blur-md active:scale-95"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                    {lang === 'en' ? 'Back' : lang === 'cn' ? '返回' : lang === 'jp' ? '戻る' : lang === 'kr' ? '뒤로' : 'Trở về'}
+                </button>
+            </div>
+            
             <PrintableInvoice config={config} bookingData={bookingData} lang={lang} />
         </div>
     );
