@@ -242,7 +242,7 @@ export default function CustomForYouModal({
                             className="custom-save-checkout-btn bg-[#C9A96E] hover:bg-[#dfc599] border border-transparent text-black font-bold py-4 sm:py-5 md:py-6 rounded-[18px] flex items-center justify-center gap-2 text-lg sm:text-xl md:text-2xl transition-all active:scale-[0.98] shadow-lg shadow-[#C9A96E]/20"
                         >
                             <Check className="w-6 h-6 md:w-8 md:h-8" />
-                            {getText({ en: 'Save', vi: 'Lưu', jp: '保存', kr: '저장', cn: '保存' }, lang)}
+                            {getText({ en: 'Checkout', vi: 'Thanh toán', jp: 'お会計へ', kr: '결제하기', cn: '去结账' }, lang)}
                         </button>
                     </div>
                 </div>
