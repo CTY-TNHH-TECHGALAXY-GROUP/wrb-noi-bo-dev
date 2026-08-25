@@ -31,7 +31,7 @@ type SvgShape =
     | { type: 'rect'; x: number; y: number; width: number; height: number; rx: number }
     | { type: 'path'; d: string }; // Arc/crescent shapes
 
-const BODY_SVG: Record<BodyPartKey, SvgShape[]> = {
+const BODY_SVG: Record<string, SvgShape[]> = {
     HEAD: [{ type: 'circle', cx: 60, cy: 20, r: 16 }],
     NECK: [{ type: 'rect', x: 53.5, y: 33.5, width: 14, height: 18, rx: 4 }],
     SHOULDER: [
@@ -47,6 +47,10 @@ const BODY_SVG: Record<BodyPartKey, SvgShape[]> = {
         { type: 'rect', x: 33, y: 147, width: 24, height: 55, rx: 12 },   // Đùi trái
         { type: 'rect', x: 63, y: 147, width: 24, height: 55, rx: 12 },   // Đùi phải
     ],
+    KNEE: [
+        { type: 'rect', x: 34, y: 198, width: 22, height: 10, rx: 5 },    // Đầu gối trái
+        { type: 'rect', x: 64, y: 198, width: 22, height: 10, rx: 5 },    // Đầu gối phải
+    ],
     CALF: [
         { type: 'rect', x: 35, y: 205, width: 20, height: 45, rx: 10 },   // Bắp chân trái
         { type: 'rect', x: 65, y: 205, width: 20, height: 45, rx: 10 },   // Bắp chân phải
@@ -57,16 +61,19 @@ const BODY_SVG: Record<BodyPartKey, SvgShape[]> = {
     ],
 };
 
-const ALL_BODY_PARTS: { key: BodyPartKey; height: string }[] = [
-    { key: 'HEAD', height: '10%' },
-    { key: 'NECK', height: '8%' },
-    { key: 'SHOULDER', height: '12%' },
-    { key: 'ARM', height: '10%' },
-    { key: 'BACK', height: '12%' },
-    { key: 'THIGH', height: '17%' },
-    { key: 'CALF', height: '15%' },
-    { key: 'FOOT', height: '10%' },
-];
+const DEFAULT_BODY_PARTS = ['HEAD', 'NECK', 'SHOULDER', 'ARM', 'BACK', 'THIGH', 'KNEE', 'CALF', 'FOOT'];
+
+const PART_TRANSLATIONS: Record<string, MultiLangText> = {
+    HEAD: { en: 'Head', vi: 'Đầu', jp: '頭', kr: '머리', cn: '头' },
+    NECK: { en: 'Neck', vi: 'Cổ', jp: '首', kr: '목', cn: '颈部' },
+    SHOULDER: { en: 'Shoulder', vi: 'Vai', jp: '肩', kr: '어깨', cn: '肩部' },
+    ARM: { en: 'Arm', vi: 'Tay', jp: '腕', kr: '팔', cn: '手臂' },
+    BACK: { en: 'Back', vi: 'Lưng', jp: '背中', kr: '등', cn: '背部' },
+    THIGH: { en: 'Thigh', vi: 'Đùi', jp: '太もも', kr: '허벅지', cn: '大腿' },
+    KNEE: { en: 'Knee', vi: 'Đầu gối', jp: '膝', kr: '무릎', cn: '膝盖' },
+    CALF: { en: 'Calf', vi: 'Bắp chân', jp: 'ふくらはぎ', kr: '종아리', cn: '小腿' },
+    FOOT: { en: 'Foot', vi: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
+};
 
 const LAYOUT_CONFIG = {
     checklist: { gap: '4px', paddingRight: '0px', checkboxSize: '22px' }
@@ -111,9 +118,14 @@ const renderShape = (
 const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onToggle }) => {
     const dict = getDictionary(lang);
 
-    const availableParts = ALL_BODY_PARTS.filter(part => {
-        if (!serviceData.FOCUS_POSITION) return true;
-        return serviceData.FOCUS_POSITION[part.key] === true;
+    const allBodyParts = Array.from(new Set([
+        ...DEFAULT_BODY_PARTS,
+        ...(serviceData.FOCUS_POSITION ? Object.keys(serviceData.FOCUS_POSITION) : [])
+    ]));
+
+    const availableParts = allBodyParts.filter(partKey => {
+        if (!serviceData.FOCUS_POSITION) return DEFAULT_BODY_PARTS.includes(partKey);
+        return serviceData.FOCUS_POSITION[partKey] === true;
     });
 
     const isFullBody = availableParts.length > 0 && focus.length === availableParts.length;
@@ -172,10 +184,10 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                     </defs>
 
                     {/* Render từng bộ phận */}
-                    {ALL_BODY_PARTS.map(part => {
-                        const isAvailable = availableParts.find(p => p.key === part.key);
-                        const isFocus = focus.includes(part.key);
-                        const isAvoid = avoid.includes(part.key);
+                    {allBodyParts.map(partKey => {
+                        const isAvailable = availableParts.includes(partKey);
+                        const isFocus = focus.includes(partKey);
+                        const isAvoid = avoid.includes(partKey);
 
                         let fill = isAvailable ? SVG_CONFIG.defaultFill : SVG_CONFIG.disabledFill;
                         let stroke = isAvailable ? SVG_CONFIG.defaultStroke : SVG_CONFIG.disabledStroke;
@@ -186,13 +198,13 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                             else if (isAvoid) { fill = SVG_CONFIG.avoidFill; stroke = SVG_CONFIG.avoidStroke; filterId = 'glow-red'; }
                         }
 
-                        const shapes = BODY_SVG[part.key];
+                        const shapes = BODY_SVG[partKey] || [];
                         const handleClick = isAvailable
-                            ? () => onToggle('focus', part.key)
+                            ? () => onToggle('focus', partKey)
                             : undefined;
 
                         return shapes.map((shape, i) =>
-                            renderShape(shape, fill, stroke, filterId, `${part.key}-${i}`, handleClick)
+                            renderShape(shape, fill, stroke, filterId, `${partKey}-${i}`, handleClick)
                         );
                     })}
                 </svg>
@@ -212,14 +224,16 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                 </div>
 
                 <div className="flex flex-col flex-1 justify-between overflow-y-auto custom-scrollbar" style={{ marginRight: LAYOUT_CONFIG.checklist.paddingRight }}>
-                    {ALL_BODY_PARTS.map((part) => {
-                        const isAvailable = availableParts.find(p => p.key === part.key);
-                        const isFocus = focus.includes(part.key);
-                        const isAvoid = avoid.includes(part.key);
+                    {allBodyParts.map((partKey) => {
+                        const isAvailable = availableParts.includes(partKey);
+                        const isFocus = focus.includes(partKey);
+                        const isAvoid = avoid.includes(partKey);
+
+                        const translationFallback = { en: partKey, vi: partKey, jp: partKey, kr: partKey, cn: partKey };
 
                         return (
                             <div
-                                key={part.key}
+                                key={partKey}
                                 className={`w-full flex items-center px-1 border-b border-transparent py-[6px] sm:py-2 ${isAvailable
                                     ? 'hover:bg-white/5 rounded transition-colors justify-between'
                                     : 'pointer-events-none opacity-20 grayscale'
@@ -228,16 +242,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                 {isAvailable ? (
                                     <>
                                         <span className={`text-[12px] sm:text-base flex-1 truncate font-semibold ${isFocus ? 'text-green-400' : isAvoid ? 'text-red-400' : 'text-gray-300'}`}>
-                                            {getText({
-                                                HEAD: { en: 'Head', vi: 'Đầu', jp: '頭', kr: '머리', cn: '头' },
-                                                NECK: { en: 'Neck', vi: 'Cổ', jp: '首', kr: '목', cn: '颈部' },
-                                                SHOULDER: { en: 'Shoulder', vi: 'Vai', jp: '肩', kr: '어깨', cn: '肩部' },
-                                                ARM: { en: 'Arm', vi: 'Tay', jp: '腕', kr: '팔', cn: '手臂' },
-                                                BACK: { en: 'Back', vi: 'Lưng', jp: '背中', kr: '등', cn: '背部' },
-                                                THIGH: { en: 'Thigh', vi: 'Đùi', jp: '太もも', kr: '허벅지', cn: '大腿' },
-                                                CALF: { en: 'Calf', vi: 'Bắp chân', jp: 'ふくらはぎ', kr: '종아리', cn: '小腿' },
-                                                FOOT: { en: 'Foot', vi: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
-                                            }[part.key] as MultiLangText, lang)}
+                                            {getText(PART_TRANSLATIONS[partKey] || translationFallback, lang)}
                                         </span>
 
                                         <div className="flex items-center justify-end gap-1 w-[60px] sm:w-[80px]">
@@ -246,7 +251,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                                 <input
                                                     type="checkbox"
                                                     checked={isFocus}
-                                                    onChange={(e) => { e.stopPropagation(); onToggle('focus', part.key); }}
+                                                    onChange={(e) => { e.stopPropagation(); onToggle('focus', partKey); }}
                                                     className="peer appearance-none border border-white/20 rounded bg-[#1c1c1e] checked:bg-green-600 checked:border-green-500 transition-all w-[22px] h-[22px] sm:w-[28px] sm:h-[28px]"
                                                 />
                                                 <Check className="absolute w-4 h-4 sm:w-5 sm:h-5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" strokeWidth={3} />
@@ -257,7 +262,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                                 <input
                                                     type="checkbox"
                                                     checked={isAvoid}
-                                                    onChange={(e) => { e.stopPropagation(); onToggle('avoid', part.key); }}
+                                                    onChange={(e) => { e.stopPropagation(); onToggle('avoid', partKey); }}
                                                     className="peer appearance-none border border-white/20 rounded bg-[#1c1c1e] checked:bg-red-600 checked:border-red-500 transition-all w-[22px] h-[22px] sm:w-[28px] sm:h-[28px]"
                                                 />
                                                 <X className="absolute w-4 h-4 sm:w-5 sm:h-5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" strokeWidth={3} />
@@ -266,16 +271,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                     </>
                                 ) : (
                                     <span className="text-[11px] sm:text-sm text-[#3f3f46] italic flex-1 py-1">
-                                        {getText({
-                                            HEAD: { en: 'Head', vi: 'Đầu', jp: '頭', kr: '머리', cn: '头' },
-                                            NECK: { en: 'Neck', vi: 'Cổ', jp: '首', kr: '목', cn: '颈部' },
-                                            SHOULDER: { en: 'Shoulder', vi: 'Vai', jp: '肩', kr: '어깨', cn: '肩部' },
-                                            ARM: { en: 'Arm', vi: 'Tay', jp: '腕', kr: '팔', cn: '手臂' },
-                                            BACK: { en: 'Back', vi: 'Lưng', jp: '背中', kr: '등', cn: '背部' },
-                                            THIGH: { en: 'Thigh', vi: 'Đùi', jp: '太もも', kr: '허벅지', cn: '大腿' },
-                                            CALF: { en: 'Calf', vi: 'Bắp chân', jp: 'ふくらはぎ', kr: '종아리', cn: '小腿' },
-                                            FOOT: { en: 'Foot', vi: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
-                                        }[part.key] as MultiLangText, lang)}
+                                        {getText(PART_TRANSLATIONS[partKey] || translationFallback, lang)}
                                     </span>
                                 )}
                             </div>

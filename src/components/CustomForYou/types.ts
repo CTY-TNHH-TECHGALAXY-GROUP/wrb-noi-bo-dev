@@ -1,6 +1,6 @@
 export type LanguageCode = 'en' | 'vi' | 'jp' | 'kr' | 'cn';
 
-export type BodyPartKey = 'HEAD' | 'NECK' | 'SHOULDER' | 'ARM' | 'BACK' | 'THIGH' | 'CALF' | 'FOOT';
+export type BodyPartKey = string;
 
 // Cấu trúc Data của Service từ Database (như bạn cung cấp)
 export interface ServiceData {
