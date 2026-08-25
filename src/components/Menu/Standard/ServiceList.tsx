@@ -125,18 +125,15 @@ export default function ServiceList({ categories, services, cart, lang, selected
     const groupedServices: Record<string, Service[]> = useMemo(() => {
         const groups: Record<string, Service[]> = {};
         services.forEach(svc => {
-            // [LOGIC NEW] Lọc dịch vụ rác cho luồng Khách Mới
+            // 1. Luôn chặn các dịch vụ ngừng bán trước tiên (áp dụng cho mọi luồng)
+            if (svc.ACTIVE === false) return;
+
+            // 2. [LOGIC NEW] Lọc thêm dịch vụ rác cho luồng Khách Mới
             if (showHiddenServices) {
                 // Nếu thuộc danh mục kiểm soát khắt khe (Body, Foot, Ear Clean...)
                 if (NEW_USER_CONTROLLED_CATEGORIES.includes(svc.cat)) {
                     if (!NEW_USER_ALLOWED_IDS.includes(svc.id)) return;
-                } else {
-                    // Nếu thuộc danh mục tự do (VD: Dịch vụ lẻ), chỉ hiển thị món Đang Bán
-                    if (svc.ACTIVE === false) return;
                 }
-            } else {
-                // Luồng Main Branch: Chỉ hiển thị món Đang Bán
-                if (svc.ACTIVE === false) return;
             }
 
             // Dùng tên tiếng Anh làm khóa để gộp nhóm (Normalize: Trim + Lowercase)
