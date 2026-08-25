@@ -2,13 +2,15 @@
 
 import { useEffect } from 'react';
 import { useAuthStore } from './authStore.logic';
-import { getSupabaseClient } from '@/components/Auth/GoogleLoginBtn.logic';
+import { getSupabaseClient, hasSupabaseEnv } from '@/components/Auth/GoogleLoginBtn.logic';
 
 export const useSyncAuthState = () => {
     const { setUser, logout } = useAuthStore();
-    const supabase = getSupabaseClient();
+    const supabase = hasSupabaseEnv() ? getSupabaseClient() : null;
 
     useEffect(() => {
+        if (!supabase) return;
+
         // Hàm đọc Hash từ URL do Supabase Implicit Flow trả về sau khi Login Google
         const checkSession = async () => {
             // Ngay khi có hash URL trả về, tự động supabase sẽ nhét vô storage.

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useParams, useRouter, notFound } from 'next/navigation';
+import { useParams, usePathname, useRouter, notFound } from 'next/navigation';
 
 // --- IMPORT 2 GIAO DIỆN LỚN ---
 // Tự động tìm file index.tsx trong thư mục tương ứng
@@ -11,13 +11,15 @@ import PremiumMenu from '@/components/Menu/Premium';
 export default function MenuPage() {
     // 1. Lấy tham số từ URL
     const params = useParams();
+    const pathname = usePathname();
     const router = useRouter();
 
     // URL dạng: /en/new-user/standard/menu
     // -> lang = "en"
     // -> menuType = "standard"
-    const menuType = params.menuType as string;
-    const lang = (params.lang as string) || 'en';
+    const pathnameSegments = pathname?.split('/').filter(Boolean) || [];
+    const menuType = (params.menuType as string) || pathnameSegments[2];
+    const lang = (params.lang as string) || pathnameSegments[0] || 'en';
 
     // 2. Hàm xử lý quay lại (truyền xuống cho con dùng)
     const handleBack = () => {
@@ -42,7 +44,7 @@ export default function MenuPage() {
 
     // Trường hợp 1: Menu Thường & Spa
     if (menuType === 'standard' || menuType === 'spa') {
-        return <StandardMenu lang={lang} menuType={menuType} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} showHiddenServices={true} />;
+        return <StandardMenu lang={lang} menuType={menuType} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} showHiddenServices={true} showEntryActions={menuType === 'standard'} showPickerBack={false} />;
     }
 
     // Trường hợp 2: Menu VIP (Premium)

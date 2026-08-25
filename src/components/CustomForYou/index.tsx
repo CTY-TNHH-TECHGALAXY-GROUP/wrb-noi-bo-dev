@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { X, Check, ChevronDown } from "lucide-react";
 import { ServiceData, CustomPreferences, LanguageCode } from "./types";
 import { getText } from "./utils";
@@ -11,25 +11,33 @@ interface CustomForYouModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (prefs: CustomPreferences) => void;
+    onSaveAndCheckout?: (prefs: CustomPreferences) => void;
     serviceData: ServiceData;
     lang: LanguageCode;
     initialData?: CustomPreferences;
+    privateRoomAddon?: { priceVND: number; priceUSD?: number };
 }
 
 export default function CustomForYouModal({
     isOpen,
     onClose,
     onSave,
+    onSaveAndCheckout,
     serviceData,
     lang,
-    initialData
+    initialData,
+    privateRoomAddon
 }: CustomForYouModalProps) {
     const dict = getDictionary(lang); // Get dictionary
+    const effectiveServiceData = useMemo<ServiceData>(() => ({
+        ...serviceData,
+        HIDDEN_FOCUS_PARTS: serviceData.HIDDEN_FOCUS_PARTS || []
+    }), [serviceData]);
 
     // Default State
     const [prefs, setPrefs] = useState<CustomPreferences>({
         bodyParts: { focus: [], avoid: [] },
-        notes: { tag0: false, tag1: false, content: "" },
+        notes: { tag0: false, tag1: false, privateRoom: false, content: "" },
         strength: serviceData.SHOW_STRENGTH ? 'medium' : undefined,
         therapist: 'random'
     });
@@ -49,16 +57,22 @@ export default function CustomForYouModal({
     // Reset or Load initial data when modal opens
     useEffect(() => {
         if (isOpen) {
+            const hiddenFocusParts = (effectiveServiceData.HIDDEN_FOCUS_PARTS || []) as string[];
+            const filterHiddenParts = (parts: string[] = []) => (
+                parts.filter(part => !hiddenFocusParts.includes(part))
+            );
+
             if (initialData) {
                 // Safely merge initialData with defaults to prevent undefined errors
                 setPrefs({
                     bodyParts: {
-                        focus: initialData.bodyParts?.focus || [],
-                        avoid: initialData.bodyParts?.avoid || []
+                        focus: filterHiddenParts(initialData.bodyParts?.focus),
+                        avoid: filterHiddenParts(initialData.bodyParts?.avoid)
                     },
                     notes: {
                         tag0: initialData.notes?.tag0 || false,
                         tag1: initialData.notes?.tag1 || false,
+                        privateRoom: initialData.notes?.privateRoom || false,
                         content: initialData.notes?.content || ""
                     },
                     strength: initialData.strength || (serviceData.SHOW_STRENGTH ? 'medium' : undefined),
@@ -68,13 +82,13 @@ export default function CustomForYouModal({
                 // Reset to default
                 setPrefs({
                     bodyParts: { focus: [], avoid: [] },
-                    notes: { tag0: false, tag1: false, content: "" },
+                    notes: { tag0: false, tag1: false, privateRoom: false, content: "" },
                     strength: serviceData.SHOW_STRENGTH ? 'medium' : undefined,
                     therapist: 'random'
                 });
             }
         }
-    }, [isOpen, initialData, serviceData]);
+    }, [isOpen, initialData, serviceData, effectiveServiceData.HIDDEN_FOCUS_PARTS]);
 
     if (!isOpen) return null;
 
@@ -89,7 +103,7 @@ export default function CustomForYouModal({
             }
 
             if (area === 'FULL_BODY' && type === 'focus') {
-                const allParts = Object.keys(serviceData.FOCUS_POSITION || {}).filter(k => serviceData.FOCUS_POSITION?.[k as keyof typeof serviceData.FOCUS_POSITION]);
+                const allParts = Object.keys(effectiveServiceData.FOCUS_POSITION || {}).filter(k => effectiveServiceData.FOCUS_POSITION?.[k as keyof typeof effectiveServiceData.FOCUS_POSITION]);
                 return { ...prev, bodyParts: { focus: allParts, avoid: [] } };
             }
 
@@ -123,7 +137,7 @@ export default function CustomForYouModal({
     };
 
     // Check if we should render Body Map
-    const showBodyMap = !serviceData.FOCUS_POSITION || Object.values(serviceData.FOCUS_POSITION).some(v => v === true);
+    const showBodyMap = !effectiveServiceData.FOCUS_POSITION || Object.values(effectiveServiceData.FOCUS_POSITION).some(v => v === true);
 
     // Task E3: Check visibility flags (default true for backward compatibility)
     const showNotes = serviceData.SHOW_NOTES !== false;
@@ -143,18 +157,18 @@ export default function CustomForYouModal({
             <div className="relative w-full sm:w-[95vw] max-w-2xl bg-[#0d0d0d] rounded-t-[32px] rounded-b-none sm:rounded-[32px] overflow-hidden flex flex-col h-[90vh] sm:h-[85vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10 shadow-2xl">
 
                 {/* Header */}
-                <div className="px-6 py-4 flex items-center justify-between z-20">
+                <div className="px-6 py-5 flex items-center justify-between z-20">
                     <div>
-                        <h2 className="text-xl font-serif tracking-wide text-[#C9A96E]">{dict.custom_for_you?.title}</h2>
-                        <p className="text-sm text-gray-400 font-medium mt-0.5">
+                        <h2 className="text-3xl sm:text-4xl md:text-[42px] font-serif tracking-wide text-[#C9A96E] leading-tight">{dict.custom_for_you?.title}</h2>
+                        <p className="text-xl sm:text-2xl md:text-[28px] text-gray-400 font-medium mt-1 leading-snug">
                             {getText(serviceData.NAMES, lang)}
                         </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 -mr-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-full transition-colors"
+                        className="p-3 -mr-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-full transition-colors"
                     >
-                        <X size={20} />
+                        <X className="w-8 h-8 md:w-10 md:h-10" />
                     </button>
                 </div>
 
@@ -184,7 +198,7 @@ export default function CustomForYouModal({
                                         focus={prefs.bodyParts?.focus || []}
                                         avoid={prefs.bodyParts?.avoid || []}
                                         lang={lang}
-                                        serviceData={serviceData}
+                                        serviceData={effectiveServiceData}
                                         onToggle={handleBodyToggle}
                                     />
                                 </div>
@@ -197,6 +211,7 @@ export default function CustomForYouModal({
                                     serviceData={serviceData}
                                     notes={prefs.notes}
                                     onChange={handleNoteChange}
+                                    privateRoomAddon={privateRoomAddon}
                                 />
                             )}
                         </div>
@@ -207,7 +222,7 @@ export default function CustomForYouModal({
                     
                     {/* Scroll Indicator: Mũi tên nhấp nháy */}
                     <div className={`absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none z-30 transition-opacity duration-300 ${isAtBottom ? 'opacity-0' : 'opacity-100'}`}>
-                        <div className="bg-[#1c1c1e]/80 rounded-full p-1.5 backdrop-blur-sm border border-[#C9A96E]/30 shadow-xl animate-bounce">
+                        <div className="bg-[#1c1c1e]/80 rounded-full p-1.5 backdrop-blur-sm border border-white/10 shadow-xl animate-bounce">
                             <ChevronDown className="w-5 h-5 text-[#C9A96E]" />
                         </div>
                     </div>
@@ -215,17 +230,24 @@ export default function CustomForYouModal({
 
                 {/* Footer Action */}
                 <div className="bg-[#0d0d0d] pb-[env(safe-area-inset-bottom)] z-20 p-4 border-t border-white/10">
-                    <button
-                        onClick={() => onSave(prefs)}
-                        className="w-full bg-[#1c1c1e] hover:bg-[#2c2c2e] border border-[#C9A96E]/50 text-[#C9A96E] font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg"
-                    >
-                        <Check size={20} />
-                        {getText({ en: 'SAVE', vi: 'LƯU', jp: '保存', kr: '저장', cn: '保存' }, lang)}
-                    </button>
+                    <div className="grid grid-cols-[1.15fr_0.85fr] gap-3">
+                        <button
+                            onClick={() => onSave(prefs)}
+                            className="custom-continue-order-btn bg-[#151515] hover:bg-[#202020] border border-white/10 text-gray-100 font-bold py-4 sm:py-5 md:py-6 rounded-[18px] flex items-center justify-center text-lg sm:text-xl md:text-2xl transition-all active:scale-[0.98] shadow-lg"
+                        >
+                            {getText({ en: 'Continue order', vi: 'Tiếp tục chọn', jp: '注文を続ける', kr: '계속 선택', cn: '继续点单' }, lang)}
+                        </button>
+                        <button
+                            onClick={() => (onSaveAndCheckout ? onSaveAndCheckout(prefs) : onSave(prefs))}
+                            className="custom-save-checkout-btn bg-[#C9A96E] hover:bg-[#dfc599] border border-transparent text-black font-bold py-4 sm:py-5 md:py-6 rounded-[18px] flex items-center justify-center gap-2 text-lg sm:text-xl md:text-2xl transition-all active:scale-[0.98] shadow-lg shadow-[#C9A96E]/20"
+                        >
+                            <Check className="w-6 h-6 md:w-8 md:h-8" />
+                            {getText({ en: 'Save', vi: 'Lưu', jp: '保存', kr: '저장', cn: '保存' }, lang)}
+                        </button>
+                    </div>
                 </div>
 
             </div>
         </div>
     );
 }
-

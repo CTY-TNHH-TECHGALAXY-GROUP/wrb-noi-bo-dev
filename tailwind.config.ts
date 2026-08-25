@@ -16,7 +16,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-primary)', 'sans-serif'],
-        luxury: ['var(--font-luxury)', 'serif'],
+        luxury: ['var(--font-luxury)', 'sans-serif'],
       },
       keyframes: {
         'scale-pulse': {

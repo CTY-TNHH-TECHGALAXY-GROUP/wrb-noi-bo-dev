@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { CreditCard, Banknote, QrCode, DollarSign, Check, X, ArrowRightLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRightLeft, Banknote, CreditCard, DollarSign, QrCode } from 'lucide-react';
 import { VND_DENOMINATIONS, USD_INFO, ACCEPTED_CARDS } from '@/lib/paymentConstants';
 import { formatCurrency } from '@/components/Menu/utils';
 
@@ -11,9 +11,10 @@ interface PaymentMethodsProps {
     dict: any;
     selected: string;
     onChange: (methodId: string) => void;
+    onInfoContinue?: () => void;
 }
 
-const PaymentMethods = ({ lang, dict, selected, onChange }: PaymentMethodsProps) => {
+const PaymentMethods = ({ lang, dict, selected, onChange, onInfoContinue }: PaymentMethodsProps) => {
     const [showModal, setShowModal] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const [modalContent, setModalContent] = useState<string | null>(null);
@@ -34,6 +35,20 @@ const PaymentMethods = ({ lang, dict, selected, onChange }: PaymentMethodsProps)
         setTimeout(() => {
             setShowModal(false);
             setIsClosing(false);
+        }, 200);
+    };
+
+    const handleInfoContinue = () => {
+        if (!onInfoContinue) {
+            closeModal();
+            return;
+        }
+
+        setIsClosing(true);
+        setTimeout(() => {
+            setShowModal(false);
+            setIsClosing(false);
+            onInfoContinue();
         }, 200);
     };
 
@@ -115,6 +130,13 @@ const PaymentMethods = ({ lang, dict, selected, onChange }: PaymentMethodsProps)
 
                         {/* Modal Header */}
                         <div className="p-6 pb-2 text-center relative shrink-0">
+                            <button
+                                onClick={closeModal}
+                                className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                                aria-label={lang === 'vi' ? 'Quay lại chọn phương thức' : 'Back to payment methods'}
+                            >
+                                <ArrowLeft size={20} />
+                            </button>
                             <h3 className="text-xl font-bold text-white">
                                 {METHODS.find(m => m.id === modalContent)?.label}
                             </h3>
@@ -202,10 +224,10 @@ const PaymentMethods = ({ lang, dict, selected, onChange }: PaymentMethodsProps)
                         {/* Modal Footer */}
                         <div className="p-4 border-t border-white/10 bg-[#0d0d0d] shrink-0">
                             <button
-                                onClick={closeModal}
+                                onClick={handleInfoContinue}
                                 className="w-full bg-[#C9A96E] hover:bg-[#b09461] text-black font-bold py-3.5 rounded-xl uppercase tracking-wider transition-colors shadow-[0_0_15px_rgba(201,169,110,0.3)]"
                             >
-                                {dict.payment_methods.understood}
+                                {dict.checkout?.continue || dict.payment_methods.understood}
                             </button>
                         </div>
 

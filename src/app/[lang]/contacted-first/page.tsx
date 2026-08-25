@@ -170,7 +170,7 @@ export default function ContactedFirstPage({ params }: { params: Promise<{ lang:
     <div className={styles.root}>
       {!showNext ? (
         <main className={`${styles.screen} ${isExiting ? styles.screenLeave : ''}`}>
-          <Link href={`/${lang}/customer-type`} className={styles.back} aria-label="Go back">
+          <Link href={`/${lang}/new-user/standard/menu`} className={styles.back} aria-label="Go back">
             <ArrowLeft size={28} strokeWidth={1.5} />
           </Link>
 

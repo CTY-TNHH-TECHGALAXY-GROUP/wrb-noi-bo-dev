@@ -31,24 +31,11 @@ export default function CheckoutHeader({ title, backLabel = "Menu", onBack, righ
             </div>
 
             {/* Branding Row */}
-            <div className="px-5 flex items-center justify-between">
-                <h2 className="text-white text-2xl font-bold tracking-tight">
-                    Oria Spa
-                </h2>
-                {/* Logo Placeholder */}
-                <div
-                    className="w-12 h-12 opacity-90"
-                    style={{
-                        backgroundColor: "#f7ebc7",
-                        WebkitMaskImage: "url('/Image/oria-spa-logo.png')",
-                        WebkitMaskSize: "contain",
-                        WebkitMaskRepeat: "no-repeat",
-                        WebkitMaskPosition: "center",
-                        maskImage: "url('/Image/oria-spa-logo.png')",
-                        maskSize: "contain",
-                        maskRepeat: "no-repeat",
-                        maskPosition: "center",
-                    }}
+            <div className="px-5 flex items-center justify-start">
+                <img
+                    src="/Image/oria-spa-logo.png"
+                    alt="Oria Spa"
+                    className="h-20 w-auto object-contain opacity-95 brightness-0 invert sm:h-24 md:h-28"
                 />
             </div>
         </div>

@@ -7,7 +7,7 @@
  * Tác giả: TunHisu
  * Ngày cập nhật: 2026-01-31
  */
-import { Category, Service } from './types';
+import { Category } from './types';
 
 export const CATEGORIES: Category[] = [
     {
@@ -19,7 +19,7 @@ export const CATEGORIES: Category[] = [
             kr: '전신 케어',
             cn: '全身护理'
         },
-        image: '/assets/icons/body.webp'
+        image: '/assets/category-icons-svg/body-massage.svg'
     },
     {
         id: 'Foot',
@@ -30,7 +30,7 @@ export const CATEGORIES: Category[] = [
             kr: '발 케어',
             cn: '足部护理'
         },
-        image: '/assets/icons/foot.webp'
+        image: '/assets/category-icons-svg/foot-massage.svg'
     },
     {
         id: 'Ear Clean',
@@ -41,7 +41,7 @@ export const CATEGORIES: Category[] = [
             kr: '귀 청소',
             cn: '采耳'
         },
-        image: '/assets/icons/earclean.webp'
+        image: '/assets/category-icons-svg/earclean.svg'
     },
     {
         id: 'Barber',
@@ -52,29 +52,29 @@ export const CATEGORIES: Category[] = [
             kr: '이발',
             cn: '男士理发'
         },
-        image: '/assets/icons/haircut.webp'
+        image: '/assets/category-icons-svg/haircut.svg'
     },
     {
         id: 'Package',
         names: {
             en: 'Package',
-            vi: 'Gói Combo',
-            jp: 'パッケージ',
-            kr: '패키지',
+            vi: 'Gói Dịch Vụ',
+            jp: 'セットコース',
+            kr: '패키지 코스',
             cn: '套餐'
         },
-        image: '/assets/icons/add-more.webp'
+        image: '/assets/category-icons-svg/package.svg'
     },
     {
         id: 'Premium',
         names: {
-            en: 'VIP Package',
-            vi: 'Gói VIP',
-            jp: 'VIPコース',
-            kr: 'VIP 코스',
-            cn: 'VIP套餐'
+            en: 'King Package',
+            vi: 'Gói King',
+            jp: 'キングコース',
+            kr: '킹 패키지',
+            cn: '国王套餐'
         },
-        image: '/assets/icons/combo-king.webp'
+        image: '/assets/category-icons-svg/combo-king.svg'
     },
     {
         id: 'Additional',
@@ -85,7 +85,7 @@ export const CATEGORIES: Category[] = [
             kr: '추가 서비스',
             cn: '额外服务'
         },
-        image: '/assets/icons/adds-on.svg'
+        image: '/assets/category-icons-svg/adds-on.svg'
     }
 ];
 

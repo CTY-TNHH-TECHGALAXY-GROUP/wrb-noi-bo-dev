@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Oria Spa Luxury Theme Demo</title>
+  <style>
+    :root {
+      --bg-main: #20130B;
+      --bg-warm: #2B1A0F;
+      --surface: #2A190E;
+      --surface-2: #352113;
+      --surface-3: #432A18;
+      --glass: rgba(42, 25, 14, 0.82);
+      --glass-strong: rgba(32, 19, 11, 0.94);
+      --text: #f7f1e7;
+      --muted: #D1BFA6;
+      --subtle: #A88D6E;
+      --gold-100: #FFF8E1;
+      --gold-200: #F4E2B3;
+      --gold-300: #E8C97A;
+      --gold-400: #D4AF37;
+      --gold-500: #C9A348;
+      --gold-600: #B8860B;
+      --gold-700: #8D5A1B;
+      --gold-gradient-a: #E7AA51;
+      --gold-gradient-b: #FFE499;
+      --gold-gradient-c: #8D5A1B;
+      --gold-gradient-d: #AC7031;
+      --gold: var(--gold-500);
+      --gold-soft: var(--gold-300);
+      --gold-hi: var(--gold-100);
+      --gold-deep: var(--gold-700);
+      --green: #19b889;
+      --red: #c7504a;
+      --line: rgba(232, 201, 122, 0.16);
+      --line-soft: rgba(255, 248, 225, 0.09);
+      --shadow: 0 24px 80px rgba(18, 9, 4, 0.52);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 50% -12%, rgba(232, 201, 122, 0.14), transparent 34%),
+        radial-gradient(circle at 88% 18%, rgba(141, 90, 27, 0.26), transparent 30%),
+        radial-gradient(circle at 12% 70%, rgba(93, 44, 18, 0.28), transparent 34%),
+        linear-gradient(180deg, #342113 0%, var(--bg-main) 46%, #140B06 100%);
+    }
+
+    .page {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: var(--glass);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 0;
+      z-index: 4;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: var(--gold-hi);
+      text-transform: uppercase;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #211307;
+      background: linear-gradient(145deg, var(--gold-hi), var(--gold), var(--gold-deep));
+      box-shadow: 0 10px 28px rgba(141, 90, 27, 0.34);
+      font-family: Georgia, serif;
+      font-weight: 900;
+      font-size: 24px;
+    }
+
+    .history {
+      border: 1px solid var(--line);
+      background: rgba(36, 24, 15, 0.82);
+      color: var(--gold-hi);
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-weight: 750;
+      box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+    }
+
+    .hero {
+      min-height: 560px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      padding: 24px 10px 28px;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(43, 26, 15, 0.68), rgba(32, 19, 11, 0.9)),
+        url("/assets/backgrounds/bg-blur.webp") center/cover;
+    }
+
+    .orbit {
+      position: relative;
+      min-height: 420px;
+    }
+
+    .cat {
+      position: absolute;
+      width: 142px;
+      text-align: center;
+      transform: translate(-50%, -50%);
+      color: var(--gold-soft);
+      font-size: 21px;
+      font-weight: 800;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+    }
+
+    .cat .icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 8px;
+      display: grid;
+      place-items: center;
+      font-size: 48px;
+      color: var(--gold-hi);
+      background: linear-gradient(145deg, var(--gold-100), var(--gold-300) 34%, var(--gold-500) 62%, var(--gold-700));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 4px 8px rgba(24, 12, 4, 0.85));
+    }
+
+    .cat.muted {
+      color: var(--subtle);
+    }
+
+    .cat.muted .icon {
+      background: linear-gradient(145deg, #cac1b5, #70665a);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      opacity: 0.78;
+    }
+
+    .vip {
+      left: 50%;
+      top: 51%;
+      width: 180px;
+      color: var(--gold-hi);
+      font-size: 26px;
+    }
+
+    .vip .key {
+      width: 112px;
+      height: 112px;
+      margin: 0 auto 6px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 78px;
+      background: radial-gradient(circle, rgba(234, 216, 166, 0.18), transparent 64%);
+      filter: drop-shadow(0 0 18px rgba(212, 175, 55, 0.22));
+    }
+
+    .marquee {
+      width: 100%;
+      overflow: hidden;
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+      color: var(--gold-soft);
+      font-weight: 900;
+      letter-spacing: 0.28em;
+      font-size: 17px;
+      white-space: nowrap;
+    }
+
+    .marquee span {
+      display: inline-block;
+      min-width: 100%;
+      animation: move 18s linear infinite;
+    }
+
+    @keyframes move {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .flags {
+      margin-top: 26px;
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .flag {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 3px solid rgba(234, 216, 166, 0.22);
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7), 0 8px 28px rgba(0, 0, 0, 0.45);
+      background: var(--surface-3);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .flag.active {
+      border-color: var(--gold-hi);
+      box-shadow: 0 0 22px rgba(232, 201, 122, 0.28);
+    }
+
+    .section {
+      padding: 34px 8px;
+    }
+
+    .section-title {
+      margin: 0 0 18px;
+      color: var(--gold-soft);
+      font-size: 18px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 22px;
+    }
+
+    .card {
+      border: 1px solid var(--line-soft);
+      background:
+        linear-gradient(130deg, rgba(141, 90, 27, 0.25), rgba(42, 25, 14, 0.86)),
+        var(--surface);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .service {
+      min-height: 190px;
+      padding: 26px;
+      display: grid;
+      grid-template-columns: 138px 1fr 220px 76px;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .service + .service {
+      margin-top: 18px;
+    }
+
+    .svc-icon {
+      width: 122px;
+      height: 122px;
+      border-radius: 26px;
+      background: rgba(24, 13, 7, 0.48);
+      display: grid;
+      place-items: center;
+      font-size: 66px;
+      color: var(--gold-soft);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(36px, 4vw, 54px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .desc {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    .price {
+      text-align: right;
+    }
+
+    .mins {
+      display: inline-flex;
+      padding: 9px 18px;
+      border-radius: 999px;
+      background: rgba(8, 6, 4, 0.36);
+      color: var(--gold-hi);
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 0.13em;
+    }
+
+    .vnd {
+      margin-top: 26px;
+      color: var(--gold-soft);
+      font-size: 34px;
+      font-weight: 900;
+    }
+
+    .usd {
+      margin-top: 10px;
+      color: var(--green);
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .qty {
+      width: 66px;
+      height: 66px;
+      border: 0;
+      border-radius: 50%;
+      background: linear-gradient(145deg, var(--gold-100), var(--gold-300) 30%, var(--gold-500) 58%, var(--gold-700));
+      color: #1b1007;
+      font-size: 28px;
+      font-weight: 950;
+      box-shadow: 0 14px 32px rgba(141, 90, 27, 0.32);
+    }
+
+    .panel {
+      padding: 28px;
+    }
+
+    .field {
+      height: 72px;
+      border-radius: 16px;
+      background: rgba(24, 13, 7, 0.58);
+      border: 1px solid var(--line-soft);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      font-size: 21px;
+      margin-bottom: 16px;
+    }
+
+    .invoice-item {
+      background: rgba(24, 13, 7, 0.58);
+      border: 1px solid var(--line-soft);
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 18px;
+    }
+
+    .meta {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(32, 19, 11, 0.82);
+      color: var(--muted);
+      display: grid;
+      gap: 10px;
+      font-size: 18px;
+    }
+
+    .meta b { color: var(--gold-soft); float: right; }
+
+    .total {
+      margin-top: 26px;
+      border-top: 1px dashed var(--line);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      font-weight: 900;
+    }
+
+    .total .amount {
+      color: var(--gold);
+      font-size: 42px;
+      text-align: right;
+    }
+
+    .cta {
+      margin-top: 28px;
+      width: 100%;
+      height: 74px;
+      border: 0;
+      border-radius: 18px;
+      background: linear-gradient(145deg, var(--gold-100), var(--gold-300) 24%, var(--gold-500) 58%, var(--gold-700));
+      color: #190f06;
+      font-size: 22px;
+      font-weight: 950;
+      letter-spacing: 0.06em;
+      box-shadow: 0 18px 44px rgba(141, 90, 27, 0.32);
+    }
+
+    .custom {
+      margin-top: 22px;
+      padding: 28px;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 22px 0;
+    }
+
+    .option {
+      min-height: 72px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: rgba(26, 18, 12, 0.88);
+      border: 1px solid var(--line-soft);
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .option.active {
+      color: var(--gold-hi);
+      background: rgba(36, 24, 15, 0.96);
+      box-shadow: inset 0 0 0 1px rgba(234, 216, 166, 0.08);
+    }
+
+    .note {
+      min-height: 96px;
+      border-radius: 18px;
+      background: rgba(24, 13, 7, 0.58);
+      border: 1px solid var(--line-soft);
+      color: var(--subtle);
+      padding: 18px;
+      font-size: 20px;
+    }
+
+    .private {
+      margin-top: 14px;
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(36, 24, 15, 0.9);
+      color: var(--gold-hi);
+      border: 1px solid var(--line);
+      font-size: 22px;
+      font-weight: 850;
+    }
+
+    .footer {
+      position: sticky;
+      bottom: 0;
+      margin-top: 24px;
+      background: var(--glass-strong);
+      border-top: 1px solid var(--line);
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(18px);
+    }
+
+    .footer-price {
+      font-size: 34px;
+      font-weight: 950;
+      color: var(--text);
+    }
+
+    .footer-price span { color: var(--green); }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .service { grid-template-columns: 100px 1fr 150px 60px; gap: 14px; padding: 18px; }
+      .svc-icon { width: 90px; height: 90px; font-size: 48px; }
+      h2 { font-size: 36px; }
+      .desc { font-size: 18px; }
+      .vnd { font-size: 26px; }
+      .usd { font-size: 22px; }
+      .cat { width: 120px; font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><div class="mark">O</div><span>Theme Demo</span></div>
+    <button class="history">History</button>
+  </div>
+
+  <main class="page">
+    <section class="hero">
+      <div class="orbit">
+        <div class="cat" style="left:25%;top:25%"><div class="icon">✂</div>Barber</div>
+        <div class="cat" style="left:50%;top:19%"><div class="icon">♕</div>Package</div>
+        <div class="cat" style="left:73%;top:29%"><div class="icon">♛</div>King Package</div>
+        <div class="cat" style="left:23%;top:62%"><div class="icon">♬</div>Ear Clean</div>
+        <div class="cat vip"><div class="key">⚜</div>VIP</div>
+        <div class="cat" style="left:72%;top:64%"><div class="icon">✚</div>Add-on</div>
+        <div class="cat muted" style="left:39%;top:80%"><div class="icon">☙</div>Foot Care</div>
+        <div class="cat muted" style="left:61%;top:82%"><div class="icon">♨</div>Body Care</div>
+      </div>
+      <div>
+        <div class="marquee"><span>RANDOM STAFF. RANDOM ROOM. &nbsp;&nbsp;&nbsp; RANDOM STAFF. RANDOM ROOM. &nbsp;&nbsp;&nbsp; RANDOM STAFF. RANDOM ROOM.</span></div>
+        <div class="flags">
+          <div class="flag active">EN</div>
+          <div class="flag">VI</div>
+          <div class="flag">JP</div>
+          <div class="flag">KR</div>
+          <div class="flag">CN</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h1 class="section-title">Service Cards</h1>
+      <div class="service card">
+        <div class="svc-icon">♕</div>
+        <div>
+          <h2>Mix of four therapies</h2>
+          <div class="desc">Body treatment with focus areas and therapist preference.</div>
+        </div>
+        <div class="price">
+          <div class="mins">70 MINS</div>
+          <div class="vnd">685.000 VND</div>
+          <div class="usd">29 USD</div>
+        </div>
+        <button class="qty">1</button>
+      </div>
+
+      <div class="service card">
+        <div class="svc-icon">✂</div>
+        <div>
+          <h2>Beard shave/trim</h2>
+          <div class="desc">Beard shave / trim with warm towel...</div>
+        </div>
+        <div class="price">
+          <div class="vnd">210.000 VND</div>
+          <div class="usd">9 USD</div>
+        </div>
+        <button class="qty">+</button>
+      </div>
+    </section>
+
+    <section class="section grid">
+      <div class="card panel">
+        <h1 class="section-title">Customer Info</h1>
+        <div class="field">Full Name*</div>
+        <div class="field">Email (abc@gmail.com)*</div>
+        <div class="custom card">
+          <h2>Custom for you</h2>
+          <div class="desc">Foot care</div>
+          <div class="options">
+            <div class="option">Light</div>
+            <div class="option active">Medium</div>
+            <div class="option">Strong</div>
+          </div>
+          <div class="note">Other notes...</div>
+          <div class="private">Private room <span>+</span></div>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <h1 class="section-title">Invoice Details</h1>
+        <div class="invoice-item">
+          <h3>1. Mix of four therapies <span style="float:right">685.000 VND</span></h3>
+          <div class="meta">
+            <div>Time <b>70 mins</b></div>
+            <div>Strength <b>Medium</b></div>
+            <div>Therapist <b>Random</b></div>
+            <div>Add-on <b>Private room</b></div>
+          </div>
+        </div>
+        <div class="total">
+          <div>Total<br>Bill</div>
+          <div class="amount">685.000<br>VND</div>
+        </div>
+        <button class="cta">CONFIRM ORDER</button>
+      </div>
+    </section>
+
+    <div class="footer">
+      <div>
+        <div class="section-title" style="margin:0;font-size:13px">Total Estimated · 70 Mins</div>
+        <div class="footer-price">685.000 VND / <span>29 USD</span></div>
+      </div>
+      <button class="cta" style="width:190px;margin:0">Cart →</button>
+    </div>
+  </main>
+</body>
+</html>

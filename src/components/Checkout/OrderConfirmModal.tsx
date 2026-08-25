@@ -136,7 +136,8 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     const allTags = cart.reduce((acc: string[], item) => {
         const tag0 = item.options?.notes?.tag0 ? (item.TAGS?.[0] ? (item.TAGS[0][lang as keyof typeof item.TAGS[0]] || item.TAGS[0].vi || item.TAGS[0].vn || item.TAGS[0].en) : (dict.tags?.pregnant || 'Pregnant')) : null;
         const tag1 = item.options?.notes?.tag1 ? (item.TAGS?.[1] ? (item.TAGS[1][lang as keyof typeof item.TAGS[1]] || item.TAGS[1].vi || item.TAGS[1].vn || item.TAGS[1].en) : (dict.tags?.allergy || 'Allergy')) : null;
-        const itemTags = [tag0, tag1].filter(Boolean) as string[];
+        const privateRoom = item.options?.notes?.privateRoom ? (lang === 'vi' ? 'Phòng riêng' : 'Private room') : null;
+        const itemTags = [tag0, tag1, privateRoom].filter(Boolean) as string[];
         return [...acc, ...itemTags];
     }, []);
     const uniqueTags = Array.from(new Set(allTags));
@@ -325,7 +326,8 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
                                 const tags = [
                                     item.options?.notes?.tag0 ? (item.TAGS?.[0] ? (item.TAGS[0][lang as keyof typeof item.TAGS[0]] || item.TAGS[0].vi || item.TAGS[0].vn || item.TAGS[0].en) : (dict.tags?.pregnant || 'Pregnant')) : null,
-                                    item.options?.notes?.tag1 ? (item.TAGS?.[1] ? (item.TAGS[1][lang as keyof typeof item.TAGS[1]] || item.TAGS[1].vi || item.TAGS[1].vn || item.TAGS[1].en) : (dict.tags?.allergy || 'Allergy')) : null
+                                    item.options?.notes?.tag1 ? (item.TAGS?.[1] ? (item.TAGS[1][lang as keyof typeof item.TAGS[1]] || item.TAGS[1].vi || item.TAGS[1].vn || item.TAGS[1].en) : (dict.tags?.allergy || 'Allergy')) : null,
+                                    item.options?.notes?.privateRoom ? (lang === 'vi' ? 'Phòng riêng' : 'Private room') : null
                                 ].filter(Boolean) as string[];
 
                                 const getStrengthColor = (s: string) => {

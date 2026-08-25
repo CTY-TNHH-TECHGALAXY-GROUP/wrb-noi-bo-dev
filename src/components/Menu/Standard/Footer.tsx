@@ -74,34 +74,34 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[40] bg-black/50 backdrop-blur-sm"
+                        className="fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm"
                         onClick={() => setIsLangOpen(false)}
                     />
                 )}
             </AnimatePresence>
 
             <div
-                className="glass-footer w-full px-4 md:px-8 pt-6 flex items-center justify-between gap-3 animate-[slide-up_0.3s_ease-out] bg-black/90 backdrop-blur-xl border-t border-gray-800"
+                className="glass-footer w-full max-w-[100vw] box-border px-3 sm:px-4 md:px-6 pt-4 sm:pt-5 md:pt-6 flex items-center justify-between gap-2 sm:gap-3 animate-[slide-up_0.3s_ease-out] bg-black/90 backdrop-blur-xl border-t border-gray-800 overflow-visible"
                 style={{
                     position: 'fixed',
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    zIndex: 50,
+                    zIndex: isLangOpen ? 90 : 35,
                     paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' // 1.25rem = 20px. Đảm bảo luôn cách đáy 20px + tai thỏ
                 }}
             >
 
                 {/* Nút Back */}
-                <button onClick={onBack} className="w-12 h-12 shrink-0 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 active:scale-95 transition-all shadow-lg backdrop-blur-md">
-                    <ArrowLeft size={20} />
+                <button onClick={onBack} className="w-[clamp(48px,7vw,72px)] h-[clamp(48px,7vw,72px)] shrink-0 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 active:scale-95 transition-all shadow-lg backdrop-blur-md">
+                    <ArrowLeft className="w-[clamp(20px,3vw,30px)] h-[clamp(20px,3vw,30px)]" />
                 </button>
 
                 {/* Language Flags Dropup (Thay thế VIP) */}
-                <div className="relative shrink-0 flex items-center" ref={langRef}>
+                <div className="relative z-[100] shrink-0 flex items-center" ref={langRef}>
                     <button
                         onClick={() => setIsLangOpen(!isLangOpen)}
-                        className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shrink-0"
+                        className="w-[clamp(52px,8vw,86px)] h-[clamp(52px,8vw,86px)] rounded-full overflow-hidden flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shrink-0"
                     >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={currentLang.flag} alt={currentLang.name} className="w-full h-full object-cover" />
@@ -114,13 +114,13 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 15, scale: 0.95 }}
                                 transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 25 }}
-                                className="absolute bottom-[calc(100%+16px)] left-0 p-2 flex flex-col gap-4 z-[60]"
+                                className="absolute bottom-[calc(100%+16px)] left-0 z-[110] flex flex-col gap-4 p-2"
                             >
                                 {languages.map((l) => (
                                     <button
                                         key={l.id}
                                         onClick={() => handleLanguageChange(l.id)}
-                                        className={`w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 shadow-md ${
+                                        className={`w-[clamp(44px,6vw,64px)] h-[clamp(44px,6vw,64px)] rounded-full overflow-hidden flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 shadow-md ${
                                             lang === l.id ? 'opacity-100 scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'opacity-50 hover:opacity-100'
                                         }`}
                                     >
@@ -134,28 +134,28 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
                 </div>
 
             {/* Thông tin Tiền & Thời gian */}
-            <div className="flex-1 flex flex-col items-center justify-center min-w-0">
+            <div className="flex-1 flex flex-col items-start md:items-center justify-center min-w-0 overflow-hidden px-1 sm:px-2">
                 {maxMinutes > 0 && (
-                    <div className="text-[10px] text-gray-400 font-bold tracking-[0.15em] uppercase mb-1 flex items-center gap-1 whitespace-nowrap">
+                    <div className="max-w-full text-[clamp(9px,1.8vw,15px)] text-gray-400 font-bold tracking-[0.14em] uppercase mb-1 flex items-center gap-1 whitespace-nowrap overflow-hidden text-ellipsis">
                         {t('total_est')} <span className="text-[#C9A96E] font-bold ml-1">• {maxMinutes} {t('mins')}</span>
                     </div>
                 )}
-                <div className="flex items-end justify-center gap-1 whitespace-nowrap">
-                    <span className="text-xl font-bold text-white tracking-wide tabular-nums leading-none">{formatCurrency(totalVND)}</span>
-                    <span className="text-[10px] text-gray-500 font-bold mb-0.5 ml-0.5">VND</span>
+                <div className="w-full flex items-baseline justify-start md:justify-center gap-1 whitespace-nowrap overflow-hidden">
+                    <span className="text-[clamp(22px,4.4vw,42px)] font-bold text-white tracking-wide tabular-nums leading-none">{formatCurrency(totalVND)}</span>
+                    <span className="text-[clamp(10px,1.7vw,16px)] text-gray-500 font-bold mb-0.5 ml-0.5">VND</span>
 
-                    <span className="text-gray-600 mx-1.5 text-sm font-light">/</span>
+                    <span className="text-gray-600 mx-1 text-[clamp(12px,2vw,18px)] font-light">/</span>
 
-                    <span className="text-lg font-bold text-emerald-600 tracking-wide tabular-nums leading-none">{totalUSD}</span>
-                    <span className="text-[10px] text-emerald-600 font-bold mb-0.5 ml-0.5">USD</span>
+                    <span className="text-[clamp(18px,3.8vw,36px)] font-bold text-emerald-600 tracking-wide tabular-nums leading-none">{totalUSD}</span>
+                    <span className="text-[clamp(10px,1.7vw,16px)] text-emerald-600 font-bold mb-0.5 ml-0.5">USD</span>
                 </div>
             </div>
 
             {/* Nút Giỏ hàng */}
-            <button onClick={onToggleCart} className="h-12 shrink-0 bg-[#D4AF37] hover:bg-[#C5A028] text-white font-bold px-5 rounded-xl shadow-lg active:scale-95 transition-all text-sm tracking-wide uppercase flex items-center gap-2 relative overflow-visible">
-                <ShoppingCart className="w-5 h-5" />
-                <ArrowRight className="w-5 h-5 animate-slide-right" />
-                <span className={`absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-black transition-all transform duration-300 ${totalItems > 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>{totalItems}</span>
+            <button onClick={onToggleCart} className="h-[clamp(56px,8vw,76px)] w-[clamp(96px,18vw,156px)] shrink-0 bg-[#D4AF37] hover:bg-[#C5A028] text-white font-bold rounded-[clamp(16px,2.2vw,24px)] shadow-lg active:scale-95 transition-all text-sm tracking-wide uppercase flex items-center justify-center gap-[clamp(12px,2vw,24px)] relative overflow-hidden">
+                <ShoppingCart className="w-[clamp(24px,3.8vw,38px)] h-[clamp(24px,3.8vw,38px)]" />
+                <ArrowRight className="w-[clamp(24px,3.8vw,38px)] h-[clamp(24px,3.8vw,38px)] animate-slide-right" />
+                <span className={`absolute top-1 right-1 bg-red-600 text-white text-[clamp(10px,1.6vw,14px)] font-bold w-[clamp(20px,3.2vw,30px)] h-[clamp(20px,3.2vw,30px)] flex items-center justify-center rounded-full border-2 border-black transition-all transform duration-300 ${totalItems > 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>{totalItems}</span>
             </button>
         </div>
         </>

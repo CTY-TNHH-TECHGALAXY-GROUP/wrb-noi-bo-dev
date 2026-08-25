@@ -12,6 +12,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { flushSync } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // 🔧 UI CONFIGURATION
@@ -47,8 +48,7 @@ import CategoryPicker from './CategoryPicker';
 
 // 2. Import Logic & Data
 import { CATEGORIES } from '@/components/Menu/constants';
-import { Service, CartState, SheetState } from '@/components/Menu/types';
-import { getServices } from '@/components/Menu/getServices'; // Đảm bảo đường dẫn đúng
+import { Category, Service, SheetState } from '@/components/Menu/types';
 import { useMenuData } from '@/components/Menu/MenuContext'; // Import Hook Context
 
 interface StandardMenuProps {
@@ -58,9 +58,42 @@ interface StandardMenuProps {
     onCheckout: () => void;
     onSwitchToVip?: () => void;
     showHiddenServices?: boolean;
+    showEntryActions?: boolean;
+    showPickerBack?: boolean;
 }
 
-export default function StandardMenu({ lang, menuType = 'standard', onBack, onCheckout, onSwitchToVip, showHiddenServices = false }: StandardMenuProps) {
+const DESIGN_JOURNEY_CATEGORY: Category = {
+    id: 'DesignJourney',
+    names: {
+        en: 'VIP',
+        vi: 'VIP',
+        jp: 'VIP',
+        kr: 'VIP',
+        cn: 'VIP'
+    },
+    image: '/assets/icons/design-journey-key.png'
+};
+
+const getUniqueServiceOptions = (group: Service[]) => (
+    group
+        .filter((svc, idx, arr) => arr.findIndex(s => s.timeValue === svc.timeValue && s.priceVND === svc.priceVND) === idx)
+        .sort((a, b) => a.timeValue - b.timeValue)
+);
+
+const isPrivateRoomAddonService = (service: Service) => {
+    const name = `${service.names?.en || ''} ${service.names?.vi || ''}`.toLowerCase();
+    return service.priceVND === 105000 && (name.includes('private room') || name.includes('phòng riêng') || name.includes('phong rieng'));
+};
+
+const stripCartOnlyCustomFlags = (prefs: CustomPreferences): CustomPreferences => ({
+    ...prefs,
+    notes: {
+        ...prefs.notes,
+        privateRoom: false
+    }
+});
+
+export default function StandardMenu({ lang, menuType = 'standard', onBack, onCheckout, onSwitchToVip, showHiddenServices = false, showEntryActions = false, showPickerBack = true }: StandardMenuProps) {
     // --- STATE DỮ LIỆU ---
     // Remove local loading state (duplicate)
     const [services, setServices] = useState<Service[]>([]);
@@ -69,8 +102,8 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
     const [mode, setMode] = useState<'PICKER' | 'MENU'>('PICKER');
     const [activeCategory, setActiveCategory] = useState<string>('Body');
     const [slideDirection, setSlideDirection] = useState<number>(1);
-    const [selectedCats, setSelectedCats] = useState<string[]>([]);
     const [pendingScrollCategory, setPendingScrollCategory] = useState<string | null>(null);
+    const [showIntroSplash, setShowIntroSplash] = useState(true);
 
     // State quản lý Sheet
     const [sheet, setSheet] = useState<SheetState>({
@@ -83,6 +116,14 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
 
     // --- 1. LẤY DATA TỪ CONTEXT ---
     const { services: allServices, loading: contextLoading, error: contextError, refreshData, cart, addToCart: contextAddToCart, updateCartItem, updateCartItemOptions, removeFromCart } = useMenuData();
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => {
+            setShowIntroSplash(false);
+        }, 850);
+
+        return () => window.clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         if (!contextLoading) {
@@ -117,12 +158,16 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
     }, []);
 
     // --- 2. LOGIC TÍNH TOÁN CART ---
+    const standardCartItems = useMemo(
+        () => cart.filter(item => item.itemType !== 'vip'),
+        [cart]
+    );
+
     // a. Tính tổng tiền & số lượng (cho Footer)
     const { totalVND, totalUSD, totalItems, maxMinutes } = useMemo(() => {
-        const standardCart = cart.filter(item => item.itemType !== 'vip');
         let vnd = 0, usd = 0, items = 0, maxMin = 0;
 
-        standardCart.forEach(item => {
+        standardCartItems.forEach(item => {
             vnd += (item.priceVND || 0) * item.qty;
             usd += (item.priceUSD || 0) * item.qty;
             items += item.qty;
@@ -130,7 +175,7 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
         });
 
         return { totalVND: vnd, totalUSD: usd, totalItems: items, maxMinutes: maxMin };
-    }, [cart]);
+    }, [standardCartItems]);
 
     // b. Tạo Lookup Map (ID -> Qty) để truyền xuống ServiceList và MainSheet (để hiện Badge)
     const cartLookup = useMemo(() => {
@@ -144,8 +189,13 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
 
     // Array categories gốc (hiển thị đủ trên Header)
     const allCategories = CATEGORIES;
+    const pickerCategories = showEntryActions ? [...CATEGORIES, DESIGN_JOURNEY_CATEGORY] : CATEGORIES;
     // Array dành cho phần thân: CHỈ hiển thị category đang được chọn
     const filteredCategories = CATEGORIES.filter(cat => cat.id === activeCategory);
+    const privateRoomAddonService = useMemo(
+        () => allServices.find(isPrivateRoomAddonService),
+        [allServices]
+    );
 
     // --- 3. XỬ LÝ TƯƠNG TÁC ---
 
@@ -162,45 +212,149 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
     const handleAddToCart = (id: string, qty: number, options?: any) => {
         const service = services.find(s => s.id === id);
         if (service) {
-            // 1. Tìm các item cũ trong cart có cùng id (để replace logic)
-            const existingItems = cart.filter(item => item.id === id);
+            const newAddedIds: string[] = [];
 
-            // 2. Xóa hết chúng đi
-            existingItems.forEach(item => {
-                removeFromCart(item.cartId);
+            flushSync(() => {
+                // Thêm mới từng item riêng để cùng service nhưng custom/note khác nhau vẫn nằm thành các dòng riêng trong cart.
+                for (let i = 0; i < qty; i++) {
+                    const newId = contextAddToCart(service, 1, options);
+                    newAddedIds.push(newId);
+                }
+
+                // 4. CHUYỂN SANG BƯỚC CUSTOM (hoặc skip nếu không cần)
+                setLastAddedCartIds(newAddedIds);
+
+                // Task E2: Skip Custom modal for services that don't need it (e.g., Private Room)
+                if (service.SHOW_CUSTOM_FOR_YOU === false) {
+                    setSheet({ isOpen: false, type: null, data: null });
+                } else {
+                    setSheet({ isOpen: true, type: 'CUSTOM', data: service });
+                }
+            });
+        }
+    };
+
+    const handleQuickAddService = (service: Service) => {
+        handleAddToCart(service.id, 1);
+    };
+
+    const handleQuickRemoveService = (service: Service) => {
+        const item = [...standardCartItems].reverse().find(cartItem => cartItem.id === service.id);
+        if (!item) return;
+
+        if (item.qty <= 1) {
+            standardCartItems
+                .filter(cartItem => cartItem.options?.addonForCartId === item.cartId)
+                .forEach(cartItem => removeFromCart(cartItem.cartId));
+            removeFromCart(item.cartId);
+            return;
+        }
+
+        updateCartItem(item.cartId, item.qty - 1);
+    };
+
+    const handleDuplicateCartItem = (item: typeof cart[number]) => {
+        contextAddToCart(item, 1, item.options);
+        closeSheet();
+    };
+
+    const handleSetCartGroupQuantity = (item: typeof cart[number], nextQty: number) => {
+        const optionsKey = JSON.stringify(item.options || {});
+        const matchingItems = standardCartItems.filter(cartItem =>
+            cartItem.id === item.id && JSON.stringify(cartItem.options || {}) === optionsKey
+        );
+        const currentQty = matchingItems.reduce((sum, cartItem) => sum + cartItem.qty, 0);
+
+        if (nextQty > currentQty) {
+            for (let i = 0; i < nextQty - currentQty; i++) {
+                contextAddToCart(item, 1, item.options);
+            }
+            return;
+        }
+
+        let remainingQty = nextQty;
+        matchingItems.forEach(cartItem => {
+            if (remainingQty <= 0) {
+                updateCartItem(cartItem.cartId, 0);
+                return;
+            }
+
+            const keptQty = Math.min(cartItem.qty, remainingQty);
+            if (keptQty !== cartItem.qty) {
+                updateCartItem(cartItem.cartId, keptQty);
+            }
+            remainingQty -= keptQty;
+        });
+    };
+
+    const maybeOpenSingleGroupDurationDrawer = (categoryId: string) => {
+        const categoryServices = services.filter(s => s.cat === categoryId && (showHiddenServices || s.ACTIVE !== false));
+        const groups: Record<string, Service[]> = {};
+
+        categoryServices.forEach(svc => {
+            const key = svc.names.en.trim().toLowerCase();
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(svc);
+        });
+
+        const groupValues = Object.values(groups);
+        if (groupValues.length !== 1) {
+            setPendingScrollCategory(categoryId);
+            return;
+        }
+
+        const uniqueOptions = getUniqueServiceOptions(groupValues[0]);
+        if (uniqueOptions.length > 1) {
+            setTimeout(() => {
+                setSheet({ isOpen: true, type: 'MAIN', data: groupValues[0] });
+            }, 80);
+            return;
+        }
+
+        setPendingScrollCategory(categoryId);
+    };
+
+    const applyCustomToLastAddedItems = (prefs: CustomPreferences) => {
+        const wantsPrivateRoom = !!prefs.notes?.privateRoom;
+        const servicePrefs = stripCartOnlyCustomFlags(prefs);
+
+        // Áp dụng cho danh sách các item mới
+        lastAddedCartIds.forEach(cartId => {
+            updateCartItemOptions(cartId, {
+                strength: servicePrefs.strength,
+                therapist: servicePrefs.therapist,
+                bodyParts: servicePrefs.bodyParts,
+                notes: servicePrefs.notes
             });
 
-            // 3. Thêm mới: Chạy vòng lặp để thêm từng item lẻ (qty = 1)
-            const newAddedIds: string[] = [];
-            for (let i = 0; i < qty; i++) {
-                const newId = contextAddToCart(service, 1, options);
-                newAddedIds.push(newId);
-            }
+            if (wantsPrivateRoom && privateRoomAddonService) {
+                const alreadyAdded = standardCartItems.some(item =>
+                    item.options?.addonType === 'private-room' && item.options?.addonForCartId === cartId
+                );
 
-            // 4. CHUYỂN SANG BƯỚC CUSTOM (hoặc skip nếu không cần)
-            setLastAddedCartIds(newAddedIds);
-
-            // Task E2: Skip Custom modal for services that don't need it (e.g., Private Room)
-            if (service.SHOW_CUSTOM_FOR_YOU === false) {
-                closeSheet();
-            } else {
-                setSheet({ isOpen: true, type: 'CUSTOM', data: service });
+                if (!alreadyAdded) {
+                    contextAddToCart(privateRoomAddonService, 1, {
+                        addonType: 'private-room',
+                        addonForCartId: cartId,
+                        notes: { tag0: false, tag1: false, privateRoom: false, content: '' }
+                    });
+                }
             }
-        }
+        });
     };
 
     // Hàm lưu custom cho các item vừa thêm
     const handleSaveCustom = (prefs: CustomPreferences) => {
-        // Áp dụng cho danh sách các item mới
-        lastAddedCartIds.forEach(cartId => {
-            updateCartItemOptions(cartId, {
-                strength: prefs.strength,
-                therapist: prefs.therapist,
-                bodyParts: prefs.bodyParts,
-                notes: prefs.notes
-            });
-        });
+        applyCustomToLastAddedItems(prefs);
         closeSheet();
+    };
+
+    const handleSaveCustomAndCheckout = (prefs: CustomPreferences) => {
+        flushSync(() => {
+            applyCustomToLastAddedItems(prefs);
+            setSheet({ isOpen: false, type: null, data: null });
+        });
+        onCheckout();
     };
 
     // Mở giỏ hàng tổng (Sẽ làm CartDrawer sau)
@@ -210,7 +364,7 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
 
     // Đóng Sheet
     const closeSheet = () => {
-        setSheet({ ...sheet, isOpen: false });
+        setSheet(prev => ({ ...prev, isOpen: false }));
         setTimeout(() => setSheet({ isOpen: false, type: null, data: null }), 300);
     };
 
@@ -230,39 +384,50 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
             </div>
 
             <AnimatePresence mode="wait">
-                {mode === 'PICKER' ? (
+                {mode === 'PICKER' && showIntroSplash ? (
+                    <motion.div
+                        key="intro-splash"
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+                        initial={{ opacity: 1 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, scale: 1.03 }}
+                        transition={{ duration: 0.28, ease: 'easeOut' }}
+                    >
+                        <motion.div
+                            className="flex flex-col items-center gap-5"
+                            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            transition={{ duration: 0.38, ease: 'easeOut' }}
+                        >
+                            <img
+                                src="/Image/oria-spa-logo.png"
+                                alt="Oria Spa"
+                                className="h-28 w-auto object-contain brightness-0 invert sm:h-36 md:h-44 drop-shadow-[0_0_22px_rgba(232,201,122,0.18)]"
+                            />
+                        </motion.div>
+                    </motion.div>
+                ) : mode === 'PICKER' ? (
                     <CategoryPicker
                         key="picker"
-                        categories={CATEGORIES}
+                        categories={pickerCategories}
                         lang={lang}
                         onSelect={(ids) => {
                             const selectedId = ids[0] || 'Body';
-                            
-                            // Tự động gom nhóm các dịch vụ thuộc Category này
-                            const categoryServices = services.filter(s => s.cat === selectedId && (showHiddenServices || s.ACTIVE !== false));
-                            const groups: Record<string, Service[]> = {};
-                            categoryServices.forEach(svc => {
-                                const key = svc.names.en.trim().toLowerCase();
-                                if (!groups[key]) groups[key] = [];
-                                groups[key].push(svc);
-                            });
-                            
-                            const groupValues = Object.values(groups);
+
+                            if (selectedId === DESIGN_JOURNEY_CATEGORY.id) {
+                                if (onSwitchToVip) {
+                                    onSwitchToVip();
+                                }
+                                return;
+                            }
                             
                             setActiveCategory(selectedId);
                             setMode('MENU');
-                            
-                            // Nếu danh mục chỉ có 1 lựa chọn dịch vụ duy nhất (VD: Pro Foot Care)
-                            // -> Tự động bật luôn Popup chọn giờ từ dưới lên
-                            if (groupValues.length === 1) {
-                                setTimeout(() => {
-                                    setSheet({ isOpen: true, type: 'MAIN', data: groupValues[0] });
-                                }, 50); // Delay nhẹ để Menu render xong
-                            } else {
-                                setPendingScrollCategory(selectedId);
-                            }
+                            maybeOpenSingleGroupDurationDrawer(selectedId);
                         }}
                         onBack={onBack}
+                        showBack={showPickerBack}
+                        showQuickActions={showEntryActions}
                     />
                 ) : (
                     <motion.div
@@ -295,19 +460,7 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
                                 setSlideDirection(newIdx > oldIdx ? 1 : -1);
                                 setActiveCategory(id);
                                 
-                                // Áp dụng chung logic tự động bật Popup nếu nhóm đó chỉ có 1 lựa chọn
-                                const categoryServices = services.filter(s => s.cat === id && (showHiddenServices || s.ACTIVE !== false));
-                                const groups: Record<string, Service[]> = {};
-                                categoryServices.forEach(svc => {
-                                    const key = svc.names.en.trim().toLowerCase();
-                                    if (!groups[key]) groups[key] = [];
-                                    groups[key].push(svc);
-                                });
-                                const groupValues = Object.values(groups);
-                                
-                                if (groupValues.length === 1) {
-                                    setSheet({ isOpen: true, type: 'MAIN', data: groupValues[0] });
-                                }
+                                maybeOpenSingleGroupDurationDrawer(id);
                             }
                         }}
                     />
@@ -346,6 +499,8 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
                             direction={slideDirection}
                             lang={lang}
                             onItemClick={handleServiceClick}
+                            onQuickAdd={handleQuickAddService}
+                            onQuickRemove={handleQuickRemoveService}
                             showHiddenServices={showHiddenServices}
                         />
                     )}
@@ -368,10 +523,13 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
                         <MainSheet
                             group={sheet.data} // Truyền data (là mảng) vào prop group
                             cart={cartLookup} // Truyền Lookup Map để check sl
+                            cartItems={standardCartItems}
                             isOpen={sheet.isOpen}
                             lang={lang}
                             onClose={closeSheet}
                             onAddToCart={handleAddToCart}
+                            onDuplicateCartItem={handleDuplicateCartItem}
+                            onSetCartGroupQuantity={handleSetCartGroupQuantity}
                         />
                     )}
 
@@ -390,7 +548,7 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
                     {/* 3. Cart Drawer (Giỏ hàng) */}
                     {sheet.isOpen && sheet.type === 'CART' && (
                         <CartDrawer
-                            cart={cart.filter(item => item.itemType !== 'vip')}
+                            cart={standardCartItems}
                             services={services}
                             lang={lang}
                             isOpen={sheet.isOpen}
@@ -406,9 +564,11 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
                             isOpen={sheet.isOpen}
                             onClose={closeSheet}
                             onSave={handleSaveCustom}
+                            onSaveAndCheckout={handleSaveCustomAndCheckout}
                             serviceData={{
                                 ID: sheet.data.id,
                                 NAMES: sheet.data.names as Record<string, string>,
+                                CAT: sheet.data.cat,
                                 FOCUS_POSITION: sheet.data.FOCUS_POSITION as any,
                                 TAGS: sheet.data.TAGS as any,
                                 SHOW_STRENGTH: sheet.data.SHOW_STRENGTH,
@@ -422,6 +582,10 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
                                 SHOW_FOCUS: sheet.data.SHOW_FOCUS,
                             }}
                             lang={lang as any}
+                            privateRoomAddon={privateRoomAddonService ? {
+                                priceVND: privateRoomAddonService.priceVND,
+                                priceUSD: privateRoomAddonService.priceUSD
+                            } : undefined}
                         />
                     )}
 

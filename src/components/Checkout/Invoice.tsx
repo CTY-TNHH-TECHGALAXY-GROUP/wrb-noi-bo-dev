@@ -38,7 +38,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                         const isStrengthCustom = strength !== 'medium';
                         const isTherapistCustom = therapist !== 'random';
                         const isBodyCustom = item.options?.bodyParts && (item.options.bodyParts.focus.length > 0 || item.options.bodyParts.avoid.length > 0);
-                        const isNotesCustom = item.options?.notes && (item.options.notes.tag0 || item.options.notes.tag1 || item.options.notes.content);
+                        const isNotesCustom = item.options?.notes && (item.options.notes.tag0 || item.options.notes.tag1 || item.options.notes.privateRoom || item.options.notes.content);
 
                         const hasCustom = isStrengthCustom || isTherapistCustom || isBodyCustom || isNotesCustom;
 
@@ -223,10 +223,10 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                     )}
 
                                     {/* Tags & Note Content - Footer */}
-                                    {item.options?.notes && (item.options.notes.tag0 || item.options.notes.tag1 || item.options.notes.content) && (
+                                    {item.options?.notes && (item.options.notes.tag0 || item.options.notes.tag1 || item.options.notes.privateRoom || item.options.notes.content) && (
                                         <div className="mt-2 pt-2 border-t border-white/5 flex flex-col gap-2">
                                             {/* Tags */}
-                                            {(item.options.notes.tag0 || item.options.notes.tag1) && (
+                                            {(item.options.notes.tag0 || item.options.notes.tag1 || item.options.notes.privateRoom) && (
                                                 <div className="flex justify-end gap-2">
                                                     {item.options.notes.tag0 && (
                                                         <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
@@ -236,6 +236,11 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                                     {item.options.notes.tag1 && (
                                                         <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
                                                             {item.TAGS?.[1] ? (item.TAGS[1][lang as keyof typeof item.TAGS[1]] || item.TAGS[1].vi || item.TAGS[1].vn || item.TAGS[1].en) : (dict.tags?.allergy || 'Allergy')}
+                                                        </span>
+                                                    )}
+                                                    {item.options.notes.privateRoom && (
+                                                        <span className="bg-[#C9A96E]/20 text-[#F2C96B] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
+                                                            {lang === 'vi' ? 'Phòng riêng' : 'Private room'}
                                                         </span>
                                                     )}
                                                 </div>

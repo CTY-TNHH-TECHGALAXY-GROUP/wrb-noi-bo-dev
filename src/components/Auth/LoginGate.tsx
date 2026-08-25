@@ -157,7 +157,7 @@ export const LoginGate = ({ lang, onSuccess }: LoginGateProps) => {
       <button
         onClick={handleSubmit}
         disabled={loading || !input.trim()}
-        className="w-full bg-[#B88700] hover:bg-[#D4AF37] disabled:bg-gray-700 disabled:text-gray-400 text-black font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-yellow-900/20"
+        className="w-full bg-gradient-to-r from-[#D4AF37] via-[#F4E2B3] to-[#B8860B] text-black font-black uppercase tracking-wide flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-[0_12px_30px_rgba(212,175,55,0.28)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 disabled:grayscale-[0.15]"
         style={{ borderRadius: INPUT_BORDER_RADIUS, height: BTN_HEIGHT }}
       >
         {loading ? (

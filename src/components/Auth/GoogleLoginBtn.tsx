@@ -20,12 +20,13 @@ const GoogleIcon = () => (
     </svg>
 );
 
-export const GoogleLoginBtn = ({ lang = 'vi' }: { lang?: string }) => {
+export const GoogleLoginBtn = ({ lang = 'vi', nextPath }: { lang?: string; nextPath?: string }) => {
     const [alertState, setAlertState] = React.useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
     const { handleLogin, handleLogout } = useGoogleLogin(
         lang,
-        (msg) => setAlertState({ isOpen: true, message: msg, type: 'error' })
+        (msg) => setAlertState({ isOpen: true, message: msg, type: 'error' }),
+        nextPath
     );
     const { isAuthUser } = useAuthStore();
     // Default to 'en' texts if the language string is unrecognized.

@@ -51,6 +51,9 @@ export async function handleStandardItems(
                 tagList.push(toVietnamese('allergy'));
             }
         }
+        if (opts.notes?.privateRoom) {
+            tagList.push('Phòng riêng');
+        }
 
         return {
             id: item.id,
@@ -89,4 +92,3 @@ export async function handleStandardItems(
 
     if (error) throw error;
 }
-

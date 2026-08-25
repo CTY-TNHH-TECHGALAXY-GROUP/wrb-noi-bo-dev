@@ -62,7 +62,7 @@ export default function AuthPage() {
 
         // Timeout nhỏ giúp NextJS hoàn tất quá trình render hoặc xóa hash trước khi sang màn khác
         const timer = setTimeout(() => {
-            router.push(`/${lang}/customer-type`);
+            router.push(`/${lang}/new-user/standard/menu`);
         }, 500);
 
         return () => clearTimeout(timer);
@@ -70,8 +70,8 @@ export default function AuthPage() {
 
     const handleSkip = () => {
         loginAsGuest();
-        // Chạy thẳng vô menu như hình
-        router.push(`/${lang}/new-user/select-menu`);
+        // Chạy thẳng vô vòng xoay category
+        router.push(`/${lang}/new-user/standard/menu`);
     };
 
     const handleBack = () => {

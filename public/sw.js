@@ -1,7 +1,7 @@
 // Service Worker for Ngan Ha Spa PWA
 // Provides basic caching for offline support
 
-const CACHE_NAME = 'ngan-ha-spa-v1';
+const CACHE_NAME = 'ngan-ha-spa-v2';
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
@@ -56,14 +56,14 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone response and cache it
-        const responseClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          // Chỉ cache các request hợp lệ (http/https), bỏ qua chrome-extension://
-          if (event.request.url.startsWith('http')) {
+        // Cache only complete, successful same-origin responses.
+        // Partial responses (206) cannot be stored with cache.put().
+        if (response.status === 200 && response.type === 'basic') {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseClone);
-          }
-        });
+          });
+        }
         return response;
       })
       .catch(() => {

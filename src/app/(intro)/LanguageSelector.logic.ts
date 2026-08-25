@@ -61,7 +61,7 @@ export const useLanguageSelectorLogic = (overrideRadius?: number) => {
     localStorage.setItem("app_lang", langId);
 
     setTimeout(() => {
-      router.push(`/${langId}/customer-type`);
+      router.push(`/${langId}/new-user/standard/menu`);
     }, 1500);
   };
 

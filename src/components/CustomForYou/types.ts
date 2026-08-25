@@ -1,12 +1,14 @@
 export type LanguageCode = 'en' | 'vi' | 'jp' | 'kr' | 'cn';
 
-export type BodyPartKey = 'HEAD' | 'NECK' | 'SHOULDER' | 'ARM' | 'BACK' | 'THIGH' | 'CALF' | 'FOOT';
+export type BodyPartKey = 'HEAD' | 'NECK' | 'SHOULDER' | 'ARM' | 'BACK' | 'THIGH' | 'KNEE' | 'CALF' | 'FOOT';
 
 // Cấu trúc Data của Service từ Database (như bạn cung cấp)
 export interface ServiceData {
     ID: string;
     NAMES: Record<string, string>; // { EN: "...", VN: "..." }
+    CAT?: string;
     FOCUS_POSITION?: Record<BodyPartKey, boolean>; // Map<Part, boolean>
+    HIDDEN_FOCUS_PARTS?: BodyPartKey[];
     TAGS?: Array<Record<string, string>>; // List các tag [0: Pregnant, 1: Allergy]
     HINT?: Record<string, string>; // Placeholder cho Other Notes
     PRICE_VN?: number;
@@ -28,6 +30,7 @@ export interface CustomPreferences {
     notes: {
         tag0: boolean; // Trạng thái tag đầu tiên (Pregnant)
         tag1: boolean; // Trạng thái tag thứ hai (Allergy)
+        privateRoom?: boolean; // Add-on: private room request
         content: string; // Nội dung ghi chú thêm
     };
     strength?: 'light' | 'medium' | 'strong';

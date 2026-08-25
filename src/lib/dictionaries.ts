@@ -91,7 +91,7 @@ const dictionaries = {
             card: "Card",
             transfer: "Transfer",
             // New UI keys
-            denominations: "Collected Denominations",
+            denominations: "Please prepare VND follow:",
             exchange_rules: "Collection & Refund Rules",
             refund_note: "Change will be returned in VND.",
             accepted_cards: "Accepted Cards",
@@ -139,6 +139,7 @@ const dictionaries = {
             hand: "Hand",
             hands: "Hands",
             thigh: "Thigh",
+            knee: "Knee",
             leg: "Leg",
             legs: "Legs",
             calf: "Calf",
@@ -151,6 +152,7 @@ const dictionaries = {
             BACK: "Back",
             ARM: "Arm",
             THIGH: "Thigh",
+            KNEE: "Knee",
             CALF: "Calf"
         },
         tags: {
@@ -268,7 +270,7 @@ const dictionaries = {
             card: "Thẻ",
             transfer: "Chuyển khoản",
             // New UI keys
-            denominations: "Mệnh giá thu",
+            denominations: "Vui lòng chuẩn bị tiền VND như sau:",
             exchange_rules: "Quy định thu & trả lại",
             refund_note: "Tiền thừa sẽ được trả lại bằng VND.",
             accepted_cards: "Các loại thẻ chấp nhận",
@@ -316,6 +318,7 @@ const dictionaries = {
             hand: "Bàn tay",
             hands: "Bàn tay",
             thigh: "Đùi",
+            knee: "Gối",
             leg: "Chân",
             legs: "Chân",
             calf: "Bắp chân",
@@ -328,6 +331,7 @@ const dictionaries = {
             BACK: "Lưng",
             ARM: "Tay",
             THIGH: "Đùi",
+            KNEE: "Gối",
             CALF: "Bắp chân"
         },
         tags: {
@@ -445,7 +449,7 @@ const dictionaries = {
             card: "카드",
             transfer: "계좌 이체",
             // New UI keys
-            denominations: "수금 가능 권종",
+            denominations: "아래 VND 지폐를 준비해 주세요:",
             exchange_rules: "수금 및 환불 규정",
             refund_note: "거스름돈은 VND로 반환됩니다.",
             accepted_cards: "허용된 카드",
@@ -493,6 +497,7 @@ const dictionaries = {
             hand: "손",
             hands: "손",
             thigh: "허벅지",
+            knee: "무릎",
             leg: "다리",
             legs: "다리",
             calf: "종아리",
@@ -505,6 +510,7 @@ const dictionaries = {
             BACK: "등",
             ARM: "팔",
             THIGH: "허벅지",
+            KNEE: "무릎",
             CALF: "종아리"
         },
         tags: {
@@ -622,7 +628,7 @@ const dictionaries = {
             card: "银行卡",
             transfer: "转账",
             // New UI keys
-            denominations: "接收面额",
+            denominations: "请按以下 VND 面额准备：",
             exchange_rules: "收款与退款规则",
             refund_note: "找零将返还 VND。",
             accepted_cards: "支持的银行卡",
@@ -670,6 +676,7 @@ const dictionaries = {
             hand: "手",
             hands: "手",
             thigh: "大腿",
+            knee: "膝盖",
             leg: "腿",
             legs: "腿",
             calf: "小腿",
@@ -682,6 +689,7 @@ const dictionaries = {
             BACK: "背部",
             ARM: "手臂",
             THIGH: "大腿",
+            KNEE: "膝盖",
             CALF: "小腿"
         },
         tags: {
@@ -799,7 +807,7 @@ const dictionaries = {
             card: "カード",
             transfer: "銀行振込",
             // New UI keys
-            denominations: "取り扱い券種",
+            denominations: "以下のVND紙幣をご用意ください:",
             exchange_rules: "徴収および返金ルール",
             refund_note: "お釣りはVNDで返却されます。",
             accepted_cards: "利用可能なカード",
@@ -847,6 +855,7 @@ const dictionaries = {
             hand: "手",
             hands: "手",
             thigh: "太もも",
+            knee: "膝",
             leg: "脚",
             legs: "脚",
             calf: "ふくらはぎ",
@@ -859,6 +868,7 @@ const dictionaries = {
             BACK: "背中",
             ARM: "腕",
             THIGH: "太もも",
+            KNEE: "膝",
             CALF: "ふくらはぎ"
         },
         tags: {
@@ -892,4 +902,3 @@ const dictionaries = {
         }
     }
 };
-

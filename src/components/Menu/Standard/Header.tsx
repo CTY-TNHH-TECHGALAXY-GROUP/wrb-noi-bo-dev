@@ -20,9 +20,18 @@ interface HeaderProps {
     onSelectCategory: (id: string) => void;
 }
 
+const marqueeText: Record<string, string> = {
+    en: 'Random Staff. Random Room.',
+    vi: 'Nhân viên ngẫu nhiên. Phòng ngẫu nhiên.',
+    jp: 'スタッフはランダム。部屋はランダム。',
+    kr: '랜덤 직원. 랜덤 룸.',
+    cn: '随机员工。随机房间。'
+};
+
 export default function Header({ categories, activeCategory, lang, onSelectCategory }: HeaderProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isReady, setIsReady] = useState(false);
+    const marquee = marqueeText[lang] || marqueeText.en;
     
     const repeatedCategories = categories;
 
@@ -77,7 +86,7 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
                 onMouseLeave={handleMouseLeave}
                 onMouseUp={handleMouseUp}
                 onMouseMove={handleMouseMove}
-                className={`flex flex-row overflow-x-auto md:justify-center snap-x hide-scrollbar gap-x-4 md:gap-x-6 pt-4 px-4 pb-2 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'} cursor-grab`}
+                className={`flex flex-row overflow-x-auto md:justify-center snap-x hide-scrollbar gap-x-5 md:gap-x-8 pt-5 px-4 pb-3 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'} cursor-grab`}
                 style={{ scrollBehavior: 'smooth' }}
             >
                 {repeatedCategories.map((cat, index) => {
@@ -86,16 +95,16 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
                         <button
                             key={`${cat.id}-${index}`}
                             onClick={() => onSelectCategory(cat.id)}
-                            className={`flex flex-col items-center gap-2 group focus:outline-none shrink-0 snap-center w-[5.5rem] md:w-[7rem] transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}
+                            className={`flex flex-col items-center gap-2.5 group focus:outline-none shrink-0 snap-center w-[7rem] md:w-[8.5rem] transition-opacity duration-300 ${isActive ? 'opacity-45' : 'opacity-100'}`}
                         >
-                            <div className={`w-[75px] h-[75px] md:w-[90px] md:h-[90px] rounded-full border flex items-center justify-center transition-all shadow-md overflow-hidden relative backdrop-blur-sm ${isActive ? 'bg-black/40 border-[#C9A96E]' : 'bg-black/10 border-white/10 group-hover:bg-black/30 pointer-events-none'}`}>
-                                <img
-                                    src={cat.image || 'https://placehold.co/100x100'}
-                                    className="w-[75%] h-[75%] object-contain transition-transform duration-500 group-hover:scale-110 pointer-events-none"
-                                    alt={cat.names['en']}
+                            <div className={`w-[96px] h-[96px] md:w-[116px] md:h-[116px] rounded-full border flex items-center justify-center transition-all shadow-md overflow-hidden relative backdrop-blur-sm ${isActive ? 'bg-black/10 border-white/5 grayscale' : 'bg-black/30 border-white/15 group-hover:bg-black/40 pointer-events-none'}`}>
+                                <span
+                                    className={`h-[75%] w-[75%] transition-transform duration-500 group-hover:scale-110 pointer-events-none ${isActive ? 'muted-mask-icon' : 'gold-mask-icon'}`}
+                                    style={{ '--icon-url': `url("${cat.image || 'https://placehold.co/100x100'}")` } as React.CSSProperties}
+                                    aria-label={cat.names['en']}
                                 />
                             </div>
-                            <span className={`pointer-events-none text-xs md:text-sm font-medium uppercase tracking-tight text-center w-full truncate px-0.5 leading-tight ${isActive ? 'text-[#C9A96E]' : 'text-gray-400 group-hover:text-gray-300'}`}>
+                            <span className={`pointer-events-none text-base md:text-lg font-semibold uppercase tracking-tight text-center w-full truncate px-0.5 leading-tight ${isActive ? 'text-gray-500' : 'text-[#C9A96E] group-hover:text-[#FFE38A]'}`}>
                                 {cat.names[lang as keyof typeof cat.names] || cat.names['en']}
                             </span>
                         </button>
@@ -103,7 +112,7 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
                 })}
             </div>
             <div className="text-xs text-center text-[#e6c487] opacity-90 uppercase tracking-[0.15em] mt-2 border-t border-white/10 pt-2 font-bold">
-                Random Staff. Random Room.
+                {marquee}
             </div>
         </div>
     );

@@ -12,19 +12,22 @@
  */
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus, ChevronDown, List, Pencil, PlusCircle } from 'lucide-react';
-import { Service, CartState } from '../../types';
+import { CartItem, Service } from '../../types';
 import { formatCurrency } from '../../utils';
 
 interface MainSheetProps {
     group: Service[]; // Nhận vào cả nhóm món ăn
     cart: Record<string, number>;  // Nhận vào Lookup Map
+    cartItems?: CartItem[];
     isOpen: boolean;
     lang: string;
     onClose: () => void;
     onAddToCart: (id: string, quantity: number, options?: any) => void;
+    onDuplicateCartItem?: (item: CartItem) => void;
+    onSetCartGroupQuantity?: (item: CartItem, quantity: number) => void;
 }
 
 // 🔧 UI CONFIGURATION
@@ -63,10 +66,13 @@ const TEXT = {
     mins: { vi: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
     custom_for_you: { vi: 'Tùy chỉnh dịch vụ', en: 'Custom for you', cn: '定制服务', jp: 'カスタムサービス', kr: '맞춤 서비스' },
     custom_selected: { vi: 'Đã tùy chỉnh', en: 'Customized', cn: '已定制', jp: 'カスタマイズ済み', kr: '맞춤 설정됨' },
+    same_custom: { vi: 'Thêm cùng tùy chỉnh', en: 'Add same custom', cn: '添加相同定制', jp: '同じ設定を追加', kr: '같은 설정 추가' },
     recommended: { vi: 'Gợi ý', en: 'Recommended', cn: '推荐', jp: 'おすすめ', kr: '추천' }
 };
 
-export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToCart }: MainSheetProps) {
+type SelectedCartGroup = CartItem & { totalQty: number };
+
+export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, onClose, onAddToCart, onDuplicateCartItem, onSetCartGroupQuantity }: MainSheetProps) {
     // Helper translate
     const t = (key: Exclude<keyof typeof TEXT, 'selected_msg'>) => {
         const dict = TEXT[key] as Record<string, string>;
@@ -84,26 +90,52 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
     const [showAll, setShowAll] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const [isVisible, setIsVisible] = useState(false); // State cho hiệu ứng mở (Entrance Animation)
+    const [editingCartItem, setEditingCartItem] = useState<SelectedCartGroup | null>(null);
 
     // MODE: 'LIST' (Xem danh sách đã chọn) | 'ADD' (Thêm mới)
     const [viewMode, setViewMode] = useState<'LIST' | 'ADD'>('ADD');
 
+    const sortedGroup = useMemo(
+        () => [...group].sort((a, b) => a.timeValue - b.timeValue),
+        [group]
+    );
+
+    const uniqueOptions = useMemo(
+        () => sortedGroup.filter((svc, idx, arr) => arr.findIndex(s => s.timeValue === svc.timeValue && s.priceVND === svc.priceVND) === idx),
+        [sortedGroup]
+    );
+
+    const selectedCartGroups = useMemo(() => {
+        const groupIds = new Set(group.map(svc => svc.id));
+        const groups: Record<string, SelectedCartGroup> = {};
+
+        cartItems
+            .filter(item => groupIds.has(item.id))
+            .forEach(item => {
+                const key = `${item.id}-${JSON.stringify(item.options || {})}`;
+                if (!groups[key]) {
+                    groups[key] = { ...item, totalQty: 0 };
+                }
+                groups[key].totalQty += item.qty;
+            });
+
+        return Object.values(groups);
+    }, [cartItems, group]);
+
     useEffect(() => {
         if (isOpen && group.length > 0) {
-            // 1. Sort lại group
-            const sortedGroup = [...group].sort((a, b) => a.timeValue - b.timeValue);
-
-            // 2. Kiểm tra xem trong cart đã có món nào thuộc group này chưa
-            const purchasedItems = sortedGroup.filter(svc => cart[svc.id] && cart[svc.id] > 0);
-
-            if (purchasedItems.length > 0) {
+            if (selectedCartGroups.length > 0) {
                 // Nếu có -> Chuyển sang chế độ xem danh sách
                 setViewMode('LIST');
+                setSelectedService(selectedCartGroups[0]);
+                setQty(1);
+                setEditingCartItem(null);
             } else {
                 // Nếu chưa -> Chuyển sang chế độ thêm mới (Chọn giờ default)
                 setViewMode('ADD');
-                setSelectedService(sortedGroup[0]);
+                setSelectedService(sortedGroup[0] || null);
                 setQty(1);
+                setEditingCartItem(null);
             }
 
             setShowAll(false);
@@ -114,17 +146,9 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
             const timer = setTimeout(() => setIsVisible(true), 10);
             return () => clearTimeout(timer);
         }
-    }, [isOpen, group, cart]); // Thêm cart vào dependencies để cập nhật realtime
+    }, [isOpen, group.length, selectedCartGroups, sortedGroup]);
 
     if (!isOpen) return null;
-
-    // Lọc ra danh sách các món đã mua trong group này
-    const purchasedServices = group.filter(svc => cart[svc.id] && cart[svc.id] > 0);
-
-    // Nếu đang ở mode LIST mà user lại xóa hết item trong cart -> Tự back về ADD
-    if (viewMode === 'LIST' && purchasedServices.length === 0 && isOpen) {
-        setViewMode('ADD');
-    }
 
     const handleClose = () => {
         setIsClosing(true);
@@ -132,22 +156,48 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
     };
 
     const handleConfirm = () => {
+        if (editingCartItem) {
+            onSetCartGroupQuantity?.(editingCartItem, qty);
+            handleClose();
+            return;
+        }
+
         if (selectedService) {
             onAddToCart(selectedService.id, qty);
             // logic đóng sheet sẽ được StandardMenu quản lý (chuyển sang CUSTOM hoặc đóng)
         }
     };
 
+    const handleDuplicateExisting = (item: CartItem) => {
+        if (onDuplicateCartItem) {
+            onDuplicateCartItem(item);
+        } else {
+            onAddToCart(item.id, 1, item.options);
+        }
+    };
+
     // Chuyển sang sửa 1 món cụ thể
-    const handleEditItem = (svc: Service) => {
-        setSelectedService(svc);
-        setQty(cart[svc.id]); // Load số lượng hiện tại
+    const handleEditItem = (item: SelectedCartGroup) => {
+        setSelectedService(item);
+        setEditingCartItem(item);
+        setQty(item.totalQty);
         setViewMode('ADD');
     };
 
     // Lấy tên chung của nhóm (Lấy từ món đầu tiên)
     const representative = group[0];
-    const groupName = representative?.names[lang as keyof typeof representative.names] || representative?.names['en'];
+    const groupName = representative?.names?.[lang as keyof typeof representative.names] || representative?.names?.['en'] || '';
+    const selectedDescription = selectedService?.descriptions?.[lang as keyof typeof selectedService.descriptions] || selectedService?.descriptions?.['en'] || '';
+    const getOptionsSummary = (item: CartItem) => {
+        const parts: string[] = [];
+        if (item.options?.strength) parts.push(item.options.strength);
+        if (item.options?.therapist && item.options.therapist !== 'random') parts.push(`${item.options.therapist} therapist`);
+        if (item.options?.bodyParts?.focus?.length) parts.push(`Focus: ${item.options.bodyParts.focus.join(', ')}`);
+        if (item.options?.bodyParts?.avoid?.length) parts.push(`Avoid: ${item.options.bodyParts.avoid.join(', ')}`);
+        if (item.options?.notes?.privateRoom) parts.push('Private room');
+        if (item.options?.notes?.content) parts.push(item.options.notes.content);
+        return parts.join(' · ');
+    };
 
     // --- RENDER GIAO DIỆN ---
     return (
@@ -173,7 +223,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                     <div className="w-full px-5 pt-6 pb-2 shrink-0">
                         <h2 className="text-4xl md:text-[46px] font-bold text-[#C9A96E] font-luxury leading-tight">{groupName}</h2>
                         <p className="text-xl md:text-[22px] text-gray-400 mt-2 opacity-80 leading-snug">
-                            {selectedService.descriptions[lang as keyof typeof selectedService.descriptions] || selectedService.descriptions['en']}
+                            {selectedDescription}
                         </p>
                         <p className="text-base md:text-lg text-white/50 italic mt-1.5 font-light">
                             {{
@@ -197,40 +247,57 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                 <List className="text-[#C9A96E]" size={24} />
                                 <div>
                                     <h2 className="text-xl font-bold text-white">{t('selected_options')}</h2>
-                                    <p className="text-sm text-gray-400">{tMsg(purchasedServices.length, groupName)}</p>
+                                    <p className="text-sm text-gray-400">{tMsg(selectedCartGroups.reduce((sum, item) => sum + item.totalQty, 0), groupName)}</p>
                                 </div>
                             </div>
 
                             <div className="flex flex-col gap-3">
-                                {purchasedServices.map(svc => (
-                                    <div key={svc.id} className="bg-[#1c1c1e]/80 p-4 rounded-xl border border-gray-700 flex justify-between items-center group hover:border-gray-500 transition-colors">
-                                        <div>
+                                {selectedCartGroups.map(item => {
+                                    const summary = getOptionsSummary(item);
+                                    return (
+                                    <div key={`${item.cartId}-${JSON.stringify(item.options || {})}`} className="bg-[#1c1c1e]/80 p-4 rounded-xl border border-gray-700 flex justify-between items-center gap-3 group hover:border-gray-500 transition-colors">
+                                        <div className="min-w-0">
                                             <div className="flex items-baseline gap-2">
-                                                {svc.timeValue > 0 && (
+                                                {item.timeValue > 0 && (
                                                     <>
-                                                        <span className="text-[#C9A96E] font-bold text-xl">{svc.timeValue}{t('mins')}</span>
+                                                        <span className="text-[#C9A96E] font-bold text-xl">{item.timeValue}{t('mins')}</span>
                                                         <span className="text-gray-500 text-xs uppercase tracking-wider">{t('duration')}</span>
                                                     </>
                                                 )}
                                             </div>
                                             <div className="text-white font-bold mt-1.5 text-lg">
-                                                {formatCurrency(svc.priceVND)} VND <span className="text-gray-600 font-normal text-base px-1">/</span> <span className="text-emerald-500">{svc.priceUSD} USD</span>
+                                                {formatCurrency(item.priceVND)} VND <span className="text-gray-600 font-normal text-base px-1">/</span> <span className="text-emerald-500">{item.priceUSD} USD</span>
                                             </div>
                                             <div className="text-sm text-gray-400 mt-1 flex items-center gap-1">
                                                 <span>{t('qty')}:</span>
-                                                <span className="text-white font-bold">{cart[svc.id]}</span>
+                                                <span className="text-white font-bold">{item.totalQty}</span>
                                                 <span>{t('pax')}</span>
                                             </div>
+                                            {summary && (
+                                                <div className="mt-1.5 max-w-full truncate text-xs font-medium text-gray-500">
+                                                    {summary}
+                                                </div>
+                                            )}
                                         </div>
 
-                                        <button
-                                            onClick={() => handleEditItem(svc)}
-                                            className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-[#C9A96E] hover:text-black transition-all shadow-lg"
-                                        >
-                                            <Pencil size={18} />
-                                        </button>
+                                        <div className="flex shrink-0 items-center gap-2">
+                                            <button
+                                                onClick={() => handleDuplicateExisting(item)}
+                                                className="h-11 w-11 rounded-full bg-[#E3A51F] text-black flex items-center justify-center hover:bg-[#F2C96B] transition-all shadow-lg"
+                                                aria-label={t('same_custom')}
+                                            >
+                                                <Plus size={24} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleEditItem(item)}
+                                                className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-[#C9A96E] hover:text-black transition-all shadow-lg"
+                                            >
+                                                <Pencil size={18} />
+                                            </button>
+                                        </div>
                                     </div>
-                                ))}
+                                    );
+                                })}
                             </div>
 
                             {/* Nút Add Option */}
@@ -241,8 +308,9 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                     const sorted = [...group].sort((a, b) => a.timeValue - b.timeValue);
                                     setSelectedService(sorted[0]);
                                     setQty(1);
+                                    setEditingCartItem(null);
                                 }}
-                                className="w-full mt-6 py-4 border border-dashed border-gray-600 text-gray-400 rounded-xl flex items-center justify-center gap-2 hover:border-[#C9A96E] hover:text-[#C9A96E] hover:bg-[#C9A96E]/5 transition-all text-sm font-bold uppercase tracking-wide"
+                                className="w-full mt-6 py-4 border border-dashed border-gray-600 text-gray-400 rounded-xl flex items-center justify-center gap-2 hover:border-white/25 hover:text-[#C9A96E] hover:bg-white/5 transition-all text-sm font-bold uppercase tracking-wide"
                             >
                                 <PlusCircle size={20} />
                                 <span>{t('add_another')}</span>
@@ -257,7 +325,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                             {/* KHU VỰC CHỌN THỜI GIAN */}
                             <div className="mb-6">
                                 {/* Nếu list có item -> Cho nút Back to list */}
-                                {purchasedServices.length > 0 && (
+                                {selectedCartGroups.length > 0 && (
                                     <div className="flex justify-end mb-3">
                                         <button onClick={() => setViewMode('LIST')} className="text-xs text-[#C9A96E] font-bold hover:underline">
                                             {t('back_to_list')}
@@ -280,9 +348,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                         },
                                     }}
                                 >
-                                    {group
-                                        .filter((svc, idx, arr) => arr.findIndex(s => s.timeValue === svc.timeValue && s.priceVND === svc.priceVND) === idx) // Dedup by time and price
-                                        .sort((a, b) => a.timeValue - b.timeValue)
+                                    {uniqueOptions
                                         .slice(0, 4)
                                         .map((svc) => (
                                             <motion.button
@@ -304,7 +370,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                 className={`
                                         flex flex-col items-center justify-center py-4 px-2 rounded-xl border transition-colors relative overflow-hidden
                                         ${selectedService.id === svc.id
-                                                        ? 'bg-[#1c1c1e] text-white border-[#C9A96E] border-2 shadow-lg shadow-[#C9A96E]/10'
+                                                        ? 'bg-[#1c1c1e] text-white border-white/15'
                                                         : 'bg-[#0d0d0d] text-gray-400 border-gray-700 hover:border-gray-500'}
                                     `}
                                             >
@@ -337,9 +403,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
 
                                     {/* Expanded items (appear with animation after View More) */}
                                     <AnimatePresence>
-                                        {showAll && group
-                                            .filter((svc, idx, arr) => arr.findIndex(s => s.timeValue === svc.timeValue && s.priceVND === svc.priceVND) === idx)
-                                            .sort((a, b) => a.timeValue - b.timeValue)
+                                        {showAll && uniqueOptions
                                             .slice(4)
                                             .map((svc, idx) => (
                                                 <motion.button
@@ -361,7 +425,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                     className={`
                                             flex flex-col items-center justify-center py-4 px-2 rounded-xl border transition-colors relative overflow-hidden
                                             ${selectedService.id === svc.id
-                                                            ? 'bg-[#1c1c1e] text-white border-[#C9A96E] border-2 shadow-lg shadow-[#C9A96E]/10'
+                                                            ? 'bg-[#1c1c1e] text-white border-white/15'
                                                             : 'bg-[#0d0d0d] text-gray-400 border-gray-700 hover:border-gray-500'}
                                         `}
                                                 >
@@ -420,20 +484,18 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                 {/* FOOTER ACTION - CHỈ HIỆN Ở MODE ADD */}
                 {viewMode === 'ADD' && selectedService && (
                     <div className="p-5 pt-2 bg-[#0d0d0d] border-t border-gray-700/50">
-                        <div className="flex items-center justify-center mb-6">
-                            <div className="flex items-center gap-6 md:gap-8 bg-[#1c1c1e] rounded-full p-2 border border-gray-700 px-8 md:px-10">
-                                <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition-colors shadow-md"><Minus size={24} /></button>
-                                <span className="text-2xl md:text-3xl font-bold text-white min-w-[40px] md:min-w-[50px] text-center font-mono">{qty}</span>
-                                <button onClick={() => setQty(q => q + 1)} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-[#C9A96E] text-white flex items-center justify-center hover:bg-[#dfc599] transition-colors shadow-md"><Plus size={24} /></button>
-                            </div>
+                        <div className="flex items-center justify-center gap-8 md:gap-10 mb-5">
+                            <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-transparent text-gray-300 flex items-center justify-center hover:bg-white/5 transition-colors"><Minus size={26} /></button>
+                            <span className="text-3xl md:text-4xl font-black text-white min-w-[44px] md:min-w-[56px] text-center font-mono">{qty}</span>
+                            <button onClick={() => setQty(q => q + 1)} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-transparent text-[#FFE38A] flex items-center justify-center hover:bg-white/5 transition-colors"><Plus size={28} /></button>
                         </div>
 
-                        <button onClick={handleConfirm} className="w-full py-4 md:py-5 bg-gradient-to-r from-[#b6965b] to-[#C9A96E] text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-3 text-xl md:text-2xl uppercase hover:brightness-110 transition-all">
-                            <span>{cart[selectedService.id] ? t('update_cart') : t('add_to_cart')}</span>
-                            <span className="opacity-40 font-normal text-3xl ml-2">|</span>
-                            <span className="text-3xl md:text-[36px] font-extrabold ml-1">{formatCurrency(selectedService.priceVND * qty)} VND</span>
-                            <span className="opacity-40 font-normal text-2xl mx-1">/</span>
-                            <span className="text-emerald-200 font-extrabold text-3xl md:text-[36px]">{selectedService.priceUSD * qty} USD</span>
+                        <button onClick={handleConfirm} className="add-to-cart-gold-btn w-full py-4 md:py-5 text-black font-black rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 text-xl md:text-2xl uppercase transition-all active:scale-[0.985]">
+                            <span className="tracking-wide">{editingCartItem ? t('update_cart') : t('add_to_cart')}</span>
+                            <span className="hidden sm:inline opacity-35 font-normal text-3xl">|</span>
+                            <span className="text-2xl md:text-[34px] font-black tabular-nums">{formatCurrency(selectedService.priceVND * qty)} VND</span>
+                            <span className="hidden sm:inline opacity-35 font-normal text-2xl">/</span>
+                            <span className="text-xl md:text-[30px] font-black text-emerald-800 tabular-nums">{selectedService.priceUSD * qty} USD</span>
                         </button>
                     </div>
                 )}

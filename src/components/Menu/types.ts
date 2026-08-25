@@ -72,6 +72,8 @@ export interface Category {
 export interface ServiceOptions {
   strength?: 'light' | 'medium' | 'strong';
   therapist?: 'male' | 'female' | 'random';
+  addonType?: 'private-room';
+  addonForCartId?: string;
 
   // Custom For You New Structure
   bodyParts?: {
@@ -81,6 +83,7 @@ export interface ServiceOptions {
   notes?: {
     tag0: boolean;
     tag1: boolean;
+    privateRoom?: boolean;
     content: string;
   };
 }

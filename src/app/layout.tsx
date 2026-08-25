@@ -13,22 +13,9 @@ import { AuthProvider } from "@/components/Auth/AuthProvider";
 import IOSViewportFix from "@/components/IOSViewportFix";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
-import { Be_Vietnam_Pro, Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react"
 
-const beVietnamPro = Be_Vietnam_Pro({
-  weight: ['400', '500', '600', '700'],
-  subsets: ['latin', 'vietnamese'],
-  display: 'swap',
-  variable: '--font-primary',
-});
-
-const playfairDisplay = Playfair_Display({
-  weight: ['400', '500', '600', '700', '800', '900'],
-  subsets: ['latin', 'vietnamese'],
-  display: 'swap',
-  variable: '--font-luxury',
-});
+const isVercelDeployment = process.env.VERCEL === "1";
 
 export const metadata: Metadata = {
   title: "Oria Spa",
@@ -64,12 +51,12 @@ export default function RootLayout({
       {/* Thẻ body này là nơi chứa mọi trang web của bạn.
         Nó sẽ tự động nhận các style từ globals.css
       */}
-      <body suppressHydrationWarning className={`${beVietnamPro.variable} ${playfairDisplay.variable} font-sans antialiased w-full h-full`}>
+      <body suppressHydrationWarning className="font-sans antialiased w-full h-full">
         <AuthProvider>
           <MenuProvider>
             <IOSViewportFix /> {/* Kích hoạt script tính chiều cao */}
             <ServiceWorkerRegister />
-            <Analytics />
+            {isVercelDeployment && <Analytics />}
             {children}
           </MenuProvider>
         </AuthProvider>

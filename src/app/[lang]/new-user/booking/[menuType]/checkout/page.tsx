@@ -30,13 +30,13 @@ const PAGE_CONFIG = {
     TEXT_COLOR: 'text-white'
 };
 
-export default function BookingCheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
+export default function BookingCheckoutPage({ params }: { params: Promise<{ lang: string; menuType: string }> }) {
     const router = useRouter();
     const { cart, updateCartItemOptions, updateVipCartItem, customerInfo, updateCustomerInfo, resetCustomerInfo, clearCart } = useMenuData();
     const { user, isAuthUser } = useAuthStore();
 
     // Unwrap params
-    const { lang: rawLang } = use(params);
+    const { lang: rawLang, menuType } = use(params);
     const [activeLang, setActiveLang] = useState(rawLang);
     const [originalLang] = useState(rawLang);
 
@@ -89,7 +89,10 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
     }, [isAuthUser, user]);
 
     const handleBack = () => {
-        router.back();
+        const returnCategory = cart.find(item => item.itemType !== 'vip')?.cat || 'Body';
+        sessionStorage.setItem('standard_menu_mode', 'MENU');
+        sessionStorage.setItem('standard_menu_category', returnCategory);
+        router.replace(`/${activeLang}/new-user/booking/${menuType}/menu`);
     };
 
     const handleCustomRequest = (item: CartItem) => {
@@ -164,7 +167,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
             amountPaid: parseInt(amountPaid.replace(/\./g, '') || '0', 10),
             changeDenominations,
             totalVND,
-            lang: rawLang,
+            lang: activeLang,
             appointmentDate: selectedDateStr,
             timeSlot: selectedSlot,
             bookingSource: 'web',
@@ -202,10 +205,10 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
             />
 
             <main className={`p-4 md:p-6 lg:p-8 mx-auto min-h-screen ${PAGE_CONFIG.MAX_WIDTH}`}>
-                <div className="flex flex-col gap-6 md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
+                <div className="flex flex-col gap-6 xl:grid xl:grid-cols-12 xl:gap-8">
 
                     {/* Left Column */}
-                    <div className="w-full md:col-span-7 md:row-start-1 space-y-6">
+                    <div className="w-full xl:col-span-7 xl:row-start-1 space-y-6">
                         {/* 1. Customer Info */}
                         <CustomerInfo
                             lang={activeLang}
@@ -230,8 +233,8 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
                     </div>
 
                     {/* Right Column: Invoice & Submit */}
-                    <div className="w-full md:col-span-5 md:col-start-8 md:row-start-1 md:row-span-2 space-y-6">
-                        <div className="md:sticky md:top-4 space-y-6">
+                    <div className="w-full xl:col-span-5 xl:col-start-8 xl:row-start-1 xl:row-span-2 space-y-6">
+                        <div className="xl:sticky xl:top-4 space-y-6">
                             <Invoice
                                 cart={cart}
                                 lang={activeLang}
@@ -242,7 +245,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
                             />
 
                             {/* Desktop Submit Button */}
-                            <div className="hidden md:block">
+                            <div className="hidden xl:block">
                                 <button
                                     onClick={handleProceedToPayment}
                                     className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
@@ -256,7 +259,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
             </main>
 
             {/* Mobile Bottom Bar */}
-            <div className="fixed bottom-0 left-0 w-full bg-[#1c1c1e] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-white/10 z-40 md:hidden shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+            <div className="fixed bottom-0 left-0 w-full bg-[#1c1c1e] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-white/10 z-40 xl:hidden shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
                 <button
                     onClick={handleProceedToPayment}
                     className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
@@ -275,6 +278,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
                     serviceData={{
                         ID: selectedCartItem.id,
                         NAMES: selectedCartItem.names as any,
+                        CAT: selectedCartItem.cat,
                         FOCUS_POSITION: selectedCartItem.FOCUS_POSITION as any,
                         TAGS: selectedCartItem.TAGS as any,
                         SHOW_STRENGTH: selectedCartItem.SHOW_STRENGTH,

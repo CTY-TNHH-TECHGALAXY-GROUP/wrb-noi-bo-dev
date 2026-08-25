@@ -13,9 +13,10 @@
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, ArrowRight, ChevronLeft } from 'lucide-react';
+import { ArrowRight, Plus, X } from 'lucide-react';
 import ServiceItem from '@/components/Menu/Standard/ServiceItem';
-import { Category, Service, CartState } from '@/components/Menu/types';
+import { Category, Service } from '@/components/Menu/types';
+import { formatCurrency } from '@/components/Menu/utils';
 import { NEW_USER_CONTROLLED_CATEGORIES, NEW_USER_ALLOWED_IDS } from '../constants';
 
 interface ServiceListProps {
@@ -26,6 +27,8 @@ interface ServiceListProps {
     selectedTags?: string[]; // [NEW] Truyền tag khách chọn xuống để List biết cách sort
     direction?: number; // Hướng trượt (1 là -> trái, -1 là <- phải)
     onItemClick: (services: Service[]) => void; // Thay đổi: Truyền vào 1 mảng các biến thể
+    onQuickAdd?: (service: Service) => void;
+    onQuickRemove?: (service: Service) => void;
     showHiddenServices?: boolean;
 }
 
@@ -107,36 +110,52 @@ const BODY_SUB_MENUS = [
     }
 ];
 
-export default function ServiceList({ categories, services, cart, lang, selectedTags = [], direction = 1, onItemClick, showHiddenServices = false }: ServiceListProps) {
+const getUniqueServiceOptions = (group: Service[]) => (
+    group
+        .filter((svc, idx, arr) => arr.findIndex(s => s.timeValue === svc.timeValue && s.priceVND === svc.priceVND) === idx)
+        .sort((a, b) => a.timeValue - b.timeValue)
+);
+
+const canAddQuantityDirectly = (service: Service) => service.SHOW_CUSTOM_FOR_YOU === false;
+const normalizeText = (value: string) => value.trim().toLowerCase().replace(/\s+/g, ' ');
+const hasMeaningfulDescription = (service: Service, lang: string) => {
+    const name = service.names[lang as keyof typeof service.names] || service.names.en || '';
+    const description = service.descriptions[lang as keyof typeof service.descriptions] || service.descriptions.en || '';
+
+    return !!description.trim() && normalizeText(description) !== normalizeText(name);
+};
+
+export default function ServiceList({ categories, services, cart, lang, direction = 1, onItemClick, onQuickAdd, onQuickRemove, showHiddenServices = false }: ServiceListProps) {
     const router = useRouter();
 
     const [comingSoon, setComingSoon] = useState<string | null>(null);
+    const [detailService, setDetailService] = useState<Service | null>(null);
 
-    const csText: Record<string, { title: string; desc: string; close: string }> = {
-        en: { title: 'Coming Soon', desc: 'This service is being prepared. Stay tuned!', close: 'Close' },
-        vi: { title: 'Sắp Ra Mắt', desc: 'Dịch vụ đang được chuẩn bị. Hãy đón chờ nhé!', close: 'Đóng' },
-        kr: { title: '곧 출시', desc: '서비스를 준비 중입니다. 기대해 주세요!', close: '닫기' },
-        cn: { title: '即将推出', desc: '服务正在筹备中，敬请期待！', close: '关闭' },
-        jp: { title: '近日公開', desc: 'サービス準備中です。お楽しみに！', close: '閉じる' },
+    const csText: Record<string, { title: string; desc: string; close: string; add: string; mins: string }> = {
+        en: { title: 'Coming Soon', desc: 'This service is being prepared. Stay tuned!', close: 'Close', add: 'Add Service', mins: 'mins' },
+        vi: { title: 'Sắp Ra Mắt', desc: 'Dịch vụ đang được chuẩn bị. Hãy đón chờ nhé!', close: 'Đóng', add: 'Chọn dịch vụ', mins: 'phút' },
+        kr: { title: '곧 출시', desc: '서비스를 준비 중입니다. 기대해 주세요!', close: '닫기', add: '서비스 선택', mins: '분' },
+        cn: { title: '即将推出', desc: '服务正在筹备中，敬请期待！', close: '关闭', add: '选择服务', mins: '分钟' },
+        jp: { title: '近日公開', desc: 'サービス準備中です。お楽しみに！', close: '閉じる', add: 'サービスを選択', mins: '分' },
     };
     const cs = csText[lang] || csText['en'];
+    const detailName = detailService?.names[lang as keyof typeof detailService.names] || detailService?.names.en || '';
+    const detailDescription = detailService?.descriptions[lang as keyof typeof detailService.descriptions] || detailService?.descriptions.en || '';
 
     // 1. Hàm Gộp nhóm: Gom các món có cùng Tên Tiếng Anh (names.en) vào chung 1 mảng
     const groupedServices: Record<string, Service[]> = useMemo(() => {
         const groups: Record<string, Service[]> = {};
         services.forEach(svc => {
-            // [LOGIC NEW] Lọc dịch vụ rác cho luồng Khách Mới
-            if (showHiddenServices) {
-                // Nếu thuộc danh mục kiểm soát khắt khe (Body, Foot, Ear Clean...)
-                if (NEW_USER_CONTROLLED_CATEGORIES.includes(svc.cat)) {
-                    if (!NEW_USER_ALLOWED_IDS.includes(svc.id)) return;
-                } else {
-                    // Nếu thuộc danh mục tự do (VD: Dịch vụ lẻ), chỉ hiển thị món Đang Bán
-                    if (svc.ACTIVE === false) return;
-                }
-            } else {
-                // Luồng Main Branch: Chỉ hiển thị món Đang Bán
-                if (svc.ACTIVE === false) return;
+            // Luôn chặn dịch vụ ngừng bán trước tiên, áp dụng cho mọi luồng.
+            if (svc.ACTIVE === false) return;
+
+            // Sau đó mới áp dụng whitelist riêng cho luồng Khách Mới.
+            if (
+                showHiddenServices &&
+                NEW_USER_CONTROLLED_CATEGORIES.includes(svc.cat) &&
+                !NEW_USER_ALLOWED_IDS.includes(svc.id)
+            ) {
+                return;
             }
 
             // Dùng tên tiếng Anh làm khóa để gộp nhóm (Normalize: Trim + Lowercase)
@@ -147,7 +166,7 @@ export default function ServiceList({ categories, services, cart, lang, selected
             groups[key].push(svc);
         });
         return groups;
-    }, [services]);
+    }, [services, showHiddenServices]);
 
     return (
         <div className="flex-1 overflow-y-auto px-4 pb-40 scroll-smooth no-scrollbar" id="service-list-container">
@@ -198,7 +217,7 @@ export default function ServiceList({ categories, services, cart, lang, selected
 
                             {/* Grid danh sách */}
                             <motion.div
-                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl lg:max-w-7xl md:mx-auto lg:mx-auto"
+                                className="grid grid-cols-1 gap-4 sm:gap-5 md:gap-6 w-full max-w-5xl mx-auto"
                                 variants={gridContainerVariants}
                                 initial="hidden"
                                 animate="visible"
@@ -206,10 +225,13 @@ export default function ServiceList({ categories, services, cart, lang, selected
                             >
                                 {categoryGroups.map((group) => {
                                     const representative = group[0]; // Lấy món đầu tiên làm đại diện hiển thị
+                                    const uniqueOptions = getUniqueServiceOptions(group);
+                                    const singleOption = uniqueOptions.length === 1 ? uniqueOptions[0] : undefined;
 
                                     // Tính tổng số lượng của tất cả các biến thể trong nhóm này
                                     // VD: Khách chọn 1 cái 60' + 1 cái 90' -> Tổng hiện thị ra ngoài là 2
                                     const totalQty = group.reduce((sum, item) => sum + (cart[item.id] || 0), 0);
+                                    const selectedServicesInGroup = group.filter(item => (cart[item.id] || 0) > 0);
 
                                     // [LOGIC NEW] Kiểm tra xem trong nhóm có item nào là Best Seller không
                                     const isBestSellerGroup = group.some(item => item.BEST_SELLER === true);
@@ -218,10 +240,45 @@ export default function ServiceList({ categories, services, cart, lang, selected
                                         <motion.div key={representative.id} variants={gridItemVariants}>
                                             <ServiceItem
                                                 service={representative} // Chỉ cần truyền thông tin đại diện (Tên, Ảnh)
+                                                singleOption={singleOption}
                                                 quantity={totalQty}
                                                 lang={lang}
                                                 isBestSeller={isBestSellerGroup} // Truyền prop mới
-                                                onClick={() => onItemClick(group)} // Quan trọng: Truyền CẢ NHÓM vào để MainSheet xử lý
+                                                onClick={() => {
+                                                    if (singleOption) {
+                                                        if (totalQty > 0) {
+                                                            if (canAddQuantityDirectly(singleOption)) {
+                                                                onQuickAdd?.(singleOption);
+                                                                return;
+                                                            }
+                                                            onItemClick(group);
+                                                            return;
+                                                        }
+                                                        if (!hasMeaningfulDescription(singleOption, lang)) {
+                                                            onQuickAdd?.(singleOption);
+                                                            return;
+                                                        }
+                                                        setDetailService(singleOption);
+                                                        return;
+                                                    }
+                                                    onItemClick(group);
+                                                }}
+                                                onQuickAdd={() => {
+                                                    if (singleOption) {
+                                                        onQuickAdd?.(singleOption);
+                                                        return;
+                                                    }
+                                                    onItemClick(group);
+                                                }}
+                                                onQuickRemove={() => {
+                                                    if (selectedServicesInGroup.length > 1) {
+                                                        onItemClick(group);
+                                                        return;
+                                                    }
+                                                    if (selectedServicesInGroup[0]) {
+                                                        onQuickRemove?.(selectedServicesInGroup[0]);
+                                                    }
+                                                }}
                                             />
                                         </motion.div>
                                     );
@@ -244,22 +301,22 @@ export default function ServiceList({ categories, services, cart, lang, selected
                                                     sessionStorage.setItem('standard_menu_category', 'Body');
                                                     router.push(`/${lang}/new-user/vip/menu`);
                                                 }}
-                                                className="relative w-full rounded-2xl p-3 flex flex-row gap-4 items-center overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] bg-black/10 border border-white/10 backdrop-blur-sm shadow-lg hover:bg-black/20"
+                                                className="relative w-full min-h-[132px] sm:min-h-[148px] md:min-h-[168px] rounded-2xl p-4 sm:p-5 md:p-6 flex flex-row gap-4 sm:gap-5 md:gap-6 items-center overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] bg-black/10 border border-white/10 backdrop-blur-sm shadow-lg hover:bg-black/20"
                                             >
-                                                <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-black/20 relative shadow-sm">
+                                                <div className="w-[104px] h-[104px] sm:w-[118px] sm:h-[118px] md:w-[136px] md:h-[136px] shrink-0 rounded-xl overflow-hidden bg-black/20 relative shadow-sm">
                                                     <img src={menu.img} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" alt={name} />
                                                 </div>
-                                                <div className="flex flex-col justify-center flex-1 min-w-0 pr-12 py-1">
-                                                    <h3 className="font-bold text-white text-[26px] md:text-[28px] leading-[1.35] mb-1.5 line-clamp-2 font-luxury tracking-wide">
+                                                <div className="flex flex-col justify-center flex-1 min-w-0 pr-14 sm:pr-16 py-1">
+                                                    <h3 className="font-bold text-white text-[30px] sm:text-[34px] md:text-[40px] leading-[1.18] mb-2 line-clamp-2 font-luxury tracking-wide">
                                                         {name}
                                                     </h3>
-                                                    <p className="text-[16px] md:text-[18px] text-gray-400 line-clamp-2 leading-[1.45] font-light">
+                                                    <p className="text-[18px] sm:text-[20px] md:text-[24px] text-gray-400 line-clamp-2 leading-[1.35] font-light">
                                                         {desc}
                                                     </p>
                                                 </div>
-                                                <div className="absolute bottom-3 right-3 z-10">
-                                                    <div className="w-9 h-9 rounded-full bg-gray-700/80 text-[#C9A96E] flex items-center justify-center backdrop-blur-sm hover:bg-gray-600 hover:text-white transition-colors">
-                                                        <ArrowRight size={18} strokeWidth={2.5} />
+                                                <div className="absolute bottom-4 right-4 z-10">
+                                                    <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-gray-700/80 text-[#C9A96E] flex items-center justify-center backdrop-blur-sm hover:bg-gray-600 hover:text-white transition-colors">
+                                                        <ArrowRight className="w-6 h-6 md:w-7 md:h-7" strokeWidth={2.5} />
                                                     </div>
                                                 </div>
                                             </div>
@@ -276,8 +333,8 @@ export default function ServiceList({ categories, services, cart, lang, selected
             {comingSoon && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setComingSoon(null)}></div>
-                    <div className="bg-[#1a1412] border border-[#d4af37]/30 p-8 rounded-2xl z-10 max-w-sm w-full text-center shadow-2xl animate-in zoom-in-95 duration-200">
-                        <div className="w-16 h-16 mx-auto mb-4 border-2 border-[#d4af37] rounded-full flex items-center justify-center bg-[#d4af37]/10">
+                    <div className="bg-[#1a1412] border border-white/10 p-8 rounded-2xl z-10 max-w-sm w-full text-center shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="w-16 h-16 mx-auto mb-4 border border-white/10 rounded-full flex items-center justify-center bg-[#d4af37]/10">
                             <span className="text-2xl">⏳</span>
                         </div>
                         <h3 className="text-[#d4af37] font-bold text-2xl mb-3">{cs.title}</h3>
@@ -287,6 +344,55 @@ export default function ServiceList({ categories, services, cart, lang, selected
                             className="w-full py-3 bg-gradient-to-r from-[#d4af37] to-[#aa8022] text-black font-bold rounded-xl active:scale-95 transition-transform"
                         >
                             {cs.close}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {detailService && (
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setDetailService(null)} />
+                    <div className="relative z-10 w-full sm:max-w-2xl rounded-t-[30px] sm:rounded-[30px] border border-white/10 bg-[#0d0d0d] p-6 sm:p-8 shadow-2xl animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-200">
+                        <button
+                            type="button"
+                            onClick={() => setDetailService(null)}
+                            className="absolute right-4 top-4 rounded-full p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+                            aria-label={cs.close}
+                        >
+                            <X size={28} />
+                        </button>
+                        <div className="flex gap-5 pr-8">
+                            <div className="h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-black/30 sm:h-36 sm:w-36">
+                                <img src={detailService.img} alt={detailName} className="h-full w-full object-cover" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h3 className="text-3xl font-bold leading-tight text-white sm:text-4xl">{detailName}</h3>
+                                <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                                    {detailService.timeValue > 0 && (
+                                        <span className="rounded-full border border-white/12 px-4 py-1.5 text-xl font-black text-[#f3d889]">
+                                            {detailService.timeValue} {cs.mins}
+                                        </span>
+                                    )}
+                                    <span className="text-3xl font-black text-[#C9A96E]">{formatCurrency(detailService.priceVND)} <span className="text-base text-gray-500">VND</span></span>
+                                    <span className="text-2xl font-bold text-emerald-500">{detailService.priceUSD} USD</span>
+                                </div>
+                            </div>
+                        </div>
+                        {detailDescription && detailDescription.trim().toLowerCase() !== detailName.trim().toLowerCase() && (
+                            <p className="mt-6 max-h-[30vh] overflow-y-auto whitespace-pre-line text-xl leading-relaxed text-gray-300 custom-scrollbar sm:text-2xl">
+                                {detailDescription}
+                            </p>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                onQuickAdd?.(detailService);
+                                setDetailService(null);
+                            }}
+                            className="mt-7 flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#b6965b] to-[#C9A96E] py-4 text-xl font-black uppercase text-black shadow-lg transition-transform active:scale-[0.98] sm:py-5 sm:text-2xl"
+                        >
+                            <Plus size={28} />
+                            <span>{cs.add}</span>
                         </button>
                     </div>
                 </div>

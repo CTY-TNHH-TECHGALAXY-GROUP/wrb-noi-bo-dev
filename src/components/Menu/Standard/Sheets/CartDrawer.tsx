@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { flushSync } from 'react-dom';
 import { X, Minus, Plus, Hand, User, Heart, Ban, Tag, MessageSquare, Clock } from 'lucide-react';
 import { useMenuData } from '@/components/Menu/MenuContext';
 import { Service, CartState, CartItem, ServiceOptions } from '@/components/Menu/types';
@@ -28,6 +29,19 @@ const CONFIG = {
     FOOTER_BG: 'bg-[#1c1c1e]',
 };
 
+const isPrivateRoomAddonService = (service: Service) => {
+    const name = `${service.names?.en || ''} ${service.names?.vi || ''}`.toLowerCase();
+    return service.priceVND === 105000 && (name.includes('private room') || name.includes('phòng riêng') || name.includes('phong rieng'));
+};
+
+const stripCartOnlyCustomFlags = (prefs: CustomPreferences): CustomPreferences => ({
+    ...prefs,
+    notes: {
+        ...prefs.notes,
+        privateRoom: false
+    }
+});
+
 // Translate Text
 const TEXT = {
     title: { vi: 'Dịch vụ đã chọn', en: 'Services Selected', cn: '已选服务', jp: '選択されたサービス', kr: '선택된 서비스' },
@@ -52,6 +66,7 @@ const CustomizationSummary = ({ item, lang, onClick }: { item: CartItem & { tota
         const bodyPartsDict = dict.body_parts as Record<string, string>;
         return bodyPartsDict[key] || key;
     };
+    const isFullBodySelection = (parts: string[]) => parts.length >= 8;
 
     const getStrengthColor = (s?: string) => 'text-[#C9A96E]';
     const getTherapistColor = (t?: string) => 'text-[#C9A96E]';
@@ -111,7 +126,7 @@ const CustomizationSummary = ({ item, lang, onClick }: { item: CartItem & { tota
                         <span className="text-gray-400">{dict.checkout?.avoid}</span>
                     </div>
                     <span className="font-bold text-[#C9A96E] text-right">
-                        {options.bodyParts.avoid.length === 8 
+                        {isFullBodySelection(options.bodyParts.avoid) 
                             ? (dict.custom_for_you?.full_body || 'Full Body')
                             : options.bodyParts.avoid.map(translatePart).join(', ')}
                     </span>
@@ -126,7 +141,7 @@ const CustomizationSummary = ({ item, lang, onClick }: { item: CartItem & { tota
                         <span className="text-gray-400">{dict.checkout?.focus}</span>
                     </div>
                     <span className="font-bold text-[#C9A96E] text-right">
-                        {options.bodyParts.focus.length === 8 
+                        {isFullBodySelection(options.bodyParts.focus) 
                             ? (dict.custom_for_you?.full_body || 'Full Body')
                             : options.bodyParts.focus.map(translatePart).join(', ')}
                     </span>
@@ -134,17 +149,22 @@ const CustomizationSummary = ({ item, lang, onClick }: { item: CartItem & { tota
             )}
 
             {/* Tags & Content */}
-            {(options?.notes?.tag0 || options?.notes?.tag1 || options?.notes?.content) && (
+            {(options?.notes?.tag0 || options?.notes?.tag1 || options?.notes?.privateRoom || options?.notes?.content) && (
                 <div className="space-y-2 pt-1 border-t border-white/5">
                     <div className="flex flex-wrap justify-end gap-2">
                         {options.notes?.tag0 && (
-                            <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-[#C9A96E]/30">
+                            <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-white/10">
                                 {item.TAGS?.[0] ? (item.TAGS[0][lang as keyof typeof item.TAGS[0]] || item.TAGS[0].vi || item.TAGS[0].vn || item.TAGS[0].en) : dict.tags?.pregnant}
                             </span>
                         )}
                         {options.notes?.tag1 && (
-                            <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-[#C9A96E]/30">
+                            <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-white/10">
                                 {item.TAGS?.[1] ? (item.TAGS[1][lang as keyof typeof item.TAGS[1]] || item.TAGS[1].vi || item.TAGS[1].vn || item.TAGS[1].en) : dict.tags?.allergy}
+                            </span>
+                        )}
+                        {options.notes?.privateRoom && (
+                            <span className="bg-[#C9A96E]/20 text-[#F2C96B] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-white/10">
+                                {lang === 'vi' ? 'Phòng riêng' : 'Private room'}
                             </span>
                         )}
                     </div>
@@ -169,7 +189,11 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
     const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
     const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
-    const { addToCart, removeFromCart, updateCartItemOptions } = useMenuData();
+    const { addToCart, removeFromCart, updateCartItem, updateCartItemOptions } = useMenuData();
+    const privateRoomAddonService = useMemo(
+        () => services.find(isPrivateRoomAddonService),
+        [services]
+    );
 
     useEffect(() => {
         if (isOpen) {
@@ -215,24 +239,53 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
 
     const handleSaveCustom = (prefs: CustomPreferences) => {
         if (!editingItem) return;
+        const wantsPrivateRoom = !!prefs.notes?.privateRoom;
+        const servicePrefs = stripCartOnlyCustomFlags(prefs);
 
         // Map CustomPreferences back to ServiceOptions
         const options: ServiceOptions = {
-            strength: prefs.strength as any,
-            therapist: prefs.therapist as any,
-            bodyParts: prefs.bodyParts,
-            notes: prefs.notes
+            strength: servicePrefs.strength as any,
+            therapist: servicePrefs.therapist as any,
+            bodyParts: servicePrefs.bodyParts,
+            notes: servicePrefs.notes
         };
 
         updateCartItemOptions(editingItem.cartId, options);
+
+        const existingPrivateRoomAddon = cart.find(item =>
+            item.options?.addonType === 'private-room' && item.options?.addonForCartId === editingItem.cartId
+        );
+
+        if (wantsPrivateRoom && !existingPrivateRoomAddon && privateRoomAddonService) {
+            addToCart(privateRoomAddonService, 1, {
+                addonType: 'private-room',
+                addonForCartId: editingItem.cartId,
+                notes: { tag0: false, tag1: false, privateRoom: false, content: '' }
+            });
+        }
+
+        if (!wantsPrivateRoom && existingPrivateRoomAddon) {
+            removeFromCart(existingPrivateRoomAddon.cartId);
+        }
+
         setIsCustomModalOpen(false);
         setEditingItem(null);
+    };
+
+    const handleSaveCustomAndCheckout = (prefs: CustomPreferences) => {
+        if (!editingItem) return;
+
+        flushSync(() => {
+            handleSaveCustom(prefs);
+        });
+        onCheckout();
     };
 
     const mapCartItemToServiceData = (item: CartItem): ServiceData => {
         return {
             ID: item.id,
             NAMES: item.names as any,
+            CAT: item.cat,
             FOCUS_POSITION: item.FOCUS_POSITION as any,
             TAGS: item.TAGS as any,
             SHOW_STRENGTH: item.SHOW_STRENGTH,
@@ -246,21 +299,30 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
         };
     };
 
-    const handlePlus = (item: CartItem) => {
-        // [MODIFIED] Preserve options when adding quantity
-        addToCart(item as any, 1, item.options);
+    const handlePlus = (item: CartItem & { totalQty: number }) => {
+        updateCartItem(item.cartId, item.qty + 1);
     };
 
-    const handleMinus = (displayKey: string) => {
-        // Find the last instance in the cart that matches this group's displayKey
-        // In grouped view, the "displayKey" identifies items with same ID and Options.
-        const instance = cart.find(c => {
+    const handleMinus = (item: CartItem & { totalQty: number; displayKey: string }) => {
+        if (item.qty > 1) {
+            updateCartItem(item.cartId, item.qty - 1);
+            return;
+        }
+
+        const instance = item.totalQty > 1
+            ? [...cart].reverse().find(c => {
+                const optionsKey = JSON.stringify(c.options || {});
+                return c.cartId !== item.cartId && `${c.id}-${optionsKey}` === item.displayKey;
+            })
+            : cart.find(c => c.cartId === item.cartId);
+
+        const target = instance || cart.find(c => {
             const optionsKey = JSON.stringify(c.options || {});
-            return `${c.id}-${optionsKey}` === displayKey;
+            return `${c.id}-${optionsKey}` === item.displayKey;
         });
 
-        if (instance) {
-            removeFromCart(instance.cartId);
+        if (target) {
+            removeFromCart(target.cartId);
         }
     };
 
@@ -338,7 +400,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                                             {/* Quantity Controls (Condensed Pill Shape) */}
                                             <div className="flex items-center gap-2 bg-white/5 rounded-full px-2 py-0.5 border border-white/5">
                                                 <button
-                                                    onClick={() => handleMinus(item.displayKey)}
+                                                    onClick={() => handleMinus(item)}
                                                     className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
                                                 >
                                                     <Minus size={12} />
@@ -407,9 +469,24 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                         setEditingItem(null);
                     }}
                     onSave={handleSaveCustom}
+                    onSaveAndCheckout={handleSaveCustomAndCheckout}
                     serviceData={mapCartItemToServiceData(editingItem)}
                     lang={lang as LanguageCode}
-                    initialData={editingItem.options as any}
+                    initialData={{
+                        ...(editingItem.options as any),
+                        notes: {
+                            tag0: editingItem.options?.notes?.tag0 || false,
+                            tag1: editingItem.options?.notes?.tag1 || false,
+                            content: editingItem.options?.notes?.content || '',
+                            privateRoom: cart.some(item =>
+                                item.options?.addonType === 'private-room' && item.options?.addonForCartId === editingItem.cartId
+                            )
+                        }
+                    }}
+                    privateRoomAddon={privateRoomAddonService ? {
+                        priceVND: privateRoomAddonService.priceVND,
+                        priceUSD: privateRoomAddonService.priceUSD
+                    } : undefined}
                 />
             )}
 

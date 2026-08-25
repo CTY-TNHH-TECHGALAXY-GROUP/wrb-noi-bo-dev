@@ -194,7 +194,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
                     vipDuration: params.duration,
                     vipStaffId: staffId,
                     selectedSkills: params.skillIds,
-                    notes: { tag0: false, tag1: false, content: params.customerNotes || '' }
+                    notes: { tag0: false, tag1: false, privateRoom: false, content: params.customerNotes || '' }
                 } as any
             } as CartItem;
         });
@@ -233,6 +233,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
                     notes: {
                         tag0: item.options?.notes?.tag0 ?? false,
                         tag1: item.options?.notes?.tag1 ?? false,
+                        privateRoom: item.options?.notes?.privateRoom ?? false,
                         content: newNotes || '',
                     },
                 } as typeof item.options,

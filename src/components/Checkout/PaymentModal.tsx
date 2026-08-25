@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, AlertCircle } from 'lucide-react';
 import PaymentMethods from '@/components/Checkout/PaymentMethods';
-import ChangeDenominationSelector from '@/components/Checkout/ChangeDenominationSelector';
 import AlertModal from '@/components/Shared/AlertModal';
 import VatInvoiceSection, { type VatInvoiceData } from '@/components/Checkout/VatInvoiceSection';
 import { getBookingT } from '@/components/Booking/BookingCheckout.i18n';
@@ -46,38 +45,13 @@ export default function PaymentModal({
 
     // State for payment picking
     const [paymentMethod, setPaymentMethod] = useState('');
-    const [amountPaid, setAmountPaid] = useState<string>('');
-    const [changeDenominations, setChangeDenominations] = useState<number[]>([]);
     const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
     const [showWarningModal, setShowWarningModal] = useState(false);
     const [isWarningClosing, setIsWarningClosing] = useState(false);
     const [vatInvoice, setVatInvoice] = useState<VatInvoiceData | null>(initialVatInvoice || null);
 
     const t = getBookingT(lang);
-
-    const currency = useMemo(() => paymentMethod === 'cash_usd' ? 'USD' : 'VND', [paymentMethod]);
-
-    const changeAmount = useMemo(() => {
-        const rawPaid = parseInt(amountPaid.replace(/\./g, '') || '0', 10);
-        if (currency === 'USD') {
-            return rawPaid - totalUSD;
-        }
-        return rawPaid - totalVND;
-    }, [amountPaid, totalVND, totalUSD, currency]);
-
-    const quickSuggestions = currency === 'USD'
-        ? [totalUSD, 50, 100, 200]
-        : [totalVND, 500000, 1000000];
-
-    // Reset amount when changing method
-    useEffect(() => {
-        setAmountPaid('');
-    }, [paymentMethod]);
-
-    // Reset denominations when amount changes
-    useEffect(() => {
-        setChangeDenominations([]);
-    }, [amountPaid]);
+    const paymentWarning = dict.checkout?.pay_warning || 'Please pay before entering the service room.';
 
     // Modal Animation logic
     useEffect(() => {
@@ -89,8 +63,6 @@ export default function PaymentModal({
         } else {
             // reset on real close
             setPaymentMethod('');
-            setAmountPaid('');
-            setChangeDenominations([]);
         }
     }, [isOpen]);
 
@@ -99,28 +71,6 @@ export default function PaymentModal({
     const handleClose = () => {
         setIsClosing(true);
         setTimeout(onClose, 300);
-    };
-
-    const handleAmountPaidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const raw = e.target.value.replace(/\D/g, '');
-        if (!raw) {
-            setAmountPaid('');
-            return;
-        }
-
-        if (currency === 'USD') {
-            setAmountPaid(raw);
-        } else {
-            setAmountPaid(Number(raw).toLocaleString('vi-VN'));
-        }
-    };
-
-    const setQuickAmount = (amount: number) => {
-        if (currency === 'USD') {
-            setAmountPaid(amount.toString());
-        } else {
-            setAmountPaid(amount.toLocaleString('vi-VN'));
-        }
     };
 
     const handleConfirmNext = () => {
@@ -158,8 +108,8 @@ export default function PaymentModal({
         console.log('[PaymentModal] Calling onNext with vatInvoice:', vatInvoice ? 'HAS DATA' : 'NULL');
         onNext({
             paymentMethod,
-            amountPaid,
-            changeDenominations,
+            amountPaid: '',
+            changeDenominations: [],
             vatInvoice,
         });
     };
@@ -197,103 +147,25 @@ export default function PaymentModal({
 
                 {/* Scrollable Content */}
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
-                    {/* Pay Warning Banner (hoặc Booking Reminder) */}
-                    {isBookingFlow && bookingReminder ? (
+                    {/* Pay Warning Banner */}
+                    <div
+                        className="relative overflow-hidden rounded-2xl border border-[#E8C97A]/35 bg-gradient-to-br from-[#2a1d0c] via-[#15110a] to-[#080808] p-4 text-center shadow-[0_0_30px_rgba(212,175,55,0.18)]"
+                        onClick={() => setShowWarningModal(true)}
+                    >
+                        <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[#FFF8E1]/70 to-transparent" />
+                        <div className="flex items-center justify-center gap-2">
+                            <AlertCircle size={20} className="shrink-0 text-red-500 animate-payment-warning-blink" />
+                            <span className="text-sm font-black uppercase tracking-[0.16em] text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.30)] animate-payment-warning-blink">
+                                {paymentWarning}
+                            </span>
+                        </div>
+                    </div>
+
+                    {isBookingFlow && bookingReminder && (
                         <div className="bg-[#e6c487]/10 border border-[#e6c487]/30 rounded-xl p-4 text-center mb-2">
                             <p className="text-[#e6c487] text-xs font-medium leading-relaxed">
                                 {bookingReminder}
                             </p>
-                        </div>
-                    ) : (
-                        <div
-                            className="bg-[#0d0d0d] border border-white/10 p-3 rounded-xl flex items-center justify-center text-center cursor-pointer hover:bg-white/5 transition-colors"
-                            onClick={() => setShowWarningModal(true)}
-                        >
-                            <span className="text-[#C9A96E] font-bold text-sm">*{dict.checkout?.pay_warning}</span>
-                        </div>
-                    )}
-
-                    <PaymentMethods
-                        lang={lang}
-                        dict={dict}
-                        selected={paymentMethod}
-                        onChange={setPaymentMethod}
-                    />
-
-                    {/* Cash Payment Input Block */}
-                    {(paymentMethod === 'cash_vnd' || paymentMethod === 'cash_usd') && (
-                        <div className="bg-[#0d0d0d] p-5 rounded-3xl shadow-sm border border-white/5 space-y-4">
-                            <div className="flex justify-between items-center">
-                                <h3 className="text-[#C9A96E] font-bold uppercase tracking-widest text-xs">
-                                    {dict.checkout?.amount_paid_title || 'Amount Paid'}
-                                </h3>
-                                <button
-                                    onClick={() => setAmountPaid('0')}
-                                    className="text-red-500/80 text-xs font-bold border border-red-500/20 px-3 py-1 rounded-lg hover:bg-red-500/10 transition-colors"
-                                >
-                                    {dict.checkout?.reset || 'Reset'}
-                                </button>
-                            </div>
-
-                            {/* Input Large */}
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={amountPaid}
-                                    onChange={handleAmountPaidChange}
-                                    placeholder="0"
-                                    className="w-full text-center text-4xl font-bold text-white border-b-2 border-white/10 py-4 focus:outline-none focus:border-[#C9A96E] transition-colors bg-transparent placeholder-[#3f3f46]"
-                                />
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#C9A96E] font-bold bg-[#1c1c1e] border border-white/5 px-2 py-1 rounded">
-                                    {currency}
-                                </span>
-                            </div>
-
-                            {/* Quick Suggestions */}
-                            <div className="flex gap-2 justify-center flex-wrap">
-                                {quickSuggestions.map(amt => (
-                                    amt > 0 && (
-                                        <button
-                                            key={amt}
-                                            onClick={() => setQuickAmount(amt)}
-                                            className="px-4 py-2 bg-[#1c1c1e] border border-white/5 rounded-xl text-gray-300 font-bold text-sm hover:border-[#C9A96E] hover:text-[#C9A96E] transition-all"
-                                        >
-                                            {currency === 'USD' ? amt : amt.toLocaleString('vi-VN')}
-                                        </button>
-                                    )
-                                ))}
-                            </div>
-
-                            {/* Change Display */}
-                            <div className="bg-[#1c1c1e] rounded-xl p-4 flex justify-between items-center border border-white/5">
-                                <span className="text-gray-400 text-sm font-medium">{dict.checkout?.change_title || 'Change:'}</span>
-                                {changeAmount >= 0 ? (
-                                    <div className="text-right">
-                                        <span className="text-xl font-bold text-[#C9A96E] block">
-                                            {changeAmount.toLocaleString('vi-VN')} {currency}
-                                        </span>
-                                        {currency === 'USD' && (
-                                            <span className="text-[#b09461] font-bold text-lg block mt-1">
-                                                = {(changeAmount * 24000).toLocaleString('vi-VN')} VND
-                                            </span>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <span className="text-xl font-bold text-red-500">
-                                        {dict.checkout?.insufficient || 'Insufficient'}
-                                    </span>
-                                )}
-                            </div>
-
-                            {/* Change Denomination Selector */}
-                            {changeAmount > 0 && (
-                                <ChangeDenominationSelector
-                                    changeAmount={changeAmount}
-                                    currency={currency as 'VND' | 'USD'}
-                                    dict={dict}
-                                    onSelect={setChangeDenominations}
-                                />
-                            )}
                         </div>
                     )}
 
@@ -306,6 +178,14 @@ export default function PaymentModal({
                             onInvoiceChange={setVatInvoice}
                         />
                     </div>
+
+                    <PaymentMethods
+                        lang={lang}
+                        dict={dict}
+                        selected={paymentMethod}
+                        onChange={setPaymentMethod}
+                        onInfoContinue={handleConfirmNext}
+                    />
                 </div>
 
                 {/* Footer Action (Terms Checkbox & Submit Button) */}
@@ -329,17 +209,6 @@ export default function PaymentModal({
                         </div>
                     )}
 
-                    <button
-                        onClick={handleConfirmNext}
-                        disabled={isBookingFlow ? (!isAgreedTerms || !paymentMethod) : !paymentMethod}
-                        className={`w-full py-4 text-white font-bold uppercase rounded-xl transition-all text-lg ${
-                            (isBookingFlow ? (!isAgreedTerms || !paymentMethod) : !paymentMethod)
-                                ? 'bg-white/10 text-gray-500 cursor-not-allowed opacity-70'
-                                : 'bg-[#C9A96E] shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] active:scale-[0.98]'
-                        }`}
-                    >
-                        {dict.checkout?.continue || (lang === 'vi' ? 'TIẾP TỤC' : 'CONTINUE')}
-                    </button>
                 </div>
             </div>
 
@@ -372,7 +241,7 @@ export default function PaymentModal({
                             {dict.payment_methods?.payment_regulation?.title || "Payment Regulation"}
                         </h3>
                         <p className="text-gray-400 text-[15px] leading-relaxed">
-                            {dict.payment_methods?.payment_regulation?.content || "We collect fees before service."}
+                            {dict.payment_methods?.payment_regulation?.content || paymentWarning}
                         </p>
                         <button
                             onClick={() => {
