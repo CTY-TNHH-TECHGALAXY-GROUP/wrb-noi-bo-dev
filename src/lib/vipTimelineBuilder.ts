@@ -230,7 +230,7 @@ export const buildVipTimeline = (input: TimelineInput): TimelineResult => {
     if (!booking.timeBooking) continue;
 
     const startSlot = timeToSlotIndex(booking.timeBooking);
-    const durationMinutes = booking.duration || 60;
+    const durationMinutes = booking.duration ?? 60;
     const endSlot = startSlot + minutesToSlots(durationMinutes);
 
     if (booking.isVipAppointment) {

@@ -13,7 +13,7 @@ export const useServiceOptionLogic = (
 ) => {
     const [options, setOptions] = React.useState<ServiceOptions>({
         quantity: initialOptions?.quantity || 1,
-        duration: initialOptions?.duration || 60,
+        duration: initialOptions?.duration ?? 60,
         strength: initialOptions?.strength || 'medium',
     });
 

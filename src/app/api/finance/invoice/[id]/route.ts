@@ -97,7 +97,7 @@ export async function GET(
                         serviceNameJP: svc?.nameJP || '',
                         serviceNameKR: svc?.nameKR || '',
                         originalPrice: svc?.priceVND || i.price,
-                        duration: i.duration || svc?.duration || 60
+                        duration: i.duration ?? svc?.duration ?? 60
                     };
                 });
             }

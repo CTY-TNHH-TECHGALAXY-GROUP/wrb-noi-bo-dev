@@ -183,7 +183,7 @@ const VipEditModal = ({ item, isOpen, onClose, onSave, lang }: VipEditModalProps
         // Pre-fill from current item
         setSelectedSkillIds(item.vipSkillIds || (item.options as any)?.selectedSkills || []);
         setSelectedDuration((
-            item.vipDuration || (item.options as any)?.vipDuration || item.timeValue || 60
+            item.vipDuration ?? (item.options as any)?.vipDuration ?? item.timeValue ?? 60
         ) as VipDuration);
         setNotes(item.vipCustomerNotes || (item.options as any)?.notes?.content || '');
 
