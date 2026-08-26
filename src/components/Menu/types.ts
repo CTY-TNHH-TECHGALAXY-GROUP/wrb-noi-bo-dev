@@ -23,7 +23,8 @@ export interface MultiLangString {
 // 2. Dữ liệu Dịch vụ (Service) chuẩn hóa
 export interface Service {
   id: string;          // VD: "NHS001"
-  cat: string;         // VD: "Body" - ID danh mục
+  cat: string;         // VD: "Body" - ID danh mục (Lấy phần tử đầu tiên làm đại diện)
+  cats?: string[];     // (Mới) Mảng chứa tất cả danh mục của dịch vụ
 
   // Thông tin hiển thị
   names: MultiLangString;

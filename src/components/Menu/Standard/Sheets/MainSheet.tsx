@@ -392,7 +392,7 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
                                             >
                                                 {/* [LOGIC NEW] Badge Best Choice */}
                                                 {svc.BEST_CHOICE && (
-                                                    <div className="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl-md z-10 uppercase tracking-wider">
+                                                    <div className="absolute top-0 right-0 bg-red-600 text-white text-[11px] sm:text-[13px] md:text-[14px] font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-bl-lg z-10 uppercase tracking-wider">
                                                         {t('recommended')}
                                                     </div>
                                                 )}
@@ -446,7 +446,7 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
                                         `}
                                                 >
                                                     {svc.BEST_CHOICE && (
-                                                        <div className="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl-md z-10 uppercase tracking-wider">
+                                                        <div className="absolute top-0 right-0 bg-red-600 text-white text-[11px] sm:text-[13px] md:text-[14px] font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-bl-lg z-10 uppercase tracking-wider">
                                                             {t('recommended')}
                                                         </div>
                                                     )}

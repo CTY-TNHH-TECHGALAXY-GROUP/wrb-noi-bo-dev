@@ -211,7 +211,7 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
         const targetName = service.names.en.trim().toLowerCase();
         const targetGroup = sourceServices.filter(svc =>
             svc.ACTIVE !== false &&
-            svc.cat === service.cat &&
+            (svc.cat === service.cat || (svc.cats && svc.cats.includes(service.cat))) &&
             svc.names.en.trim().toLowerCase() === targetName
         );
 
@@ -312,7 +312,10 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
     };
 
     const maybeOpenSingleGroupDurationDrawer = (categoryId: string) => {
-        const categoryServices = services.filter(s => s.cat === categoryId && s.ACTIVE !== false);
+        const categoryServices = services.filter(s => 
+            (s.cat === categoryId || (s.cats && s.cats.includes(categoryId))) && 
+            s.ACTIVE !== false
+        );
         const groups: Record<string, Service[]> = {};
 
         categoryServices.forEach(svc => {

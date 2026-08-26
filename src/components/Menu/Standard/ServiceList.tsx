@@ -152,7 +152,7 @@ export default function ServiceList({ categories, services, cart, lang, directio
             // Sau đó mới áp dụng whitelist riêng cho luồng Khách Mới.
             if (
                 showHiddenServices &&
-                NEW_USER_CONTROLLED_CATEGORIES.includes(svc.cat) &&
+                (NEW_USER_CONTROLLED_CATEGORIES.includes(svc.cat) || (svc.cats && svc.cats.some(c => NEW_USER_CONTROLLED_CATEGORIES.includes(c)))) &&
                 !NEW_USER_ALLOWED_IDS.includes(svc.id)
             ) {
                 return;
@@ -175,7 +175,7 @@ export default function ServiceList({ categories, services, cart, lang, directio
                     // Phân loại NGHIÊM NGẶT theo category id (cat)
                     const categoryGroups = Object.values(groupedServices).filter(group => {
                         const rep = group[0];
-                        return rep.cat === cat.id;
+                        return (rep.cats && rep.cats.includes(cat.id)) || rep.cat === cat.id;
                     });
 
                     if (categoryGroups.length === 0) return null;

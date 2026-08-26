@@ -32,9 +32,26 @@ export const getMenuData = async (): Promise<Service[]> => {
                 return 'unknown';
             };
 
+            // Parse category an toàn
+            let catsArr: string[] = [];
+            if (Array.isArray(item.category)) {
+                catsArr = item.category;
+            } else if (typeof item.category === 'string') {
+                try {
+                    const parsed = JSON.parse(item.category);
+                    if (Array.isArray(parsed)) catsArr = parsed;
+                    else catsArr = [item.category];
+                } catch {
+                    catsArr = item.category ? [item.category] : ["Unknown"];
+                }
+            } else {
+                catsArr = ["Unknown"];
+            }
+
             return {
                 id: item.id,
-                cat: item.category || "Unknown",
+                cat: catsArr[0] || "Unknown",
+                cats: catsArr,
                 names: {
                     en: item.nameEN || "",
                     vi: item.nameVN || "",
