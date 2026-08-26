@@ -18,6 +18,17 @@
   margin: 0 auto;
 }
 
+@keyframes pulseGlow {
+  0% { box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+  50% { box-shadow: 0 4px 30px rgba(218,164,73,0.35); }
+  100% { box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-150%) skewX(-45deg); }
+  100% { transform: translateX(250%) skewX(-45deg); }
+}
+
 .card {
   position: relative;
   aspect-ratio: 391 / 541;
@@ -27,7 +38,28 @@
   background: #111;
   box-shadow: 0 4px 16px rgba(0,0,0,0.5);
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  animation: pulseGlow 3s infinite ease-in-out;
 }
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-150%) skewX(-45deg);
+  animation: shimmer 6s infinite;
+  z-index: 3;
+  pointer-events: none;
+}
+
 
 .card:hover, .card:active {
   transform: translateY(-4px) scale(0.98);

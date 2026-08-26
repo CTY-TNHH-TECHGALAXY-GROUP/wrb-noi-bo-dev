@@ -7,7 +7,7 @@ import { getText } from './utils';
 // 🔧 UI CONFIGURATION — Chỉnh màu sắc tại đây
 // ============================================================================
 const SVG_CONFIG = {
-    viewBox: '0 0 120 270',
+    viewBox: '5 3 110 264',
     containerBg: '#0d0d0d',          // Nền hộp SVG: Đen trùng nền tổng
     defaultFill: '#1c1c1e',          // Chưa chọn: Đen nhạt
     defaultStroke: '#3f3f46',        // Chưa chọn: Viền xám tối
@@ -133,17 +133,17 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
     if (availableParts.length === 0) return null;
 
     return (
-        <div className="flex gap-2 sm:gap-4 h-[500px] sm:h-[590px] md:h-[620px]">
+        <div className="flex gap-2 sm:gap-4 items-stretch min-h-[500px] sm:min-h-[580px] md:min-h-[620px]">
 
             {/* CỘT TRÁI: Nút Toàn Thân */}
             {showFullBodyShortcut && (
-                <div className="w-[15%] flex flex-col items-center justify-center pr-2">
-                    <label className="flex flex-col items-center justify-center cursor-pointer bg-[#1c1c1e] p-2 rounded-xl border border-white/5 transition-all hover:border-white/15 active:scale-95 shadow-sm py-4 w-full h-[124px] sm:h-[148px]">
-                        <div className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg flex items-center justify-center mb-2 sm:mb-3 transition-colors border-2 ${isFullBody ? 'bg-[#C9A96E] border-transparent' : 'bg-[#0d0d0d] border-white/10'}`}>
-                            <Check className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-black transition-opacity ${isFullBody ? 'opacity-100' : 'opacity-0'}`} strokeWidth={3} />
+                <div className="w-[12%] sm:w-[12%] flex flex-col items-center justify-center pr-2">
+                    <label className="flex flex-col items-center justify-center cursor-pointer bg-[#1c1c1e] p-1.5 sm:p-2 rounded-xl border border-white/5 transition-all hover:border-white/15 active:scale-95 shadow-sm py-3 sm:py-4 w-full h-[110px] sm:h-[130px]">
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center mb-1.5 sm:mb-2 transition-colors border-2 ${isFullBody ? 'bg-[#C9A96E] border-transparent' : 'bg-[#0d0d0d] border-white/10'}`}>
+                            <Check className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-black transition-opacity ${isFullBody ? 'opacity-100' : 'opacity-0'}`} strokeWidth={3} />
                             <input type="checkbox" className="hidden" checked={isFullBody} onChange={handleFullBodyToggle} />
                         </div>
-                        <span className={`text-sm sm:text-base md:text-lg font-bold uppercase leading-snug text-center tracking-tight ${isFullBody ? 'text-[#C9A96E]' : 'text-gray-400'}`}>
+                        <span className={`text-[11px] sm:text-[13px] md:text-[15px] font-bold uppercase leading-tight text-center tracking-tight ${isFullBody ? 'text-[#C9A96E]' : 'text-gray-400'}`}>
                             {getText({ en: 'Whole\nBody', vi: 'Toàn\nThân', jp: '全身', kr: '전신', cn: '全身' }, lang)}
                         </span>
                     </label>
@@ -152,7 +152,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
 
             {/* CỘT GIỮA: SVG Body Figure */}
             <div
-                className={`${showFullBodyShortcut ? 'w-[35%] sm:w-[38%]' : 'w-[42%] sm:w-[43%]'} h-[360px] sm:h-[470px] md:h-[500px] relative flex items-center justify-center pl-2 rounded-xl overflow-hidden self-center`}
+                className={`${showFullBodyShortcut ? 'w-[40%] sm:w-[42%]' : 'w-[42%] sm:w-[43%]'} self-stretch relative flex items-center justify-center pl-2 rounded-xl overflow-hidden`}
                 style={{ backgroundColor: SVG_CONFIG.containerBg, border: '1px solid rgba(255,255,255,0.05)' }}
             >
                 <svg
@@ -206,7 +206,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
             </div>
 
             {/* CỘT PHẢI: Bảng Checklist */}
-            <div className={`${showFullBodyShortcut ? 'w-[50%] sm:w-[47%]' : 'w-[58%] sm:w-[57%]'} flex flex-col h-[410px] sm:h-[510px] md:h-[540px] pl-2 self-center`}>
+            <div className={`${showFullBodyShortcut ? 'w-[48%] sm:w-[46%]' : 'w-[58%] sm:w-[57%]'} flex flex-col pl-2 self-stretch justify-center`}>
                 <div
                     className="flex flex-row items-center text-sm sm:text-base md:text-lg font-bold uppercase tracking-tight pb-3 border-b border-white/10 flex-none mb-3 sm:mb-4 pt-0"
                     style={{ marginRight: LAYOUT_CONFIG.checklist.paddingRight }}
@@ -218,7 +218,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                     </div>
                 </div>
 
-                <div className="flex flex-col flex-1 justify-between overflow-y-auto custom-scrollbar" style={{ marginRight: LAYOUT_CONFIG.checklist.paddingRight }}>
+                <div className="flex flex-col flex-1 justify-between" style={{ marginRight: LAYOUT_CONFIG.checklist.paddingRight }}>
                     {visibleBodyParts.map((part) => {
                         const isAvailable = availableParts.find(p => p.key === part.key);
                         const isFocus = focus.includes(part.key);

@@ -24,6 +24,10 @@ export const createClient = () => {
 let _supabase: SupabaseClient | null = null
 
 const createSafeClient = (): SupabaseClient | null => {
+    // If in the browser, always reuse the browser client singleton to avoid multiple GoTrueClient instances
+    if (typeof window !== 'undefined') {
+        return createClient() as SupabaseClient;
+    }
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 

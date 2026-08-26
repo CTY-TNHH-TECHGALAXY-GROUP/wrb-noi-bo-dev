@@ -312,7 +312,7 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
     };
 
     const maybeOpenSingleGroupDurationDrawer = (categoryId: string) => {
-        const categoryServices = services.filter(s => s.cat === categoryId && (showHiddenServices || s.ACTIVE !== false));
+        const categoryServices = services.filter(s => s.cat === categoryId && s.ACTIVE !== false);
         const groups: Record<string, Service[]> = {};
 
         categoryServices.forEach(svc => {

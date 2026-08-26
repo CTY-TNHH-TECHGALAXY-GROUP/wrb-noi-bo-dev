@@ -1,10 +1,7 @@
 'use client';
 
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase';
 import { useAuthStore } from '@/lib/authStore.logic';
-
-// Lưu trữ instance duy nhất của trình duyệt để tránh "Multiple GoTrueClient" error
-let browserClient: ReturnType<typeof createClient> | null = null;
 
 export const hasSupabaseEnv = () => Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -12,17 +9,7 @@ export const hasSupabaseEnv = () => Boolean(
 
 // Helper function to get standard supabase client on client sides
 export function getSupabaseClient() {
-    if (browserClient) return browserClient;
-
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-        return null;
-    }
-
-    browserClient = createClient(supabaseUrl, supabaseAnonKey);
-    return browserClient;
+    return createClient();
 }
 
 export const useGoogleLogin = (lang: string = 'en', onError?: (msg: string) => void, nextPath?: string) => {

@@ -195,8 +195,8 @@ export default function ServiceList({ categories, services, cart, lang, directio
                             
                             const isAromaA = nameEnA.includes('aroma oil') || nameViA.includes('tinh dầu');
                             const isAromaB = nameEnB.includes('aroma oil') || nameViB.includes('tinh dầu');
-                            if (isAromaA && !isAromaB) return 1;
-                            if (!isAromaA && isAromaB) return -1;
+                            if (isAromaA && !isAromaB) return -1;
+                            if (!isAromaA && isAromaB) return 1;
                             
                             return 0; // Giữ nguyên thứ tự ban đầu cho các món khác
                         });

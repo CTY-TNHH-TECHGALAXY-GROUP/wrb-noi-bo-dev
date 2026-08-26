@@ -380,18 +380,41 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                 <motion.button
                     type="button"
                     onClick={() => onBestSellerSelect ? onBestSellerSelect(barberBestSeller) : handleSelect('Barber')}
-                    whileTap={{ scale: 0.985 }}
-                    initial={{ opacity: 0, x: '-50%', y: -14, scale: 0.96 }}
-                    animate={{ opacity: 1, x: '-50%', y: 0, scale: 1 }}
+                    whileTap={{ scale: 0.95 }}
+                    initial={{ opacity: 0, x: '-50%', y: -14 }}
+                    animate={{ opacity: 1, x: '-50%', y: 0 }}
                     transition={{ duration: 0.35, ease: 'easeOut' }}
-                    className="entry-best-seller absolute z-[105] overflow-hidden rounded-2xl bg-black/12 px-4 py-2.5 text-center shadow-none backdrop-blur-[3px] transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/30 sm:px-5 sm:py-3"
+                    className="entry-best-seller absolute z-[105] focus-visible:outline-none"
+                    style={{ filter: 'drop-shadow(0 6px 8px rgba(0,0,0,0.5))' }}
                 >
-                    <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/35 to-transparent" />
-                    <span className="relative z-10 block">
-                        <span className="block text-xs font-black uppercase leading-tight tracking-[0.26em] text-emerald-500 sm:text-sm md:text-base">
-                            {bestSeller.label}
-                        </span>
-                    </span>
+                    <motion.div 
+                        className="relative flex items-center justify-center w-full"
+                        animate={{ scale: [1, 1.06, 1], filter: ['brightness(1)', 'brightness(1.15)', 'brightness(1)'] }}
+                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                    >
+                        {/* Left Tail */}
+                        <div className="absolute top-1 -bottom-2 -left-5 w-10 bg-gradient-to-b from-[#dca038] to-[#9a6210] -z-20" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%, 25% 50%, 0 0)' }}></div>
+                        
+                        {/* Right Tail */}
+                        <div className="absolute top-1 -bottom-2 -right-5 w-10 bg-gradient-to-b from-[#dca038] to-[#9a6210] -z-20" style={{ clipPath: 'polygon(0 0, 0 100%, 100% 100%, 75% 50%, 100% 0)' }}></div>
+                        
+                        {/* Left Fold */}
+                        <div className="absolute -bottom-2 left-0 w-3 h-2 bg-[#6a4006] -z-10" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%)' }}></div>
+                        
+                        {/* Right Fold */}
+                        <div className="absolute -bottom-2 right-0 w-3 h-2 bg-[#6a4006] -z-10" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}></div>
+
+                        {/* Main Banner */}
+                        <div className="relative w-full bg-gradient-to-b from-[#fce895] to-[#dca038] px-4 py-1.5 sm:py-2 z-10 border-t border-white/50 border-b border-black/10">
+                            <span className="block text-[11px] sm:text-[13px] font-black uppercase tracking-widest text-[#034a2e] text-center">
+                                {bestSeller.label}
+                            </span>
+                        </div>
+                        
+                        {/* Sparkle */}
+                        <div className="absolute -bottom-[8px] left-1/2 -translate-x-1/2 w-20 h-[1.5px] bg-gradient-to-r from-transparent via-[#ffebb5] to-transparent z-20"></div>
+                        <div className="absolute -bottom-[10px] left-1/2 -translate-x-1/2 w-[5px] h-[5px] bg-[#fff] rounded-full shadow-[0_0_10px_3px_rgba(255,235,181,0.9)] z-20 animate-pulse"></div>
+                    </motion.div>
                 </motion.button>
             )}
 

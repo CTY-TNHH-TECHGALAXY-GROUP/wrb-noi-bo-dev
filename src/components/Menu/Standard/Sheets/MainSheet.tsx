@@ -35,7 +35,7 @@ const CONFIG = {
     ANIMATION_DURATION: 300,
     BORDER_RADIUS: '30px',
     MAX_HEIGHT: '85vh',
-    HEADER_IMAGE_HEIGHT: '12rem', // h-48 = 12rem = 192px
+    HEADER_IMAGE_HEIGHT: '18rem', // h-72 = 18rem = 288px
     OVERLAY_COLOR: 'bg-black/60',
     BG_COLOR: 'bg-[#0d0d0d]',
     // Time slot button stagger
@@ -96,7 +96,7 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
     const [viewMode, setViewMode] = useState<'LIST' | 'ADD'>('ADD');
 
     const sortedGroup = useMemo(
-        () => [...group].sort((a, b) => a.timeValue - b.timeValue),
+        () => [...group].sort((a, b) => b.timeValue - a.timeValue),
         [group]
     );
 
@@ -219,28 +219,37 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
         `} style={{ maxHeight: CONFIG.MAX_HEIGHT }}>
 
                 {/* Nút đóng */}
-                <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 bg-black/20 rounded-full flex items-center justify-center text-white z-20 hover:bg-black/40 transition-colors">
+                <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white z-20 hover:bg-black/60 transition-colors">
                     <X size={18} />
                 </button>
 
                 {/* --- HEADER CHUNG --- */}
                 {viewMode === 'ADD' && selectedService && (
-                    <div className="w-full px-5 pt-6 pb-2 shrink-0">
-                        <h2 className="text-4xl md:text-[46px] font-bold text-[#C9A96E] font-luxury leading-tight">{groupName}</h2>
-                        {shouldShowSelectedDescription && (
-                            <p className="text-xl md:text-[22px] text-gray-400 mt-2 opacity-80 leading-snug">
-                                {selectedDescription}
-                            </p>
+                    <div className="w-full shrink-0 relative">
+                        {representative.img && (
+                            <div className="relative w-full" style={{ height: CONFIG.HEADER_IMAGE_HEIGHT }}>
+                                <img src={representative.img} alt={groupName} className="w-full h-full object-cover" />
+                                {/* Gradient overlay mỏng hơn để thấy ảnh rõ hơn */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-black/20 to-transparent" />
+                            </div>
                         )}
-                        <p className="text-base md:text-lg text-white/50 italic mt-1.5 font-light">
-                            {{
-                                vi: '* Giá đã bao gồm VAT',
-                                en: '* VAT included',
-                                jp: '* VAT（付加価値税）込み',
-                                kr: '* VAT 포함',
-                                cn: '* 含增值税 (VAT)'
-                            }[lang] || '* VAT included'}
-                        </p>
+                        <div className={`w-full px-5 ${representative.img ? 'pt-1' : 'pt-6'} pb-2 shrink-0 relative z-10`}>
+                            <h2 className="text-4xl md:text-[46px] font-bold text-[#C9A96E] font-luxury leading-tight">{groupName}</h2>
+                            {shouldShowSelectedDescription && (
+                                <p className="text-xl md:text-[22px] text-gray-400 mt-2 opacity-80 leading-snug">
+                                    {selectedDescription}
+                                </p>
+                            )}
+                            <p className="text-base md:text-lg text-white/50 italic mt-1.5 font-light">
+                                {{
+                                    vi: '* Giá đã bao gồm VAT',
+                                    en: '* VAT included',
+                                    jp: '* VAT（付加価値税）込み',
+                                    kr: '* VAT 포함',
+                                    cn: '* 含增值税 (VAT)'
+                                }[lang] || '* VAT included'}
+                            </p>
+                        </div>
                     </div>
                 )}
 
@@ -312,7 +321,7 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
                                 onClick={() => {
                                     setViewMode('ADD');
                                     // Reset về cái đầu tiên chưa chọn hoặc cái đầu list
-                                    const sorted = [...group].sort((a, b) => a.timeValue - b.timeValue);
+                                    const sorted = [...group].sort((a, b) => b.timeValue - a.timeValue);
                                     setSelectedService(sorted[0]);
                                     setQty(1);
                                     setEditingCartItem(null);
