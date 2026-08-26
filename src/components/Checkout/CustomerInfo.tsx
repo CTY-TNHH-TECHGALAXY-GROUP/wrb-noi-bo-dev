@@ -1,19 +1,19 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import { COUNTRY_CODES, getDefaultCountryCode } from '@/lib/countryCodes';
+import { COUNTRY_CODES, type CountryCodeData, getDefaultCountryCode } from '@/lib/countryCodes';
 
 const SearchableCountrySelect = ({
     value,
     onChange
 }: {
     value: string;
-    onChange: (val: string) => void;
+    onChange: (country: CountryCodeData) => void;
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const currentCountry = COUNTRY_CODES.find(c => c.dialCode === value) || COUNTRY_CODES[0];
+    const currentCountry = COUNTRY_CODES.find(c => c.code === value) || COUNTRY_CODES[0];
     
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -70,10 +70,10 @@ const SearchableCountrySelect = ({
                             <li 
                                 key={c.code}
                                 onClick={() => {
-                                    onChange(c.dialCode);
+                                    onChange(c);
                                     setIsOpen(false);
                                 }}
-                                className={`px-3 py-3 hover:bg-[#2a2a2c] cursor-pointer flex items-center gap-2 text-sm transition-colors ${value === c.dialCode ? 'bg-[#2a2a2c] text-[#C9A96E] font-medium' : 'text-gray-300'}`}
+                                className={`px-3 py-3 hover:bg-[#2a2a2c] cursor-pointer flex items-center gap-2 text-sm transition-colors ${value === c.code ? 'bg-[#2a2a2c] text-[#C9A96E] font-medium' : 'text-gray-300'}`}
                             >
                                 <span>{c.flag}</span>
                                 <span>{c.dialCode}</span>
@@ -91,19 +91,38 @@ const SearchableCountrySelect = ({
 
 interface CustomerInfoProps {
     lang: string;
-    dict: any;
+    dict: { checkout: Record<string, string> };
     info: { name: string; email: string; phone: string; gender: string; room?: string };
     onChange: (field: string, value: string) => void;
     isBookingFlow?: boolean;
 }
+
+const getDefaultCountryIso = (lang: string) => {
+    const languageDefaults: Record<string, string> = {
+        en: 'US',
+        vi: 'VN',
+        jp: 'JP',
+        kr: 'KR',
+        cn: 'CN',
+    };
+
+    const languageDefault = languageDefaults[lang.toLowerCase()];
+    if (languageDefault) return languageDefault;
+
+    const defaultDialCode = getDefaultCountryCode(lang);
+    return COUNTRY_CODES.find(c => c.dialCode === defaultDialCode)?.code || 'VN';
+};
+
+const normalizeLocalPhone = (value: string) => value.replace(/[\s-]/g, '');
 
 export default function CustomerInfo({ lang, dict, info, onChange, isBookingFlow }: CustomerInfoProps) {
     const [contactMethod, setContactMethod] = useState<'email' | 'phone'>(
         info.phone ? 'phone' : 'email'
     );
 
-    const [countryCode, setCountryCode] = useState(() => getDefaultCountryCode(lang));
+    const [countryIso, setCountryIso] = useState(() => getDefaultCountryIso(lang));
     const [localPhone, setLocalPhone] = useState('');
+    const selectedCountry = COUNTRY_CODES.find(c => c.code === countryIso) || COUNTRY_CODES[0];
 
     // Sync from parent if info.phone changes externally (e.g. history restore)
     React.useEffect(() => {
@@ -111,31 +130,36 @@ export default function CustomerInfo({ lang, dict, info, onChange, isBookingFlow
             setContactMethod('phone');
         }
         
-        const combined = `${countryCode} ${localPhone}`.trim();
-        const combinedNoSpace = `${countryCode}${localPhone}`.trim();
+        const combined = `${selectedCountry.dialCode} ${localPhone}`.trim();
+        const combinedNoSpace = `${selectedCountry.dialCode}${localPhone}`.trim();
         
         if (info.phone && info.phone !== combined && info.phone !== combinedNoSpace) {
             // Sort by length to match longer prefix first (e.g. +1242 before +1)
             const sortedCodes = [...COUNTRY_CODES].sort((a, b) => b.dialCode.length - a.dialCode.length);
-            const matchedCountry = sortedCodes.find(c => info.phone.startsWith(c.dialCode));
+            const currentCountry = COUNTRY_CODES.find(c => c.code === countryIso);
+            const matchedCountry = currentCountry && info.phone.startsWith(currentCountry.dialCode)
+                ? currentCountry
+                : sortedCodes.find(c => info.phone.startsWith(c.dialCode));
             
             if (matchedCountry) {
-                setCountryCode(matchedCountry.dialCode);
+                setCountryIso(matchedCountry.code);
                 setLocalPhone(info.phone.substring(matchedCountry.dialCode.length).trim());
             } else {
                 setLocalPhone(info.phone);
             }
         }
-    }, [info.phone]); // Only depend on info.phone to avoid loop
+    // Only depend on info.phone to avoid re-parsing while the user is typing/selecting a country.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [info.phone]);
 
     const handlePhoneChange = (newLocalPhone: string) => {
         setLocalPhone(newLocalPhone);
-        onChange('phone', `${countryCode} ${newLocalPhone}`);
+        onChange('phone', `${selectedCountry.dialCode}${normalizeLocalPhone(newLocalPhone)}`);
     };
 
-    const handleCountryCodeChange = (newCode: string) => {
-        setCountryCode(newCode);
-        onChange('phone', `${newCode} ${localPhone}`);
+    const handleCountryCodeChange = (newCountry: CountryCodeData) => {
+        setCountryIso(newCountry.code);
+        onChange('phone', `${newCountry.dialCode}${normalizeLocalPhone(localPhone)}`);
     };
 
     // Extract raw labels for buttons
@@ -145,7 +169,7 @@ export default function CustomerInfo({ lang, dict, info, onChange, isBookingFlow
     const renderPhoneInput = (placeholder: string) => (
         <div className="flex gap-4">
                         <SearchableCountrySelect 
-                value={countryCode} 
+                value={countryIso} 
                 onChange={handleCountryCodeChange} 
             />
             
