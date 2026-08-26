@@ -131,7 +131,7 @@ export default function ServiceList({ categories, services, cart, lang, selected
             // 2. [LOGIC NEW] Lọc thêm dịch vụ rác cho luồng Khách Mới
             if (showHiddenServices) {
                 // Nếu thuộc danh mục kiểm soát khắt khe (Body, Foot, Ear Clean...)
-                if (NEW_USER_CONTROLLED_CATEGORIES.includes(svc.cat)) {
+                if (NEW_USER_CONTROLLED_CATEGORIES.includes(svc.cat) || (svc.cats && svc.cats.some(c => NEW_USER_CONTROLLED_CATEGORIES.includes(c)))) {
                     if (!NEW_USER_ALLOWED_IDS.includes(svc.id)) return;
                 }
             }
@@ -153,7 +153,7 @@ export default function ServiceList({ categories, services, cart, lang, selected
                     // Phân loại NGHIÊM NGẶT theo category id (cat)
                     const categoryGroups = Object.values(groupedServices).filter(group => {
                         const rep = group[0];
-                        return rep.cat === cat.id;
+                        return (rep.cats && rep.cats.includes(cat.id)) || rep.cat === cat.id;
                     });
 
                     if (categoryGroups.length === 0) return null;

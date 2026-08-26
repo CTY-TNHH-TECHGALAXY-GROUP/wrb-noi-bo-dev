@@ -239,7 +239,10 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
                             const selectedId = ids[0] || 'Body';
                             
                             // Tự động gom nhóm các dịch vụ thuộc Category này
-                            const categoryServices = services.filter(s => s.cat === selectedId && (showHiddenServices || s.ACTIVE !== false));
+                            const categoryServices = services.filter(s => 
+                                (s.cat === selectedId || (s.cats && s.cats.includes(selectedId))) && 
+                                (showHiddenServices || s.ACTIVE !== false)
+                            );
                             const groups: Record<string, Service[]> = {};
                             categoryServices.forEach(svc => {
                                 const key = svc.names.en.trim().toLowerCase();
@@ -296,7 +299,10 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
                                 setActiveCategory(id);
                                 
                                 // Áp dụng chung logic tự động bật Popup nếu nhóm đó chỉ có 1 lựa chọn
-                                const categoryServices = services.filter(s => s.cat === id && (showHiddenServices || s.ACTIVE !== false));
+                                const categoryServices = services.filter(s => 
+                                    (s.cat === id || (s.cats && s.cats.includes(id))) && 
+                                    (showHiddenServices || s.ACTIVE !== false)
+                                );
                                 const groups: Record<string, Service[]> = {};
                                 categoryServices.forEach(svc => {
                                     const key = svc.names.en.trim().toLowerCase();

@@ -67,7 +67,7 @@ export const translations: Record<string, any> = {
         changeStaffShort: 'Đổi NV',
         // Rating view
         rateTitle: 'Đánh giá dịch vụ',
-        rateSub: 'Đánh giá từng dịch vụ để chúng tôi cải thiện tốt hơn',
+        rateSub: 'Chỉ đánh dấu những vấn đề thực sự đã xảy ra trong quá trình sử dụng dịch vụ. Vui lòng không đánh dấu nếu bạn không gặp vấn đề gì.',
         violationsSectionTitle: 'Góp ý dịch vụ (nếu có)',
         yourExperience: 'Trải nghiệm của bạn?',
         submitting: 'Đang gửi...',
@@ -162,7 +162,7 @@ export const translations: Record<string, any> = {
         changeStaffShort: 'Change',
         // Rating view
         rateTitle: 'Rate Your Services',
-        rateSub: 'Rate each service to help us improve',
+        rateSub: 'Check only the issues that actually happened during your service. Leave items unchecked if you had no problems.',
         violationsSectionTitle: 'Service feedback (if any)',
         yourExperience: 'Your experience?',
         submitting: 'Submitting...',
@@ -258,7 +258,7 @@ export const translations: Record<string, any> = {
         changeStaffShort: '변경',
         // Rating view
         rateTitle: '서비스 평가',
-        rateSub: '각 서비스를 평가하여 개선에 도움을 주세요',
+        rateSub: '실제로 발생한 문제만 체크해 주세요. 문제가 없었다면 체크하지 마세요.',
         violationsSectionTitle: '서비스 피드백 (있는 경우)',
         yourExperience: '경험은 어떠셨나요?',
         submitting: '제출 중...',
@@ -353,7 +353,7 @@ export const translations: Record<string, any> = {
         changeStaffShort: '変更',
         // Rating view
         rateTitle: 'サービス評価',
-        rateSub: '各サービスを評価して改善にご協力ください',
+        rateSub: '実際に起こった問題のみをチェックしてください。問題がなかった場合はチェックしないでください。',
         violationsSectionTitle: 'サービスフィードバック（ある場合）',
         yourExperience: 'ご体験はいかがでしたか？',
         submitting: '送信中...',
@@ -448,7 +448,7 @@ export const translations: Record<string, any> = {
         changeStaffShort: '更换',
         // Rating view
         rateTitle: '服务评价',
-        rateSub: '请评价各项服务以帮助我们改进',
+        rateSub: '请仅勾选实际发生过的问题。如果您没有遇到任何问题，请不要勾选。',
         violationsSectionTitle: '服务反馈（如有）',
         yourExperience: '您的体验如何？',
         submitting: '提交中...',

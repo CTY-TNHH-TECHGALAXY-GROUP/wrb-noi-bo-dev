@@ -24,6 +24,7 @@ export interface MultiLangString {
 export interface Service {
   id: string;          // VD: "NHS001"
   cat: string;         // VD: "Body" - ID danh mục
+  cats?: string[];     // Mảng danh mục (hỗ trợ 1 dịch vụ nhiều category)
 
   // Thông tin hiển thị
   names: MultiLangString;
