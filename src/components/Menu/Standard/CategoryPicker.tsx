@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
-import { Category } from '@/components/Menu/types';
+import { Category, Service } from '@/components/Menu/types';
 import { ArrowLeft, History, Loader2, Search, X } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { languages } from '@/app/(intro)/LanguageSelector.lang';
@@ -56,6 +56,7 @@ interface Props {
     onBack: () => void;
     showBack?: boolean;
     showQuickActions?: boolean;
+    onBestSellerSelect?: (service: Service) => void;
 }
 
 const marqueeText: Record<string, string> = {
@@ -64,6 +65,14 @@ const marqueeText: Record<string, string> = {
     jp: 'スタッフはランダム。部屋はランダム。',
     kr: '랜덤 직원. 랜덤 룸.',
     cn: '随机员工。随机房间。'
+};
+
+const bestSellerText: Record<string, { label: string }> = {
+    en: { label: 'Best Seller' },
+    vi: { label: 'Bán chạy' },
+    jp: { label: '人気' },
+    kr: { label: '인기' },
+    cn: { label: '热卖' },
 };
 
 const quickActionText: Record<string, { history: string; findHistory: string; desc: string; placeholder: string; search: string; cancel: string; notFound: string; notFoundDesc: string; retry: string; register: string; orManual: string }> = {
@@ -134,7 +143,7 @@ const quickActionText: Record<string, { history: string; findHistory: string; de
     },
 };
 
-const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, showQuickActions = false }: Props) => {
+const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, showQuickActions = false, onBestSellerSelect }: Props) => {
     const quickText = quickActionText[lang] || quickActionText.en;
     const marquee = marqueeText[lang] || marqueeText.en;
     const designJourneyCategory = categories.find(cat => cat.id === 'DesignJourney');
@@ -148,7 +157,17 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
     const [failedInput, setFailedInput] = useState('');
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
     const { user } = useAuthStore();
-    const { clearCart, updateCustomerInfo } = useMenuData();
+    const { services, clearCart, updateCustomerInfo } = useMenuData();
+    const bestSeller = bestSellerText[lang] || bestSellerText.en;
+    const barberBestSeller = useMemo(() => {
+        const activeBarberServices = services.filter((svc) => svc.ACTIVE !== false && svc.cat === 'Barber');
+
+        return activeBarberServices.find((svc) =>
+            (svc.names.en || '').trim().toLowerCase() === 'barber package 4'
+        ) || activeBarberServices.find((svc) =>
+            (svc.names.en || '').trim().toLowerCase().includes('package 4')
+        );
+    }, [services]);
 
     const changeLanguage = (newLang: string) => {
         if (!pathname) return;
@@ -244,14 +263,15 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                 }
                 .wheel-ring {
                     animation: wheelSpin 36s linear infinite;
+                    animation-iteration-count: infinite;
+                    animation-fill-mode: none;
+                    will-change: transform;
                 }
                 .wheel-node {
                     animation: wheelCounterSpin 36s linear infinite;
-                }
-                /* Tạm dừng quay khi hover vào vùng vòng quay */
-                .wheel-container:hover .wheel-ring,
-                .wheel-container:hover .wheel-node {
-                    animation-play-state: paused;
+                    animation-iteration-count: infinite;
+                    animation-fill-mode: none;
+                    will-change: transform;
                 }
                 .category-wheel-stage {
                     --wheel-size: min(94vw, 58vh, 760px);
@@ -269,6 +289,12 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                 .entry-history-action {
                     top: max(18px, env(safe-area-inset-top));
                     right: 16px;
+                }
+                .entry-best-seller {
+                    top: max(22px, env(safe-area-inset-top));
+                    left: 50%;
+                    width: clamp(154px, 22vw, 250px);
+                    transform: translateX(-50%);
                 }
                 .entry-language-flags {
                     bottom: max(18px, env(safe-area-inset-bottom));
@@ -288,6 +314,10 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                     .entry-history-action {
                         right: 12px;
                     }
+                    .entry-best-seller {
+                        top: max(16px, env(safe-area-inset-top));
+                        width: clamp(142px, 38vw, 190px);
+                    }
                 }
                 @media (min-width: 640px) {
                     .category-wheel-stage {
@@ -304,6 +334,10 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                     .entry-history-action {
                         top: max(24px, env(safe-area-inset-top));
                         right: 24px;
+                    }
+                    .entry-best-seller {
+                        top: max(24px, env(safe-area-inset-top));
+                        width: clamp(170px, 22vw, 250px);
                     }
                     .entry-language-flags {
                         bottom: max(24px, env(safe-area-inset-bottom));
@@ -325,6 +359,10 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                         top: max(28px, env(safe-area-inset-top));
                         right: 32px;
                     }
+                    .entry-best-seller {
+                        top: max(28px, env(safe-area-inset-top));
+                        width: clamp(190px, 17vw, 270px);
+                    }
                 }
                 @media (min-width: 1280px) {
                     .category-wheel-stage {
@@ -337,6 +375,25 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                     }
                 }
             `}</style>
+
+            {showQuickActions && barberBestSeller && (
+                <motion.button
+                    type="button"
+                    onClick={() => onBestSellerSelect ? onBestSellerSelect(barberBestSeller) : handleSelect('Barber')}
+                    whileTap={{ scale: 0.985 }}
+                    initial={{ opacity: 0, x: '-50%', y: -14, scale: 0.96 }}
+                    animate={{ opacity: 1, x: '-50%', y: 0, scale: 1 }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                    className="entry-best-seller absolute z-[105] overflow-hidden rounded-2xl bg-black/12 px-4 py-2.5 text-center shadow-none backdrop-blur-[3px] transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/30 sm:px-5 sm:py-3"
+                >
+                    <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/35 to-transparent" />
+                    <span className="relative z-10 block">
+                        <span className="block text-xs font-black uppercase leading-tight tracking-[0.26em] text-emerald-500 sm:text-sm md:text-base">
+                            {bestSeller.label}
+                        </span>
+                    </span>
+                </motion.button>
+            )}
 
             {/* Circular Area */}
             <motion.div

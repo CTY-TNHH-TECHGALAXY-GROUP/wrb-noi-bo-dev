@@ -187,7 +187,12 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
     // Lấy tên chung của nhóm (Lấy từ món đầu tiên)
     const representative = group[0];
     const groupName = representative?.names?.[lang as keyof typeof representative.names] || representative?.names?.['en'] || '';
+    const selectedServiceName = selectedService?.names?.[lang as keyof typeof selectedService.names] || selectedService?.names?.['en'] || '';
     const selectedDescription = selectedService?.descriptions?.[lang as keyof typeof selectedService.descriptions] || selectedService?.descriptions?.['en'] || '';
+    const normalizeContent = (value: string) => value.trim().toLowerCase().replace(/\s+/g, ' ');
+    const shouldShowSelectedDescription = !!selectedDescription.trim()
+        && normalizeContent(selectedDescription) !== normalizeContent(groupName)
+        && normalizeContent(selectedDescription) !== normalizeContent(selectedServiceName);
     const getOptionsSummary = (item: CartItem) => {
         const parts: string[] = [];
         if (item.options?.strength) parts.push(item.options.strength);
@@ -222,9 +227,11 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
                 {viewMode === 'ADD' && selectedService && (
                     <div className="w-full px-5 pt-6 pb-2 shrink-0">
                         <h2 className="text-4xl md:text-[46px] font-bold text-[#C9A96E] font-luxury leading-tight">{groupName}</h2>
-                        <p className="text-xl md:text-[22px] text-gray-400 mt-2 opacity-80 leading-snug">
-                            {selectedDescription}
-                        </p>
+                        {shouldShowSelectedDescription && (
+                            <p className="text-xl md:text-[22px] text-gray-400 mt-2 opacity-80 leading-snug">
+                                {selectedDescription}
+                            </p>
+                        )}
                         <p className="text-base md:text-lg text-white/50 italic mt-1.5 font-light">
                             {{
                                 vi: '* Giá đã bao gồm VAT',

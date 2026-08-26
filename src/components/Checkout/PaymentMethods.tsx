@@ -126,12 +126,19 @@ const PaymentMethods = ({ lang, dict, selected, onChange, onInfoContinue }: Paym
                 >
                     <div
                         className={`bg-[#1c1c1e] w-full max-w-sm max-h-[85vh] flex flex-col rounded-[32px] overflow-hidden shadow-2xl border border-white/5 ${isClosing ? 'animate-out zoom-out-95' : 'animate-in zoom-in-95 duration-200'}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleInfoContinue();
+                        }}
                     >
 
                         {/* Modal Header */}
                         <div className="p-6 pb-2 text-center relative shrink-0">
                             <button
-                                onClick={closeModal}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    closeModal();
+                                }}
                                 className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
                                 aria-label={lang === 'vi' ? 'Quay lại chọn phương thức' : 'Back to payment methods'}
                             >
@@ -224,7 +231,10 @@ const PaymentMethods = ({ lang, dict, selected, onChange, onInfoContinue }: Paym
                         {/* Modal Footer */}
                         <div className="p-4 border-t border-white/10 bg-[#0d0d0d] shrink-0">
                             <button
-                                onClick={handleInfoContinue}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleInfoContinue();
+                                }}
                                 className="w-full bg-[#C9A96E] hover:bg-[#b09461] text-black font-bold py-3.5 rounded-xl uppercase tracking-wider transition-colors shadow-[0_0_15px_rgba(201,169,110,0.3)]"
                             >
                                 {dict.checkout?.continue || dict.payment_methods.understood}

@@ -95,16 +95,16 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
                         <button
                             key={`${cat.id}-${index}`}
                             onClick={() => onSelectCategory(cat.id)}
-                            className={`flex flex-col items-center gap-2.5 group focus:outline-none shrink-0 snap-center w-[7rem] md:w-[8.5rem] transition-opacity duration-300 ${isActive ? 'opacity-45' : 'opacity-100'}`}
+                            className="flex flex-col items-center gap-2.5 group focus:outline-none shrink-0 snap-center w-[7rem] md:w-[8.5rem] transition-opacity duration-300"
                         >
-                            <div className={`w-[96px] h-[96px] md:w-[116px] md:h-[116px] rounded-full border flex items-center justify-center transition-all shadow-md overflow-hidden relative backdrop-blur-sm ${isActive ? 'bg-black/10 border-white/5 grayscale' : 'bg-black/30 border-white/15 group-hover:bg-black/40 pointer-events-none'}`}>
+                            <div className={`w-[96px] h-[96px] md:w-[116px] md:h-[116px] rounded-full border flex items-center justify-center transition-all shadow-md overflow-hidden relative backdrop-blur-sm ${isActive ? 'bg-black/20 border-[#C9A96E]/70 ring-2 ring-[#C9A96E]/45 ring-inset shadow-[0_0_18px_rgba(201,169,110,0.22)] grayscale' : 'bg-black/30 border-white/15 group-hover:bg-black/40 pointer-events-none'}`}>
                                 <span
-                                    className={`h-[75%] w-[75%] transition-transform duration-500 group-hover:scale-110 pointer-events-none ${isActive ? 'muted-mask-icon' : 'gold-mask-icon'}`}
+                                    className={`h-[75%] w-[75%] transition-transform duration-500 group-hover:scale-110 pointer-events-none ${isActive ? 'muted-mask-icon opacity-60' : 'gold-mask-icon'}`}
                                     style={{ '--icon-url': `url("${cat.image || 'https://placehold.co/100x100'}")` } as React.CSSProperties}
                                     aria-label={cat.names['en']}
                                 />
                             </div>
-                            <span className={`pointer-events-none text-base md:text-lg font-semibold uppercase tracking-tight text-center w-full truncate px-0.5 leading-tight ${isActive ? 'text-gray-500' : 'text-[#C9A96E] group-hover:text-[#FFE38A]'}`}>
+                            <span className={`pointer-events-none text-base md:text-lg font-semibold uppercase tracking-tight text-center w-full truncate px-0.5 leading-tight ${isActive ? 'text-[#C9A96E]/80' : 'text-[#C9A96E] group-hover:text-[#FFE38A]'}`}>
                                 {cat.names[lang as keyof typeof cat.names] || cat.names['en']}
                             </span>
                         </button>

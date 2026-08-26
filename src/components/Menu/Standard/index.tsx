@@ -204,6 +204,30 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
         setSheet({ isOpen: true, type: 'MAIN', data: group });
     };
 
+    const handleBestSellerSelect = (service: Service) => {
+        const sourceServices = services.length > 0
+            ? services
+            : allServices.filter(s => s.menuType === menuType);
+        const targetName = service.names.en.trim().toLowerCase();
+        const targetGroup = sourceServices.filter(svc =>
+            svc.ACTIVE !== false &&
+            svc.cat === service.cat &&
+            svc.names.en.trim().toLowerCase() === targetName
+        );
+
+        setActiveCategory(service.cat);
+        setMode('MENU');
+        setPendingScrollCategory(null);
+
+        window.setTimeout(() => {
+            setSheet({
+                isOpen: true,
+                type: 'MAIN',
+                data: targetGroup.length > 0 ? targetGroup : [service]
+            });
+        }, 90);
+    };
+
     // Hàm cập nhật Cart (Dùng cho cả MainSheet và ReviewSheet)
     const handleUpdateCart = (cartId: string, qty: number) => {
         updateCartItem(cartId, qty);
@@ -428,6 +452,7 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
                         onBack={onBack}
                         showBack={showPickerBack}
                         showQuickActions={showEntryActions}
+                        onBestSellerSelect={handleBestSellerSelect}
                     />
                 ) : (
                     <motion.div

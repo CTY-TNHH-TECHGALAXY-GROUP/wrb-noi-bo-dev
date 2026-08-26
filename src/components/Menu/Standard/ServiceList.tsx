@@ -303,9 +303,6 @@ export default function ServiceList({ categories, services, cart, lang, directio
                                                 }}
                                                 className="relative w-full min-h-[132px] sm:min-h-[148px] md:min-h-[168px] rounded-2xl p-4 sm:p-5 md:p-6 flex flex-row gap-4 sm:gap-5 md:gap-6 items-center overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] bg-black/10 border border-white/10 backdrop-blur-sm shadow-lg hover:bg-black/20"
                                             >
-                                                <div className="w-[104px] h-[104px] sm:w-[118px] sm:h-[118px] md:w-[136px] md:h-[136px] shrink-0 rounded-xl overflow-hidden bg-black/20 relative shadow-sm">
-                                                    <img src={menu.img} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" alt={name} />
-                                                </div>
                                                 <div className="flex flex-col justify-center flex-1 min-w-0 pr-14 sm:pr-16 py-1">
                                                     <h3 className="font-bold text-white text-[30px] sm:text-[34px] md:text-[40px] leading-[1.18] mb-2 line-clamp-2 font-luxury tracking-wide">
                                                         {name}
@@ -389,7 +386,7 @@ export default function ServiceList({ categories, services, cart, lang, directio
                                 onQuickAdd?.(detailService);
                                 setDetailService(null);
                             }}
-                            className="mt-7 flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#b6965b] to-[#C9A96E] py-4 text-xl font-black uppercase text-black shadow-lg transition-transform active:scale-[0.98] sm:py-5 sm:text-2xl"
+                            className="mt-7 flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#B8860B] via-[#D4AF37] to-[#F2C96B] py-4 text-xl font-black uppercase text-white shadow-[0_14px_34px_rgba(212,175,55,0.24)] transition-transform [text-shadow:0_2px_8px_rgba(0,0,0,0.65)] active:scale-[0.98] sm:py-5 sm:text-2xl"
                         >
                             <Plus size={28} />
                             <span>{cs.add}</span>

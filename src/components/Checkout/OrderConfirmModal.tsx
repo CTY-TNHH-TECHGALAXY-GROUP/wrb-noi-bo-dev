@@ -288,7 +288,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                 </div>
 
                 {/* Scrollable Body */}
-                <div className="flex-1 overflow-y-auto px-6 pb-6 custom-scrollbar space-y-6 min-h-0">
+                <div className="flex-1 overflow-y-auto px-6 pb-28 custom-scrollbar space-y-6 min-h-0">
 
                     {/* Customer Details */}
                     <div className="bg-[#0d0d0d] border border-white/5 rounded-2xl p-4 space-y-2">
@@ -550,7 +550,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-[#1c1c1e] border-t border-white/10 flex gap-3 shrink-0">
+                <div className="sticky bottom-0 z-20 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-[#1c1c1e]/95 border-t border-white/10 flex gap-3 shrink-0 shadow-[0_-18px_36px_rgba(0,0,0,0.42)] backdrop-blur-xl">
                     <button
                         onClick={onClose}
                         disabled={isSubmitting}

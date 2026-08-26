@@ -75,16 +75,6 @@ export default function ServiceItem({ service, singleOption, quantity, lang, isB
                     </div>
                 )}
 
-                <div className="relative z-10 flex h-[112px] w-[112px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#1a1207]/55 shadow-[0_0_42px_rgba(218,163,64,0.18)] sm:h-[136px] sm:w-[136px] md:h-[160px] md:w-[160px]">
-                    <div className="absolute inset-0 rounded-full border border-white/5" />
-                    <img
-                        src={service.img}
-                        className="h-[82%] w-[82%] object-contain drop-shadow-[0_12px_22px_rgba(0,0,0,0.65)] transition-transform duration-500 hover:scale-110"
-                        alt={name}
-                        onError={(e) => (e.currentTarget.src = 'https://placehold.co/160x160?text=SPA')}
-                    />
-                </div>
-
                 <div className="relative z-10 flex min-w-0 flex-1 flex-col justify-center pr-0">
                     <h3 className="max-w-[620px] break-words text-[28px] font-black leading-[1.14] tracking-wide text-white drop-shadow-[0_3px_8px_rgba(0,0,0,0.9)] line-clamp-3 sm:text-[34px] md:text-[40px]">
                         {name}
@@ -186,16 +176,6 @@ export default function ServiceItem({ service, singleOption, quantity, lang, isB
                     BEST SELLER
                 </div>
             )}
-
-            {/* 1. Ảnh vuông bo tròn */}
-            <div className="w-[104px] h-[104px] sm:w-[118px] sm:h-[118px] md:w-[136px] md:h-[136px] shrink-0 rounded-xl overflow-hidden bg-black/20 relative shadow-sm">
-                <img
-                    src={service.img}
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                    alt={name}
-                    onError={(e) => (e.currentTarget.src = 'https://placehold.co/100x100?text=SPA')}
-                />
-            </div>
 
             {/* 2. Nội dung text (Không hiện giá) */}
             <div className="flex flex-col justify-center flex-1 min-w-0 pr-20 sm:pr-24 md:pr-28 py-1">

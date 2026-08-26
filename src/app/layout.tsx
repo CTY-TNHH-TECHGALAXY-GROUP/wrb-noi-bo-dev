@@ -12,6 +12,7 @@ import { AuthProvider } from "@/components/Auth/AuthProvider";
 // Import component fix lỗi height cho iOS
 import IOSViewportFix from "@/components/IOSViewportFix";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import PointerCaptureGuard from "@/components/PointerCaptureGuard";
 
 import { Analytics } from "@vercel/analytics/react"
 
@@ -55,6 +56,7 @@ export default function RootLayout({
         <AuthProvider>
           <MenuProvider>
             <IOSViewportFix /> {/* Kích hoạt script tính chiều cao */}
+            <PointerCaptureGuard />
             <ServiceWorkerRegister />
             {isVercelDeployment && <Analytics />}
             {children}
