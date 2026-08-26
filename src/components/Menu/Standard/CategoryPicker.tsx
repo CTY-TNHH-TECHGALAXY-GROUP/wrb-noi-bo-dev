@@ -606,9 +606,9 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                                     type="button"
                                     onClick={() => handleCheckUserEmail(historyInput)}
                                     disabled={isHistoryLoading || !historyInput.trim()}
-                                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#FFF8E1] to-[#B8860B] py-4 font-black uppercase tracking-widest text-black shadow-[0_14px_34px_rgba(212,175,55,0.26)] transition-all hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-80 disabled:saturate-75 disabled:brightness-90"
+                                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FFF8E1] via-[#E8C97A] to-[#B8860B] py-4 font-black uppercase tracking-widest text-black shadow-[0_16px_36px_rgba(212,175,55,0.32)] ring-1 ring-[#F4E2B3]/45 transition-all hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:from-[#8D5A1B] disabled:via-[#D4AF37] disabled:to-[#F4E2B3] disabled:text-black disabled:opacity-95 disabled:shadow-[0_12px_30px_rgba(212,175,55,0.22)]"
                                 >
-                                    {isHistoryLoading ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
+                                    {isHistoryLoading ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} strokeWidth={3} />}
                                     {quickText.search}
                                 </button>
                             </div>

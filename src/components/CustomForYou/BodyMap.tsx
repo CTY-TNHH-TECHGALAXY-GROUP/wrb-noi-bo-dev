@@ -273,7 +273,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                         </div>
                                     </>
                                 ) : (
-                                    <span className="text-base sm:text-xl md:text-2xl text-[#3f3f46] italic flex-1 py-1">
+                                    <span className="text-base sm:text-xl md:text-2xl text-[#3f3f46] flex-1 py-1">
                                         {getText({
                                             HEAD: { en: 'Head', vi: 'Đầu', jp: '頭', kr: '머리', cn: '头' },
                                             NECK: { en: 'Neck', vi: 'Cổ', jp: '首', kr: '목', cn: '颈部' },

@@ -31,7 +31,7 @@ const IntentSelector = ({ lang, onSelectIntent }: IntentSelectorProps) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-3xl font-serif italic text-[#e6c487] leading-tight mb-3"
+          className="text-3xl font-sans not-italic text-[#e6c487] leading-tight mb-3"
         >
           {isVi ? 'LỜI CHÀO TIÊN QUYẾT' : 'YOUR SANCTUARY'}
         </motion.h2>
@@ -84,7 +84,7 @@ const IntentSelector = ({ lang, onSelectIntent }: IntentSelectorProps) => {
             <div className="mb-3 bg-[#e6c487]/10 backdrop-blur-md p-3 rounded-full border border-[#e6c487]/20 w-fit">
               <svg className="w-7 h-7 text-[#e6c487]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
             </div>
-            <h3 className="text-xl font-serif italic text-[#e4e2e4] mb-1.5">
+            <h3 className="text-xl font-sans not-italic text-[#e4e2e4] mb-1.5">
               {isVi ? 'CHỌN THEO DỊCH VỤ' : 'FOCUS ON TREATMENT'}
             </h3>
             <p className="text-[#d0c5b5] text-[10px] tracking-[0.15em] uppercase mb-5">
@@ -119,7 +119,7 @@ const IntentSelector = ({ lang, onSelectIntent }: IntentSelectorProps) => {
             <div className="mb-3 bg-[#ffb597]/10 backdrop-blur-md p-3 rounded-full border border-[#ffb597]/20 w-fit">
               <svg className="w-7 h-7 text-[#ffb597]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
             </div>
-            <h3 className="text-xl font-serif italic text-[#e4e2e4] mb-1.5">
+            <h3 className="text-xl font-sans not-italic text-[#e4e2e4] mb-1.5">
               {isVi ? 'CHỌN NHÂN VIÊN TRỰC TIẾP' : 'PREFERRED THERAPIST'}
             </h3>
             <p className="text-[#d0c5b5] text-[10px] tracking-[0.15em] uppercase mb-5">

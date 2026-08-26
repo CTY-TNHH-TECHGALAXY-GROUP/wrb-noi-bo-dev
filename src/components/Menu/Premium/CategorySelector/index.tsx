@@ -35,7 +35,7 @@ const CategorySelector = ({ lang, onSelectCategory }: CategorySelectorProps) => 
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h2 className="text-3xl font-serif italic text-[#e6c487] leading-tight mb-2">
+        <h2 className="text-3xl font-sans not-italic text-[#e6c487] leading-tight mb-2">
           {isVi ? 'CHỌN THEO NHU CẦU' : 'SELECT TREATMENT'}
         </h2>
         <p className="text-[11px] tracking-[0.15em] uppercase text-[#d0c5b5]/80">

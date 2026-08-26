@@ -238,7 +238,7 @@ export default function BookingTimePicker({
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 
-                <h4 className="font-serif italic text-lg text-[#e6c487]">
+                <h4 className="font-sans not-italic text-lg text-[#e6c487]">
                   {t.bc_month || 'Tháng '}{currentCalendarMonth + 1}, {currentCalendarYear}
                 </h4>
 

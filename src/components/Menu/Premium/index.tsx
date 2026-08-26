@@ -188,7 +188,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                         </svg>
                     </button>
 
-                    <h1 className="text-lg font-serif italic tracking-[0.2em] text-[#e6c487]">
+                    <h1 className="premium-therapist-display-font text-lg tracking-[0.2em] text-[#e6c487]">
                         {getStepTitle()}
                     </h1>
 

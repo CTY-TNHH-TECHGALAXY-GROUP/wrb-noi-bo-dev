@@ -6,6 +6,7 @@
  */
 
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css"; // 👈 QUAN TRỌNG: Dòng này để tải file CSS nền đen, font chữ...
 import { MenuProvider } from "@/components/Menu/MenuContext";
 import { AuthProvider } from "@/components/Auth/AuthProvider";
@@ -17,6 +18,12 @@ import PointerCaptureGuard from "@/components/PointerCaptureGuard";
 import { Analytics } from "@vercel/analytics/react"
 
 const isVercelDeployment = process.env.VERCEL === "1";
+
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "Oria Spa",
@@ -52,7 +59,7 @@ export default function RootLayout({
       {/* Thẻ body này là nơi chứa mọi trang web của bạn.
         Nó sẽ tự động nhận các style từ globals.css
       */}
-      <body suppressHydrationWarning className="font-sans antialiased w-full h-full">
+      <body suppressHydrationWarning className={`${inter.variable} font-sans antialiased w-full h-full`}>
         <AuthProvider>
           <MenuProvider>
             <IOSViewportFix /> {/* Kích hoạt script tính chiều cao */}

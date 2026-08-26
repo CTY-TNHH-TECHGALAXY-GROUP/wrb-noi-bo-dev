@@ -41,7 +41,7 @@ export async function GET(request: Request) {
                     };
                 </script>
             </head>
-            <body style="background: #0f1218; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; margin: 0;">
+            <body style="background: #0f1218; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0;">
                 <div style="text-align: center;">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#EAB308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite; margin-bottom: 16px;">
                         <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>

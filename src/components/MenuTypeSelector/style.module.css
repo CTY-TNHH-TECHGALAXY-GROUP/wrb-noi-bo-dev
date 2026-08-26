@@ -68,7 +68,7 @@
   text-align: center;
   background: transparent;
   color: #e8c27b;
-  font-family: var(--font-luxury), Georgia, "Times New Roman", serif;
+  font-family: var(--font-luxury), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: clamp(24px, 7vw, 36px); /* Tăng kích cỡ chữ */
   line-height: 1.1;
   letter-spacing: .02em;
@@ -89,7 +89,7 @@
   text-align: center;
   background: transparent;
   color: #e8c27b;
-  font-family: var(--font-luxury), Georgia, "Times New Roman", serif;
+  font-family: var(--font-luxury), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   pointer-events: none;
   z-index: 2;
   text-shadow: 0 2px 8px rgba(0,0,0,1);

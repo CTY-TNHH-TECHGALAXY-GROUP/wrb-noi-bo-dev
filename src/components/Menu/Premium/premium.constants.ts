@@ -48,7 +48,7 @@ export const TW = {
 
 // Typography
 export const FONT = {
-  headline: 'font-serif italic', // Noto Serif
+  headline: 'font-sans not-italic',
   body: 'font-sans', // Manrope / Be Vietnam Pro
   label: 'font-sans',
 } as const;

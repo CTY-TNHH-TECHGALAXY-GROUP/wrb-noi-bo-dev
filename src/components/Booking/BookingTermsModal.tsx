@@ -26,7 +26,7 @@ export default function BookingTermsModal({ isOpen, onClose, lang }: BookingTerm
           >
             {/* Header */}
             <div className="flex justify-between items-center p-6 border-b border-[#4d463a]/20 bg-[#131315]">
-              <h2 className="text-xl font-bold text-[#e6c487] tracking-wider uppercase font-serif">
+              <h2 className="text-xl font-bold text-[#e6c487] tracking-wider uppercase font-sans">
                 {t.step_terms_title || 'Điều Khoản & Chính Sách'}
               </h2>
               <button

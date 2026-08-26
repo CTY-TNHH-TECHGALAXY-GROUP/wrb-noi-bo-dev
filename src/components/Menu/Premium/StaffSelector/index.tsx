@@ -209,10 +209,10 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
     >
       {/* Section Header */}
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-        <h2 className="text-3xl font-serif italic text-[#e6c487] leading-tight mb-2">
+        <h2 className="premium-therapist-display-font text-3xl text-[#e6c487] leading-tight mb-2">
           {t.ss_title}
         </h2>
-        <p className="text-[11px] tracking-[0.15em] uppercase text-[#d0c5b5]/80">
+        <p className="premium-therapist-display-font text-[11px] tracking-[0.15em] uppercase text-[#d0c5b5]/80">
           {t.ss_subtitle}
         </p>
       </motion.section>
@@ -399,7 +399,7 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
       {/* Editorial Quote */}
       {!isLoading && sortedStaff.length > 0 && (
         <div className="mt-16 text-center px-4 opacity-40">
-          <p className="font-serif italic text-base text-[#c9a96e] leading-relaxed">
+          <p className="font-sans not-italic text-base text-[#c9a96e] leading-relaxed">
             {t.ss_quote}
           </p>
         </div>
@@ -422,7 +422,7 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
                 >
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#e6c487] to-transparent opacity-50" />
                     
-                    <h3 className="text-xl font-serif italic text-[#e6c487] text-center mb-6 mt-2">
+                    <h3 className="text-xl font-sans not-italic text-[#e6c487] text-center mb-6 mt-2">
                         {t.ss_grouping_title || 'Xác nhận dịch vụ'}
                     </h3>
 

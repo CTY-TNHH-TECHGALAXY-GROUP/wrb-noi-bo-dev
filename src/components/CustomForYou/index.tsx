@@ -159,7 +159,7 @@ export default function CustomForYouModal({
                 {/* Header */}
                 <div className="px-6 py-5 flex items-center justify-between z-20">
                     <div>
-                        <h2 className="text-3xl sm:text-4xl md:text-[42px] font-serif tracking-wide text-[#C9A96E] leading-tight">{dict.custom_for_you?.title}</h2>
+                        <h2 className="text-3xl sm:text-4xl md:text-[42px] font-sans tracking-wide text-[#C9A96E] leading-tight">{dict.custom_for_you?.title}</h2>
                         <p className="text-xl sm:text-2xl md:text-[28px] text-gray-400 font-medium mt-1 leading-snug">
                             {getText(serviceData.NAMES, lang)}
                         </p>

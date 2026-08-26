@@ -354,7 +354,7 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col px-5 pt-2 pb-10"
+      className="flex flex-col px-5 pt-2 pb-44"
     >
       {/* KTV Header — compact */}
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
@@ -555,18 +555,6 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
                   )}
                 </AnimatePresence>
               </div>
-
-              {/* Logo Bottom */}
-              <div className="mt-3 flex justify-center opacity-60">
-                <div className="flex items-center gap-2">
-                  <svg className="w-[18px] h-[18px] text-[#c9a96e]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 3C12 3 14 7 14 11C14 14.5 12 18 12 18C12 18 10 14.5 10 11C10 7 12 3 12 3Z" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M12 18C12 18 16 16.5 18 12.5C20 8.5 18 6 18 6C18 6 16.5 10 14 11" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M12 18C12 18 8 16.5 6 12.5C4 8.5 6 6 6 6C6 6 7.5 10 10 11" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <span className="text-[10px] tracking-[0.3em] font-semibold text-[#c9a96e]">ORIASPA</span>
-                </div>
-              </div>
             </div>
           </motion.section>
         )}
@@ -575,10 +563,10 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
       {/* Booking Config Section (after duration selected) */}
       <AnimatePresence>
         {selectedDuration && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5 mt-5">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3 mt-3">
 
             {/* Customer Notes */}
-            <section className="mt-5 p-4 rounded-2xl bg-[#1b1b1d] border border-[#4d463a]/30">
+            <section className="p-4 rounded-2xl bg-[#1b1b1d] border border-[#4d463a]/30">
               <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#e6c487] font-bold mb-3 flex items-center">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#e6c487] mr-2" />
                 {t.bc_customerNotes}
@@ -602,28 +590,30 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 80 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="fixed bottom-6 inset-x-5 lg:inset-x-0 mx-auto lg:w-[500px] z-40"
+            className="fixed inset-x-0 bottom-0 z-50 border-t border-white/8 bg-gradient-to-t from-[#101012] via-[#101012]/96 to-[#101012]/82 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-8 shadow-[0_-24px_45px_rgba(0,0,0,0.72)] backdrop-blur-2xl"
           >
-            <div className="flex justify-between items-end mb-2 px-1">
-              <div>
-                <div className="text-xs text-[#998f81] uppercase tracking-wider font-bold mb-1">{t.bc_selected}</div>
-                <div className="text-3xl font-black text-[#e4e2e4]">{effectiveDuration} <span className="text-xl font-medium">{t.bc_mins}</span></div>
+            <div className="mx-auto w-full lg:w-[500px]">
+              <div className="flex justify-between items-end mb-2 px-1">
+                <div>
+                  <div className="text-xs text-[#998f81] uppercase tracking-wider font-bold mb-1">{t.bc_selected}</div>
+                  <div className="text-3xl font-black text-[#e4e2e4]">{effectiveDuration} <span className="text-xl font-medium">{t.bc_mins}</span></div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-[#e6c487] tracking-wider uppercase font-bold mb-1">Bespoke</div>
+                  <div className="text-3xl font-black text-[#e6c487]">{totalPrice.toLocaleString('vi-VN')}<span className="text-xl font-medium">đ</span></div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-xs text-[#e6c487] tracking-wider uppercase font-bold mb-1">Bespoke</div>
-                <div className="text-3xl font-black text-[#e6c487]">{totalPrice.toLocaleString('vi-VN')}<span className="text-xl font-medium">đ</span></div>
-              </div>
-            </div>
 
-            <button
-              onClick={() => {
-                onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: null, totalPrice, appointmentDate: selectedDateStr, customerNotes });
-              }}
-              className={`w-full py-4 rounded-full font-bold tracking-[0.12em] text-sm flex items-center justify-center gap-3 duration-200 uppercase shadow-[0_15px_30px_rgba(0,0,0,0.4)] transition-all bg-[#e6c487] text-[#412d00] hover:bg-[#e2c285] active:scale-95`}
-            >
-              <span>{t.bc_confirmSelection}</span>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-            </button>
+              <button
+                onClick={() => {
+                  onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: null, totalPrice, appointmentDate: selectedDateStr, customerNotes });
+                }}
+                className={`w-full py-4 rounded-full font-bold tracking-[0.12em] text-sm flex items-center justify-center gap-3 duration-200 uppercase shadow-[0_15px_30px_rgba(0,0,0,0.4)] transition-all bg-[#e6c487] text-[#412d00] hover:bg-[#e2c285] active:scale-95`}
+              >
+                <span>{t.bc_confirmSelection}</span>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -654,7 +644,7 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 
-                <h4 className="font-serif italic text-lg text-[#e6c487]">
+                <h4 className="font-sans not-italic text-lg text-[#e6c487]">
                   {t.bc_month}{currentCalendarMonth + 1}, {currentCalendarYear}
                 </h4>
 
@@ -743,7 +733,7 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
               className="bg-[#131315] border border-[#e6c487]/30 rounded-3xl p-6 w-full max-w-md shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col max-h-[80vh]"
             >
               <div className="flex justify-between items-center mb-5 pb-4 border-b border-[#4d463a]/30">
-                <h4 className="font-serif italic text-xl text-[#e6c487]">
+                <h4 className="font-sans not-italic text-xl text-[#e6c487]">
                   {t.bc_terms_title || 'Điều khoản & Chính sách'}
                 </h4>
                 <button

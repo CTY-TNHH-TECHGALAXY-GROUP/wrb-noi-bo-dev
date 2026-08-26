@@ -79,5 +79,5 @@ export const animClasses = {
   marqueeText: "font bold -luxury text-[17px] md:text-[17px] tracking-[0.1em] uppercase mx-10 flex items-center gap-4 gold-text-soft",
 
   // 🔥 FOOTER: Áp dụng gold-text-soft
-  footer: "absolute bottom-[calc(50px+env(safe-area-inset-bottom))] w-full text-center z-[50] px-4 font-serif text-[14px] md:text-[14px] tracking-[0.1em] uppercase gold-text-soft"
+  footer: "absolute bottom-[calc(50px+env(safe-area-inset-bottom))] w-full text-center z-[50] px-4 font-sans text-[14px] md:text-[14px] tracking-[0.1em] uppercase gold-text-soft"
 };

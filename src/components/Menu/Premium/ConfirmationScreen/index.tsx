@@ -306,7 +306,7 @@ const ConfirmationScreen = ({
           )}
         </div>
 
-        <h2 className="text-2xl font-serif italic text-[#e6c487] mb-2">{t.successTitle}</h2>
+        <h2 className="text-2xl font-sans not-italic text-[#e6c487] mb-2">{t.successTitle}</h2>
 
         {/* Confidence Badge */}
         <div className={`px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase mb-4 ${
@@ -358,7 +358,7 @@ const ConfirmationScreen = ({
         <div className="absolute inset-0 bg-gradient-to-t from-[#131315] via-[#131315]/60 to-transparent" />
         <div className="absolute bottom-6 left-6 right-6">
           <span className="text-[10px] tracking-[0.3em] uppercase text-[#ffb597]">{t.heroSub}</span>
-          <h2 className="text-2xl font-serif italic text-[#e4e2e4] mt-1">{t.heroTitle}</h2>
+          <h2 className="text-2xl font-sans not-italic text-[#e4e2e4] mt-1">{t.heroTitle}</h2>
         </div>
         {/* Nút dịch Tiếng Việt kín đáo, nhỏ gọn cho Lễ tân kiểm tra thông tin */}
         <div className="absolute top-3 right-3 z-50">

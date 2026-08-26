@@ -70,7 +70,7 @@ const TEXT: Record<string, Record<string, string>> = {
         empty:          'No packages yet',
         empty_sub:      'Select a therapist and configure your service',
         add_another:    'Add staff',
-        checkout_btn:   'Proceed to Checkout',
+        checkout_btn:   'Checkout',
         total:          'TOTAL',
         close:          'CLOSE',
         ktv_label:      'Therapist:',
@@ -272,7 +272,7 @@ const VipCartStep = ({
                     </div>
                     <button
                         onClick={handleClose}
-                        className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-gray-500 hover:text-white transition-colors border border-white/5"
+                        className="p-2 rounded-full bg-white/7 hover:bg-white/12 text-[#AEB8CC] hover:text-[#FFF8E1] transition-colors border border-white/8"
                     >
                         <X size={16} />
                     </button>
@@ -288,8 +288,8 @@ const VipCartStep = ({
                                 <ShoppingBag size={24} className="text-[#e6c487]/50" />
                             </div>
                             <div>
-                                <p className="text-white font-bold">{t.empty}</p>
-                                <p className="text-gray-600 text-sm mt-1">{t.empty_sub}</p>
+                                <p className="text-[#FFF8E1] font-bold">{t.empty}</p>
+                                <p className="text-[#AEB8CC] text-sm mt-1">{t.empty_sub}</p>
                             </div>
                         </div>
                     )}
@@ -334,12 +334,12 @@ const VipCartStep = ({
                                     <div className="px-4 py-3 space-y-2.5">
                                         {/* KTV */}
                                         <div className="flex items-start gap-2">
-                                            <User size={13} className="text-gray-600 mt-0.5 shrink-0" />
+                                            <User size={13} className="text-[#9FA8B8] mt-0.5 shrink-0" />
                                             <div className="flex-1 min-w-0">
-                                                <span className="text-[10px] text-gray-600 uppercase tracking-wider font-bold">
+                                                <span className="text-[10px] text-[#AEB8CC] uppercase tracking-wider font-extrabold">
                                                     {t.ktv_label}
                                                 </span>
-                                                <p className="text-white text-sm font-semibold leading-tight mt-0.5 truncate">
+                                                <p className="text-[#FFF8E1] text-sm font-semibold leading-tight mt-0.5 truncate">
                                                     {group.allStaffNames.join(' & ')}
                                                 </p>
                                             </div>
@@ -348,14 +348,14 @@ const VipCartStep = ({
                                         {/* Skills */}
                                         {skillNames.length > 0 && (
                                             <div className="flex items-start gap-2">
-                                                <Sparkles size={13} className="text-gray-600 mt-0.5 shrink-0" />
+                                                <Sparkles size={13} className="text-[#9FA8B8] mt-0.5 shrink-0" />
                                                 <div>
-                                                    <span className="text-[10px] text-gray-600 uppercase tracking-wider font-bold">
+                                                    <span className="text-[10px] text-[#AEB8CC] uppercase tracking-wider font-extrabold">
                                                         {t.skills_label}
                                                     </span>
                                                     <div className="flex flex-wrap gap-1.5 mt-1">
                                                         {skillNames.map((name: string, i: number) => (
-                                                            <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-[#e6c487]/10 text-[#e6c487] border border-[#e6c487]/20 font-medium">
+                                                            <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-[#B88A2D] text-[#FFF8E1] border border-[#F4E2B3]/35 font-semibold shadow-[inset_0_1px_0_rgba(255,248,225,0.22)]">
                                                                 {name}
                                                             </span>
                                                         ))}
@@ -366,14 +366,14 @@ const VipCartStep = ({
 
                                         {/* Duration */}
                                         <div className="flex items-center gap-2">
-                                            <Clock size={13} className="text-gray-600 shrink-0" />
-                                            <span className="text-[10px] text-gray-600 uppercase tracking-wider font-bold">{t.duration_label}</span>
-                                            <span className="text-gray-200 text-sm font-bold">{duration} {t.mins}</span>
+                                            <Clock size={13} className="text-[#9FA8B8] shrink-0" />
+                                            <span className="text-[10px] text-[#AEB8CC] uppercase tracking-wider font-extrabold">{t.duration_label}</span>
+                                            <span className="text-[#FFF8E1] text-sm font-bold">{duration} {t.mins}</span>
                                         </div>
 
                                         {/* Notes */}
                                         {notes && (
-                                            <p className="text-gray-500 text-xs bg-white/4 rounded-xl px-3 py-2 leading-relaxed border border-white/5">
+                                            <p className="text-[#C9D1DE] text-xs bg-white/6 rounded-xl px-3 py-2 leading-relaxed border border-white/8">
                                                 {notes}
                                             </p>
                                         )}
@@ -382,7 +382,7 @@ const VipCartStep = ({
                                         <div className="flex gap-2 pt-1 border-t border-white/5">
                                             <button
                                                 onClick={() => { setEditItem(item); setIsEditOpen(true); }}
-                                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-white/10 text-gray-400 text-xs font-bold uppercase tracking-wider hover:bg-white/5 hover:text-white transition-all active:scale-95"
+                                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-white/10 text-[#B8C2D4] text-xs font-bold uppercase tracking-wider hover:bg-white/5 hover:text-[#FFF8E1] transition-all active:scale-95"
                                             >
                                                 <Pencil size={12} />
                                                 {t.edit}
@@ -404,7 +404,7 @@ const VipCartStep = ({
                     {/* Add Another */}
                     <button
                         onClick={() => { handleClose(); setTimeout(onAddAnother, ANIMATION_DURATION + 50); }}
-                        className="w-full py-3.5 rounded-2xl border border-dashed border-[#e6c487]/25 text-[#e6c487]/70 text-sm font-bold uppercase tracking-widest hover:border-[#e6c487]/50 hover:text-[#e6c487] hover:bg-[#e6c487]/4 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                        className="w-full py-3.5 rounded-2xl border border-dashed border-[#E8C97A]/55 bg-[#E8C97A]/6 text-[#FFF8E1] text-sm font-black uppercase tracking-widest hover:border-[#FFF8E1]/75 hover:text-white hover:bg-[#E8C97A]/12 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-[inset_0_1px_0_rgba(255,248,225,0.08),0_0_18px_rgba(232,201,122,0.08)]"
                     >
                         <Plus size={15} />
                         {t.add_another}
@@ -415,7 +415,7 @@ const VipCartStep = ({
                 <div className="p-5 bg-[#1c1c1e] border-t border-white/5 shrink-0">
                     {/* Total */}
                     <div className="flex justify-between items-end mb-5">
-                        <span className="text-gray-400 font-bold tracking-widest text-sm uppercase">{t.total}</span>
+                        <span className="text-[#C9D1DE] font-bold tracking-widest text-sm uppercase">{t.total}</span>
                         <div className="text-right">
                             <div className="text-xl font-black text-[#e6c487] tracking-tight">
                                 {formatCurrency(grandTotal)}
@@ -428,7 +428,7 @@ const VipCartStep = ({
                     <div className="flex gap-3">
                         <button
                             onClick={handleClose}
-                            className="flex-1 py-4 rounded-2xl border border-white/10 text-gray-400 font-bold uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all active:scale-95 text-sm"
+                            className="flex-1 py-4 rounded-2xl border border-white/10 text-[#C9D1DE] font-bold uppercase tracking-widest hover:bg-white/5 hover:text-[#FFF8E1] transition-all active:scale-95 text-sm"
                         >
                             {t.close}
                         </button>
@@ -466,14 +466,14 @@ const VipCartStep = ({
                                     <Trash2 size={17} className="text-red-400" />
                                 </div>
                                 <div>
-                                    <p className="text-white font-bold">{t.delete_confirm}</p>
-                                    <p className="text-gray-500 text-xs mt-0.5">{t.delete_sub}</p>
+                                    <p className="text-[#FFF8E1] font-bold">{t.delete_confirm}</p>
+                                    <p className="text-[#AEB8CC] text-xs mt-0.5">{t.delete_sub}</p>
                                 </div>
                             </div>
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setDeleteGroupId(null)}
-                                    className="flex-1 py-3.5 rounded-xl border border-white/10 text-gray-400 font-bold text-sm uppercase tracking-widest hover:bg-white/5 transition-colors"
+                                    className="flex-1 py-3.5 rounded-xl border border-white/10 text-[#C9D1DE] font-bold text-sm uppercase tracking-widest hover:bg-white/5 transition-colors"
                                 >
                                     {t.cancel}
                                 </button>
