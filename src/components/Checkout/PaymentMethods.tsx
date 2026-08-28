@@ -89,7 +89,7 @@ const PaymentMethods = ({ lang, dict, selected, onChange, onInfoContinue }: Paym
 
     return (
         <div className="bg-[#1c1c1e] p-1 rounded-3xl border border-white/5 overflow-hidden shadow-sm">
-            <h2 className="text-[#C9A96E] font-bold text-sm p-4 pb-2">
+            <h2 className="text-[#C9A96E] font-bold text-[19px] p-4 pb-2">
                 {dict.checkout.payment_method_question}
             </h2>
 
