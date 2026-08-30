@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter, usePathname } from 'next/navigation';
+import { languages } from '@/app/(intro)/LanguageSelector.lang';
 
 import StaffSelector from './StaffSelector';
 import BookingConfig from './BookingConfig';
@@ -37,10 +39,33 @@ interface PremiumMenuProps {
 type MenuStep = 'STAFF' | 'BOOKING_CONFIG';
 
 const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStandard }: PremiumMenuProps) => {
+    const router = useRouter();
+    const pathname = usePathname();
     const t = getT(lang);
     const { cart, addVipToCart, updateVipCartItem, removeVipGroup } = useMenuData();
     const [step, setStep]         = useState<MenuStep>('STAFF');
     const [isCartOpen, setIsCartOpen] = useState(false);
+
+    // Language switcher state
+    const [isLangOpen, setIsLangOpen] = useState(false);
+    const langRef = useRef<HTMLDivElement>(null);
+    const currentLang = languages.find(l => l.id === lang) || languages[0];
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (langRef.current && !langRef.current.contains(event.target as Node)) {
+                setIsLangOpen(false);
+            }
+        };
+        if (isLangOpen) document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isLangOpen]);
+
+    const handleLanguageChange = (newLang: string) => {
+        if (!pathname) return;
+        setIsLangOpen(false);
+        router.replace(pathname.replace(`/${lang}/`, `/${newLang}/`));
+    };
 
     // VIP pricing table from SystemConfigs
     const [vipPricingTable, setVipPricingTable] = useState<VipPricingTable | undefined>(undefined);
@@ -194,11 +219,45 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
 
                     {/* Right: Cart badge hoặc Switch to Standard */}
                     <div className="flex items-center gap-2">
+                        {/* Language Selector */}
+                        <div className="relative z-[100] shrink-0 flex items-center" ref={langRef}>
+                            <button
+                                onClick={() => setIsLangOpen(!isLangOpen)}
+                                className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full overflow-hidden flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shrink-0 border-[3px] border-white/20"
+                            >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={currentLang.flag} alt={currentLang.name} className="w-full h-full object-cover" />
+                            </button>
+
+                            <AnimatePresence>
+                                {isLangOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                                        transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 25 }}
+                                        className="absolute top-[calc(100%+8px)] right-0 z-[110] flex flex-col gap-3 p-2 bg-[#0e0e10]/95 backdrop-blur-xl rounded-full border border-[#e6c487]/30 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+                                    >
+                                        {languages.filter(l => l.id !== lang).map((l) => (
+                                            <button
+                                                key={l.id}
+                                                onClick={() => handleLanguageChange(l.id)}
+                                                className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full overflow-hidden flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 opacity-60 hover:opacity-100 border-[3px] border-transparent hover:border-[#e6c487]/50"
+                                            >
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
+                                            </button>
+                                        ))}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
                         {/* Cart badge — hiển thị khi có gói đã đặt */}
                         {vipGroupCount > 0 && (
                             <button
                                 onClick={() => setIsCartOpen(true)}
-                                className="relative w-9 h-9 rounded-full bg-[#e6c487]/15 border border-[#e6c487]/30 flex items-center justify-center hover:bg-[#e6c487]/25 transition-colors"
+                                className="relative w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-[#e6c487]/15 border border-[#e6c487]/30 flex items-center justify-center hover:bg-[#e6c487]/25 transition-colors"
                             >
                                 <span className="text-[#e6c487] font-black text-sm">{vipGroupCount}</span>
                                 {/* Pulse indicator */}
@@ -210,7 +269,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                         {step === 'STAFF' && onSwitchToStandard ? (
                             <button
                                 onClick={onSwitchToStandard}
-                                className="text-[10px] font-bold text-[#d0c5b5] tracking-wider px-3 py-1.5 rounded-full border border-[#4d463a]/50 hover:bg-white/5 transition-colors"
+                                className="text-[10px] font-bold text-[#d0c5b5] tracking-wider px-3 py-1.5 rounded-full border border-[#4d463a]/50 hover:bg-white/5 transition-colors whitespace-nowrap"
                             >
                                 ☰ MENU
                             </button>
