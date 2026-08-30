@@ -417,7 +417,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                                     {tags.length > 0 && (
                                                         <div className="flex justify-end gap-2">
                                                             {tags.map(tag => (
-                                                                <span key={tag} className="bg-[#C9A96E]/20 text-[#C9A96E] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
+                                                                <span key={tag} className="bg-transparent text-[#C9A96E] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
                                                                     {tag}
                                                                 </span>
                                                             ))}

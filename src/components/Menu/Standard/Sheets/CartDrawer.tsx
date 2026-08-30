@@ -153,17 +153,17 @@ const CustomizationSummary = ({ item, lang, onClick }: { item: CartItem & { tota
                 <div className="space-y-2 pt-1 border-t border-white/5">
                     <div className="flex flex-wrap justify-end gap-2">
                         {options.notes?.tag0 && (
-                            <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-white/10">
+                            <span className="bg-transparent text-[#C9A96E] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-white/10">
                                 {item.TAGS?.[0] ? (item.TAGS[0][lang as keyof typeof item.TAGS[0]] || item.TAGS[0].vi || item.TAGS[0].vn || item.TAGS[0].en) : dict.tags?.pregnant}
                             </span>
                         )}
                         {options.notes?.tag1 && (
-                            <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-white/10">
+                            <span className="bg-transparent text-[#C9A96E] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-white/10">
                                 {item.TAGS?.[1] ? (item.TAGS[1][lang as keyof typeof item.TAGS[1]] || item.TAGS[1].vi || item.TAGS[1].vn || item.TAGS[1].en) : dict.tags?.allergy}
                             </span>
                         )}
                         {options.notes?.privateRoom && (
-                            <span className="bg-[#C9A96E]/20 text-[#F2C96B] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-white/10">
+                            <span className="bg-transparent text-[#F2C96B] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-white/10">
                                 {lang === 'vi' ? 'Phòng riêng' : 'Private room'}
                             </span>
                         )}

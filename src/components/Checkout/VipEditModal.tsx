@@ -472,7 +472,7 @@ const VipEditModal = ({ item, isOpen, onClose, onSave, lang }: VipEditModalProps
                                         {selectedSkillIds.map(id => {
                                             const skill = SKILL_MAP[id];
                                             return (
-                                                <span key={id} className="text-xs px-2.5 py-1 rounded-full bg-[#e6c487]/15 text-[#e6c487] border border-[#e6c487]/30 font-medium">
+                                                <span key={id} className="text-xs px-2.5 py-1 rounded-full bg-transparent text-[#e6c487] border border-[#e6c487]/30 font-medium">
                                                     {skill ? getSkillName(skill, vipLang) : id}
                                                 </span>
                                             );
