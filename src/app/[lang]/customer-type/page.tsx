@@ -1,7 +1,7 @@
 /* File: src/app/[lang]/customer-type/page.tsx */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import { ArrowRight, X, Loader2, ArrowLeft, History, Search, Phone, Calendar } from "lucide-react";
 import { languages } from "../../(intro)/LanguageSelector.lang";
@@ -27,6 +27,11 @@ export default function CustomerTypePage() {
   const pathname = usePathname();
   const lang = (params?.lang as string) || "en";
   const [inputValue, setInputValue] = useState("");
+
+  useEffect(() => {
+    // BYPASS CustomerType & SelectMenu -> Go straight to Standard Menu
+    router.replace(`/${lang}/new-user/standard/menu`);
+  }, [lang, router]);
 
   const handleLanguageChange = (newLang: string) => {
     // Replace the current language in the pathname

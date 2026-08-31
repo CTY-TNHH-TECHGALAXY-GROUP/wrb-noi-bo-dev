@@ -15,7 +15,7 @@ export type BookingTranslationKey =
   // Confirm
   | 'btn_confirm' | 'btn_back' | 'btn_next' | 'error_incomplete' | 'error_agree_terms'
   // Success
-  | 'success_title' | 'success_greeting' | 'success_desc' | 'btn_home';
+  | 'success_title' | 'success_greeting' | 'success_desc' | 'btn_home' | 'btn_view_invoice' | 'btn_hide_invoice';
 
 export const bookingTranslations: Record<string, Record<BookingTranslationKey, string>> = {
   en: {
@@ -52,6 +52,8 @@ export const bookingTranslations: Record<string, Record<BookingTranslationKey, s
     success_greeting: 'Thank you, {name}!',
     success_desc: 'We have received your appointment.',
     btn_home: 'Return Home',
+    btn_view_invoice: 'Show Invoice',
+    btn_hide_invoice: 'Hide Invoice',
   },
   vi: {
     step_info_title: 'Thông Tin Khách',
@@ -87,6 +89,8 @@ export const bookingTranslations: Record<string, Record<BookingTranslationKey, s
     success_greeting: 'Cảm ơn {name}!',
     success_desc: 'Chúng tôi đã nhận được thông tin hẹn của bạn.',
     btn_home: 'Về Trang Chủ',
+    btn_view_invoice: 'Xem chi tiết hoá đơn',
+    btn_hide_invoice: 'Ẩn hoá đơn',
   },
   kr: {
     step_info_title: '고객 정보',
@@ -122,6 +126,8 @@ export const bookingTranslations: Record<string, Record<BookingTranslationKey, s
     success_greeting: '감사합니다, {name}님!',
     success_desc: '예약 정보를 받았습니다.',
     btn_home: '홈으로 돌아가기',
+    btn_view_invoice: '영수증 보기',
+    btn_hide_invoice: '영수증 숨기기',
   },
   jp: {
     step_info_title: 'お客様情報',
@@ -157,6 +163,8 @@ export const bookingTranslations: Record<string, Record<BookingTranslationKey, s
     success_greeting: 'ありがとうございます、{name}様！',
     success_desc: 'ご予約を承りました。',
     btn_home: 'ホームに戻る',
+    btn_view_invoice: '請求書を表示',
+    btn_hide_invoice: '請求書を隠す',
   },
   cn: {
     step_info_title: '客户信息',
@@ -192,6 +200,8 @@ export const bookingTranslations: Record<string, Record<BookingTranslationKey, s
     success_greeting: '谢谢您，{name}！',
     success_desc: '我们已收到您的预约信息。',
     btn_home: '返回首页',
+    btn_view_invoice: '查看发票',
+    btn_hide_invoice: '隐藏发票',
   }
   // Thêm các ngôn ngữ khác nếu cần (jp, kr, cn)
 };

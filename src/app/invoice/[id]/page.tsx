@@ -107,7 +107,7 @@ export default function InvoicePrintPage() {
                         if (window.history.length > 1) {
                             window.history.back();
                         } else {
-                            window.location.href = `/${lang}/customer-type`;
+                            window.location.href = `/${lang}/new-user/standard/menu`;
                         }
                     }}
                     className="flex items-center gap-2 bg-gray-900/80 hover:bg-black text-white px-4 py-2.5 rounded-full font-medium transition-all shadow-lg backdrop-blur-md active:scale-95"

@@ -15,8 +15,12 @@ export default function SelectMenuPage({ params }: { params: Promise<{ lang: str
 
     // Lấy lang từ params
     useEffect(() => {
-        params.then((p) => setLang(p.lang));
-    }, [params]);
+        params.then((p) => {
+            setLang(p.lang);
+            // BYPASS SelectMenu -> Go straight to Standard Menu
+            router.replace(`/${p.lang}/new-user/standard/menu`);
+        });
+    }, [params, router]);
 
     // Hàm xử lý khi user chọn gói
     const handleSelectMenu = (type: string) => {

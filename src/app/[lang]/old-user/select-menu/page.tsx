@@ -9,8 +9,12 @@ export default function OldUserSelectMenuPage({ params }: { params: Promise<{ la
     const [lang, setLang] = useState("en");
 
     useEffect(() => {
-        params.then((p) => setLang(p.lang));
-    }, [params]);
+        params.then((p) => {
+            setLang(p.lang);
+            // BYPASS SelectMenu -> Go straight to Standard Menu
+            router.replace(`/${p.lang}/old-user/standard/menu`);
+        });
+    }, [params, router]);
 
     const handleSelectMenu = (type: string) => {
         localStorage.setItem('selected_menu_type', type);

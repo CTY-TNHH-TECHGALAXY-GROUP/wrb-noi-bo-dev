@@ -53,6 +53,7 @@ export default function BookingConfirmModal({
 }: BookingConfirmModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [showInvoice, setShowInvoice] = useState(true);
     const t = getBookingT(lang);
 
     if (!isOpen) return null;
@@ -75,7 +76,7 @@ export default function BookingConfirmModal({
     const handleDone = () => {
         if (clearCart) clearCart();
         if (resetCustomerInfo) resetCustomerInfo();
-        window.location.href = `/${lang}/customer-type`;
+        window.location.href = `/${lang}/new-user/standard/menu`;
     };
 
     if (success) {
@@ -99,51 +100,60 @@ export default function BookingConfirmModal({
                         {t.success_desc}
                     </p>
 
-                    <div className="bg-[#0d0d0d] border border-[#C9A96E]/30 rounded-2xl p-5 space-y-4 w-full text-left max-h-[45vh] overflow-y-auto custom-scrollbar">
-                        <div className="flex flex-col gap-3 border-b border-white/10 pb-4">
-                            <div className="flex items-center gap-2 text-[#C9A96E] font-bold text-lg">
-                                <Calendar size={20} />
-                                <span>{appointmentDate} | {timeSlot}</span>
-                            </div>
-                            <div className="flex justify-between text-base text-white">
-                                <span className="text-gray-400">{dict.checkout?.name || 'Name'}</span>
-                                <span className="font-bold">{customerInfo.name}</span>
-                            </div>
-                            {customerInfo.phone && (
-                                <div className="flex justify-between text-base text-white">
-                                    <span className="text-gray-400">{dict.checkout?.phone || 'Phone'}</span>
-                                    <span className="font-bold">{customerInfo.phone}</span>
-                                </div>
-                            )}
-                            {customerInfo.email && (
-                                <div className="flex justify-between text-base text-white">
-                                    <span className="text-gray-400">{(dict.checkout?.email || 'Email').split('(')[0].trim()}</span>
-                                    <span className="font-bold">{customerInfo.email}</span>
-                                </div>
-                            )}
-                        </div>
+                    <button 
+                        onClick={() => setShowInvoice(!showInvoice)}
+                        className="text-[#C9A96E] text-sm font-medium hover:underline flex items-center justify-center gap-1 mt-2 border border-[#C9A96E]/30 px-4 py-2 rounded-full hover:bg-[#C9A96E]/10 transition-colors"
+                    >
+                        {showInvoice ? t.btn_hide_invoice : t.btn_view_invoice}
+                    </button>
 
-                        <div className="space-y-4">
-                            {cart.map((item, idx) => {
-                                const isVipItem = item.itemType === 'vip';
-                                return (
-                                    <div key={item.cartId} className="flex justify-between items-start text-base">
-                                        <div className="text-white pr-2">
-                                            {idx + 1}. {isVipItem ? (item.vipDisplayName || 'VIP Bespoke') : (item.names[lang] || item.names.en)} {item.qty > 1 && <span className="text-[#C9A96E]">(x{item.qty})</span>}
-                                        </div>
-                                        <div className="font-bold text-[#C9A96E] whitespace-nowrap">
-                                            {formatCurrency(item.priceVND * item.qty)} VND
-                                        </div>
+                    {showInvoice && (
+                        <div className="bg-[#0d0d0d] border border-[#C9A96E]/30 rounded-2xl p-5 space-y-4 w-full text-left max-h-[45vh] overflow-y-auto custom-scrollbar animate-in slide-in-from-top-4 fade-in duration-200">
+                            <div className="flex flex-col gap-3 border-b border-white/10 pb-4">
+                                <div className="flex items-center gap-2 text-[#C9A96E] font-bold text-lg">
+                                    <Calendar size={20} />
+                                    <span>{appointmentDate} | {timeSlot}</span>
+                                </div>
+                                <div className="flex justify-between text-base text-white">
+                                    <span className="text-gray-400">{dict.checkout?.name || 'Name'}</span>
+                                    <span className="font-bold">{customerInfo.name}</span>
+                                </div>
+                                {customerInfo.phone && (
+                                    <div className="flex justify-between text-base text-white">
+                                        <span className="text-gray-400">{dict.checkout?.phone || 'Phone'}</span>
+                                        <span className="font-bold">{customerInfo.phone}</span>
                                     </div>
-                                );
-                            })}
+                                )}
+                                {customerInfo.email && (
+                                    <div className="flex justify-between text-base text-white">
+                                        <span className="text-gray-400">{(dict.checkout?.email || 'Email').split('(')[0].trim()}</span>
+                                        <span className="font-bold">{customerInfo.email}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="space-y-4">
+                                {cart.map((item, idx) => {
+                                    const isVipItem = item.itemType === 'vip';
+                                    return (
+                                        <div key={item.cartId} className="flex justify-between items-start text-base">
+                                            <div className="text-white pr-2">
+                                                {idx + 1}. {isVipItem ? (item.vipDisplayName || 'VIP Bespoke') : (item.names[lang] || item.names.en)} {item.qty > 1 && <span className="text-[#C9A96E]">(x{item.qty})</span>}
+                                            </div>
+                                            <div className="font-bold text-[#C9A96E] whitespace-nowrap">
+                                                {formatCurrency(item.priceVND * item.qty)} VND
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            
+                            <div className="border-t border-white/10 pt-4 flex justify-between items-center text-base">
+                                <span className="text-gray-400">{dict.checkout?.total_bill || 'Total'}</span>
+                                <span className="font-bold text-[#C9A96E] text-2xl">{formatCurrency(totalVND)} VND</span>
+                            </div>
                         </div>
-                        
-                        <div className="border-t border-white/10 pt-4 flex justify-between items-center text-base">
-                            <span className="text-gray-400">{dict.checkout?.total_bill || 'Total'}</span>
-                            <span className="font-bold text-[#C9A96E] text-2xl">{formatCurrency(totalVND)} VND</span>
-                        </div>
-                    </div>
+                    )}
 
                     <button
                         onClick={handleDone}
