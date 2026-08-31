@@ -73,7 +73,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
 
                         // Fallbacks for restored items from history
                         const vipDisplayName  = item.vipDisplayName || (item.options as any)?.displayName || 'VIP Bespoke';
-                        const vipDuration     = item.vipDuration    || (item.options as any)?.vipDuration    || item.timeValue || 60;
+                        const vipDuration     = item.vipDuration ?? (item.options as any)?.vipDuration ?? item.timeValue ?? 60;
                         // Hiển thị MÃ nhân viên (NH014) — đây là primary key dạng text của bảng Staff
                         const vipStaffDisplay = item.vipStaffId     || (item.options as any)?.vipStaffId       || 'KTV';
                         const vipSkillIds     = item.vipSkillIds    || (item.options as any)?.selectedSkills   || [];

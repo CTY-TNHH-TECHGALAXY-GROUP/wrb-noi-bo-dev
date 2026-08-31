@@ -14,6 +14,26 @@ export default function MenuPage() {
     const pathname = usePathname();
     const router = useRouter();
 
+    // Catch Auto-fill từ Web Quản Trị Dispatch Board
+    useEffect(() => {
+        if (window.location.search) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const preBookingId = urlParams.get('preBookingId');
+            if (preBookingId) {
+                localStorage.setItem('contactedFirstInfo', JSON.stringify({
+                    preBookingId,
+                    customerName: urlParams.get('name') || '',
+                    customerPhone: urlParams.get('phone') || '',
+                    customerEmail: urlParams.get('email') || '',
+                    guestCount: Number(urlParams.get('guests')) || 1,
+                    notes: urlParams.get('notes') || ''
+                }));
+                // Xoá param trên thanh địa chỉ cho sạch (Next.js way)
+                router.replace(window.location.pathname, { scroll: false });
+            }
+        }
+    }, [router]);
+
     // URL dạng: /en/new-user/standard/menu
     // -> lang = "en"
     // -> menuType = "standard"

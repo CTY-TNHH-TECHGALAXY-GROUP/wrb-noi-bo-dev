@@ -221,7 +221,7 @@ export async function POST(request: Request) {
                     const uniqueSkillNames = [...new Set(skillNames)];
                     const vnDisplayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
                     
-                    notifMessage += `- ${vnDisplayName} (${item.vipDuration || 60}p)${ktv}\n`;
+                    notifMessage += `- ${vnDisplayName} (${item.vipDuration ?? 60}p)${ktv}\n`;
                     if (item.vipCustomerNotes && item.vipCustomerNotes.trim()) {
                         notifMessage += `  📝 Ghi chú: ${item.vipCustomerNotes.trim()}\n`;
                     }

@@ -99,7 +99,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
     const handleTabletReset = () => {
         // Reset tablet to home page for next customer
-        window.location.href = '/';
+        window.location.href = `/${lang}/customer-type`;
     };
 
     // Auto-redirect effect

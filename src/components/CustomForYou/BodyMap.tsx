@@ -30,7 +30,7 @@ type SvgShape =
     | { type: 'rect'; x: number; y: number; width: number; height: number; rx: number }
     | { type: 'path'; d: string }; // Arc/crescent shapes
 
-const BODY_SVG: Record<BodyPartKey, SvgShape[]> = {
+const BODY_SVG: Record<string, SvgShape[]> = {
     HEAD: [{ type: 'circle', cx: 60, cy: 20, r: 16 }],
     NECK: [{ type: 'rect', x: 53.5, y: 33.5, width: 14, height: 18, rx: 4 }],
     SHOULDER: [
@@ -193,13 +193,13 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                             else if (isAvoid) { fill = SVG_CONFIG.avoidFill; stroke = SVG_CONFIG.avoidStroke; filterId = 'glow-red'; }
                         }
 
-                        const shapes = BODY_SVG[part.key];
+                        const shapes = BODY_SVG[partKey] || [];
                         const handleClick = isAvailable
-                            ? () => onToggle('focus', part.key)
+                            ? () => onToggle('focus', partKey)
                             : undefined;
 
                         return shapes.map((shape, i) =>
-                            renderShape(shape, fill, stroke, filterId, `${part.key}-${i}`, handleClick)
+                            renderShape(shape, fill, stroke, filterId, `${partKey}-${i}`, handleClick)
                         );
                     })}
                 </svg>
@@ -226,7 +226,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
 
                         return (
                             <div
-                                key={part.key}
+                                key={partKey}
                                 className={`w-full flex items-center px-1 border-b border-transparent py-[6px] sm:py-2 ${isAvailable
                                     ? 'hover:bg-white/5 rounded transition-colors justify-between'
                                     : 'pointer-events-none opacity-20 grayscale'

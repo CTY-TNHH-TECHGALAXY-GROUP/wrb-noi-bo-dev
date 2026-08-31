@@ -280,7 +280,7 @@ export function useJourneyRealtime(bookingId: string, guestId?: string) {
                     tipAmount: booking.tipAmount || null,
                     staffName: '',
                     staffAvatar: '',
-                    totalDuration: totalDuration || 60,
+                    totalDuration: totalDuration ?? 60,
                     items: processedItems,
                     roomName: booking.roomName || null,
                     bedId: booking.bedId || null
