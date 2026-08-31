@@ -1,28 +1,28 @@
-import React from 'react';
+﻿import React from 'react';
 import { Check, X } from 'lucide-react';
 import { BodyPartKey, LanguageCode, MultiLangText, ServiceData } from './types';
 import { getText } from './utils';
 
 // ============================================================================
-// 🔧 UI CONFIGURATION — Chỉnh màu sắc tại đây
+// ðŸ”§ UI CONFIGURATION â€” Chá»‰nh mÃ u sáº¯c táº¡i Ä‘Ã¢y
 // ============================================================================
 const SVG_CONFIG = {
     viewBox: '5 3 110 264',
-    containerBg: '#0d0d0d',          // Nền hộp SVG: Đen trùng nền tổng
-    defaultFill: '#1c1c1e',          // Chưa chọn: Đen nhạt
-    defaultStroke: '#3f3f46',        // Chưa chọn: Viền xám tối
-    focusFill: '#166534',          // Tập trung: fill xanh sẫm
-    focusStroke: '#22c55e',          // Tập trung: viền xanh lá
-    avoidFill: '#7f1d1d',          // Tránh: fill đỏ sẫm
-    avoidStroke: '#ef4444',          // Tránh: viền đỏ tươi
-    disabledFill: '#000000',         // Vùng disable: Đen thui
-    disabledStroke: '#1c1c1e',       // Viền disable: Đen nhạt
+    containerBg: '#0d0d0d',          // Ná»n há»™p SVG: Äen trÃ¹ng ná»n tá»•ng
+    defaultFill: '#1c1c1e',          // ChÆ°a chá»n: Äen nháº¡t
+    defaultStroke: '#3f3f46',        // ChÆ°a chá»n: Viá»n xÃ¡m tá»‘i
+    focusFill: '#166534',          // Táº­p trung: fill xanh sáº«m
+    focusStroke: '#22c55e',          // Táº­p trung: viá»n xanh lÃ¡
+    avoidFill: '#7f1d1d',          // TrÃ¡nh: fill Ä‘á» sáº«m
+    avoidStroke: '#ef4444',          // TrÃ¡nh: viá»n Ä‘á» tÆ°Æ¡i
+    disabledFill: '#000000',         // VÃ¹ng disable: Äen thui
+    disabledStroke: '#1c1c1e',       // Viá»n disable: Äen nháº¡t
     strokeWidth: 1.8,
-    shoulderStrokeWidth: 4,          // Độ mảnh nét vai (chỉnh tại đây)
+    shoulderStrokeWidth: 4,          // Äá»™ máº£nh nÃ©t vai (chá»‰nh táº¡i Ä‘Ã¢y)
 };
 
 // ============================================================================
-// 📐 BODY SVG SHAPES — Tọa độ từng bộ phận (viewBox 120x270)
+// ðŸ“ BODY SVG SHAPES â€” Tá»a Ä‘á»™ tá»«ng bá»™ pháº­n (viewBox 120x270)
 // ============================================================================
 type SvgShape =
     | { type: 'circle'; cx: number; cy: number; r: number }
@@ -34,29 +34,29 @@ const BODY_SVG: Record<string, SvgShape[]> = {
     HEAD: [{ type: 'circle', cx: 60, cy: 20, r: 16 }],
     NECK: [{ type: 'rect', x: 53.5, y: 33.5, width: 14, height: 18, rx: 4 }],
     SHOULDER: [
-        { type: 'path', d: 'M 32,55 Q 12,55 14,75' },              // Vai trái
-        { type: 'path', d: 'M 88,55 Q 108,55 106,75' },           // Vai phải
+        { type: 'path', d: 'M 32,55 Q 12,55 14,75' },              // Vai trÃ¡i
+        { type: 'path', d: 'M 88,55 Q 108,55 106,75' },           // Vai pháº£i
     ],
     ARM: [
-        { type: 'rect', x: 6, y: 76, width: 18, height: 65, rx: 9 },  // Tay trái
-        { type: 'rect', x: 96, y: 76, width: 18, height: 65, rx: 9 },  // Tay phải
+        { type: 'rect', x: 6, y: 76, width: 18, height: 65, rx: 9 },  // Tay trÃ¡i
+        { type: 'rect', x: 96, y: 76, width: 18, height: 65, rx: 9 },  // Tay pháº£i
     ],
-    BACK: [{ type: 'rect', x: 32, y: 52, width: 56, height: 92, rx: 9 }], // Thân
+    BACK: [{ type: 'rect', x: 32, y: 52, width: 56, height: 92, rx: 9 }], // ThÃ¢n
     THIGH: [
-        { type: 'rect', x: 33, y: 147, width: 24, height: 55, rx: 12 },   // Đùi trái
-        { type: 'rect', x: 63, y: 147, width: 24, height: 55, rx: 12 },   // Đùi phải
+        { type: 'rect', x: 33, y: 147, width: 24, height: 55, rx: 12 },   // ÄÃ¹i trÃ¡i
+        { type: 'rect', x: 63, y: 147, width: 24, height: 55, rx: 12 },   // ÄÃ¹i pháº£i
     ],
     KNEE: [
-        { type: 'ellipse', cx: 45, cy: 204, rx: 11, ry: 12 },             // Gối trái
-        { type: 'ellipse', cx: 75, cy: 204, rx: 11, ry: 12 },             // Gối phải
+        { type: 'ellipse', cx: 45, cy: 204, rx: 11, ry: 12 },             // Gá»‘i trÃ¡i
+        { type: 'ellipse', cx: 75, cy: 204, rx: 11, ry: 12 },             // Gá»‘i pháº£i
     ],
     CALF: [
-        { type: 'rect', x: 35, y: 205, width: 20, height: 45, rx: 10 },   // Bắp chân trái
-        { type: 'rect', x: 65, y: 205, width: 20, height: 45, rx: 10 },   // Bắp chân phải
+        { type: 'rect', x: 35, y: 205, width: 20, height: 45, rx: 10 },   // Báº¯p chÃ¢n trÃ¡i
+        { type: 'rect', x: 65, y: 205, width: 20, height: 45, rx: 10 },   // Báº¯p chÃ¢n pháº£i
     ],
     FOOT: [
-        { type: 'ellipse', cx: 43, cy: 258, rx: 14, ry: 8 },              // Bàn chân trái
-        { type: 'ellipse', cx: 77, cy: 258, rx: 14, ry: 8 },              // Bàn chân phải
+        { type: 'ellipse', cx: 43, cy: 258, rx: 14, ry: 8 },              // BÃ n chÃ¢n trÃ¡i
+        { type: 'ellipse', cx: 77, cy: 258, rx: 14, ry: 8 },              // BÃ n chÃ¢n pháº£i
     ],
 };
 
@@ -86,7 +86,7 @@ interface BodyMapProps {
     onToggle: (type: 'focus' | 'avoid', area: string) => void;
 }
 
-// Helper: render từng SVG shape
+// Helper: render tá»«ng SVG shape
 const renderShape = (
     shape: SvgShape,
     fill: string,
@@ -135,7 +135,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
     return (
         <div className="flex gap-2 sm:gap-4 items-stretch min-h-[500px] sm:min-h-[580px] md:min-h-[620px]">
 
-            {/* CỘT TRÁI: Nút Toàn Thân */}
+            {/* Cá»˜T TRÃI: NÃºt ToÃ n ThÃ¢n */}
             {showFullBodyShortcut && (
                 <div className="w-[12%] sm:w-[12%] flex flex-col items-center justify-center pr-2">
                     <label className="flex flex-col items-center justify-center cursor-pointer bg-[#1c1c1e] p-1.5 sm:p-2 rounded-xl border border-white/5 transition-all hover:border-white/15 active:scale-95 shadow-sm py-3 sm:py-4 w-full h-[110px] sm:h-[130px]">
@@ -144,13 +144,13 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                             <input type="checkbox" className="hidden" checked={isFullBody} onChange={handleFullBodyToggle} />
                         </div>
                         <span className={`text-[11px] sm:text-[13px] md:text-[15px] font-bold uppercase leading-tight text-center tracking-tight ${isFullBody ? 'text-[#C9A96E]' : 'text-gray-400'}`}>
-                            {getText({ en: 'Whole\nBody', vi: 'Toàn\nThân', jp: '全身', kr: '전신', cn: '全身' }, lang)}
+                            {getText({ en: 'Whole\nBody', vi: 'ToÃ n\nThÃ¢n', jp: 'å…¨èº«', kr: 'ì „ì‹ ', cn: 'å…¨èº«' }, lang)}
                         </span>
                     </label>
                 </div>
             )}
 
-            {/* CỘT GIỮA: SVG Body Figure */}
+            {/* Cá»˜T GIá»®A: SVG Body Figure */}
             <div
                 className={`${showFullBodyShortcut ? 'w-[40%] sm:w-[42%]' : 'w-[42%] sm:w-[43%]'} self-stretch relative flex items-center justify-center pl-2 rounded-xl overflow-hidden`}
                 style={{ backgroundColor: SVG_CONFIG.containerBg, border: '1px solid rgba(255,255,255,0.05)' }}
@@ -178,7 +178,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                         </filter>
                     </defs>
 
-                    {/* Render từng bộ phận */}
+                    {/* Render tá»«ng bá»™ pháº­n */}
                     {visibleBodyParts.map(part => {
                         const isAvailable = availableParts.find(p => p.key === part.key);
                         const isFocus = focus.includes(part.key);
@@ -193,28 +193,28 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                             else if (isAvoid) { fill = SVG_CONFIG.avoidFill; stroke = SVG_CONFIG.avoidStroke; filterId = 'glow-red'; }
                         }
 
-                        const shapes = BODY_SVG[partKey] || [];
+                        const shapes = BODY_SVG[part.key] || [];
                         const handleClick = isAvailable
-                            ? () => onToggle('focus', partKey)
+                            ? () => onToggle('focus', part.key)
                             : undefined;
 
                         return shapes.map((shape, i) =>
-                            renderShape(shape, fill, stroke, filterId, `${partKey}-${i}`, handleClick)
+                            renderShape(shape, fill, stroke, filterId, `${part.key}-${i}`, handleClick)
                         );
                     })}
                 </svg>
             </div>
 
-            {/* CỘT PHẢI: Bảng Checklist */}
+            {/* Cá»˜T PHáº¢I: Báº£ng Checklist */}
             <div className={`${showFullBodyShortcut ? 'w-[48%] sm:w-[46%]' : 'w-[58%] sm:w-[57%]'} flex flex-col pl-2 self-stretch justify-center`}>
                 <div
                     className="flex flex-row items-center text-sm sm:text-base md:text-lg font-bold uppercase tracking-tight pb-3 border-b border-white/10 flex-none mb-3 sm:mb-4 pt-0"
                     style={{ marginRight: LAYOUT_CONFIG.checklist.paddingRight }}
                 >
-                    <span className="text-[#C9A96E]/80 flex-1">{getText({ en: 'Area', vi: 'Vị trí', jp: '部位', kr: '부위', cn: '区域' }, lang)}</span>
+                    <span className="text-[#C9A96E]/80 flex-1">{getText({ en: 'Area', vi: 'Vá»‹ trÃ­', jp: 'éƒ¨ä½', kr: 'ë¶€ìœ„', cn: 'åŒºåŸŸ' }, lang)}</span>
                     <div className="flex justify-end gap-4 sm:gap-5 w-[132px] sm:w-[156px]">
-                        <span className="text-green-500 w-14 sm:w-16 text-center">{getText({ en: 'Focus', vi: 'Tập\ntrung', jp: '集中', kr: '집중', cn: '重点' }, lang)}</span>
-                        <span className="text-red-500 w-14 sm:w-16 text-center">{getText({ en: 'Avoid', vi: 'Tránh', jp: '避ける', kr: '피하다', cn: '避开' }, lang)}</span>
+                        <span className="text-green-500 w-14 sm:w-16 text-center">{getText({ en: 'Focus', vi: 'Táº­p\ntrung', jp: 'é›†ä¸­', kr: 'ì§‘ì¤‘', cn: 'é‡ç‚¹' }, lang)}</span>
+                        <span className="text-red-500 w-14 sm:w-16 text-center">{getText({ en: 'Avoid', vi: 'TrÃ¡nh', jp: 'é¿ã‘ã‚‹', kr: 'í”¼í•˜ë‹¤', cn: 'é¿å¼€' }, lang)}</span>
                     </div>
                 </div>
 
@@ -226,7 +226,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
 
                         return (
                             <div
-                                key={partKey}
+                                key={part.key}
                                 className={`w-full flex items-center px-1 border-b border-transparent py-[6px] sm:py-2 ${isAvailable
                                     ? 'hover:bg-white/5 rounded transition-colors justify-between'
                                     : 'pointer-events-none opacity-20 grayscale'
@@ -236,20 +236,20 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                     <>
                                         <span className={`text-lg sm:text-2xl md:text-[28px] flex-1 truncate font-semibold ${isFocus ? 'text-green-400' : isAvoid ? 'text-red-400' : 'text-gray-300'}`}>
                                             {getText({
-                                                HEAD: { en: 'Head', vi: 'Đầu', jp: '頭', kr: '머리', cn: '头' },
-                                                NECK: { en: 'Neck', vi: 'Cổ', jp: '首', kr: '목', cn: '颈部' },
-                                                SHOULDER: { en: 'Shoulder', vi: 'Vai', jp: '肩', kr: '어깨', cn: '肩部' },
-                                                ARM: { en: 'Arm', vi: 'Tay', jp: '腕', kr: '팔', cn: '手臂' },
-                                                BACK: { en: 'Back', vi: 'Lưng', jp: '背中', kr: '등', cn: '背部' },
-                                                THIGH: { en: 'Thigh', vi: 'Đùi', jp: '太もも', kr: '허벅지', cn: '大腿' },
-                                                KNEE: { en: 'Knee', vi: 'Gối', jp: '膝', kr: '무릎', cn: '膝盖' },
-                                                CALF: { en: 'Calf', vi: 'Bắp chân', jp: 'ふくらはぎ', kr: '종아리', cn: '小腿' },
-                                                FOOT: { en: 'Foot', vi: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
+                                                HEAD: { en: 'Head', vi: 'Äáº§u', jp: 'é ­', kr: 'ë¨¸ë¦¬', cn: 'å¤´' },
+                                                NECK: { en: 'Neck', vi: 'Cá»•', jp: 'é¦–', kr: 'ëª©', cn: 'é¢ˆéƒ¨' },
+                                                SHOULDER: { en: 'Shoulder', vi: 'Vai', jp: 'è‚©', kr: 'ì–´ê¹¨', cn: 'è‚©éƒ¨' },
+                                                ARM: { en: 'Arm', vi: 'Tay', jp: 'è…•', kr: 'íŒ”', cn: 'æ‰‹è‡‚' },
+                                                BACK: { en: 'Back', vi: 'LÆ°ng', jp: 'èƒŒä¸­', kr: 'ë“±', cn: 'èƒŒéƒ¨' },
+                                                THIGH: { en: 'Thigh', vi: 'ÄÃ¹i', jp: 'å¤ªã‚‚ã‚‚', kr: 'í—ˆë²…ì§€', cn: 'å¤§è…¿' },
+                                                KNEE: { en: 'Knee', vi: 'Gá»‘i', jp: 'è†', kr: 'ë¬´ë¦Ž', cn: 'è†ç›–' },
+                                                CALF: { en: 'Calf', vi: 'Báº¯p chÃ¢n', jp: 'ãµãã‚‰ã¯ãŽ', kr: 'ì¢…ì•„ë¦¬', cn: 'å°è…¿' },
+                                                FOOT: { en: 'Foot', vi: 'BÃ n chÃ¢n', jp: 'è¶³', kr: 'ë°œ', cn: 'è„š' },
                                             }[part.key] as MultiLangText, lang)}
                                         </span>
 
                                         <div className="flex items-center justify-end gap-4 sm:gap-5 w-[132px] sm:w-[156px]">
-                                            {/* Focus Checkbox (Xanh) — icon ✓ */}
+                                            {/* Focus Checkbox (Xanh) â€” icon âœ“ */}
                                             <label className="relative flex items-center justify-center cursor-pointer w-14 sm:w-16">
                                                 <input
                                                     type="checkbox"
@@ -260,7 +260,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                                 <Check className="absolute w-6 h-6 sm:w-7 sm:h-7 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" strokeWidth={3} />
                                             </label>
 
-                                            {/* Avoid Checkbox (Đỏ) — icon ✗ */}
+                                            {/* Avoid Checkbox (Äá») â€” icon âœ— */}
                                             <label className="relative flex items-center justify-center cursor-pointer w-14 sm:w-16">
                                                 <input
                                                     type="checkbox"
@@ -275,15 +275,15 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                 ) : (
                                     <span className="text-base sm:text-xl md:text-2xl text-[#3f3f46] flex-1 py-1">
                                         {getText({
-                                            HEAD: { en: 'Head', vi: 'Đầu', jp: '頭', kr: '머리', cn: '头' },
-                                            NECK: { en: 'Neck', vi: 'Cổ', jp: '首', kr: '목', cn: '颈部' },
-                                            SHOULDER: { en: 'Shoulder', vi: 'Vai', jp: '肩', kr: '어깨', cn: '肩部' },
-                                            ARM: { en: 'Arm', vi: 'Tay', jp: '腕', kr: '팔', cn: '手臂' },
-                                            BACK: { en: 'Back', vi: 'Lưng', jp: '背中', kr: '등', cn: '背部' },
-                                            THIGH: { en: 'Thigh', vi: 'Đùi', jp: '太もも', kr: '허벅지', cn: '大腿' },
-                                            KNEE: { en: 'Knee', vi: 'Gối', jp: '膝', kr: '무릎', cn: '膝盖' },
-                                            CALF: { en: 'Calf', vi: 'Bắp chân', jp: 'ふくらはぎ', kr: '종아리', cn: '小腿' },
-                                            FOOT: { en: 'Foot', vi: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
+                                            HEAD: { en: 'Head', vi: 'Äáº§u', jp: 'é ­', kr: 'ë¨¸ë¦¬', cn: 'å¤´' },
+                                            NECK: { en: 'Neck', vi: 'Cá»•', jp: 'é¦–', kr: 'ëª©', cn: 'é¢ˆéƒ¨' },
+                                            SHOULDER: { en: 'Shoulder', vi: 'Vai', jp: 'è‚©', kr: 'ì–´ê¹¨', cn: 'è‚©éƒ¨' },
+                                            ARM: { en: 'Arm', vi: 'Tay', jp: 'è…•', kr: 'íŒ”', cn: 'æ‰‹è‡‚' },
+                                            BACK: { en: 'Back', vi: 'LÆ°ng', jp: 'èƒŒä¸­', kr: 'ë“±', cn: 'èƒŒéƒ¨' },
+                                            THIGH: { en: 'Thigh', vi: 'ÄÃ¹i', jp: 'å¤ªã‚‚ã‚‚', kr: 'í—ˆë²…ì§€', cn: 'å¤§è…¿' },
+                                            KNEE: { en: 'Knee', vi: 'Gá»‘i', jp: 'è†', kr: 'ë¬´ë¦Ž', cn: 'è†ç›–' },
+                                            CALF: { en: 'Calf', vi: 'Báº¯p chÃ¢n', jp: 'ãµãã‚‰ã¯ãŽ', kr: 'ì¢…ì•„ë¦¬', cn: 'å°è…¿' },
+                                            FOOT: { en: 'Foot', vi: 'BÃ n chÃ¢n', jp: 'è¶³', kr: 'ë°œ', cn: 'è„š' },
                                         }[part.key] as MultiLangText, lang)}
                                     </span>
                                 )}

@@ -36,9 +36,8 @@ export default function BookingMenuPage({ params }: { params: Promise<{ lang: st
 
     // 5. LOGIC ĐIỀU PHỐI (ROUTING)
 
-    // Trường hợp 1: Menu Thường & Spa
     if (menuType === 'standard' || menuType === 'spa') {
-        return <StandardMenu lang={lang} menuType={menuType} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} />;
+        return <StandardMenu lang={lang} menuType={menuType} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} showHiddenServices={true} showEntryActions={menuType === 'standard'} showPickerBack={false} />;
     }
 
     // Trường hợp 2: Menu VIP (Premium)

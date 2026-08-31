@@ -1,20 +1,20 @@
-'use client';
+﻿'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, usePathname, useRouter, notFound } from 'next/navigation';
 
-// --- IMPORT 2 GIAO DIỆN LỚN ---
-// Tự động tìm file index.tsx trong thư mục tương ứng
+// --- IMPORT 2 GIAO DIá»†N Lá»šN ---
+// Tá»± Ä‘á»™ng tÃ¬m file index.tsx trong thÆ° má»¥c tÆ°Æ¡ng á»©ng
 import StandardMenu from '@/components/Menu/Standard';
 import PremiumMenu from '@/components/Menu/Premium';
 
 export default function MenuPage() {
-    // 1. Lấy tham số từ URL
+    // 1. Láº¥y tham sá»‘ tá»« URL
     const params = useParams();
     const pathname = usePathname();
     const router = useRouter();
 
-    // Catch Auto-fill từ Web Quản Trị Dispatch Board
+    // Catch Auto-fill tá»« Web Quáº£n Trá»‹ Dispatch Board
     useEffect(() => {
         if (window.location.search) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -28,31 +28,31 @@ export default function MenuPage() {
                     guestCount: Number(urlParams.get('guests')) || 1,
                     notes: urlParams.get('notes') || ''
                 }));
-                // Xoá param trên thanh địa chỉ cho sạch (Next.js way)
+                // XoÃ¡ param trÃªn thanh Ä‘á»‹a chá»‰ cho sáº¡ch (Next.js way)
                 router.replace(window.location.pathname, { scroll: false });
             }
         }
     }, [router]);
 
-    // URL dạng: /en/new-user/standard/menu
+    // URL dáº¡ng: /en/new-user/standard/menu
     // -> lang = "en"
     // -> menuType = "standard"
     const pathnameSegments = pathname?.split('/').filter(Boolean) || [];
     const menuType = (params.menuType as string) || pathnameSegments[2];
     const lang = (params.lang as string) || pathnameSegments[0] || 'en';
 
-    // 2. Hàm xử lý quay lại (truyền xuống cho con dùng)
+    // 2. HÃ m xá»­ lÃ½ quay láº¡i (truyá»n xuá»‘ng cho con dÃ¹ng)
     const handleBack = () => {
-        router.back(); // Quay lại trang trước đó (Galaxy hoặc Home)
+        router.back(); // Quay láº¡i trang trÆ°á»›c Ä‘Ã³ (Galaxy hoáº·c Home)
     };
 
-    // 3. Hàm xử lý Checkout
+    // 3. HÃ m xá»­ lÃ½ Checkout
     const handleCheckout = () => {
-        // Chuyển hướng sang trang checkout
+        // Chuyá»ƒn hÆ°á»›ng sang trang checkout
         router.push(`/${lang}/new-user/${menuType}/checkout`);
     };
 
-    // 4. Cross-menu navigation (cart giữ nguyên qua MenuContext)
+    // 4. Cross-menu navigation (cart giá»¯ nguyÃªn qua MenuContext)
     const handleSwitchToVip = () => {
         router.push(`/${lang}/new-user/vip/menu`);
     };
@@ -60,18 +60,18 @@ export default function MenuPage() {
         router.push(`/${lang}/new-user/standard/menu`);
     };
 
-    // 5. LOGIC ĐIỀU PHỐI (ROUTING)
+    // 5. LOGIC ÄIá»€U PHá»I (ROUTING)
 
-    // Trường hợp 1: Menu Thường & Spa
+    // TrÆ°á»ng há»£p 1: Menu ThÆ°á»ng & Spa
     if (menuType === 'standard' || menuType === 'spa') {
         return <StandardMenu lang={lang} menuType={menuType} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} showHiddenServices={true} showEntryActions={menuType === 'standard'} showPickerBack={false} />;
     }
 
-    // Trường hợp 2: Menu VIP (Premium)
+    // TrÆ°á»ng há»£p 2: Menu VIP (Premium)
     if (menuType === 'vip') {
         return <PremiumMenu lang={lang} isBookingFlow={false} onBack={handleBack} onCheckout={handleCheckout} onSwitchToStandard={handleSwitchToStandard} />;
     }
 
-    // Trường hợp 3: Người dùng nhập bậy bạ (vd: .../abc/menu) -> Trả về 404
+    // TrÆ°á»ng há»£p 3: NgÆ°á»i dÃ¹ng nháº­p báº­y báº¡ (vd: .../abc/menu) -> Tráº£ vá» 404
     return notFound();
 }
