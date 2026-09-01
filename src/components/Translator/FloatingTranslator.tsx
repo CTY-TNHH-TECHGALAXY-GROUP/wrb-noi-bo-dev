@@ -31,6 +31,7 @@ import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 
 export default function FloatingTranslator() {
+    const [mounted, setMounted] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [customerLang, setCustomerLang] = useState<LanguageMeta>(SUPPORTED_LANGUAGES[0]); // English default
@@ -55,9 +56,15 @@ export default function FloatingTranslator() {
     const [editText, setEditText] = useState('');
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const conversationIdRef = useRef<string>(
-        typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `conv-${Date.now()}`
-    );
+    const conversationIdRef = useRef<string>('');
+
+    useEffect(() => {
+        setMounted(true);
+        conversationIdRef.current =
+            typeof crypto !== 'undefined' && crypto.randomUUID
+                ? crypto.randomUUID()
+                : `conv-${Date.now()}`;
+    }, []);
 
     const { speak, stop: stopSpeech, isSpeaking } = useSpeechSynthesis();
 
@@ -303,6 +310,8 @@ export default function FloatingTranslator() {
                     : `conv-${Date.now()}`;
         }
     };
+
+    if (!mounted) return null;
 
     return (
         <>
