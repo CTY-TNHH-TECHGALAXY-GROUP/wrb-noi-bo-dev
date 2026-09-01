@@ -375,9 +375,6 @@ export default function FloatingTranslator() {
                                     <h3 className="font-bold text-sm text-[#e6c487]">
                                         Live Voice Interpreter
                                     </h3>
-                                    <p className="text-[11px] text-gray-400">
-                                        Lễ tân 🇻🇳 ↔ Khách {customerLang.flag} {customerLang.name}
-                                    </p>
                                 </div>
                             </div>
 
