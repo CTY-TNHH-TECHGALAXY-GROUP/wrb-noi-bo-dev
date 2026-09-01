@@ -364,11 +364,8 @@ export default function FloatingTranslator() {
                                     <Languages size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm text-[#e6c487] flex items-center gap-1.5">
+                                    <h3 className="font-bold text-sm text-[#e6c487]">
                                         Live Voice Interpreter
-                                        <span className="text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded-full uppercase font-bold">
-                                            Google Cloud
-                                        </span>
                                     </h3>
                                     <p className="text-[11px] text-gray-400">
                                         Lễ tân 🇻🇳 ↔ Khách {customerLang.flag} {customerLang.name}
