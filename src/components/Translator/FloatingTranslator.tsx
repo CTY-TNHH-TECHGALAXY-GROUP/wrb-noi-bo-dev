@@ -73,8 +73,11 @@ export default function FloatingTranslator() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isTranslating]);
 
+    const latestSpokenTextRef = useRef<string>('');
+
     // Handle speech recognition result
     const handleSpeechResult = (transcript: string, isFinal: boolean) => {
+        latestSpokenTextRef.current = transcript;
         if (!activeSpeaker) return;
         if (activeSpeaker === 'customer') {
             setCustomerText(transcript);
@@ -92,6 +95,7 @@ export default function FloatingTranslator() {
         startListening,
         stopListening,
         transcript: liveTranscript,
+        getLatestText,
     } = useSpeechRecognition({
         onResult: handleSpeechResult,
         onError: handleSpeechError,
@@ -101,6 +105,12 @@ export default function FloatingTranslator() {
     const handlePushToTalkStart = (speaker: 'customer' | 'receptionist') => {
         stopSpeech();
         setActiveSpeaker(speaker);
+        latestSpokenTextRef.current = '';
+        if (speaker === 'customer') {
+            setCustomerText('');
+        } else {
+            setReceptionistText('');
+        }
         const langCode =
             speaker === 'customer' ? customerLang.speechCode : receptionistLang.speechCode;
         startListening(langCode);
@@ -110,25 +120,33 @@ export default function FloatingTranslator() {
     const handlePushToTalkEnd = async () => {
         if (!activeSpeaker) return;
         const currentSpeaker = activeSpeaker;
-        const durationMs = stopListening();
+        const { durationMs, text } = stopListening();
         setActiveSpeaker(null);
 
-        const textToTranslate =
-            currentSpeaker === 'customer' ? customerText.trim() : receptionistText.trim();
+        // Small buffer to guarantee capturing the final speech segment
+        setTimeout(async () => {
+            const textToTranslate = (
+                text ||
+                latestSpokenTextRef.current ||
+                getLatestText() ||
+                (currentSpeaker === 'customer' ? customerText : receptionistText)
+            ).trim();
 
-        if (textToTranslate) {
-            await executeTranslation({
-                text: textToTranslate,
-                sender: currentSpeaker,
-                durationMs,
-            });
+            if (textToTranslate) {
+                await executeTranslation({
+                    text: textToTranslate,
+                    sender: currentSpeaker,
+                    durationMs,
+                });
 
-            if (currentSpeaker === 'customer') {
-                setCustomerText('');
-            } else {
-                setReceptionistText('');
+                if (currentSpeaker === 'customer') {
+                    setCustomerText('');
+                } else {
+                    setReceptionistText('');
+                }
+                latestSpokenTextRef.current = '';
             }
-        }
+        }, 80);
     };
 
     // Execute translation via Backend Next.js API

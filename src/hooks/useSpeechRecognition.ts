@@ -4,17 +4,25 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { SpeechState } from '@/types/translation';
 
 interface UseSpeechRecognitionProps {
-    onResult: (transcript: string, isFinal: boolean) => void;
+    onResult?: (transcript: string, isFinal: boolean) => void;
     onError?: (error: string) => void;
+    onFinalResult?: (finalTranscript: string, durationMs: number) => void;
 }
 
-export function useSpeechRecognition({ onResult, onError }: UseSpeechRecognitionProps) {
+export function useSpeechRecognition({
+    onResult,
+    onError,
+    onFinalResult,
+}: UseSpeechRecognitionProps = {}) {
     const [state, setState] = useState<SpeechState>('idle');
     const [transcript, setTranscript] = useState('');
     const [isSupported, setIsSupported] = useState(true);
+
     const recognitionRef = useRef<any>(null);
     const isListeningRef = useRef(false);
     const startTimeRef = useRef<number>(0);
+    const latestTranscriptRef = useRef<string>('');
+    const accumulatedFinalRef = useRef<string>('');
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -38,16 +46,16 @@ export function useSpeechRecognition({ onResult, onError }: UseSpeechRecognition
 
             if (!SpeechRecognition) {
                 setIsSupported(false);
-                onError?.('Trình duyệt của bạn chưa hỗ trợ nhận diện giọng nói (Web Speech API).');
+                onError?.('Trình duyệt chưa hỗ trợ nhận diện giọng nói (Web Speech API). Hãy dùng Chrome/Safari.');
                 return;
             }
 
-            // If already listening, stop first
+            // Abort previous instance if any
             if (recognitionRef.current) {
                 try {
                     recognitionRef.current.abort();
                 } catch (e) {
-                    // Ignore abort error
+                    // Ignore
                 }
             }
 
@@ -57,6 +65,9 @@ export function useSpeechRecognition({ onResult, onError }: UseSpeechRecognition
                 recognition.continuous = true;
                 recognition.interimResults = true;
                 recognition.maxAlternatives = 1;
+
+                latestTranscriptRef.current = '';
+                accumulatedFinalRef.current = '';
 
                 recognition.onstart = () => {
                     isListeningRef.current = true;
@@ -78,17 +89,23 @@ export function useSpeechRecognition({ onResult, onError }: UseSpeechRecognition
                         }
                     }
 
-                    const current = finalTranscript || interimTranscript;
-                    if (current) {
-                        setTranscript(current);
-                        onResult(current, !!finalTranscript);
+                    if (finalTranscript) {
+                        accumulatedFinalRef.current += (accumulatedFinalRef.current ? ' ' : '') + finalTranscript.trim();
+                    }
+
+                    const currentFullText = (accumulatedFinalRef.current + ' ' + interimTranscript).trim();
+                    latestTranscriptRef.current = currentFullText;
+
+                    if (currentFullText) {
+                        setTranscript(currentFullText);
+                        onResult?.(currentFullText, !!finalTranscript);
                     }
                 };
 
                 recognition.onerror = (event: any) => {
                     console.warn('[SpeechRecognition] Error:', event.error);
                     if (event.error === 'not-allowed') {
-                        onError?.('Vui lòng cấp quyền sử dụng Microphone trên trình duyệt.');
+                        onError?.('Vui lòng cấp quyền Microphone trên trình duyệt để sử dụng tính năng này.');
                         setState('error');
                     } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
                         onError?.(`Lỗi nhận diện âm thanh: ${event.error}`);
@@ -114,18 +131,24 @@ export function useSpeechRecognition({ onResult, onError }: UseSpeechRecognition
         [onResult, onError, state]
     );
 
-    const stopListening = useCallback((): number => {
-        const duration = startTimeRef.current ? Date.now() - startTimeRef.current : 0;
+    const stopListening = useCallback((): { durationMs: number; text: string } => {
+        const durationMs = startTimeRef.current ? Date.now() - startTimeRef.current : 0;
+        const finalRecordedText = latestTranscriptRef.current.trim();
+
         if (recognitionRef.current && isListeningRef.current) {
             try {
                 recognitionRef.current.stop();
             } catch (e) {
-                // Ignore stop error
+                // Ignore
             }
         }
         isListeningRef.current = false;
         setState('idle');
-        return duration;
+
+        return {
+            durationMs,
+            text: finalRecordedText,
+        };
     }, []);
 
     const abortListening = useCallback(() => {
@@ -133,12 +156,14 @@ export function useSpeechRecognition({ onResult, onError }: UseSpeechRecognition
             try {
                 recognitionRef.current.abort();
             } catch (e) {
-                // Ignore abort error
+                // Ignore
             }
         }
         isListeningRef.current = false;
         setState('idle');
         setTranscript('');
+        latestTranscriptRef.current = '';
+        accumulatedFinalRef.current = '';
     }, []);
 
     return {
@@ -149,5 +174,6 @@ export function useSpeechRecognition({ onResult, onError }: UseSpeechRecognition
         startListening,
         stopListening,
         abortListening,
+        getLatestText: () => latestTranscriptRef.current.trim(),
     };
 }
