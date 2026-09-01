@@ -675,18 +675,32 @@ export default function FloatingTranslator() {
 
                                     {/* Push to talk Customer button */}
                                     <button
-                                        onMouseDown={() => handlePushToTalkStart('customer')}
-                                        onMouseUp={handlePushToTalkEnd}
-                                        onTouchStart={() => handlePushToTalkStart('customer')}
-                                        onTouchEnd={handlePushToTalkEnd}
+                                        onMouseDown={(e) => {
+                                            e.preventDefault();
+                                            handlePushToTalkStart('customer');
+                                        }}
+                                        onMouseUp={(e) => {
+                                            e.preventDefault();
+                                            handlePushToTalkEnd();
+                                        }}
+                                        onTouchStart={(e) => {
+                                            e.preventDefault();
+                                            handlePushToTalkStart('customer');
+                                        }}
+                                        onTouchEnd={(e) => {
+                                            e.preventDefault();
+                                            handlePushToTalkEnd();
+                                        }}
+                                        onContextMenu={(e) => e.preventDefault()}
                                         disabled={isTranslating}
-                                        className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs transition-all active:scale-95 select-none ${
+                                        style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
+                                        className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs transition-all active:scale-95 select-none shrink-0 ${
                                             activeSpeaker === 'customer'
-                                                ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)]'
+                                                ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)] animate-pulse'
                                                 : 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)]'
                                         }`}
                                     >
-                                        <Mic size={15} />
+                                        <Mic size={15} className={activeSpeaker === 'customer' ? 'animate-bounce' : ''} />
                                         <span>{activeSpeaker === 'customer' ? customerLang.speaking : customerLang.holdToSpeak}</span>
                                     </button>
                                 </div>
@@ -720,19 +734,33 @@ export default function FloatingTranslator() {
 
                                     {/* Push to talk Receptionist button (Blue) */}
                                     <button
-                                        onMouseDown={() => handlePushToTalkStart('receptionist')}
-                                        onMouseUp={handlePushToTalkEnd}
-                                        onTouchStart={() => handlePushToTalkStart('receptionist')}
-                                        onTouchEnd={handlePushToTalkEnd}
+                                        onMouseDown={(e) => {
+                                            e.preventDefault();
+                                            handlePushToTalkStart('receptionist');
+                                        }}
+                                        onMouseUp={(e) => {
+                                            e.preventDefault();
+                                            handlePushToTalkEnd();
+                                        }}
+                                        onTouchStart={(e) => {
+                                            e.preventDefault();
+                                            handlePushToTalkStart('receptionist');
+                                        }}
+                                        onTouchEnd={(e) => {
+                                            e.preventDefault();
+                                            handlePushToTalkEnd();
+                                        }}
+                                        onContextMenu={(e) => e.preventDefault()}
                                         disabled={isTranslating}
-                                        className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs transition-all active:scale-95 select-none ${
+                                        style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
+                                        className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs transition-all active:scale-95 select-none shrink-0 ${
                                             activeSpeaker === 'receptionist'
-                                                ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)]'
+                                                ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)] animate-pulse'
                                                 : 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)]'
                                         }`}
                                     >
-                                        <Mic size={15} />
-                                        <span>{activeSpeaker === 'receptionist' ? 'ĐANG NÓI...' : 'GIỮ ĐỂ NÓI'}</span>
+                                        <Mic size={15} className={activeSpeaker === 'receptionist' ? 'animate-bounce' : ''} />
+                                        <span>{activeSpeaker === 'receptionist' ? 'ĐANG NGHE...' : 'GIỮ ĐỂ NÓI'}</span>
                                     </button>
                                 </div>
                             </div>

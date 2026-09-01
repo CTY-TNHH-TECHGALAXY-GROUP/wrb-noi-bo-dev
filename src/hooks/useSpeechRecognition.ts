@@ -6,13 +6,11 @@ import { SpeechState } from '@/types/translation';
 interface UseSpeechRecognitionProps {
     onResult?: (transcript: string, isFinal: boolean) => void;
     onError?: (error: string) => void;
-    onFinalResult?: (finalTranscript: string, durationMs: number) => void;
 }
 
 export function useSpeechRecognition({
     onResult,
     onError,
-    onFinalResult,
 }: UseSpeechRecognitionProps = {}) {
     const [state, setState] = useState<SpeechState>('idle');
     const [transcript, setTranscript] = useState('');
@@ -22,7 +20,6 @@ export function useSpeechRecognition({
     const isListeningRef = useRef(false);
     const startTimeRef = useRef<number>(0);
     const latestTranscriptRef = useRef<string>('');
-    const accumulatedFinalRef = useRef<string>('');
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -50,7 +47,7 @@ export function useSpeechRecognition({
                 return;
             }
 
-            // Abort previous instance if any
+            // Abort any existing instance
             if (recognitionRef.current) {
                 try {
                     recognitionRef.current.abort();
@@ -67,7 +64,6 @@ export function useSpeechRecognition({
                 recognition.maxAlternatives = 1;
 
                 latestTranscriptRef.current = '';
-                accumulatedFinalRef.current = '';
 
                 recognition.onstart = () => {
                     isListeningRef.current = true;
@@ -77,38 +73,39 @@ export function useSpeechRecognition({
                 };
 
                 recognition.onresult = (event: any) => {
-                    let interimTranscript = '';
-                    let finalTranscript = '';
+                    // Canonical Web Speech API: The browser maintains all parts in event.results array
+                    let fullText = '';
+                    let hasFinal = false;
 
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        const word = event.results[i][0].transcript;
-                        if (event.results[i].isFinal) {
-                            finalTranscript += word;
-                        } else {
-                            interimTranscript += word;
+                    for (let i = 0; i < event.results.length; ++i) {
+                        const item = event.results[i];
+                        if (item[0]?.transcript) {
+                            fullText += item[0].transcript;
+                        }
+                        if (item.isFinal) {
+                            hasFinal = true;
                         }
                     }
 
-                    if (finalTranscript) {
-                        accumulatedFinalRef.current += (accumulatedFinalRef.current ? ' ' : '') + finalTranscript.trim();
-                    }
+                    const cleanText = fullText.trim();
+                    latestTranscriptRef.current = cleanText;
 
-                    const currentFullText = (accumulatedFinalRef.current + ' ' + interimTranscript).trim();
-                    latestTranscriptRef.current = currentFullText;
-
-                    if (currentFullText) {
-                        setTranscript(currentFullText);
-                        onResult?.(currentFullText, !!finalTranscript);
+                    if (cleanText) {
+                        setTranscript(cleanText);
+                        onResult?.(cleanText, hasFinal);
                     }
                 };
 
                 recognition.onerror = (event: any) => {
-                    console.warn('[SpeechRecognition] Error:', event.error);
+                    console.warn('[SpeechRecognition] Event error:', event.error);
                     if (event.error === 'not-allowed') {
-                        onError?.('Vui lòng cấp quyền Microphone trên trình duyệt để sử dụng tính năng này.');
+                        onError?.('Vui lòng cấp quyền Microphone trên trình duyệt để nói chuyện.');
+                        setState('error');
+                    } else if (event.error === 'network') {
+                        onError?.('Lỗi kết nối mạng khi nhận diện giọng nói.');
                         setState('error');
                     } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
-                        onError?.(`Lỗi nhận diện âm thanh: ${event.error}`);
+                        onError?.(`Lỗi nhận diện âm thanh (${event.error})`);
                         setState('error');
                     }
                 };
@@ -123,7 +120,7 @@ export function useSpeechRecognition({
                 recognitionRef.current = recognition;
                 recognition.start();
             } catch (err: any) {
-                console.error('[SpeechRecognition] Start error:', err);
+                console.error('[SpeechRecognition] Start exception:', err);
                 onError?.('Không thể khởi động Microphone.');
                 setState('error');
             }
@@ -133,7 +130,7 @@ export function useSpeechRecognition({
 
     const stopListening = useCallback((): { durationMs: number; text: string } => {
         const durationMs = startTimeRef.current ? Date.now() - startTimeRef.current : 0;
-        const finalRecordedText = latestTranscriptRef.current.trim();
+        const recordedText = latestTranscriptRef.current.trim();
 
         if (recognitionRef.current && isListeningRef.current) {
             try {
@@ -147,7 +144,7 @@ export function useSpeechRecognition({
 
         return {
             durationMs,
-            text: finalRecordedText,
+            text: recordedText,
         };
     }, []);
 
@@ -163,7 +160,6 @@ export function useSpeechRecognition({
         setState('idle');
         setTranscript('');
         latestTranscriptRef.current = '';
-        accumulatedFinalRef.current = '';
     }, []);
 
     return {
