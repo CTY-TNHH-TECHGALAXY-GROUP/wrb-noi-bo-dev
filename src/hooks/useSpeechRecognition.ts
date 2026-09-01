@@ -20,6 +20,7 @@ export function useSpeechRecognition({
     const isListeningRef = useRef(false);
     const startTimeRef = useRef<number>(0);
     const latestTranscriptRef = useRef<string>('');
+    const finalResultsMap = useRef<Map<number, string>>(new Map());
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -64,6 +65,7 @@ export function useSpeechRecognition({
                 recognition.maxAlternatives = 1;
 
                 latestTranscriptRef.current = '';
+                finalResultsMap.current.clear();
 
                 recognition.onstart = () => {
                     isListeningRef.current = true;
@@ -73,26 +75,43 @@ export function useSpeechRecognition({
                 };
 
                 recognition.onresult = (event: any) => {
-                    // Canonical Web Speech API: The browser maintains all parts in event.results array
-                    let fullText = '';
+                    let currentInterim = '';
                     let hasFinal = false;
 
                     for (let i = 0; i < event.results.length; ++i) {
-                        const item = event.results[i];
-                        if (item[0]?.transcript) {
-                            fullText += item[0].transcript;
-                        }
-                        if (item.isFinal) {
+                        const result = event.results[i];
+                        const text = result[0]?.transcript || '';
+                        
+                        if (result.isFinal) {
+                            // Only store finalized segments in a map to guarantee NO duplication
+                            finalResultsMap.current.set(i, text.trim());
                             hasFinal = true;
+                        } else {
+                            // On buggy Android devices, interim updates are incorrectly pushed as new array items
+                            // instead of updating the current index. By only taking the VERY LAST interim result,
+                            // we completely eliminate the duplicate text accumulation bug.
+                            if (i === event.results.length - 1) {
+                                currentInterim = text;
+                            }
                         }
                     }
 
-                    const cleanText = fullText.trim();
-                    latestTranscriptRef.current = cleanText;
+                    // Rebuild the completely clean text: all finalized segments + the latest interim
+                    let fullFinalText = '';
+                    const sortedKeys = Array.from(finalResultsMap.current.keys()).sort((a, b) => a - b);
+                    for (const key of sortedKeys) {
+                        const seg = finalResultsMap.current.get(key);
+                        if (seg) {
+                            fullFinalText += seg + ' ';
+                        }
+                    }
 
-                    if (cleanText) {
-                        setTranscript(cleanText);
-                        onResult?.(cleanText, hasFinal);
+                    const currentFullText = (fullFinalText + currentInterim).trim();
+                    latestTranscriptRef.current = currentFullText;
+
+                    if (currentFullText) {
+                        setTranscript(currentFullText);
+                        onResult?.(currentFullText, hasFinal);
                     }
                 };
 
@@ -160,6 +179,7 @@ export function useSpeechRecognition({
         setState('idle');
         setTranscript('');
         latestTranscriptRef.current = '';
+        finalResultsMap.current.clear();
     }, []);
 
     return {
