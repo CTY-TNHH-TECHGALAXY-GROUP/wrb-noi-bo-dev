@@ -635,12 +635,12 @@ export default function FloatingTranslator() {
                             {/* TOP: CUSTOMER PUSH-TO-TALK BUTTON */}
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between text-[11px] text-blue-400 font-bold px-1">
-                                    <span>{customerLang.flag} KHÁCH HÀNG ({customerLang.name.toUpperCase()})</span>
+                                    <span>{customerLang.flag} {customerLang.customerLabel}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="text"
-                                        placeholder={`Hoặc gõ bằng ${customerLang.nativeName}...`}
+                                        placeholder={customerLang.typePlaceholder}
                                         value={customerText}
                                         onChange={(e) => setCustomerText(e.target.value)}
                                         onKeyDown={(e) => {
@@ -669,7 +669,7 @@ export default function FloatingTranslator() {
                                         }`}
                                     >
                                         <Mic size={15} />
-                                        <span>{activeSpeaker === 'customer' ? 'ĐANG NÓI...' : 'GIỮ ĐỂ NÓI'}</span>
+                                        <span>{activeSpeaker === 'customer' ? customerLang.speaking : customerLang.holdToSpeak}</span>
                                     </button>
                                 </div>
                             </div>
@@ -679,7 +679,7 @@ export default function FloatingTranslator() {
 
                             {/* BOTTOM: RECEPTIONIST PUSH-TO-TALK BUTTON */}
                             <div className="space-y-1.5">
-                                <div className="flex items-center justify-between text-[11px] text-[#e6c487] font-bold px-1">
+                                <div className="flex items-center justify-between text-[11px] text-blue-400 font-bold px-1">
                                     <span>🇻🇳 LỄ TÂN (TIẾNG VIỆT)</span>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -697,10 +697,10 @@ export default function FloatingTranslator() {
                                                 setReceptionistText('');
                                             }
                                         }}
-                                        className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-[#e6c487]/50 placeholder:text-gray-600 transition-all"
+                                        className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500/50 placeholder:text-gray-600 transition-all"
                                     />
 
-                                    {/* Push to talk Receptionist button */}
+                                    {/* Push to talk Receptionist button (Blue) */}
                                     <button
                                         onMouseDown={() => handlePushToTalkStart('receptionist')}
                                         onMouseUp={handlePushToTalkEnd}
@@ -710,7 +710,7 @@ export default function FloatingTranslator() {
                                         className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs transition-all active:scale-95 select-none ${
                                             activeSpeaker === 'receptionist'
                                                 ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)]'
-                                                : 'bg-gradient-to-r from-[#d4af37] to-[#e6c487] text-black shadow-[0_0_15px_rgba(230,196,135,0.3)] hover:brightness-110'
+                                                : 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)]'
                                         }`}
                                     >
                                         <Mic size={15} />
