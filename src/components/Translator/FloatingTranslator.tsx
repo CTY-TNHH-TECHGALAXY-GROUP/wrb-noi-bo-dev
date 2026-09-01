@@ -436,8 +436,11 @@ export default function FloatingTranslator() {
                                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                             animate={{ opacity: 1, y: 0, scale: 1 }}
                                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                            className="absolute right-0 top-full mt-2 w-48 bg-[#1f1f23] border border-white/15 rounded-2xl p-1.5 shadow-2xl z-50 grid grid-cols-1 gap-1"
+                                            className="absolute right-0 top-full mt-2 w-64 max-h-80 overflow-y-auto bg-[#1f1f23]/95 backdrop-blur-2xl border border-white/20 rounded-2xl p-2 shadow-2xl z-50 flex flex-col gap-1 custom-scrollbar"
                                         >
+                                            <div className="px-2 py-1 text-[10px] uppercase font-bold text-[#e6c487] border-b border-white/10 mb-1">
+                                                Chọn Quốc Gia / Ngôn Ngữ ({SUPPORTED_LANGUAGES.length - 1})
+                                            </div>
                                             {SUPPORTED_LANGUAGES.filter((l) => l.code !== 'vi').map(
                                                 (l) => (
                                                     <button
@@ -448,13 +451,13 @@ export default function FloatingTranslator() {
                                                         }}
                                                         className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs transition-colors ${
                                                             customerLang.code === l.code
-                                                                ? 'bg-[#e6c487]/20 text-[#e6c487] font-bold'
+                                                                ? 'bg-[#e6c487]/20 text-[#e6c487] font-bold border border-[#e6c487]/30'
                                                                 : 'text-gray-300 hover:bg-white/10'
                                                         }`}
                                                     >
                                                         <span className="text-base">{l.flag}</span>
-                                                        <span className="flex-1">{l.nativeName}</span>
-                                                        <span className="text-[10px] text-gray-500">
+                                                        <span className="flex-1 font-medium">{l.nativeName}</span>
+                                                        <span className="text-[10px] text-gray-400">
                                                             {l.name}
                                                         </span>
                                                     </button>

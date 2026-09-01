@@ -1,4 +1,28 @@
-export type SupportedLanguage = 'en' | 'vi' | 'zh' | 'ko' | 'ja' | 'th' | 'fr' | 'de';
+export type SupportedLanguage =
+    | 'en'
+    | 'vi'
+    | 'zh'
+    | 'ko'
+    | 'ja'
+    | 'th'
+    | 'fr'
+    | 'de'
+    | 'ru'
+    | 'es'
+    | 'it'
+    | 'id'
+    | 'ms'
+    | 'hi'
+    | 'ar'
+    | 'pt'
+    | 'nl'
+    | 'tl'
+    | 'sv'
+    | 'pl'
+    | 'tr'
+    | 'km'
+    | 'lo'
+    | 'my';
 
 export interface LanguageMeta {
     code: SupportedLanguage;
@@ -58,6 +82,28 @@ export const SUPPORTED_LANGUAGES: LanguageMeta[] = [
         customerLabel: 'お客様 (日本語)',
     },
     {
+        code: 'ru',
+        name: 'Russian',
+        nativeName: 'Русский',
+        flag: '🇷🇺',
+        speechCode: 'ru-RU',
+        holdToSpeak: 'УДЕРЖИВАЙТЕ ДЛЯ ЗАПИСИ',
+        speaking: 'СЛУШАЮ...',
+        typePlaceholder: 'Или введите на русском...',
+        customerLabel: 'КЛИЕНТ (РУССКИЙ)',
+    },
+    {
+        code: 'es',
+        name: 'Spanish',
+        nativeName: 'Español',
+        flag: '🇪🇸',
+        speechCode: 'es-ES',
+        holdToSpeak: 'MANTÉN PARA HABLAR',
+        speaking: 'ESCUCHANDO...',
+        typePlaceholder: 'O escribe en español...',
+        customerLabel: 'CLIENTE (ESPAÑOL)',
+    },
+    {
         code: 'th',
         name: 'Thai',
         nativeName: 'ไทย',
@@ -89,6 +135,160 @@ export const SUPPORTED_LANGUAGES: LanguageMeta[] = [
         speaking: 'HÖRE ZU...',
         typePlaceholder: 'Oder auf Deutsch tippen...',
         customerLabel: 'KUNDE (DEUTSCH)',
+    },
+    {
+        code: 'it',
+        name: 'Italian',
+        nativeName: 'Italiano',
+        flag: '🇮🇹',
+        speechCode: 'it-IT',
+        holdToSpeak: 'TIENI PREMUTO PER PARLARE',
+        speaking: 'IN ASCOLTO...',
+        typePlaceholder: 'O scrivi in italiano...',
+        customerLabel: 'CLIENTE (ITALIANO)',
+    },
+    {
+        code: 'id',
+        name: 'Indonesian',
+        nativeName: 'Bahasa Indonesia',
+        flag: '🇮🇩',
+        speechCode: 'id-ID',
+        holdToSpeak: 'TAHAN UNTUK BICARA',
+        speaking: 'MENDENGARKAN...',
+        typePlaceholder: 'Atau ketik bahasa Indonesia...',
+        customerLabel: 'PELANGGAN (INDONESIA)',
+    },
+    {
+        code: 'ms',
+        name: 'Malay',
+        nativeName: 'Bahasa Melayu',
+        flag: '🇲🇾',
+        speechCode: 'ms-MY',
+        holdToSpeak: 'TEKAN UNTUK BERCAKAP',
+        speaking: 'MENDENGAR...',
+        typePlaceholder: 'Atau taip dalam bahasa Melayu...',
+        customerLabel: 'PELANGGAN (MELAYU)',
+    },
+    {
+        code: 'hi',
+        name: 'Hindi',
+        nativeName: 'हिन्दी',
+        flag: '🇮🇳',
+        speechCode: 'hi-IN',
+        holdToSpeak: 'बोलने के लिए दबाए रखें',
+        speaking: 'सुन रहा हूँ...',
+        typePlaceholder: 'या हिंदी में टाइप करें...',
+        customerLabel: 'ग्राहक (हिन्दी)',
+    },
+    {
+        code: 'ar',
+        name: 'Arabic',
+        nativeName: 'العربية',
+        flag: '🇸🇦',
+        speechCode: 'ar-SA',
+        holdToSpeak: 'اضغط باستمرار للتحدث',
+        speaking: 'جارٍ الاستماع...',
+        typePlaceholder: 'أو اكتب بالعربية...',
+        customerLabel: 'العميل (العربية)',
+    },
+    {
+        code: 'pt',
+        name: 'Portuguese',
+        nativeName: 'Português',
+        flag: '🇵🇹',
+        speechCode: 'pt-PT',
+        holdToSpeak: 'SEGURE PARA FALAR',
+        speaking: 'A OUVIR...',
+        typePlaceholder: 'Ou digite em português...',
+        customerLabel: 'CLIENTE (PORTUGUÊS)',
+    },
+    {
+        code: 'nl',
+        name: 'Dutch',
+        nativeName: 'Nederlands',
+        flag: '🇳🇱',
+        speechCode: 'nl-NL',
+        holdToSpeak: 'INGEDRUKT HOUDEN',
+        speaking: 'LUISTEREN...',
+        typePlaceholder: 'Of typ in het Nederlands...',
+        customerLabel: 'KLANT (NEDERLANDS)',
+    },
+    {
+        code: 'tl',
+        name: 'Filipino / Tagalog',
+        nativeName: 'Filipino',
+        flag: '🇵🇭',
+        speechCode: 'fil-PH',
+        holdToSpeak: 'DIINAN PARA MAGSALITA',
+        speaking: 'NAKIKINIG...',
+        typePlaceholder: 'O mag-type sa Tagalog...',
+        customerLabel: 'KUSTOMER (FILIPINO)',
+    },
+    {
+        code: 'sv',
+        name: 'Swedish',
+        nativeName: 'Svenska',
+        flag: '🇸🇪',
+        speechCode: 'sv-SE',
+        holdToSpeak: 'HÅLL NED FÖR ATT TALA',
+        speaking: 'LYSSNAR...',
+        typePlaceholder: 'Eller skriv på svenska...',
+        customerLabel: 'KUND (SVENSKA)',
+    },
+    {
+        code: 'pl',
+        name: 'Polish',
+        nativeName: 'Polski',
+        flag: '🇵🇱',
+        speechCode: 'pl-PL',
+        holdToSpeak: 'PRZYTRZYMAJ, ABY MÓWIĆ',
+        speaking: 'SŁUCHAM...',
+        typePlaceholder: 'Lub wpisz po polsku...',
+        customerLabel: 'KLIENT (POLSKI)',
+    },
+    {
+        code: 'tr',
+        name: 'Turkish',
+        nativeName: 'Türkçe',
+        flag: '🇹🇷',
+        speechCode: 'tr-TR',
+        holdToSpeak: 'BASILI TUTUN',
+        speaking: 'DİNLENİYOR...',
+        typePlaceholder: 'Veya Türkçe yazın...',
+        customerLabel: 'MÜŞTERİ (TÜRKÇE)',
+    },
+    {
+        code: 'km',
+        name: 'Khmer',
+        nativeName: 'ភាសាខ្មែរ',
+        flag: '🇰🇭',
+        speechCode: 'km-KH',
+        holdToSpeak: 'សង្កត់ដើម្បីនិយាយ',
+        speaking: 'កំពុងស្តាប់...',
+        typePlaceholder: 'ឬវាយជាភាសាខ្មែរ...',
+        customerLabel: 'អតិថិជន (ខ្មែរ)',
+    },
+    {
+        code: 'lo',
+        name: 'Lao',
+        nativeName: 'ພາສາລາວ',
+        flag: '🇱🇦',
+        speechCode: 'lo-LA',
+        holdToSpeak: 'ກົດຄ້າງໄວ້ເພື່ອເວົ້າ',
+        speaking: 'ກຳລັງຟັງ...',
+        typePlaceholder: 'ຫຼືພິມເປັນພາສາລາວ...',
+        customerLabel: 'ລູກຄ້າ (ລາວ)',
+    },
+    {
+        code: 'my',
+        name: 'Burmese',
+        nativeName: 'မြန်မာ',
+        flag: '🇲🇲',
+        speechCode: 'my-MM',
+        holdToSpeak: 'စကားပြောရန် ဖိထားပါ',
+        speaking: 'နားထောင်နေသည်...',
+        typePlaceholder: 'သို့မဟုတ် မြန်မာလို ရိုက်ထည့်ပါ...',
+        customerLabel: 'ဧည့်သည် (မြန်မာ)',
     },
     {
         code: 'vi',
