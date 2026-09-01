@@ -320,25 +320,15 @@ export default function FloatingTranslator() {
                 <motion.div
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="fixed bottom-6 right-6 z-[999] flex flex-col items-end gap-2"
+                    className="fixed bottom-6 right-6 z-[999]"
                 >
                     <button
                         onClick={() => setIsOpen(true)}
-                        className="group relative flex items-center gap-2.5 px-4 py-3.5 bg-gradient-to-r from-[#1c1c1e] to-[#2c2c2e] hover:from-[#252528] hover:to-[#3a3a3d] border border-[#e6c487]/40 text-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all active:scale-95"
+                        title="Phiên Dịch Trực Tiếp"
+                        className="group relative flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-[#1a1a1c] to-[#2a2a2d] hover:from-[#222226] hover:to-[#35353a] border-2 border-[#e6c487]/50 hover:border-[#e6c487] text-[#e6c487] rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all hover:scale-105 active:scale-95"
                     >
-                        <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-[#e6c487]/20 border border-[#e6c487]/50 text-[#e6c487]">
-                            <Languages size={18} className="animate-pulse" />
-                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-black" />
-                        </div>
-                        <div className="flex flex-col items-start text-left">
-                            <span className="text-xs font-black tracking-wider uppercase text-[#e6c487] flex items-center gap-1">
-                                Phiên Dịch Trực Tiếp
-                                <Sparkles size={11} className="text-amber-400" />
-                            </span>
-                            <span className="text-[10px] text-gray-300 font-medium">
-                                Lễ Tân ↔ {customerLang.name}
-                            </span>
-                        </div>
+                        <Languages size={24} className="group-hover:rotate-12 transition-transform duration-300" />
+                        <span className="absolute top-1 right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#1a1a1c]" />
                     </button>
                 </motion.div>
             )}
