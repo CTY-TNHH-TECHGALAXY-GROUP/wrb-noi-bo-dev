@@ -202,11 +202,12 @@ export async function POST(request: Request) {
         if (bookingError) throw bookingError;
 
         // 6. Delegate to handlers
+        let standardInsertedCount = 0;
         if (hasStandard) {
-            await handleStandardItems(supabaseAdmin, customId, standardItems, 0);
+            standardInsertedCount = await handleStandardItems(supabaseAdmin, customId, standardItems, 0);
         }
         if (hasVip) {
-            await handleVipItems(supabaseAdmin, customId, vipItems, standardItems.length);
+            await handleVipItems(supabaseAdmin, customId, vipItems, standardInsertedCount);
         }
 
         // 7. Notification

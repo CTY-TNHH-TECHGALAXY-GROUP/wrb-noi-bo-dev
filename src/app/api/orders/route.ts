@@ -193,11 +193,12 @@ export async function POST(request: Request) {
         }
 
         // 4. Delegate to handlers (separated for isolation)
+        let standardInsertedCount = 0;
         if (hasStandard) {
-            await handleStandardItems(supabaseAdmin, customId, standardItems, 0);
+            standardInsertedCount = await handleStandardItems(supabaseAdmin, customId, standardItems, 0);
         }
         if (hasVip) {
-            await handleVipItems(supabaseAdmin, customId, vipItems, standardItems.length);
+            await handleVipItems(supabaseAdmin, customId, vipItems, standardInsertedCount);
         }
 
         // 5. Build and Send Notification

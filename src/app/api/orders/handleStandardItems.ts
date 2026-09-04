@@ -28,7 +28,7 @@ export async function handleStandardItems(
     bookingId: string,
     items: any[],
     startIndex: number = 0
-): Promise<void> {
+): Promise<number> {
     const processedItems = items.map((item: any) => {
         const opts = item.options || {};
         const strengthVN = toVietnamese(opts.strength || 'Medium');
@@ -70,25 +70,38 @@ export async function handleStandardItems(
         };
     });
 
-    const itemsToInsert = processedItems.map((pi: any, index: number) => ({
-        id: `${bookingId}-item${startIndex + index + 1}`,
-        bookingId: bookingId,
-        serviceId: pi.id,
-        quantity: pi.qty,
-        price: pi.price,
-        options: {
-            strength: pi.strength,
-            therapist: pi.therapist,
-            focus: pi.focus,
-            avoid: pi.avoid,
-            tags: pi.tags,
-            note: pi.note
+    // Expand items with qty > 1 into separate BookingItem rows (each qty = 1)
+    // This ensures each service is a separate row for dispatch/KTV assignment
+    const itemsToInsert: any[] = [];
+    let globalIndex = 0;
+
+    for (const pi of processedItems) {
+        const qty = pi.qty || 1;
+        for (let q = 0; q < qty; q++) {
+            itemsToInsert.push({
+                id: `${bookingId}-item${startIndex + globalIndex + 1}`,
+                bookingId: bookingId,
+                serviceId: pi.id,
+                quantity: 1,
+                price: pi.price,
+                options: {
+                    strength: pi.strength,
+                    therapist: pi.therapist,
+                    focus: pi.focus,
+                    avoid: pi.avoid,
+                    tags: pi.tags,
+                    note: pi.note
+                }
+            });
+            globalIndex++;
         }
-    }));
+    }
 
     const { error } = await supabase
         .from('BookingItems')
         .insert(itemsToInsert);
 
     if (error) throw error;
+
+    return itemsToInsert.length;
 }
