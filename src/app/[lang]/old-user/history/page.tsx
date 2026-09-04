@@ -287,17 +287,17 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
             if (action === 'new') {
                 clearCart();
                 if (source === 'walk-in') {
-                    router.push(`/${lang}/old-user/select-menu`);
+                    router.push(`/${lang}/new-user/standard/menu`);
                 } else {
-                    router.push(`/${lang}/old-user/booking/select-menu`);
+                    router.push(`/${lang}/new-user/booking/standard/menu`);
                 }
             } else if (action === 'modify') {
                 if (!services || services.length === 0) return;
                 const menuType = restoreCart(order);
                 if (source === 'walk-in') {
-                    router.push(`/${lang}/old-user/${menuType}/menu?cart=open`);
+                    router.push(`/${lang}/new-user/${menuType}/menu?cart=open`);
                 } else {
-                    router.push(`/${lang}/old-user/booking/${menuType}/menu?cart=open`);
+                    router.push(`/${lang}/new-user/booking/${menuType}/menu?cart=open`);
                 }
             } else if (action === 'rebook') {
                 if (!services || services.length === 0 || !order) return;
@@ -305,10 +305,10 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                 
                 if (source === 'walk-in') {
                     // Rebook walk-in: đã có giỏ hàng → nhảy thẳng checkout
-                    router.push(`/${lang}/old-user/${menuType}/checkout`);
+                    router.push(`/${lang}/new-user/${menuType}/checkout`);
                 } else {
                     // Rebook booking: đã có giỏ hàng → nhảy thẳng checkout
-                    router.push(`/${lang}/old-user/booking/${menuType}/checkout`);
+                    router.push(`/${lang}/new-user/booking/${menuType}/checkout`);
                 }
             }
         }, 100);
