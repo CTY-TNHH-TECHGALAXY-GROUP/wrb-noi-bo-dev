@@ -10,6 +10,7 @@ import { useMenuData } from '@/components/Menu/MenuContext';
 import { LoginGate } from '@/components/Auth/LoginGate';
 import { ALL_VIP_SKILLS, type VipLang } from '@/lib/vipSkills.constants';
 import { getSkillName } from '@/lib/vipStaffUtils';
+import { languages } from '@/app/(intro)/LanguageSelector.lang';
 
 // 🔧 UI CONFIGURATION
 const HISTORY_CONFIG = {
@@ -72,6 +73,10 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
     const [actionContext, setActionContext] = useState<{ action: 'rebook' | 'modify' | 'new', order?: any } | null>(null);
     const [visibleCount, setVisibleCount] = useState(5);
     const router = useRouter();
+    const changeLanguage = (newLang: string) => {
+        if (newLang === lang) return;
+        router.replace(`/${newLang}/old-user/history`);
+    };
     const { addToCart, clearCart, services } = useMenuData();
 
     // Check if user has auth info in localStorage
@@ -328,7 +333,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                     >
                         <ArrowLeft size={20} className="text-gray-400" />
                     </button>
-                    <h1 className="flex-1 text-center font-bold text-lg text-white pr-10">
+                    <h1 className="flex-1 text-center font-bold text-lg text-white mx-2 truncate">
                         {dict.history.page_title}
                     </h1>
                 </div>
@@ -347,7 +352,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                 >
                     <ArrowLeft size={20} className="text-gray-400" />
                 </button>
-                <h1 className="flex-1 text-center font-bold text-lg text-white pr-10">
+                <h1 className="flex-1 text-center font-bold text-lg text-white mx-2 truncate">
                     {dict.history.page_title}
                 </h1>
             </div>
