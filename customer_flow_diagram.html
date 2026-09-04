@@ -36,29 +36,38 @@
     <div class="mermaid">
         graph TD
             %% MỞ APP LÀ VÀO THẲNG MENU WALK-IN
-            Start((Mở App / Tablet)) -. Tự động chuyển .-> MenuNewWalkIn[MÀN HÌNH CHÍNH <br> Menu Walk-in <br> /en/standard/menu]
-        
-            %% LUỒNG MẶC ĐỊNH (NHANH NHẤT)
-            MenuNewWalkIn -->|Khách vãng lai nhặt món| CartWalkIn[Giỏ hàng]
-            CartWalkIn --> Checkout[Thanh toán & Xuất Bill]
+            Start((Mở App / Tablet)) -. Tự động chuyển .-> MenuWalkIn[MÀN HÌNH CHÍNH <br> Walk-in <br> /en/standard/menu]
+
+            %% LUỒNG CHỌN MÓN & THANH TOÁN (CÓ NÚT THANH TOÁN TRỰC TIẾP)
+            MenuWalkIn -->|Bấm 'Giỏ Hàng'| Cart[Xem Giỏ hàng]
+            Cart --> Checkout[Màn hình Thanh toán & Xuất Bill]
+            
+            MenuWalkIn -->|Bấm 'Thanh Toán' trực tiếp| Checkout
             Checkout --> Journey[Màn hình KTV <br> Lộ trình Timer]
-        
-            %% NHÁNH TÌM KHÁCH CŨ / BOOKING (THÔNG QUA NÚT HISTORY)
-            MenuNewWalkIn -.->|Lễ tân bấm góc phải| NutHistory[Nút 'History']
+
+            %% NHÁNH TÌM KHÁCH CŨ / BOOKING
+            MenuWalkIn -.->|Lễ tân bấm góc phải| NutHistory[Nút 'History']
             NutHistory --> PopupAuth{Nhập SĐT / Email}
             
-            PopupAuth -->|Thành công| HistoryScreen[Màn hình Lịch Sử <br> old-user/history]
-        
-            %% PHÂN NHÁNH TỪ MÀN HÌNH LỊCH SỬ
-            HistoryScreen -->|Tạo Walk-in| MenuOldWalkIn[Menu Walk-in <br> /standard/menu]
-            HistoryScreen -->|Tạo Booking| MenuOldBooking[Menu Booking <br> /booking/standard/menu]
-        
-            %% TIẾN HÀNH ORDER & THANH TOÁN
-            MenuOldWalkIn --> CartOldWalkIn[Giỏ hàng Khách Cũ]
-            MenuOldBooking --> CartOldBooking[Giỏ hàng Booking]
-        
-            CartOldWalkIn --> Checkout
-            CartOldBooking --> Checkout
+            %% TÌM THẤY -> LỊCH SỬ
+            PopupAuth -->|Tìm thấy| HistoryScreen[Màn hình Lịch Sử <br> /en/history]
+
+            %% KHÔNG TÌM THẤY -> TẠO MỚI
+            PopupAuth -->|Không tìm thấy| PopupNotFound{Hỏi: Dùng thông tin này <br> tạo đơn mới?}
+            PopupNotFound -->|Đồng ý| DataNew(Lưu Data Khách Mới)
+            DataNew ==>|Quay về| MenuWalkIn
+            
+            %% TỪ LỊCH SỬ CHỌN HÌNH THỨC
+            HistoryScreen -->|Lên đơn Walk-in| DataOldWalkIn(Mang theo Data Khách Cũ)
+            HistoryScreen -->|Lên đơn Booking| DataOldBooking(Mang theo Data Khách Cũ)
+            
+            %% ĐƯA DATA VỀ MÀN HÌNH MENU
+            DataOldWalkIn ==>|Quay về| MenuWalkIn
+            DataOldBooking ==>|Chuyển sang| MenuBooking[MÀN HÌNH CHÍNH <br> Booking <br> /en/booking/standard/menu]
+            
+            %% TỪ MÀN HÌNH BOOKING CŨNG CÓ THỂ THANH TOÁN TRỰC TIẾP
+            MenuBooking -->|Bấm 'Thanh Toán' trực tiếp| Checkout
+            MenuBooking -->|Bấm 'Giỏ Hàng'| Cart
     </div>
 </body>
 </html>
