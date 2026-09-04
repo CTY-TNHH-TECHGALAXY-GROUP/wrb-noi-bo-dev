@@ -90,7 +90,7 @@ export const LE_SKILLS: VipSkill[] = [
   {
     id: 'hairExtensionShampoo',
     type: 'LE',
-    name: { vi: 'Gội nối mi', en: 'Hair Extension Shampoo', cn: '接发洗发', jp: 'エクステシャンプー', kr: '붙임머리 샴푸' },
+    name: { vi: 'Gội đầu nối tóc', en: 'Hair Extension Shampoo', cn: '接发洗发', jp: 'エクステシャンプー', kr: '붙임머리 샴푸' },
   },
 ];
 
@@ -101,27 +101,27 @@ export const CHINH_SKILLS: VipSkill[] = [
   {
     id: 'thaiBody',
     type: 'CHINH',
-    name: { vi: 'Thai Body', en: 'Thai Body', cn: 'Thai Body', jp: 'Thai Body', kr: 'Thai Body' },
+    name: { vi: 'Massage Thái', en: 'Thai Body', cn: '泰式按摩', jp: 'タイ式ボディ', kr: '타이 바디' },
   },
   {
     id: 'shiatsuBody',
     type: 'CHINH',
-    name: { vi: 'Shiatsu Body', en: 'Shiatsu Body', cn: 'Shiatsu Body', jp: 'Shiatsu Body', kr: 'Shiatsu Body' },
+    name: { vi: 'Massage Shiatsu', en: 'Shiatsu Body', cn: '指压按摩', jp: '指圧ボディ', kr: '시아츠 바디' },
   },
   {
     id: 'oilBody',
     type: 'CHINH',
-    name: { vi: 'Oil Body', en: 'Oil Body', cn: 'Oil Body', jp: 'Oil Body', kr: 'Oil Body' },
+    name: { vi: 'Massage Tinh Dầu', en: 'Oil Body', cn: '精油按摩', jp: 'オイルボディ', kr: '오일 바디' },
   },
   {
     id: 'hotStoneBody',
     type: 'CHINH',
-    name: { vi: 'Hot Stone Body', en: 'Hot Stone Body', cn: 'Hot Stone Body', jp: 'Hot Stone Body', kr: 'Hot Stone Body' },
+    name: { vi: 'Massage Đá Nóng', en: 'Hot Stone Body', cn: '热石按摩', jp: 'ホットストーンボディ', kr: '핫스톤 바디' },
   },
   {
     id: 'bodyMix',
     type: 'CHINH',
-    name: { vi: 'Mix of four Body', en: 'Mix of four Body', cn: 'Mix of four Body', jp: 'Mix of four Body', kr: 'Mix of four Body' },
+    name: { vi: 'Massage Tứ Thủ', en: 'Mix of Four Body', cn: '四手按摩', jp: 'フォーハンドボディ', kr: '포핸드 바디' },
   },
   {
     id: 'foot',
