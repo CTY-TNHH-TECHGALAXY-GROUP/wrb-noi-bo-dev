@@ -90,30 +90,51 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             router.push('/');
         }
     }, [cart, router]);
-
-    // [NEW] Auto-fill Customer Info từ tài khoản đã đăng nhập
+    // [NEW] Unified Auto-fill Customer Info (Google Auth, Old User, Contacted First)
     useEffect(() => {
+        let autoName = '';
+        let autoEmail = '';
+        let autoPhone = '';
+
         if (isAuthUser && user) {
-            const authName = user.user_metadata?.full_name || user.user_metadata?.name || '';
-            if (!customerInfo.name && authName) updateCustomerInfo('name', authName);
-            if (!customerInfo.email && user.email) updateCustomerInfo('email', user.email);
-            if (!customerInfo.phone && user.phone) updateCustomerInfo('phone', user.phone);
+            autoName = user.user_metadata?.full_name || user.user_metadata?.name || '';
+            autoEmail = user.email || '';
+            autoPhone = user.phone || '';
         }
+
+        if (typeof window !== 'undefined') {
+            try {
+                const storedInfo = localStorage.getItem('currentUserInfo');
+                if (storedInfo) {
+                    const parsed = JSON.parse(storedInfo);
+                    if (!autoName && (parsed.fullName || parsed.name)) autoName = parsed.fullName || parsed.name;
+                    if (!autoEmail && parsed.email) autoEmail = parsed.email;
+                    if (!autoPhone && parsed.phone) autoPhone = parsed.phone;
+                } else {
+                    const storedEmail = localStorage.getItem('currentUserEmail');
+                    const storedPhone = localStorage.getItem('currentUserPhone');
+                    const storedName = localStorage.getItem('currentUserName');
+                    if (storedName && !autoName) autoName = storedName;
+                    if (storedEmail && !autoEmail) autoEmail = storedEmail;
+                    if (storedPhone && !autoPhone) autoPhone = storedPhone;
+                }
+
+                const contactedStr = localStorage.getItem('contactedFirstInfo');
+                if (contactedStr) {
+                    const info = JSON.parse(contactedStr);
+                    if (!autoName && info.customerName) autoName = info.customerName;
+                    if (!autoPhone && info.customerPhone) autoPhone = info.customerPhone;
+                }
+            } catch (e) {}
+        }
+
+        if (!customerInfo.name && autoName) updateCustomerInfo('name', autoName);
+        if (!customerInfo.email && autoEmail) updateCustomerInfo('email', autoEmail);
+        if (!customerInfo.phone && autoPhone) updateCustomerInfo('phone', autoPhone);
+        
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthUser, user]);
 
-    // [NEW] Auto-fill từ Contacted First
-    useEffect(() => {
-        try {
-            const contactedStr = localStorage.getItem('contactedFirstInfo');
-            if (contactedStr) {
-                const info = JSON.parse(contactedStr);
-                if (!customerInfo.name && info.customerName) updateCustomerInfo('name', info.customerName);
-                if (!customerInfo.phone && info.customerPhone) updateCustomerInfo('phone', info.customerPhone);
-            }
-        } catch (e) {}
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     const handleBack = () => {
         const returnCategory = cart.find(item => item.itemType !== 'vip')?.cat || 'Body';
