@@ -28,10 +28,7 @@ export default function CustomerTypePage() {
   const lang = (params?.lang as string) || "en";
   const [inputValue, setInputValue] = useState("");
 
-  useEffect(() => {
-    // BYPASS CustomerType & SelectMenu -> Go straight to Standard Menu
-    router.replace(`/${lang}/new-user/standard/menu`);
-  }, [lang, router]);
+  
 
   const handleLanguageChange = (newLang: string) => {
     // Replace the current language in the pathname

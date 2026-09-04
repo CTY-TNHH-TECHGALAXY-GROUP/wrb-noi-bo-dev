@@ -67,7 +67,7 @@ export const useCustomerTypeLogic = (lang: string) => {
     setIsExiting(true);
 
     setTimeout(() => {
-      router.push(`/${lang}/new-user/select-menu`);
+      router.push(`/${lang}/select-menu`);
     }, 500);
   };
 
@@ -77,7 +77,7 @@ export const useCustomerTypeLogic = (lang: string) => {
     setIsExiting(true);
 
     setTimeout(() => {
-      router.push(`/${lang}/new-user/booking/select-menu`);
+      router.push(`/${lang}/booking/select-menu`);
     }, 500);
   };
 
@@ -151,7 +151,7 @@ export const useCustomerTypeLogic = (lang: string) => {
     setIsExiting(true);
 
     setTimeout(() => {
-      router.push(`/${lang}/new-user/select-menu`);
+      router.push(`/${lang}/select-menu`);
     }, 500);
   };
 

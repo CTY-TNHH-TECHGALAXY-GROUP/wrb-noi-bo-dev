@@ -149,7 +149,7 @@ export default function ContactedFirstPage({ params }: { params: Promise<{ lang:
     // Bỏ qua màn hình trung gian, chuyển luôn sang trang chọn sách (Menu)
     setIsExiting(true);
     setTimeout(() => {
-      router.push(`/${lang}/new-user/select-menu`);
+      router.push(`/${lang}/select-menu`);
     }, 250);
   };
 
@@ -161,7 +161,7 @@ export default function ContactedFirstPage({ params }: { params: Promise<{ lang:
 
   const handleContinue = () => {
     // Code cũ không dùng tới nữa
-    router.push(`/${lang}/new-user/select-menu`);
+    router.push(`/${lang}/select-menu`);
   };
 
 
@@ -170,7 +170,7 @@ export default function ContactedFirstPage({ params }: { params: Promise<{ lang:
     <div className={styles.root}>
       {!showNext ? (
         <main className={`${styles.screen} ${isExiting ? styles.screenLeave : ''}`}>
-          <Link href={`/${lang}/new-user/standard/menu`} className={styles.back} aria-label="Go back">
+          <Link href={`/${lang}/standard/menu`} className={styles.back} aria-label="Go back">
             <ArrowLeft size={28} strokeWidth={1.5} />
           </Link>
 

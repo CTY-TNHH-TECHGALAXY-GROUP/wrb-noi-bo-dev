@@ -12,7 +12,9 @@ export default function OldUserBookingSelectMenuPage({ params }: { params: Promi
     const resolvedParams = use(params);
     useEffect(() => {
         setLang(resolvedParams.lang);
-    }, [resolvedParams.lang]);
+        // BYPASS SelectMenu -> Go straight to Standard Menu
+        router.replace(`/${resolvedParams.lang}/old-user/booking/standard/menu`);
+    }, [resolvedParams.lang, router]);
 
     const handleSelectMenu = (type: string) => {
         localStorage.setItem('selected_menu_type', type);

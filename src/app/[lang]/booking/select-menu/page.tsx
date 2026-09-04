@@ -1,4 +1,4 @@
-/* src/app/[lang]/new-user/booking/select-menu/page.tsx */
+/* src/app/[lang]/booking/select-menu/page.tsx */
 "use client";
 
 import React, { useState, useEffect, use } from "react";
@@ -14,7 +14,9 @@ export default function BookingSelectMenuPage({ params }: { params: Promise<{ la
     const resolvedParams = use(params);
     useEffect(() => {
         setLang(resolvedParams.lang);
-    }, [resolvedParams.lang]);
+        // BYPASS SelectMenu -> Go straight to Standard Menu
+        router.replace(`/${resolvedParams.lang}/booking/standard/menu`);
+    }, [resolvedParams.lang, router]);
 
     // Hàm xử lý khi user chọn gói
     const handleSelectMenu = (type: string) => {
@@ -22,8 +24,8 @@ export default function BookingSelectMenuPage({ params }: { params: Promise<{ la
         localStorage.setItem('selected_menu_type', type);
 
         // Chuyển hướng đến trang Menu Booking chi tiết
-        // Ví dụ: /vn/new-user/booking/standard/menu hoặc /vn/new-user/booking/vip/menu
-        router.push(`/${lang}/new-user/booking/${type}/menu`);
+        // Ví dụ: /vn/booking/standard/menu hoặc /vn/booking/vip/menu
+        router.push(`/${lang}/booking/${type}/menu`);
     };
 
     return (

@@ -34,7 +34,7 @@ export default function MenuPage() {
         }
     }, [router]);
 
-    // URL dáº¡ng: /en/new-user/standard/menu
+    // URL dáº¡ng: /en/standard/menu
     // -> lang = "en"
     // -> menuType = "standard"
     const pathnameSegments = pathname?.split('/').filter(Boolean) || [];
@@ -49,15 +49,15 @@ export default function MenuPage() {
     // 3. HÃ m xá»­ lÃ½ Checkout
     const handleCheckout = () => {
         // Chuyá»ƒn hÆ°á»›ng sang trang checkout
-        router.push(`/${lang}/new-user/${menuType}/checkout`);
+        router.push(`/${lang}/${menuType}/checkout`);
     };
 
     // 4. Cross-menu navigation (cart giá»¯ nguyÃªn qua MenuContext)
     const handleSwitchToVip = () => {
-        router.push(`/${lang}/new-user/vip/menu`);
+        router.push(`/${lang}/vip/menu`);
     };
     const handleSwitchToStandard = () => {
-        router.push(`/${lang}/new-user/standard/menu`);
+        router.push(`/${lang}/standard/menu`);
     };
 
     // 5. LOGIC ÄIá»€U PHá»I (ROUTING)

@@ -28,7 +28,7 @@ export const useGoogleLogin = (lang: string = 'en', onError?: (msg: string) => v
                 options: {
                     // Update: Trỏ về Next.js Route Handler để xử lý cấp Session bằng Cokies (SSR)
                     // URL gốc sẽ lưu params `next` để server biết phải quay lại màn hình nào
-                    redirectTo: `${window.location.origin}/auth/callback?next=${nextPath || `/${lang}/new-user/standard/menu`}`
+                    redirectTo: `${window.location.origin}/auth/callback?next=${nextPath || `/${lang}/standard/menu`}`
                 }
             });
             if (error) throw error;

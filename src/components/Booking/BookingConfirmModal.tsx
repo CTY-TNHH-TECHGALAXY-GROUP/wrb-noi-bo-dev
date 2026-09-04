@@ -76,7 +76,7 @@ export default function BookingConfirmModal({
     const handleDone = () => {
         if (clearCart) clearCart();
         if (resetCustomerInfo) resetCustomerInfo();
-        window.location.href = `/${lang}/new-user/standard/menu`;
+        window.location.href = `/${lang}/standard/menu`;
     };
 
     if (success) {

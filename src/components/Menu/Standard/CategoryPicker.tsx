@@ -225,7 +225,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
         setShowHistoryPopup(false);
         clearCart();
         updateCustomerInfo('email', failedInput);
-        router.replace(`/${lang}/new-user/standard/menu`);
+        router.replace(`/${lang}/standard/menu`);
     };
 
     return (
@@ -606,7 +606,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                                 <p className="mb-6 text-sm font-medium text-gray-400">{quickText.desc}</p>
 
                                 <div className="mb-4 w-full rounded-[8px] shadow-lg">
-                                    <GoogleLoginBtn lang={lang} nextPath={`/${lang}/new-user/standard/menu`} />
+                                    <GoogleLoginBtn lang={lang} nextPath={`/${lang}/standard/menu`} />
                                 </div>
 
                                 <div className="mb-4 flex w-full items-center gap-3">

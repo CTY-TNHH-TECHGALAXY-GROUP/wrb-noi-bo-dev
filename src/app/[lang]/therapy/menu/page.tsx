@@ -14,7 +14,7 @@ export default function TherapyMenuPage() {
     };
 
     const handleCheckout = () => {
-        router.push(`/${lang}/new-user/therapy/checkout`); // Thay đổi URL thanh toán nếu cần
+        router.push(`/${lang}/therapy/checkout`); // Thay đổi URL thanh toán nếu cần
     };
 
     return (

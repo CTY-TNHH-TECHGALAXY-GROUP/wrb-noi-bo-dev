@@ -299,7 +299,7 @@ export default function ServiceList({ categories, services, cart, lang, directio
                                                     }
                                                     sessionStorage.setItem('standard_menu_mode', 'MENU');
                                                     sessionStorage.setItem('standard_menu_category', 'Body');
-                                                    router.push(`/${lang}/new-user/vip/menu`);
+                                                    router.push(`/${lang}/vip/menu`);
                                                 }}
                                                 className="relative w-full min-h-[132px] sm:min-h-[148px] md:min-h-[168px] rounded-2xl p-4 sm:p-5 md:p-6 flex flex-row gap-4 sm:gap-5 md:gap-6 items-center overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] bg-black/10 border border-white/10 backdrop-blur-sm shadow-lg hover:bg-black/20"
                                             >

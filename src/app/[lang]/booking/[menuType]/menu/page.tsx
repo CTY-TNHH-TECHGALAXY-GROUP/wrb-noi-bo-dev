@@ -23,15 +23,15 @@ export default function BookingMenuPage({ params }: { params: Promise<{ lang: st
     // 3. Hàm xử lý Checkout (Nhảy sang booking checkout)
     const handleCheckout = () => {
         // Chuyển hướng sang trang booking checkout
-        router.push(`/${lang}/new-user/booking/${menuType}/checkout`);
+        router.push(`/${lang}/booking/${menuType}/checkout`);
     };
 
     // 4. Cross-menu navigation (cart giữ nguyên qua MenuContext)
     const handleSwitchToVip = () => {
-        router.push(`/${lang}/new-user/booking/vip/menu`);
+        router.push(`/${lang}/booking/vip/menu`);
     };
     const handleSwitchToStandard = () => {
-        router.push(`/${lang}/new-user/booking/standard/menu`);
+        router.push(`/${lang}/booking/standard/menu`);
     };
 
     // 5. LOGIC ĐIỀU PHỐI (ROUTING)

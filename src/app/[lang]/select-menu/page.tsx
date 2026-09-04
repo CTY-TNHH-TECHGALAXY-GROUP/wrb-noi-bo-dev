@@ -1,4 +1,4 @@
-/* src/app/[lang]/new-user/select-menu/page.tsx */
+/* src/app/[lang]/select-menu/page.tsx */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -18,7 +18,7 @@ export default function SelectMenuPage({ params }: { params: Promise<{ lang: str
         params.then((p) => {
             setLang(p.lang);
             // BYPASS SelectMenu -> Go straight to Standard Menu
-            router.replace(`/${p.lang}/new-user/standard/menu`);
+            router.replace(`/${p.lang}/standard/menu`);
         });
     }, [params, router]);
 
@@ -28,8 +28,8 @@ export default function SelectMenuPage({ params }: { params: Promise<{ lang: str
         localStorage.setItem('selected_menu_type', type);
 
         // 2. Chuyển hướng đến trang Menu chi tiết
-        // Ví dụ: /vn/new-user/standard/menu hoặc /vn/new-user/vip/menu
-        router.push(`/${lang}/new-user/${type}/menu`);
+        // Ví dụ: /vn/standard/menu hoặc /vn/vip/menu
+        router.push(`/${lang}/${type}/menu`);
     };
 
     return (
