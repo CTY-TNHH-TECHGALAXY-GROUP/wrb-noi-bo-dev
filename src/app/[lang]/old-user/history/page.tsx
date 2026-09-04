@@ -10,6 +10,7 @@ import { useMenuData } from '@/components/Menu/MenuContext';
 import { LoginGate } from '@/components/Auth/LoginGate';
 import { ALL_VIP_SKILLS, type VipLang } from '@/lib/vipSkills.constants';
 import { getSkillName } from '@/lib/vipStaffUtils';
+import { languages } from '@/app/(intro)/LanguageSelector.lang';
 
 // 🔧 UI CONFIGURATION
 const HISTORY_CONFIG = {
@@ -72,6 +73,11 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
     const [actionContext, setActionContext] = useState<{ action: 'rebook' | 'modify' | 'new', order?: any } | null>(null);
     const [visibleCount, setVisibleCount] = useState(5);
     const router = useRouter();
+    
+    const changeLanguage = (newLang: string) => {
+        if (newLang === lang) return;
+        router.replace(`/${newLang}/old-user/history`);
+    };
     const { addToCart, clearCart, services } = useMenuData();
 
     // Check if user has auth info in localStorage
@@ -322,34 +328,28 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
             <div className="min-h-screen bg-[#000000] text-white flex flex-col font-sans">
                 {/* Header */}
                 <div className={`flex items-center p-4 sticky top-0 ${HISTORY_CONFIG.HEADER_BG} backdrop-blur-md z-20 border-b border-white/5`}>
-                    <button
+                                                            <button
                         onClick={() => router.back()}
-                        className="w-10 h-10 bg-[#1f2430] rounded-full flex items-center justify-center hover:bg-[#2a3040] transition-colors"
+                        className="w-10 h-10 bg-[#1f2430] rounded-full flex shrink-0 items-center justify-center hover:bg-[#2a3040] transition-colors"
                     >
                         <ArrowLeft size={20} className="text-gray-400" />
                     </button>
-                    <h1 className="flex-1 text-center font-bold text-lg text-white pr-10">
+                    <h1 className="flex-1 text-center font-bold text-lg text-white mx-2 truncate">
                         {dict.history.page_title}
                     </h1>
-                </div>
-                <LoginGate lang={lang} onSuccess={handleLoginSuccess} />
-            </div>
-        );
-    }
-
-    return (
-        <div className="min-h-screen bg-[#000000] text-white flex flex-col font-sans">
-            {/* Header */}
-            <div className={`flex items-center p-4 sticky top-0 ${HISTORY_CONFIG.HEADER_BG} backdrop-blur-md z-20 border-b border-white/5`}>
-                <button
-                    onClick={() => router.back()}
-                    className="w-10 h-10 bg-[#1f2430] rounded-full flex items-center justify-center hover:bg-[#2a3040] transition-colors"
-                >
-                    <ArrowLeft size={20} className="text-gray-400" />
-                </button>
-                <h1 className="flex-1 text-center font-bold text-lg text-white pr-10">
-                    {dict.history.page_title}
-                </h1>
+                    
+                    {/* Language Selector in Header */}
+                    <div className="flex gap-1.5 items-center shrink-0">
+                        {languages.map((l) => (
+                            <button 
+                                key={l.id} 
+                                onClick={() => changeLanguage(l.id)} 
+                                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border flex items-center justify-center transition-all ${lang === l.id ? 'border-white scale-110 shadow-lg' : 'border-white/20 opacity-50 hover:opacity-100 hover:scale-105'}`}
+                            >
+                                <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
+                            </button>
+                        ))}
+                    </div>
             </div>
 
             {/* List */}

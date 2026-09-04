@@ -300,30 +300,28 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
     };
 
     const handlePlus = (item: CartItem & { totalQty: number }) => {
-        updateCartItem(item.cartId, item.qty + 1);
+        // Create a new separate cart entry (qty=1) instead of incrementing qty
+        // This ensures each service becomes a separate BookingItem for dispatch
+        addToCart(item as Service, 1, item.options);
     };
 
     const handleMinus = (item: CartItem & { totalQty: number; displayKey: string }) => {
-        if (item.qty > 1) {
-            updateCartItem(item.cartId, item.qty - 1);
-            return;
-        }
-
-        const instance = item.totalQty > 1
-            ? [...cart].reverse().find(c => {
+        // Always remove one entry from the group (consistent with handlePlus creating separate entries)
+        if (item.totalQty > 1) {
+            // Remove the last matching entry (not the representative one being displayed)
+            const lastInstance = [...cart].reverse().find(c => {
                 const optionsKey = JSON.stringify(c.options || {});
                 return c.cartId !== item.cartId && `${c.id}-${optionsKey}` === item.displayKey;
-            })
-            : cart.find(c => c.cartId === item.cartId);
+            });
 
-        const target = instance || cart.find(c => {
-            const optionsKey = JSON.stringify(c.options || {});
-            return `${c.id}-${optionsKey}` === item.displayKey;
-        });
-
-        if (target) {
-            removeFromCart(target.cartId);
+            if (lastInstance) {
+                removeFromCart(lastInstance.cartId);
+                return;
+            }
         }
+
+        // If this is the only entry or no other instance found, remove this one
+        removeFromCart(item.cartId);
     };
 
     // Restore missing logic
