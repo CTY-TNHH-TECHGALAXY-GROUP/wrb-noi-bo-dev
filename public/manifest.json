@@ -1,6 +1,6 @@
 {
-  "name": "Oria Spa",
-  "short_name": "Oria Spa",
+  "name": "Oria Home",
+  "short_name": "Oria Home",
   "description": "Booking System for Oria Spa",
   "start_url": "/",
   "display": "standalone",
