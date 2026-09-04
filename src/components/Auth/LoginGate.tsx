@@ -5,6 +5,7 @@ const INPUT_BORDER_RADIUS = '12px';
 const BTN_HEIGHT = '48px';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { GoogleLoginBtn } from './GoogleLoginBtn';
 import { Phone, Mail, ArrowRight, AlertCircle, Loader2, UserCheck } from 'lucide-react';
 
@@ -63,6 +64,7 @@ interface LoginGateProps {
 }
 
 export const LoginGate = ({ lang, onSuccess }: LoginGateProps) => {
+  const router = useRouter();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -70,6 +72,32 @@ export const LoginGate = ({ lang, onSuccess }: LoginGateProps) => {
 
   // Detect if input is email or phone
   const isEmail = (val: string) => val.includes('@');
+
+  
+  const handleCreateNewUser = () => {
+    const trimmed = input.trim();
+    const paramKey = isEmail(trimmed) ? 'email' : 'phone';
+    
+    localStorage.removeItem('currentUserEmail');
+    localStorage.removeItem('currentUserPhone');
+    localStorage.removeItem('currentUserInfo');
+    
+    if (paramKey === 'email') {
+        localStorage.setItem('currentUserEmail', trimmed);
+    } else {
+        localStorage.setItem('currentUserPhone', trimmed);
+    }
+    
+    localStorage.setItem('currentUserInfo', JSON.stringify({
+        fullName: '',
+        phone: paramKey === 'phone' ? trimmed : '',
+        email: paramKey === 'email' ? trimmed : '',
+        isNewCustomer: true
+    }));
+    
+    // Redirect to standard menu
+    router.push(`/${lang}/standard/menu`);
+  };
 
   const handleSubmit = async () => {
     const trimmed = input.trim();
@@ -173,13 +201,24 @@ export const LoginGate = ({ lang, onSuccess }: LoginGateProps) => {
         )}
       </button>
 
-      {/* Error Message */}
+      
+      {/* Error Message & Prompt to Create New */}
       {error && (
-        <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2 text-left">
-          <AlertCircle size={16} className="text-red-400 mt-0.5 shrink-0" />
-          <p className="text-xs text-red-300">{error}</p>
+        <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex flex-col gap-3 text-left animate-in slide-in-from-bottom-2">
+          <div className="flex items-start gap-2">
+            <AlertCircle size={16} className="text-red-400 mt-0.5 shrink-0" />
+            <p className="text-sm text-red-300">{error}</p>
+          </div>
+          <button 
+             onClick={handleCreateNewUser} 
+             className="w-full bg-[#C9A96E] hover:bg-[#b89a64] text-black font-bold py-3 rounded-lg text-sm mt-2 flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md"
+          >
+             {lang === 'vi' ? 'Dùng thông tin này tạo đơn mới' : 'Use this info for new order'}
+             <ArrowRight size={16} />
+          </button>
         </div>
       )}
+
     </div>
   );
 };

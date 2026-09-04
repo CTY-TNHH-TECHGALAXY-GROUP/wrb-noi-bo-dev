@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
+import { useAppLogo } from '@/lib/useAppLogo';
 
 interface CheckoutHeaderProps {
     title: string;
@@ -9,6 +10,7 @@ interface CheckoutHeaderProps {
 }
 
 export default function CheckoutHeader({ title, backLabel = "Menu", onBack, rightAction }: CheckoutHeaderProps) {
+    const logoUrl = useAppLogo();
     return (
         <div className="sticky top-0 z-50 bg-[#0d0d0d]/95 backdrop-blur-sm pb-4 mb-6 shadow-sm border-b border-white/10 transition-all pt-[calc(env(safe-area-inset-top))]">
             {/* Top Bar: Back + Title */}
@@ -33,7 +35,7 @@ export default function CheckoutHeader({ title, backLabel = "Menu", onBack, righ
             {/* Branding Row */}
             <div className="px-5 flex items-center justify-start">
                 <img
-                    src="/Image/oria-spa-logo.png"
+                    src={logoUrl}
                     alt="Oria Spa"
                     className="h-20 w-auto object-contain opacity-95 brightness-0 invert sm:h-24 md:h-28"
                 />

@@ -7,6 +7,7 @@ import { ArrowRight, X, Loader2, ArrowLeft, History, Search, Phone, Calendar } f
 import { languages } from "../../(intro)/LanguageSelector.lang";
 import { useCustomerTypeLogic } from "./CustomerType.logic";
 import { GoogleLoginBtn } from '@/components/Auth/GoogleLoginBtn';
+import { useAppLogo } from '@/lib/useAppLogo';
 
 // ============================================================================
 // 👇 KHU VỰC CHỈNH SỬA GIAO DIỆN (SỬA SỐ Ở ĐÂY) 👇

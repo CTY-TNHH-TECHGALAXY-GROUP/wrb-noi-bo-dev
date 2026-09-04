@@ -14,6 +14,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { flushSync } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAppLogo } from '@/lib/useAppLogo';
 
 // 🔧 UI CONFIGURATION
 export const PAGE_TRANSITION_CONFIG = {
@@ -97,6 +98,7 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
     // --- STATE DỮ LIỆU ---
     // Remove local loading state (duplicate)
     const [services, setServices] = useState<Service[]>([]);
+    const logoUrl = useAppLogo();
 
     // --- STATE GIAO DIỆN ---
     const [mode, setMode] = useState<'PICKER' | 'MENU'>('PICKER');
@@ -427,7 +429,7 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
                             transition={{ duration: 0.38, ease: 'easeOut' }}
                         >
                             <img
-                                src="/Image/oria-spa-logo.png"
+                                src={logoUrl}
                                 alt="Oria Spa"
                                 className="h-28 w-auto object-contain brightness-0 invert sm:h-36 md:h-44 drop-shadow-[0_0_22px_rgba(232,201,122,0.18)]"
                             />
