@@ -14,7 +14,7 @@ const FALLBACK_PRICING: VipPricingTable = {
   '2': { '60': 1080000, '70': 1260000, '90': 1530000, '120': 2040000, '150': 2550000, '180': 3060000, '240': 4080000 },
 };
 
-const AVAILABLE_DURATIONS: VipDuration[] = [60, 90, 120];
+const AVAILABLE_DURATIONS: VipDuration[] = [70, 90, 120];
 
 interface DeepBookingConfigProps {
   lang: string;
