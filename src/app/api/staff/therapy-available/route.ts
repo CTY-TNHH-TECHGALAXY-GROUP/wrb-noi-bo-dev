@@ -53,7 +53,7 @@ export async function GET(_req: NextRequest) {
     // ─── Step 1: Fetch all active staff ─────────────────────────────────────
     const { data: staffList, error: staffError } = await supabase
       .from('Staff')
-      .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type, certificate_url')
+      .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type')
       .eq('status', 'ĐANG LÀM')
       .eq('is_active_therapy_menu', true) // Lấy KTV cho Therapy Menu
       .order('full_name');
