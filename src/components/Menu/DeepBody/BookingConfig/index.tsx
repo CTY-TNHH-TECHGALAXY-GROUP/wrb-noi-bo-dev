@@ -194,8 +194,8 @@ export default function DeepBookingConfig({
           </p>
         </div>
 
-        {/* Techniques Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        {/* Techniques List (1 card per row, large prominent typography matching Standard style) */}
+        <div className="flex flex-col gap-3.5 sm:gap-4 mt-4">
           {DEEP_BODY_TECHNIQUES.map((tech) => {
             const isSelected = selectedTechniqueIds.includes(tech.id);
 
@@ -203,50 +203,50 @@ export default function DeepBookingConfig({
               <div
                 key={tech.id}
                 onClick={() => handleToggleTechnique(tech.id)}
-                className={`group relative p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
+                className={`group relative p-5 sm:p-6 rounded-2xl sm:rounded-3xl border transition-all duration-200 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                   isSelected
-                    ? 'bg-[#1e1c19] border-[#e6c487] shadow-[0_0_20px_rgba(230,196,135,0.15)]'
-                    : 'bg-[#151517] border-white/5 hover:border-white/20'
+                    ? 'bg-gradient-to-r from-[#1f1d19] via-[#1a1916] to-[#161513] border-[#e6c487] shadow-[0_4px_25px_rgba(230,196,135,0.18)] ring-1 ring-[#e6c487]/30'
+                    : 'bg-[#151517] border-white/8 hover:border-white/20 hover:bg-[#18181b]'
                 }`}
               >
-                <div>
-                  {/* Title & Radio Indicator */}
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h4 className="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-[#e6c487] transition-colors">
+                {/* Left content: Title & Description */}
+                <div className="flex-1 min-w-0 pr-2">
+                  <div className="flex items-center gap-3 mb-1.5">
+                    <h4 className="text-xl sm:text-2xl md:text-[26px] font-black leading-tight tracking-wide text-white group-hover:text-[#e6c487] transition-colors">
                       {tech.name[safeLang] || tech.name.en}
                     </h4>
-                    <div
-                      className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                        isSelected ? 'bg-[#e6c487] text-black' : 'border border-white/20'
-                      }`}
-                    >
-                      {isSelected && <Check size={13} strokeWidth={3} />}
-                    </div>
                   </div>
 
-                  {/* Short Description */}
-                  <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-3">
+                  <p className="text-sm sm:text-base font-light text-gray-300 leading-relaxed max-w-2xl">
                     {tech.shortDesc[safeLang] || tech.shortDesc.en}
                   </p>
+
+                  <div className="mt-2.5 flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveTechniqueForModal(tech);
+                      }}
+                      className="text-xs sm:text-sm text-[#e6c487] hover:underline flex items-center gap-1.5 font-semibold py-0.5"
+                    >
+                      <Info size={14} />
+                      <span>{t.view_details}</span>
+                    </button>
+                  </div>
                 </div>
 
-                {/* Bottom link: View Technique Gallery Modal */}
-                <div className="pt-2.5 border-t border-white/5 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveTechniqueForModal(tech);
-                    }}
-                    className="text-[11px] text-[#e6c487] hover:underline flex items-center gap-1 font-medium"
+                {/* Right: Radio Selection Button */}
+                <div className="flex items-center justify-end shrink-0 sm:pl-4">
+                  <div
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all ${
+                      isSelected
+                        ? 'bg-[#e6c487] text-[#1c1c1e] shadow-[0_0_12px_rgba(230,196,135,0.4)] scale-105'
+                        : 'border-2 border-white/25 group-hover:border-white/40'
+                    }`}
                   >
-                    <Info size={12} />
-                    <span>{t.view_details}</span>
-                  </button>
-
-                  <span className="text-[10px] text-gray-500 uppercase tracking-widest font-mono">
-                    #{tech.id}
-                  </span>
+                    {isSelected && <Check size={18} strokeWidth={3.5} />}
+                  </div>
                 </div>
               </div>
             );
