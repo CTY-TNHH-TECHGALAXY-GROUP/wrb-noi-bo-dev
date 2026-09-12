@@ -241,3 +241,31 @@ export const DEEP_BODY_TECHNIQUES: DeepBodyTechnique[] = [
     },
   },
 ];
+
+export interface DeepBodyDurationService {
+  duration: number;
+  serviceId: string;
+  defaultPriceVND: number;
+  defaultPriceUSD: number;
+}
+
+export const DEEP_BODY_DURATION_SERVICES: Record<number, DeepBodyDurationService> = {
+  70: {
+    duration: 70,
+    serviceId: 'NHT0002',
+    defaultPriceVND: 840000,
+    defaultPriceUSD: 35,
+  },
+  90: {
+    duration: 90,
+    serviceId: 'NHT0003',
+    defaultPriceVND: 1080000,
+    defaultPriceUSD: 43,
+  },
+  120: {
+    duration: 120,
+    serviceId: 'NHT0004',
+    defaultPriceVND: 1440000,
+    defaultPriceUSD: 58,
+  },
+};

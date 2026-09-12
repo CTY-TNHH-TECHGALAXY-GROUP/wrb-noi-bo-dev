@@ -118,6 +118,7 @@ export default function DeepBodyMenu({
       selectedStaffIds.forEach((staffId) => {
         const staffInfo = selectedStaffInfoList.find((s) => s.id === staffId);
         addVipToCart({
+          serviceId: data.serviceId,
           staffIds: [staffId],
           staffInfoList: staffInfo ? [staffInfo] : [],
           skillIds: data.techniqueIds,
@@ -130,6 +131,7 @@ export default function DeepBodyMenu({
       });
     } else {
       addVipToCart({
+        serviceId: data.serviceId,
         staffIds: selectedStaffIds,
         staffInfoList: selectedStaffInfoList,
         skillIds: data.techniqueIds,

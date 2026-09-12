@@ -324,7 +324,10 @@ export async function POST(request: NextRequest) {
     const displayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
 
     const itemsToInsert: any[] = [];
-    const vipServiceId = getVipServiceId(selectedStaffIds.length, duration);
+    const vipServiceId =
+      (body.serviceId && (body.serviceId.startsWith('NHT') || body.serviceId.startsWith('NHP')))
+        ? body.serviceId
+        : getVipServiceId(selectedStaffIds.length, duration);
     
     selectedStaffIds.forEach((ktvId: string, index: number) => {
       itemsToInsert.push({

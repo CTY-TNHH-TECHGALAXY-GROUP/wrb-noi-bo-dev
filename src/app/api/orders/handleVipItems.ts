@@ -49,12 +49,17 @@ export async function handleVipItems(
         
         const key = `${displayName}||${duration}`;
         const numKtvs = groupMap.get(key) || 1;
-        const vipServiceId = getVipServiceId(numKtvs, duration);
+        const targetServiceId =
+            item.serviceId ||
+            item.options?.serviceId ||
+            (item.id && (item.id.startsWith('NHT') || item.id.startsWith('NHP'))
+                ? item.id
+                : getVipServiceId(numKtvs, duration));
 
         return {
             id: `${bookingId}-vip${startIndex + index + 1}`,
             bookingId: bookingId,
-            serviceId: vipServiceId, // Dynamic VIP service code
+            serviceId: targetServiceId, // Lưu chuẩn mã dịch vụ trong DB (NHT0002, NHT0003, NHT0004...)
             quantity: 1,
             price: item.priceVND || 0,
             technicianCodes: item.vipStaffId ? [item.vipStaffId] : [],

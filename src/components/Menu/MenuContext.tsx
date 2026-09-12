@@ -41,6 +41,7 @@ interface MenuContextType {
 
     // --- VIP Cart Logic ---
     addVipToCart: (params: {
+        serviceId?: string;
         staffIds: string[];
         staffInfoList: VipStaffInfo[];
         skillIds: string[];
@@ -157,6 +158,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
 
     // --- VIP CART FUNCTION ---
     const addVipToCart = (params: {
+        serviceId?: string;
         staffIds: string[];
         staffInfoList: VipStaffInfo[];
         skillIds: string[];
@@ -166,11 +168,12 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
         totalPriceUSD?: number;
         customerNotes?: string;
     }) => {
+        const targetId = params.serviceId || 'NHS0800';
         const newItems: CartItem[] = params.staffIds.map((staffId, index) => {
             const staffInfo = params.staffInfoList.find(s => s.id === staffId);
             return {
-                // Service base fields (pseudo-service for VIP)
-                id: 'NHS0800',
+                // Service base fields (pseudo-service for VIP or exact NHT/NHP service)
+                id: targetId,
                 cartId: `vip-${staffId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
                 cat: 'VIP',
                 names: { en: params.displayName, vi: params.displayName },
@@ -183,6 +186,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
                 menuType: 'vip' as const,
                 // VIP-specific fields
                 itemType: 'vip' as const,
+                serviceId: targetId,
                 vipStaffId: staffId,
                 vipStaffName: staffInfo?.fullName || staffId,
                 vipStaffAvatar: staffInfo?.avatarUrl || null,
@@ -192,6 +196,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
                 vipCustomerNotes: params.customerNotes,
                 // Add to options so it gets saved to Supabase JSONB
                 options: {
+                    serviceId: targetId,
                     displayName: params.displayName,
                     vipDuration: params.duration,
                     vipStaffId: staffId,

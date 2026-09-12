@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Clock, Check, Info, ShieldCheck, Activity, Plus, ArrowRight } from 'lucide-react';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 import { type VipPricingTable, type VipDuration, lookupPrice, lookupUsdPrice } from '@/lib/vipPricingEngine';
-import { DEEP_BODY_TECHNIQUES, DeepBodyTechnique, DeepBodyLang } from '@/lib/deepBody.constants';
+import { DEEP_BODY_TECHNIQUES, DeepBodyTechnique, DeepBodyLang, DEEP_BODY_DURATION_SERVICES } from '@/lib/deepBody.constants';
+import { useMenuData } from '@/components/Menu/MenuContext';
 import { getDeepBodyT } from '../DeepBody.i18n';
 import TechniqueGalleryModal from '../TechniqueGalleryModal';
 import BodyFocusAvoidMap, { BodyAreaKey } from '../BodyFocusAvoidMap';
@@ -25,6 +26,7 @@ interface DeepBookingConfigProps {
   vipPricingTable?: VipPricingTable;
   onConfirm: (
     data: {
+      serviceId: string;
       techniqueIds: string[];
       techniqueNames: string[];
       totalDuration: number;
@@ -59,10 +61,31 @@ export default function DeepBookingConfig({
   const [customerNotes, setCustomerNotes] = useState('');
   const [activeTechniqueForModal, setActiveTechniqueForModal] = useState<DeepBodyTechnique | null>(null);
 
-  const pricingTable = vipPricingTable || FALLBACK_PRICING;
+  const { services } = useMenuData();
   const staffCount = Math.max(1, selectedStaffIds.length);
-  const currentPrice = lookupPrice(pricingTable, staffCount, selectedDuration);
-  const currentUsdPrice = lookupUsdPrice(staffCount, selectedDuration, currentPrice);
+
+  // Helper lấy service ID chuẩn trong DB (NHT0002, NHT0003, NHT0004) và bắt giá trực tiếp từ DB
+  const getServiceInfo = (dur: number) => {
+    const config = DEEP_BODY_DURATION_SERVICES[dur];
+    const targetServiceId = config?.serviceId || `NHT000${dur === 70 ? 2 : dur === 90 ? 3 : 4}`;
+    const dbService = services.find((s) => s.id === targetServiceId);
+
+    const baseVnd = dbService?.priceVND ?? config?.defaultPriceVND ?? (dur === 70 ? 840000 : dur === 90 ? 1080000 : 1440000);
+    const baseUsd = dbService?.priceUSD ?? config?.defaultPriceUSD ?? (dur === 70 ? 35 : dur === 90 ? 43 : 58);
+
+    const priceVND = staffCount > 1 ? Math.round(baseVnd * 1.5) : baseVnd;
+    const priceUSD = staffCount > 1 ? Math.round(baseUsd * 1.5) : baseUsd;
+
+    return {
+      serviceId: targetServiceId,
+      priceVND,
+      priceUSD,
+    };
+  };
+
+  const currentService = getServiceInfo(selectedDuration);
+  const currentPrice = currentService.priceVND;
+  const currentUsdPrice = currentService.priceUSD;
 
   const handleToggleTechnique = (id: string) => {
     setSelectedTechniqueIds([id]);
@@ -112,6 +135,7 @@ export default function DeepBookingConfig({
 
     onConfirm(
       {
+        serviceId: currentService.serviceId,
         techniqueIds: selectedTechniqueIds,
         techniqueNames,
         totalDuration: selectedDuration,
@@ -257,8 +281,7 @@ export default function DeepBookingConfig({
         {/* 3 Duration Cards Grid - Exactly 3 cards fit 1 row */}
         <div className="grid grid-cols-3 gap-2.5 xs:gap-3 sm:gap-4 md:gap-5 w-full">
           {AVAILABLE_DURATIONS.map((dur) => {
-            const price = lookupPrice(pricingTable, staffCount, dur);
-            const usdPrice = lookupUsdPrice(staffCount, dur, price);
+            const svc = getServiceInfo(dur);
             const isSelected = selectedDuration === dur;
 
             return (
@@ -289,12 +312,12 @@ export default function DeepBookingConfig({
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-center font-black">
                   <span className="text-xs xs:text-sm sm:text-base md:text-lg tracking-tight whitespace-nowrap">
-                    {price.toLocaleString('vi-VN')} VND
+                    {svc.priceVND.toLocaleString('vi-VN')} VND
                   </span>
                   <span className={`text-[11px] xs:text-xs sm:text-sm md:text-base font-bold whitespace-nowrap ${
                     isSelected ? 'text-[#e6c487]/90' : 'text-gray-400'
                   }`}>
-                    / ${usdPrice}
+                    / ${svc.priceUSD}
                   </span>
                 </div>
               </button>
