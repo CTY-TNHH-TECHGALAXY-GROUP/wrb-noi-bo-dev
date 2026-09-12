@@ -196,4 +196,48 @@ export const DEEP_BODY_TECHNIQUES: DeepBodyTechnique[] = [
       kr: '수족냉증, 관절 쑤심, 환절기 몸살 기운 및 피로 회복',
     },
   },
+  {
+    id: 'mixFourTherapies',
+    name: {
+      vi: 'Kết Hợp 4 Liệu Pháp',
+      en: 'Mix of Four Therapies',
+      cn: '综合四重理疗',
+      jp: '4種ブレンドセラピー',
+      kr: '4가지 복합 테라피',
+    },
+    shortDesc: {
+      vi: 'Sự kết hợp tinh hoa giữa Tinh Dầu Dừa, Bấm Huyệt Thái, Shiatsu và Đá Nóng Bazan giúp phục hồi toàn diện.',
+      en: 'A master blend of Coconut Oil, Thai stretching, Shiatsu acupressure, and Basalt Hot Stones for complete revitalization.',
+      cn: '融汇椰子精油、泰式拉伸、日式指压与火山热石四大精粹，提供全方位深层调理与身心焕活。',
+      jp: 'ココナッツオイル、タイ古式、指圧、ホットストーンの4大技術を融合し、全身を極上の癒しへと導く総合コース。',
+      kr: '코코넛 오일, 타이 스트레칭, 시아추 지압, 핫스톤의 4가지 핵심 기법을 조화롭게 융합한 프리미엄 전신 케어.',
+    },
+    fullDesc: {
+      vi: 'Liệu trình kết hợp đặc biệt được thiết kế để mang lại hiệu quả tối ưu: mở đầu bằng các động tác kéo giãn Thái giải tỏa áp lực khớp, tiếp nối bằng Shiatsu ấn huyệt điều hòa năng lượng, thư giãn sâu với Tinh Dầu Dừa tự nhiên và khép lại bằng nhiệt năng truyền sâu từ Đá Nóng Bazan.',
+      en: 'A comprehensive signature sequence designed for supreme restoration: begins with Thai passive stretching to decompress joints, transitions into rhythmic Shiatsu acupressure, soothes with nourishing cold-pressed Coconut Oil strokes, and finishes with penetrating thermal energy from Basalt Hot Stones.',
+      cn: '由资深理疗师量身制定的终极融合疗程：以泰式被动拉伸舒展关节筋骨开篇，继以日式垂直指压调和经络气血，辅以纯天然椰子油深层推抚抚平疲惫，最后以火山玄武热石的温热能量深入透达肌底，驱散深层寒湿。',
+      jp: '4つの伝統技術が織りなす極上のシグネチャートリートメント。タイ古式のストレッチで関節の詰まりを解放し、指压で経絡を整え、上質なココナッツオイルと温かい玄武岩ホットストーンで深部から全身を温め緩めます。',
+      kr: '네 가지 테라피의 정수를 한 번에 경험할 수 있는 시그니처 코스입니다. 타이 스트레칭으로 굳은 관절을 풀고, 시아추 지압으로 경락을 자극하며, 천연 코코넛 오일의 부드러움과 온열 현무암 스톤의 깊은 열기로 완벽한 재충전을 선사합니다.',
+    },
+    badge: {
+      vi: 'Kết Hợp Toàn Diện',
+      en: 'All-in-One Fusion',
+      cn: '全效合一',
+      jp: 'トータルケア',
+      kr: '올인원 케어',
+    },
+    thumbnail: '/assets/images/treatments/mix-therapies-thumb.jpg',
+    techniqueGallery: [
+      '/assets/images/treatments/mix-1.jpg',
+      '/assets/images/treatments/mix-2.jpg',
+    ],
+    intensity: 4,
+    recommendedFor: {
+      vi: 'Đau mỏi toàn thân, căng thẳng tích tụ lâu ngày, muốn trải nghiệm trọn vẹn các kỹ thuật tinh hoa',
+      en: 'Full-body fatigue, chronic tension, seeking the ultimate all-in-one therapeutic journey',
+      cn: '全身酸痛疲劳、长期积聚压力、希望一次体验四大经典手法精髓的贵宾',
+      jp: '全身の疲労やコリ、長引くストレスを感じ、至高のトリートメントを体験したい方',
+      kr: '만성 피로와 전신 근육통, 4가지 핵심 기법을 모두 경험하고 싶은 고객',
+    },
+  },
 ];
