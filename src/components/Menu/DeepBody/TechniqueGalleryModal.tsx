@@ -141,7 +141,7 @@ export default function TechniqueGalleryModal({
             {/* Detailed Description */}
             <div className="bg-[#1b1b1e] p-4 rounded-2xl border border-white/5 space-y-2">
               <h4 className="text-xs font-bold text-[#e6c487] uppercase tracking-wider">
-                Mô Tả Chuyên Môn / Clinical Overview
+                {t.clinical_overview_title}
               </h4>
               <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
                 {technique.fullDesc[safeLang] || technique.fullDesc.en}

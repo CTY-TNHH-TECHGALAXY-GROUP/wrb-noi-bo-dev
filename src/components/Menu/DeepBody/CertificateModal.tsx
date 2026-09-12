@@ -89,19 +89,19 @@ export default function CertificateModal({
 
                   <div className="space-y-1.5 my-auto">
                     <p className="text-[11px] text-gray-400 uppercase tracking-widest">
-                      Certificate of Achievement
+                      {t.certificate_fallback_title}
                     </p>
                     <h4 className="text-xl font-serif text-[#e6c487] font-bold">
                       {staff.fullName} ({staff.id})
                     </h4>
                     <p className="text-xs text-gray-300 max-w-[280px] leading-relaxed mx-auto">
-                      Has successfully mastered Advanced Deep Tissue, Myofascial Release & Traditional Meridian Alignment.
+                      {t.certificate_fallback_desc}
                     </p>
                   </div>
 
                   <div className="flex items-center justify-between w-full pt-3 border-t border-white/10 text-[10px] text-gray-500">
                     <span>ID: CERT-OR-{staff.id}</span>
-                    <span className="text-[#e6c487] font-bold">GRADE: MASTER</span>
+                    <span className="text-[#e6c487] font-bold">{t.certificate_grade_master}</span>
                   </div>
                 </div>
               )}

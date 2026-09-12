@@ -274,7 +274,7 @@ export default function DeepStaffSelector({
                         </span>
                       </div>
                       <span className="text-[11px] text-gray-400 font-medium tracking-wider uppercase">
-                        Master Deep Body
+                        {t.master_deep_body}
                       </span>
                     </div>
 
@@ -341,20 +341,20 @@ export default function DeepStaffSelector({
               className="relative w-full max-w-sm bg-[#131315] border border-[#e6c487]/30 rounded-[2rem] p-6 shadow-2xl text-center z-10"
             >
               <h3 className="text-lg font-bold text-[#e6c487] mb-4">
-                {lang === 'vi' ? 'Hình thức thực hiện' : 'Treatment Arrangement'}
+                {t.arrangement_title}
               </h3>
               <div className="space-y-3">
                 <button
                   onClick={() => handleGroupingConfirm('FOUR_HAND')}
                   className="w-full py-3.5 px-4 rounded-xl bg-[#e6c487]/15 border border-[#e6c487]/40 text-[#e6c487] font-bold text-xs uppercase"
                 >
-                  {lang === 'vi' ? 'Tứ Thủ (2 KTV làm cùng 1 khách)' : '4-Hands (2 Therapists on 1 Client)'}
+                  {t.arrangement_four_hands}
                 </button>
                 <button
                   onClick={() => handleGroupingConfirm('SEPARATE')}
                   className="w-full py-3.5 px-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-xs uppercase"
                 >
-                  {lang === 'vi' ? 'Riêng Biệt (Mỗi khách 1 KTV)' : 'Separate (1 Therapist per Client)'}
+                  {t.arrangement_separate}
                 </button>
               </div>
             </motion.div>

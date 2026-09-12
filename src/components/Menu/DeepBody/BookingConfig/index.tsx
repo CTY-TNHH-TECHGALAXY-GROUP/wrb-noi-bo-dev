@@ -91,13 +91,27 @@ export default function DeepBookingConfig({
       (tech) => tech.name[safeLang] || tech.name.en
     );
 
-    // Combine notes with bodyParts info
+    // Map body area keys to localized names according to user language
+    const AREA_I18N_MAP: Record<string, string> = {
+      HEAD: t.area_head,
+      NECK: t.area_neck,
+      SHOULDER: t.area_shoulders,
+      ARM: t.area_arms,
+      BACK: t.area_back,
+      THIGH: t.area_thigh,
+      KNEE: t.area_knee,
+      CALF: t.area_calf,
+      FOOT: t.area_feet,
+    };
+    const getAreaName = (k: string) => AREA_I18N_MAP[k] || k;
+
+    // Combine notes with bodyParts info in the selected language
     const bodyNoteParts: string[] = [];
     if (focusAreas.length > 0) {
-      bodyNoteParts.push(`Focus: ${focusAreas.join(', ')}`);
+      bodyNoteParts.push(`${t.body_map_col_focus}: ${focusAreas.map(getAreaName).join(', ')}`);
     }
     if (avoidAreas.length > 0) {
-      bodyNoteParts.push(`Avoid: ${avoidAreas.join(', ')}`);
+      bodyNoteParts.push(`${t.body_map_col_avoid}: ${avoidAreas.map(getAreaName).join(', ')}`);
     }
     const combinedNotes = [
       customerNotes.trim(),
@@ -146,7 +160,7 @@ export default function DeepBookingConfig({
             />
           ) : (
             <div className="w-12 h-12 rounded-xl bg-[#e6c487]/20 flex items-center justify-center font-bold text-[#e6c487]">
-              {primaryStaff?.id || 'KTV'}
+              {primaryStaff?.id || t.staff_label}
             </div>
           )}
           <div>
@@ -161,10 +175,10 @@ export default function DeepBookingConfig({
 
         <div className="text-right">
           <span className="text-[10px] uppercase tracking-widest text-gray-400 block font-medium">
-            Menu
+            {t.menu_badge}
           </span>
-          <span className="text-xs font-bold text-[#e6c487] tracking-wider">
-            DEEP BODY
+          <span className="text-xs font-bold text-[#e6c487] tracking-wider uppercase">
+            {t.tab_deep_body}
           </span>
         </div>
       </motion.div>
@@ -298,7 +312,7 @@ export default function DeepBookingConfig({
                   }`}
                 >
                   <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Duration
+                    {t.duration_label}
                   </span>
 
                   <div className="flex flex-col items-center my-1">
@@ -336,7 +350,7 @@ export default function DeepBookingConfig({
       <div className="sticky bottom-6 z-30 p-4 sm:p-5 rounded-2xl bg-[#141416]/95 backdrop-blur-xl border border-[#e6c487]/40 shadow-[0_15px_40px_rgba(0,0,0,0.8)] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <span className="text-[10px] uppercase tracking-widest text-gray-400 block font-medium">
-            Tổng cộng / Estimated Total
+            {t.total_estimated}
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black text-[#e6c487]">

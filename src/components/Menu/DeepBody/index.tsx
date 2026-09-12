@@ -109,8 +109,8 @@ export default function DeepBodyMenu({
   ) => {
     const displayName =
       data.techniqueNames.length > 0
-        ? `Deep Body: ${data.techniqueNames.join(' + ')}`
-        : 'Deep Body Therapy';
+        ? `${t.tab_deep_body}: ${data.techniqueNames.join(' + ')}`
+        : t.tab_deep_body;
 
     const isSeparate = staffGroupingMode === 'SEPARATE';
 
@@ -121,10 +121,10 @@ export default function DeepBodyMenu({
           staffIds: [staffId],
           staffInfoList: staffInfo ? [staffInfo] : [],
           skillIds: data.techniqueIds,
-          displayName: `${displayName} - KTV ${staffId}`,
+          displayName: `${displayName} - ${t.staff_label} ${staffId}`,
           duration: data.totalDuration,
           totalPrice: data.totalPrice,
-          customerNotes: data.customerNotes ? `${data.customerNotes} (Mỗi khách 1 KTV)` : '(Mỗi khách 1 KTV)',
+          customerNotes: data.customerNotes ? `${data.customerNotes} (${t.prefix_separate})` : `(${t.prefix_separate})`,
         });
       });
     } else {
@@ -137,7 +137,7 @@ export default function DeepBodyMenu({
         totalPrice: data.totalPrice,
         customerNotes:
           staffGroupingMode === 'FOUR_HAND' && selectedStaffIds.length > 1
-            ? `${data.customerNotes || ''} (Tứ thủ Deep Body)`.trim()
+            ? `${data.customerNotes ? `${data.customerNotes} ` : ''}(${t.prefix_four_hands})`.trim()
             : data.customerNotes,
       });
     }
@@ -191,7 +191,7 @@ export default function DeepBodyMenu({
             onClick={() => setStep('STAFF')}
             className="flex items-center gap-1.5 text-xs font-bold text-[#e6c487] hover:underline"
           >
-            ← {lang === 'vi' ? 'Đổi Chuyên Viên' : 'Change Therapist'}
+            ← {t.btn_change_staff}
           </button>
         </div>
       )}

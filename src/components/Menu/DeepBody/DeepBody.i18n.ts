@@ -17,7 +17,35 @@ export const DEEP_BODY_I18N = {
     kr: '딥 바디 트리트먼트',
   },
 
-  // Steps
+  // Steps & Navigation
+  btn_change_staff: {
+    vi: 'Đổi Chuyên Viên',
+    en: 'Change Therapist',
+    cn: '更换理疗师',
+    jp: 'セラピスト変更',
+    kr: '테라피스트 변경',
+  },
+  menu_badge: {
+    vi: 'MENU',
+    en: 'MENU',
+    cn: '菜单',
+    jp: 'メニュー',
+    kr: '메뉴',
+  },
+  master_deep_body: {
+    vi: 'Chuyên Viên Thân Thể',
+    en: 'Master Deep Body',
+    cn: '深层理疗大师',
+    jp: 'マスターセラピスト',
+    kr: '마스터 테라피스트',
+  },
+  staff_label: {
+    vi: 'KTV',
+    en: 'Therapist',
+    cn: '理疗师',
+    jp: 'セラピスト',
+    kr: '테라피스트',
+  },
   step_staff: {
     vi: 'CHỌN CHUYÊN VIÊN TRỊ LIỆU',
     en: 'CHOOSE THERAPIST',
@@ -90,6 +118,27 @@ export const DEEP_BODY_I18N = {
     jp: 'Oria Spa 認定・技術審査合格済み',
     kr: 'Oria Spa 공인 기술 인증 완료',
   },
+  certificate_fallback_title: {
+    vi: 'Chứng Nhận Kỹ Thuật Chuyên Nghiệp',
+    en: 'Certificate of Achievement',
+    cn: '专业技术认证证书',
+    jp: '専門技術認定証',
+    kr: '전문 기술 인증 수료증',
+  },
+  certificate_fallback_desc: {
+    vi: 'Đã hoàn thành xuất sắc chương trình đào tạo Giải Phóng Cơ Mạc Chuyên Sâu & Cân Bằng Kinh Lạc Truyền Thống.',
+    en: 'Has successfully mastered Advanced Deep Tissue, Myofascial Release & Traditional Meridian Alignment.',
+    cn: '已圆满完成深层肌筋膜松解技术与经络平衡高级培训课程。',
+    jp: '深層筋膜リリースおよび伝統的経絡調律の専門コースを修了。',
+    kr: '심부 근막 이완 및 전통 경락 균형 전문 교육 과정을 성공적으로 수료함.',
+  },
+  certificate_grade_master: {
+    vi: 'XẾP LOẠI: CHUYÊN GIA',
+    en: 'GRADE: MASTER',
+    cn: '评级：大师级',
+    jp: '等級：マスター',
+    kr: '등급: 마스터',
+  },
   view_technique: {
     vi: 'Xem Kỹ Thuật',
     en: 'View Technique',
@@ -121,7 +170,7 @@ export const DEEP_BODY_I18N = {
 
   // Focus & Avoid Body Map
   body_map_section_title: {
-    vi: '1. Vị Trí Cần Chăm Sóc / Tránh Chạm',
+    vi: '1. Vị Trí Trọng Tâm & Tránh Chạm',
     en: '1. Focus & Avoid Body Areas',
     cn: '1. 重点调理与避开部位',
     jp: '1. 重点部位・回避箇所の指定',
@@ -131,7 +180,7 @@ export const DEEP_BODY_I18N = {
     vi: 'KTV sẽ dựa vào bản đồ để tối ưu kỹ thuật theo thể trạng của bạn',
     en: 'Therapists use this map to customize pressure and therapeutic focus',
     cn: '理疗师将据此深度定制手法力道与调理重点',
-    jp: 'セラピストがマップに基づき施術部位と力加減を最適化します',
+    jp: 'セラピストがマップに基づき施術部位と力加减を最適化します',
     kr: '테라피스트가 신체 맵을 참조하여 맞춤형 케어를 진행합니다',
   },
   body_map_col_area: {
@@ -265,6 +314,62 @@ export const DEEP_BODY_I18N = {
     cn: '前往结算',
     jp: 'お会計へ',
     kr: '결제하기',
+  },
+  duration_label: {
+    vi: 'Thời lượng',
+    en: 'Duration',
+    cn: '时长',
+    jp: '所要時間',
+    kr: '이용 시간',
+  },
+  clinical_overview_title: {
+    vi: 'Mô Tả Chuyên Môn',
+    en: 'Clinical Overview',
+    cn: '专业手法详述',
+    jp: '手技・施術の解説',
+    kr: '전문 기법 상세 설명',
+  },
+  total_estimated: {
+    vi: 'Tổng cộng dự kiến',
+    en: 'Estimated Total',
+    cn: '预估合计',
+    jp: 'お見積り合計',
+    kr: '예상 결제 금액',
+  },
+  arrangement_title: {
+    vi: 'Hình thức thực hiện',
+    en: 'Treatment Arrangement',
+    cn: '理疗服务形式',
+    jp: '施術スタイルの選択',
+    kr: '시술 진행 방식',
+  },
+  arrangement_four_hands: {
+    vi: 'Gói Tứ Thủ (2 KTV cùng phục vụ 1 khách)',
+    en: '4-Hands (2 Therapists on 1 Guest)',
+    cn: '四手联弹（2位理疗师同时服务1位顾客）',
+    jp: 'フォーハンズ（2名のセラピストが担当）',
+    kr: '포핸즈 (고객 1인에 테라피스트 2인 동시 진행)',
+  },
+  arrangement_separate: {
+    vi: 'Riêng Biệt (Mỗi khách 1 KTV riêng)',
+    en: 'Separate (1 Therapist per Guest)',
+    cn: '独立服务（每位顾客分配1位理疗师）',
+    jp: '個別施術（お客様1名につき1名担当）',
+    kr: '개별 진행 (고객 1인당 테라피스트 1인)',
+  },
+  prefix_four_hands: {
+    vi: 'Tứ Thủ 2 KTV',
+    en: '4-Hands 2 Therapists',
+    cn: '四手联弹 2位理疗师',
+    jp: 'フォーハンズ 2名担当',
+    kr: '포핸즈 2인 진행',
+  },
+  prefix_separate: {
+    vi: 'Mỗi khách 1 KTV',
+    en: 'Separate 1 Therapist/Guest',
+    cn: '独立服务 1位理疗师/客',
+    jp: '個別施術 1名担当/客',
+    kr: '개별 진행 1인 배정',
   },
   select_both_warning: {
     vi: 'Vui lòng chọn ít nhất 1 kỹ thuật và 1 thời lượng',
