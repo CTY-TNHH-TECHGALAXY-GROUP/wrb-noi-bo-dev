@@ -182,14 +182,14 @@ export default function BodyFocusAvoidMap({
       <div className="rounded-2xl sm:rounded-3xl border border-[#e6c487]/25 bg-gradient-to-b from-[#141416] to-[#0c0c0e] shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-row items-stretch">
         
         {/* ── LEFT PANEL: FIXED ASPECT RATIO (655:1024) BODY ANATOMY VIEWER ── */}
-        <div className="relative w-[38%] xs:w-[40%] sm:w-[42%] md:w-[44%] shrink-0 bg-[#070708] flex items-center justify-center p-1 sm:p-2.5 border-r border-white/5 overflow-hidden select-none">
+        <div className="relative w-[44%] xs:w-[46%] sm:w-[46%] md:w-[48%] shrink-0 bg-[#070708] flex items-center justify-center p-0.5 sm:p-1.5 border-r border-white/5 overflow-hidden select-none">
           {/* Ambient Glows */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(230,196,135,0.08),transparent_55%)] pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(57,214,123,0.04),transparent_50%)] pointer-events-none" />
 
-          {/* Unified Container with fixed aspect ratio matching the 655x1024 body image */}
+          {/* Unified Container with fixed aspect ratio matching the 655x1024 body image - zoomed slightly to fit frame */}
           <div
-            className="relative w-full"
+            className="relative w-full scale-[1.04] sm:scale-[1.06] transition-transform origin-center"
             style={{
               aspectRatio: '655 / 1024',
               maxHeight: '100%',
