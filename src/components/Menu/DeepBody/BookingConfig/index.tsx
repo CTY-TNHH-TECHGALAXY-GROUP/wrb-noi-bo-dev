@@ -75,14 +75,7 @@ export default function DeepBookingConfig({
   };
 
   const handleToggleTechnique = (id: string) => {
-    setSelectedTechniqueIds((prev) => {
-      if (prev.includes(id)) {
-        if (prev.length === 1) return prev; // Keep at least one
-        return prev.filter((item) => item !== id);
-      } else {
-        return [...prev, id];
-      }
-    });
+    setSelectedTechniqueIds([id]);
   };
 
   const handleConfirmOrder = (action: 'SELECT_MORE' | 'CHECKOUT') => {
@@ -192,18 +185,13 @@ export default function DeepBookingConfig({
 
       {/* ── SECTION 2: DEEP BODY TECHNIQUES ── */}
       <section className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <div>
-            <h3 className="text-lg sm:text-xl font-bold text-[#e6c487] tracking-wide">
-              {t.select_technique_title}
-            </h3>
-            <p className="text-xs text-gray-400">
-              {t.select_technique_subtitle}
-            </p>
-          </div>
-          <span className="text-xs font-bold text-[#e6c487] bg-[#e6c487]/15 px-3 py-1 rounded-full border border-[#e6c487]/30">
-            {selectedTechniqueIds.length} đã chọn
-          </span>
+        <div className="mb-2">
+          <h3 className="text-lg sm:text-xl font-bold text-[#e6c487] tracking-wide">
+            {t.select_technique_title}
+          </h3>
+          <p className="text-xs text-gray-400">
+            {t.select_technique_subtitle}
+          </p>
         </div>
 
         {/* Techniques Grid */}
@@ -222,21 +210,8 @@ export default function DeepBookingConfig({
                 }`}
               >
                 <div>
-                  {/* Top row: Badge */}
-                  <div className="flex items-center justify-between gap-2 mb-2.5">
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        isSelected
-                          ? 'bg-[#e6c487] text-black'
-                          : 'bg-white/10 text-gray-300'
-                      }`}
-                    >
-                      {tech.badge[safeLang] || tech.badge.en}
-                    </span>
-                  </div>
-
-                  {/* Title & Checkmark */}
-                  <div className="flex items-start justify-between gap-2 mb-1.5">
+                  {/* Title & Radio Indicator */}
+                  <div className="flex items-start justify-between gap-2 mb-2">
                     <h4 className="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-[#e6c487] transition-colors">
                       {tech.name[safeLang] || tech.name.en}
                     </h4>

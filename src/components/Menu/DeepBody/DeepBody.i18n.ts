@@ -183,11 +183,11 @@ export const DEEP_BODY_I18N = {
     kr: '2. 심층 테라피 기법 선택',
   },
   select_technique_subtitle: {
-    vi: 'Khách hàng có thể chọn 1 phương pháp chính hoặc kết hợp',
-    en: 'Select your primary therapeutic treatment or combination',
-    cn: '可选择单一核心深度技法或多重组合',
-    jp: 'お好みのメイン手技をお選びください',
-    kr: '원하시는 메인 테라피 기법을 선택해 주세요',
+    vi: 'Vui lòng chọn 1 phương pháp trị liệu phù hợp nhất với bạn',
+    en: 'Please select 1 primary therapeutic method that suits you best',
+    cn: '请选择1种最适合您的核心深度理疗技术',
+    jp: '最適なメイン手技を1つお選びください',
+    kr: '가장 적합한 메인 테라피 기법 1가지를 선택해 주세요',
   },
   intensity_label: {
     vi: 'Cường độ ấn sâu',
