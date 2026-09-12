@@ -200,7 +200,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     return (
         <div className="w-full h-full bg-[#131315] text-[#e4e2e4] flex flex-col relative overflow-hidden">
             {/* Progress Bar */}
-            <div className="absolute top-0 left-0 h-[2px] bg-[#1b1b1d] w-full z-30">
+            <div className="absolute top-0 left-0 h-[2px] bg-[#1b1b1d] w-full z-50">
                 <motion.div
                     className="h-full bg-[#e6c487]"
                     initial={{ width: '0%' }}
@@ -210,7 +210,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
             </div>
 
             {/* Header */}
-            <header className="sticky top-0 z-20 bg-[#0e0e10]/80 backdrop-blur-xl shadow-[0_0_40px_rgba(201,169,110,0.04)]">
+            <header className={`sticky top-0 ${isLangOpen ? 'z-[80]' : 'z-40'} bg-[#0e0e10]/80 backdrop-blur-xl shadow-[0_0_40px_rgba(201,169,110,0.04)]`}>
                 <div className="flex justify-between items-center px-6 py-3.5">
                     <button
                         onClick={handleBack}
