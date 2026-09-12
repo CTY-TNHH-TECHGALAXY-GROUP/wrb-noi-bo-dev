@@ -3,17 +3,17 @@ import { DeepBodyLang } from '@/lib/deepBody.constants';
 export const DEEP_BODY_I18N = {
   // Switch Bar Tabs
   tab_design_journey: {
-    vi: 'Design Your Journey',
+    vi: 'Thiết Kế Liệu Trình',
     en: 'Design Your Journey',
     cn: '专属定制之旅',
     jp: 'オリジナル体験設計',
     kr: '나만의 맞춤 여정',
   },
   tab_deep_body: {
-    vi: 'Deep Body Treatment',
+    vi: 'Trị Liệu Chuyên Sâu',
     en: 'Deep Body Treatment',
     cn: '深层身体理疗',
-    jp: '深層ボディトリートメント',
+    jp: '深層ボディケア',
     kr: '딥 바디 트리트먼트',
   },
 
