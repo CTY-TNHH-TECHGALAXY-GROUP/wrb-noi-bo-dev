@@ -99,9 +99,8 @@ export default function CertificateModal({
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between w-full pt-3 border-t border-white/10 text-[10px] text-gray-500">
+                  <div className="flex items-center justify-center w-full pt-3 border-t border-white/10 text-[10px] text-gray-500">
                     <span>ID: CERT-OR-{staff.id}</span>
-                    <span className="text-[#e6c487] font-bold">{t.certificate_grade_master}</span>
                   </div>
                 </div>
               )}

@@ -33,11 +33,11 @@ export const DEEP_BODY_I18N = {
     kr: '메뉴',
   },
   master_deep_body: {
-    vi: 'Chuyên Viên Thân Thể',
-    en: 'Master Deep Body',
-    cn: '深层理疗大师',
-    jp: 'マスターセラピスト',
-    kr: '마스터 테라피스트',
+    vi: 'Nghệ Nhân',
+    en: 'Artisan',
+    cn: '理疗匠人',
+    jp: 'アルチザン',
+    kr: '아티산',
   },
   staff_label: {
     vi: 'KTV',
@@ -47,11 +47,11 @@ export const DEEP_BODY_I18N = {
     kr: '테라피스트',
   },
   step_staff: {
-    vi: 'CHỌN CHUYÊN VIÊN TRỊ LIỆU',
-    en: 'CHOOSE THERAPIST',
-    cn: '选择理疗大师',
-    jp: '担当セラピストを選択',
-    kr: '전문 테라피스트 선택',
+    vi: 'CHỌN NGHỆ NHÂN TRỊ LIỆU',
+    en: 'CHOOSE ARTISAN THERAPIST',
+    cn: '选择理疗匠人',
+    jp: '担当アルチザンを選択',
+    kr: '전문 아티산 선택',
   },
   step_config: {
     vi: 'KỸ THUẬT & THỜI LƯỢNG',
@@ -63,11 +63,11 @@ export const DEEP_BODY_I18N = {
 
   // Staff Step
   ss_title: {
-    vi: 'Chuyên Viên Trị Liệu Thân Thể',
-    en: 'Master Body Therapists',
-    cn: '身体理疗大师阵容',
-    jp: '熟練ボディセラピスト',
-    kr: '전문 바디 테라피스트',
+    vi: 'Nghệ Nhân Trị Liệu Thân Thể',
+    en: 'Artisan Body Therapists',
+    cn: '身体理疗匠人阵容',
+    jp: '熟練ボディアルチザン',
+    kr: '아티산 바디 테라피스트',
   },
   ss_subtitle: {
     vi: 'Được đào tạo bài bản và cấp chứng chỉ kỹ thuật chuyên sâu',
