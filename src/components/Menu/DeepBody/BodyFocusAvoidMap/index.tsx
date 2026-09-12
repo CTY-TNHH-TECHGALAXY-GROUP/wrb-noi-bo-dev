@@ -178,77 +178,112 @@ export default function BodyFocusAvoidMap({
       {/* Main Container: Left Viewer + Right Controls side-by-side on ALL screens (mobile, tablet, desktop) */}
       <div className="rounded-2xl sm:rounded-3xl border border-[#e6c487]/25 bg-gradient-to-b from-[#141416] to-[#0c0c0e] shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-row items-stretch">
         
-        {/* ── LEFT PANEL: FIXED ASPECT RATIO (655:1024) BODY ANATOMY VIEWER ── */}
-        <div className="relative w-[40%] xs:w-[42%] sm:w-[43%] md:w-[45%] shrink-0 bg-[#070708] flex items-center justify-center p-1.5 sm:p-2.5 border-r border-white/5 overflow-hidden select-none">
+        {/* ── LEFT PANEL: UNIFIED SVG (655x1024) BODY ANATOMY VIEWER (100% LOCKED COORDINATES) ── */}
+        <div className="relative w-[38%] xs:w-[40%] sm:w-[42%] md:w-[45%] shrink-0 bg-[#070708] flex items-center justify-center p-1 sm:p-2.5 border-r border-white/5 overflow-hidden select-none">
           {/* Ambient Glows */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(230,196,135,0.08),transparent_55%)] pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(57,214,123,0.04),transparent_50%)] pointer-events-none" />
 
-          {/* Unified Container with fixed aspect ratio matching the 655x1024 body image - fitted naturally within frame */}
-          <div
-            className="relative w-full max-h-full scale-[0.96] sm:scale-[0.98] transition-transform origin-center"
-            style={{
-              aspectRatio: '655 / 1024',
-              maxHeight: '100%',
-            }}
-          >
-            {/* 1. Base Image - pinned to 100% of container */}
-            <img
-              src="/images/body-map.webp"
-              alt="Anatomical Body Meridian Map"
-              className="absolute inset-0 w-full h-full object-contain pointer-events-none filter contrast-115 brightness-110 saturate-105"
-              style={{
-                imageRendering: '-webkit-optimize-contrast',
-              }}
-            />
+          {/* SVG ViewBox 655x1024 - Perfectly locks image and coordinates on all devices */}
+          <div className="relative w-full h-full flex items-center justify-center">
+            <svg
+              viewBox="0 0 655 1024"
+              className="w-full h-full max-h-full max-w-full block select-none pointer-events-none"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <defs>
+                <filter id="body-dot-glow-focus" x="-100%" y="-100%" width="300%" height="300%">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur1" />
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur2" />
+                  <feMerge>
+                    <feMergeNode in="blur1" />
+                    <feMergeNode in="blur2" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+                <filter id="body-dot-glow-avoid" x="-100%" y="-100%" width="300%" height="300%">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur1" />
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur2" />
+                  <feMerge>
+                    <feMergeNode in="blur1" />
+                    <feMergeNode in="blur2" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
 
-            {/* Glowing Acupuncture Dots Overlay - pinned to exact anatomical coordinates */}
-            <div className="absolute inset-0 pointer-events-none">
+              {/* 1. Base Anatomical Image */}
+              <image
+                href="/images/body-map.webp"
+                x="0"
+                y="0"
+                width="655"
+                height="1024"
+                preserveAspectRatio="xMidYMid meet"
+              />
+
+              {/* 2. Acupuncture Dots Overlay - Pinned to 100% exact anatomical coordinates */}
               {AREA_LIST.map(({ key }) => {
                 const status = getAreaStatus(key);
+                if (!status) return null;
                 const points = AREA_CLUSTERS[key] || [];
+                const isFocus = status === 'focus';
+                const color = isFocus ? '#39d67b' : '#ff5b66';
+                const filterId = isFocus ? 'url(#body-dot-glow-focus)' : 'url(#body-dot-glow-avoid)';
 
-                return points.map((pt, i) => {
-                  const isVisible = status !== null;
-                  const isFocus = status === 'focus';
-                  const isAvoid = status === 'avoid';
+                return (
+                  <g key={key}>
+                    {points.map((pt, i) => {
+                      const cx = (pt.x / 100) * 655;
+                      const cy = (pt.y / 100) * 1024;
+                      const rBase = pt.primary ? 11 : 7;
 
-                  return (
-                    <span
-                      key={`${key}-${i}`}
-                      style={{
-                        left: `${pt.x}%`,
-                        top: `${pt.y}%`,
-                      }}
-                      className={`absolute rounded-full -translate-x-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-none ${
-                        pt.primary ? 'w-2.5 h-2.5 sm:w-3.5 sm:h-3.5' : 'w-1.5 h-1.5 sm:w-2.5 sm:h-2.5'
-                      } ${
-                        isVisible
-                          ? 'opacity-100 scale-100'
-                          : 'opacity-0 scale-50'
-                      } ${
-                        isFocus
-                          ? 'bg-[#39d67b] shadow-[0_0_8px_#39d67b,0_0_16px_rgba(57,214,123,0.7)]'
-                          : ''
-                      } ${
-                        isAvoid
-                          ? 'bg-[#ff5b66] shadow-[0_0_8px_#ff5b66,0_0_16px_rgba(255,91,102,0.7)]'
-                          : ''
-                      }`}
-                    >
-                      {/* Inner Ping Core for Primary Dots */}
-                      {isVisible && pt.primary && (
-                        <span
-                          className={`absolute inset-0 rounded-full animate-ping opacity-75 ${
-                            isFocus ? 'bg-[#39d67b]' : 'bg-[#ff5b66]'
-                          }`}
-                        />
-                      )}
-                    </span>
-                  );
-                });
+                      return (
+                        <g key={`${key}-${i}`}>
+                          {/* Outer soft luminous halo */}
+                          <circle
+                            cx={cx}
+                            cy={cy}
+                            r={rBase * 2.2}
+                            fill={color}
+                            opacity={0.45}
+                            filter={filterId}
+                          />
+
+                          {/* Mid vibrant glow ring */}
+                          <circle
+                            cx={cx}
+                            cy={cy}
+                            r={rBase * 1.3}
+                            fill={color}
+                            opacity={0.85}
+                          />
+
+                          {/* Crisp core dot */}
+                          <circle
+                            cx={cx}
+                            cy={cy}
+                            r={rBase}
+                            fill={color}
+                            stroke="#ffffff"
+                            strokeWidth={1.8}
+                          />
+
+                          {/* White center specular highlight */}
+                          <circle
+                            cx={cx}
+                            cy={cy}
+                            r={rBase * 0.4}
+                            fill="#ffffff"
+                            opacity={0.9}
+                          />
+                        </g>
+                      );
+                    })}
+                  </g>
+                );
               })}
-            </div>
+            </svg>
           </div>
         </div>
 
