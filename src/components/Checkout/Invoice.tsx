@@ -4,6 +4,7 @@ import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
 import { SKILL_MAP, type VipLang } from '@/lib/vipSkills.constants';
 import { getSkillName } from '@/lib/vipStaffUtils';
+import { DEEP_BODY_TECHNIQUES } from '@/lib/deepBody.constants';
 
 interface InvoiceProps {
     cart: CartItem[];
@@ -78,6 +79,40 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                         const vipStaffDisplay = item.vipStaffId     || (item.options as any)?.vipStaffId       || 'KTV';
                         const vipSkillIds     = item.vipSkillIds    || (item.options as any)?.selectedSkills   || [];
 
+                        // Ẩn tag nếu tên phương thức/kỹ năng đã xuất hiện trong tiêu đề
+                        const itemTitle = (isVipItem ? vipDisplayName : (item.names[lang] || item.names.en || '')).toLowerCase();
+                        const itemTitleCompact = itemTitle.replace(/[^a-z0-9]/g, '');
+
+                        const visibleSkillIds = (vipSkillIds || []).filter((skillId: string) => {
+                            // 1. Direct ID match (e.g. coconutOil, mixFourTherapies)
+                            const cleanId = skillId.toLowerCase().replace(/[^a-z0-9]/g, '');
+                            if (cleanId && itemTitleCompact.includes(cleanId)) return false;
+
+                            // 2. VIP SKILL_MAP names check
+                            const skill = SKILL_MAP[skillId];
+                            if (skill?.name) {
+                                for (const key of Object.keys(skill.name)) {
+                                    const val = (skill.name as any)[key];
+                                    if (val && itemTitle.includes(val.toLowerCase())) {
+                                        return false;
+                                    }
+                                }
+                            }
+
+                            // 3. DEEP_BODY_TECHNIQUES names check
+                            const deepTech = DEEP_BODY_TECHNIQUES.find(t => t.id === skillId);
+                            if (deepTech?.name) {
+                                for (const key of Object.keys(deepTech.name)) {
+                                    const val = (deepTech.name as any)[key];
+                                    if (val && itemTitle.includes(val.toLowerCase())) {
+                                        return false;
+                                    }
+                                }
+                            }
+
+                            return true;
+                        });
+
                         return (
                             <div key={item.cartId} className="border border-white/10 rounded-2xl p-4 shadow-sm bg-[#0d0d0d] mb-4">
                                 {/* Row 1: Name + Price */}
@@ -127,12 +162,15 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                                     {vipDuration} {dict.checkout?.mins || 'phút'}
                                                 </span>
                                             </div>
-                                            {/* Skills Chips */}
-                                            {vipSkillIds && vipSkillIds.length > 0 && (
+                                            {/* Skills Chips - Ẩn nếu tên đã có trong tiêu đề */}
+                                            {visibleSkillIds.length > 0 && (
                                                 <div className="flex flex-wrap gap-1.5 mt-1 pt-2 border-t border-white/5">
-                                                    {vipSkillIds.map((skillId: string) => {
+                                                    {visibleSkillIds.map((skillId: string) => {
                                                         const skill = SKILL_MAP[skillId];
-                                                        const name = skill ? getSkillName(skill, vipLang) : skillId;
+                                                        const deepTech = DEEP_BODY_TECHNIQUES.find(t => t.id === skillId);
+                                                        const name = skill 
+                                                            ? getSkillName(skill, vipLang) 
+                                                            : (deepTech?.name?.[lang as keyof typeof deepTech.name] || skillId);
                                                         const isChinhSkill = skill?.type === 'CHINH';
                                                         return (
                                                             <span key={skillId} className={`text-[10px] px-2 py-0.5 rounded-full border font-medium bg-transparent ${

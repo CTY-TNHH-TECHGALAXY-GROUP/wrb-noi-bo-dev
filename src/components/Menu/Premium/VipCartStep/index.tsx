@@ -10,6 +10,7 @@ import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
 import { SKILL_MAP, type VipLang } from '@/lib/vipSkills.constants';
 import { getSkillName } from '@/lib/vipStaffUtils';
+import { DEEP_BODY_TECHNIQUES } from '@/lib/deepBody.constants';
 import VipEditModal, { type VipEditSaveData } from '@/components/Checkout/VipEditModal';
 
 // =============================================
@@ -303,7 +304,8 @@ const VipCartStep = ({
                             const notes     = item.vipCustomerNotes || item.options?.notes?.content || '';
                             const skillNames = skillIds.map((id: string) => {
                                 const s = SKILL_MAP[id];
-                                return s ? getSkillName(s, vipLang) : id;
+                                const deepTech = DEEP_BODY_TECHNIQUES.find(t => t.id === id);
+                                return s ? getSkillName(s, vipLang) : (deepTech?.name?.[vipLang as keyof typeof deepTech.name] || id);
                             });
 
                             return (
