@@ -54,7 +54,7 @@ export default function MenuPage() {
 
     // 4. Cross-menu navigation (cart giữ nguyên qua MenuContext)
     const handleSwitchToVip = () => {
-        router.push(`/${lang}/vip/menu?tab=journey`);
+        router.push(`/${lang}/vip/menu?tab=deep_body`);
     };
     const handleSwitchToStandard = () => {
         router.push(`/${lang}/standard/menu`);

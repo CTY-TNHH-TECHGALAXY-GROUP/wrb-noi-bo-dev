@@ -28,7 +28,7 @@ export default function BookingMenuPage({ params }: { params: Promise<{ lang: st
 
     // 4. Cross-menu navigation (cart giữ nguyên qua MenuContext)
     const handleSwitchToVip = () => {
-        router.push(`/${lang}/booking/vip/menu?tab=journey`);
+        router.push(`/${lang}/booking/vip/menu?tab=deep_body`);
     };
     const handleSwitchToStandard = () => {
         router.push(`/${lang}/booking/standard/menu`);

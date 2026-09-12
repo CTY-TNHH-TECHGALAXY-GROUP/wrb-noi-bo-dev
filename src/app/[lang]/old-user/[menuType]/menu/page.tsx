@@ -22,7 +22,7 @@ export default function OldUserMenuPage() {
     };
 
     const handleSwitchToVip = () => {
-        router.push(`/${lang}/old-user/vip/menu?tab=journey`);
+        router.push(`/${lang}/old-user/vip/menu?tab=deep_body`);
     };
 
     if (menuType === 'standard' || menuType === 'spa') {
