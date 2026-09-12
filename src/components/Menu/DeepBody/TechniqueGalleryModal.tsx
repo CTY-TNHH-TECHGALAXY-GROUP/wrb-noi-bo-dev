@@ -63,11 +63,6 @@ export default function TechniqueGalleryModal({
           {/* Header */}
           <div className="flex items-start justify-between pb-4 border-b border-white/10">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="px-2.5 py-0.5 rounded-full bg-[#e6c487]/20 border border-[#e6c487]/40 text-[#e6c487] text-[10px] font-bold uppercase tracking-wider">
-                  {technique.badge[safeLang] || technique.badge.en}
-                </span>
-              </div>
               <h3 className="text-lg sm:text-2xl font-bold text-white leading-tight">
                 {technique.name[safeLang] || technique.name.en}
               </h3>
