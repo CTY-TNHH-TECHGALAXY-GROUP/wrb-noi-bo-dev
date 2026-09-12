@@ -2,13 +2,12 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Clock, Check, Info, ShieldCheck, Activity, Plus, ArrowRight, Award } from 'lucide-react';
+import { Sparkles, Clock, Check, Info, ShieldCheck, Activity, Plus, ArrowRight } from 'lucide-react';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 import { type VipPricingTable, type VipDuration, lookupPrice } from '@/lib/vipPricingEngine';
 import { DEEP_BODY_TECHNIQUES, DeepBodyTechnique, DeepBodyLang } from '@/lib/deepBody.constants';
 import { getDeepBodyT } from '../DeepBody.i18n';
 import TechniqueGalleryModal from '../TechniqueGalleryModal';
-import CertificateModal from '../CertificateModal';
 import BodyFocusAvoidMap, { BodyAreaKey } from '../BodyFocusAvoidMap';
 
 const FALLBACK_PRICING: VipPricingTable = {
@@ -58,7 +57,6 @@ export default function DeepBookingConfig({
   const [selectedDuration, setSelectedDuration] = useState<VipDuration>(90);
   const [customerNotes, setCustomerNotes] = useState('');
   const [activeTechniqueForModal, setActiveTechniqueForModal] = useState<DeepBodyTechnique | null>(null);
-  const [showCertModal, setShowCertModal] = useState(false);
 
   const pricingTable = vipPricingTable || FALLBACK_PRICING;
   const staffCount = Math.max(1, selectedStaffIds.length);
@@ -135,69 +133,35 @@ export default function DeepBookingConfig({
       exit={{ opacity: 0 }}
       className="flex flex-col px-2 sm:px-6 pt-2 pb-16 max-w-5xl mx-auto"
     >
-      {/* Therapist Summary Bar - Square Bo Góc Responsive All Devices & Mini Certificate Popover */}
+      {/* Therapist Summary Bar - Square Bo Góc Responsive All Devices */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6 p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl bg-[#1a1a1d] border border-[#e6c487]/35 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg"
+        className="mb-6 p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl bg-[#1a1a1d] border border-[#e6c487]/35 flex items-center justify-between shadow-lg"
       >
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
           {primaryStaff?.avatarUrl ? (
             <img
               src={primaryStaff.avatarUrl}
               alt={primaryStaff.fullName}
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover border border-[#e6c487]/50 shadow-md shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
-              onClick={() => setShowCertModal(true)}
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover border border-[#e6c487]/50 shadow-md shrink-0"
             />
           ) : (
-            <div 
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-[#e6c487]/20 flex items-center justify-center font-bold text-[#e6c487] text-lg sm:text-xl shrink-0 cursor-pointer"
-              onClick={() => setShowCertModal(true)}
-            >
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-[#e6c487]/20 flex items-center justify-center font-bold text-[#e6c487] text-lg sm:text-xl shrink-0">
               {primaryStaff?.id || t.staff_label}
             </div>
           )}
-
-          <div className="min-w-0 flex flex-col gap-1.5">
-            {/* Banner Gold Pill + Artisan Label */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <div 
-                onClick={() => setShowCertModal(true)}
-                className="inline-flex items-center gap-2 bg-[#e6c487]/15 hover:bg-[#e6c487]/25 border border-[#e6c487]/40 px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-sm cursor-pointer transition-colors"
-              >
-                <span className="text-xs sm:text-sm md:text-base font-black tracking-[0.12em] text-[#e6c487] whitespace-nowrap">
-                  {primaryStaff?.id} • {primaryStaff?.fullName}
-                </span>
-              </div>
-              <span className="text-[11px] sm:text-xs text-gray-400 font-semibold tracking-wider uppercase whitespace-nowrap">
-                {t.master_deep_body}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-base sm:text-lg md:text-xl uppercase font-black text-[#e6c487] tracking-wider truncate">
+                {primaryStaff?.id} • {primaryStaff?.fullName}
               </span>
+              <ShieldCheck size={18} className="text-emerald-400 shrink-0" />
             </div>
-
-            {/* Mini Certificate Button - Click to Popover (Giống Image 3) */}
-            <button
-              type="button"
-              onClick={() => setShowCertModal(true)}
-              className="self-start flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-black/75 hover:bg-black/90 backdrop-blur-md border border-[#e6c487]/60 text-[#e6c487] shadow-sm hover:scale-105 active:scale-95 transition-all group/cert cursor-pointer"
-              title={t.certificate_view}
-            >
-              <div className="w-5 h-5 rounded-lg bg-[#e6c487]/20 flex items-center justify-center text-[#e6c487]">
-                <Award size={13} className="group-hover/cert:rotate-12 transition-transform" />
-              </div>
-              <div className="text-left">
-                <span className="text-[9px] uppercase tracking-wider text-gray-400 block leading-tight">
-                  {t.certificate_badge}
-                </span>
-                <span className="text-[11px] font-bold text-white leading-tight flex items-center gap-1 whitespace-nowrap">
-                  {t.certificate_view}
-                  <ShieldCheck size={11} className="text-emerald-400" />
-                </span>
-              </div>
-            </button>
           </div>
         </div>
 
-        <div className="text-right shrink-0 pl-3 hidden sm:block">
+        <div className="text-right shrink-0 pl-3">
           <span className="text-xs sm:text-sm uppercase tracking-widest text-gray-400 block font-bold">
             {t.menu_badge}
           </span>
@@ -395,16 +359,6 @@ export default function DeepBookingConfig({
         lang={lang}
         onClose={() => setActiveTechniqueForModal(null)}
       />
-
-      {/* Popover Certificate Modal */}
-      {showCertModal && primaryStaff && (
-        <CertificateModal
-          isOpen={showCertModal}
-          onClose={() => setShowCertModal(false)}
-          staff={primaryStaff}
-          lang={lang}
-        />
-      )}
     </motion.div>
   );
 }

@@ -237,28 +237,45 @@ export default function DeepStaffSelector({
                     </div>
                   )}
 
-                  {/* ⭐ ẢNH CHỨNG CHỈ Ở GÓC TRÁI DƯỚI (User Requirement) */}
-                  <div className="absolute bottom-28 left-6 z-20">
+                  {/* ⭐ ẢNH CHỨNG CHỈ Ở GÓC PHẢI VỚI FOOTER "VIEW CERTIFICATE" (User Requirement) */}
+                  <div className="absolute bottom-28 right-5 sm:right-6 z-20">
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedStaffForCert(staff);
                       }}
-                      className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-black/75 hover:bg-black/90 backdrop-blur-md border border-[#e6c487]/60 text-[#e6c487] shadow-[0_4px_20px_rgba(0,0,0,0.6)] hover:scale-105 active:scale-95 transition-all group/cert"
+                      className="w-28 sm:w-32 rounded-xl overflow-hidden bg-black/85 hover:bg-black/95 backdrop-blur-md border border-[#e6c487]/50 hover:border-[#e6c487] text-[#e6c487] shadow-[0_8px_25px_rgba(0,0,0,0.7)] hover:scale-105 active:scale-95 transition-all group/cert flex flex-col text-left cursor-pointer"
                       title={t.certificate_view}
                     >
-                      {/* Mini Thumbnail Certificate / Badge Icon */}
-                      <div className="w-6 h-6 rounded-lg bg-[#e6c487]/20 flex items-center justify-center text-[#e6c487]">
-                        <Award size={14} className="group-hover/cert:rotate-12 transition-transform" />
+                      {/* Mini Certificate Image / Preview */}
+                      <div className="w-full h-16 sm:h-20 relative overflow-hidden bg-[#18181b] flex items-center justify-center">
+                        {staff.certificateUrl ? (
+                          <img
+                            src={staff.certificateUrl}
+                            alt="Certificate"
+                            className="w-full h-full object-cover p-1 group-hover/cert:scale-105 transition-transform"
+                          />
+                        ) : (
+                          /* Stylized Mini Certificate Preview Mockup */
+                          <div className="w-full h-full p-2 bg-gradient-to-b from-[#242428] via-[#1a1a1d] to-[#121214] flex flex-col items-center justify-center text-center relative">
+                            <div className="absolute inset-1 border border-[#e6c487]/30 rounded-md pointer-events-none" />
+                            <Award size={18} className="text-[#e6c487] mb-0.5 group-hover/cert:rotate-12 transition-transform" />
+                            <span className="text-[7.5px] tracking-[0.15em] text-[#e6c487] uppercase font-black leading-none">
+                              ORIA SPA
+                            </span>
+                            <span className="text-[6.5px] text-gray-400 uppercase tracking-widest leading-tight mt-0.5">
+                              {t.certificate_badge}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-left">
-                        <span className="text-[9px] uppercase tracking-wider text-gray-400 block leading-tight">
-                          {t.certificate_badge}
-                        </span>
-                        <span className="text-[11px] font-bold text-white leading-tight flex items-center gap-1">
+
+                      {/* Footer là "View Certificate" giống hiện tại */}
+                      <div className="w-full bg-black/90 py-1.5 px-2 flex items-center justify-center gap-1 border-t border-white/10">
+                        <span className="text-[10px] sm:text-[11px] font-bold text-white group-hover/cert:text-[#e6c487] transition-colors leading-tight flex items-center gap-1 whitespace-nowrap">
                           {t.certificate_view}
-                          <ShieldCheck size={11} className="text-emerald-400" />
+                          <ShieldCheck size={11} className="text-emerald-400 shrink-0" />
                         </span>
                       </div>
                     </button>
