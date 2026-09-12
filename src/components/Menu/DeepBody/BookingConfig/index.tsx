@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Clock, Check, Info, ShieldCheck, Activity, Plus, ArrowRight } from 'lucide-react';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
-import { type VipPricingTable, type VipDuration, lookupPrice } from '@/lib/vipPricingEngine';
+import { type VipPricingTable, type VipDuration, lookupPrice, lookupUsdPrice } from '@/lib/vipPricingEngine';
 import { DEEP_BODY_TECHNIQUES, DeepBodyTechnique, DeepBodyLang } from '@/lib/deepBody.constants';
 import { getDeepBodyT } from '../DeepBody.i18n';
 import TechniqueGalleryModal from '../TechniqueGalleryModal';
@@ -29,6 +29,7 @@ interface DeepBookingConfigProps {
       techniqueNames: string[];
       totalDuration: number;
       totalPrice: number;
+      totalPriceUSD?: number;
       customerNotes?: string;
       bodyParts?: {
         focus: string[];
@@ -61,6 +62,7 @@ export default function DeepBookingConfig({
   const pricingTable = vipPricingTable || FALLBACK_PRICING;
   const staffCount = Math.max(1, selectedStaffIds.length);
   const currentPrice = lookupPrice(pricingTable, staffCount, selectedDuration);
+  const currentUsdPrice = lookupUsdPrice(staffCount, selectedDuration, currentPrice);
 
   const handleToggleTechnique = (id: string) => {
     setSelectedTechniqueIds([id]);
@@ -114,6 +116,7 @@ export default function DeepBookingConfig({
         techniqueNames,
         totalDuration: selectedDuration,
         totalPrice: currentPrice,
+        totalPriceUSD: currentUsdPrice,
         customerNotes: combinedNotes,
         bodyParts: {
           focus: focusAreas,
@@ -252,9 +255,10 @@ export default function DeepBookingConfig({
         </p>
 
         {/* 3 Duration Cards Grid - Exactly 3 cards fit 1 row */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-5 w-full">
+        <div className="grid grid-cols-3 gap-2.5 xs:gap-3 sm:gap-4 md:gap-5 w-full">
           {AVAILABLE_DURATIONS.map((dur) => {
             const price = lookupPrice(pricingTable, staffCount, dur);
+            const usdPrice = lookupUsdPrice(staffCount, dur, price);
             const isSelected = selectedDuration === dur;
 
             return (
@@ -262,7 +266,7 @@ export default function DeepBookingConfig({
                 key={dur}
                 type="button"
                 onClick={() => setSelectedDuration(dur)}
-                className={`flex flex-col items-center justify-between min-h-[190px] xs:min-h-[205px] sm:min-h-[225px] md:min-h-[240px] p-4 sm:p-6 md:p-7 rounded-2xl sm:rounded-3xl transition-all duration-200 border cursor-pointer ${
+                className={`flex flex-col items-center justify-between min-h-[190px] xs:min-h-[205px] sm:min-h-[225px] md:min-h-[240px] p-2.5 xs:p-3 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl transition-all duration-200 border cursor-pointer ${
                   isSelected
                     ? 'bg-gradient-to-b from-[#24211b] via-[#1d1b17] to-[#161513] border-[#e6c487] text-[#e6c487] shadow-[0_6px_30px_rgba(230,196,135,0.25)] ring-1 ring-[#e6c487]/40 scale-[1.02]'
                     : 'bg-[#161618] border-white/8 text-gray-300 hover:border-white/20 hover:bg-[#18181b] active:scale-[0.98]'
@@ -283,9 +287,16 @@ export default function DeepBookingConfig({
 
                 <div className="w-12 sm:w-16 h-px bg-white/10 my-1 sm:my-1.5" />
 
-                <span className="text-xs xs:text-sm sm:text-base md:text-lg font-black tracking-wide whitespace-nowrap text-center">
-                  {price.toLocaleString('vi-VN')} VND
-                </span>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-center font-black">
+                  <span className="text-xs xs:text-sm sm:text-base md:text-lg tracking-tight whitespace-nowrap">
+                    {price.toLocaleString('vi-VN')} VND
+                  </span>
+                  <span className={`text-[11px] xs:text-xs sm:text-sm md:text-base font-bold whitespace-nowrap ${
+                    isSelected ? 'text-[#e6c487]/90' : 'text-gray-400'
+                  }`}>
+                    / ${usdPrice}
+                  </span>
+                </div>
               </button>
             );
           })}
@@ -314,9 +325,14 @@ export default function DeepBookingConfig({
             <span className="text-xs sm:text-sm uppercase tracking-widest text-gray-400 block font-bold mb-1">
               {t.total_estimated}
             </span>
-            <span className="text-3xl sm:text-4xl md:text-5xl font-black text-[#e6c487] tracking-tight">
-              {currentPrice.toLocaleString('vi-VN')} VND
-            </span>
+            <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
+              <span className="text-2xl sm:text-3xl md:text-4xl font-black text-[#e6c487] tracking-tight">
+                {currentPrice.toLocaleString('vi-VN')} VND
+              </span>
+              <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-400">
+                / ${currentUsdPrice}
+              </span>
+            </div>
           </div>
 
           {/* Large prominent duration badge */}

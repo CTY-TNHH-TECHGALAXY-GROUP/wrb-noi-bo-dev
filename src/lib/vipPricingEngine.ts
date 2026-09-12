@@ -123,6 +123,41 @@ export const lookupPrice = (
   return pricingTable?.[staffKey]?.[durationKey] ?? 0;
 };
 
+// --- USD Pricing Table sample from Design Your Journey (Services NHP0001 - NHP0014 in database) ---
+export const VIP_USD_PRICING: Record<string, Record<string, number>> = {
+  '1': {
+    '60': 29,
+    '70': 34,
+    '90': 43,
+    '120': 58,
+    '150': 72,
+    '180': 86,
+    '240': 115,
+  },
+  '2': {
+    '60': 43,
+    '70': 50,
+    '90': 65,
+    '120': 86,
+    '150': 108,
+    '180': 130,
+    '240': 173,
+  },
+};
+
+export const lookupUsdPrice = (
+  numStaff: number,
+  duration: number,
+  vndPrice?: number
+): number => {
+  const staffKey = String(Math.min(numStaff, 2));
+  const durationKey = String(duration);
+  const matched = VIP_USD_PRICING[staffKey]?.[durationKey];
+  if (matched !== undefined) return matched;
+  if (vndPrice && vndPrice > 0) return Math.round(vndPrice / 25000);
+  return 0;
+};
+
 /**
  * Full pricing calculation — single entry point.
  *

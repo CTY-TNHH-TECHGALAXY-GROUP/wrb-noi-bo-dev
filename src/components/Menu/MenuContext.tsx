@@ -47,6 +47,7 @@ interface MenuContextType {
         displayName: string;
         duration: number;
         totalPrice: number;
+        totalPriceUSD?: number;
         customerNotes?: string;
     }) => void;
     updateVipCartItem: (cartId: string, updates: {
@@ -162,6 +163,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
         displayName: string;
         duration: number;
         totalPrice: number;
+        totalPriceUSD?: number;
         customerNotes?: string;
     }) => {
         const newItems: CartItem[] = params.staffIds.map((staffId, index) => {
@@ -175,7 +177,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
                 descriptions: { en: '', vi: '' },
                 img: '',
                 priceVND: index === 0 ? params.totalPrice : 0, // Price only on first item
-                priceUSD: 0,
+                priceUSD: index === 0 ? (params.totalPriceUSD ?? Math.round(params.totalPrice / 25000)) : 0,
                 timeValue: params.duration,
                 qty: 1,
                 menuType: 'vip' as const,

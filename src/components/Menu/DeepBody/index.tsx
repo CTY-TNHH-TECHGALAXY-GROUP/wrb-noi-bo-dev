@@ -124,6 +124,7 @@ export default function DeepBodyMenu({
           displayName: `${displayName} - ${t.staff_label} ${staffId}`,
           duration: data.totalDuration,
           totalPrice: data.totalPrice,
+          totalPriceUSD: data.totalPriceUSD,
           customerNotes: data.customerNotes ? `${data.customerNotes} (${t.prefix_separate})` : `(${t.prefix_separate})`,
         });
       });
@@ -135,6 +136,7 @@ export default function DeepBodyMenu({
         displayName,
         duration: data.totalDuration,
         totalPrice: data.totalPrice,
+        totalPriceUSD: data.totalPriceUSD,
         customerNotes:
           staffGroupingMode === 'FOUR_HAND' && selectedStaffIds.length > 1
             ? `${data.customerNotes ? `${data.customerNotes} ` : ''}(${t.prefix_four_hands})`.trim()
