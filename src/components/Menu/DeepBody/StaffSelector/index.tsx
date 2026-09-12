@@ -70,7 +70,7 @@ export default function DeepStaffSelector({
 
   useEffect(() => {
     setIsLoading(true);
-    fetch('/api/staff/vip-available')
+    fetch('/api/staff/therapy-available')
       .then((res) => res.json())
       .then((data) => {
         if (data.staff && Array.isArray(data.staff)) {
