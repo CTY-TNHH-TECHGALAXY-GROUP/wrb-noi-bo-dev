@@ -237,8 +237,8 @@ export default function DeepStaffSelector({
                     </div>
                   )}
 
-                  {/* ⭐ ẢNH CHỨNG CHỈ Ở GÓC PHẢI VỚI FOOTER "VIEW CERTIFICATE" (User Requirement) */}
-                  <div className="absolute bottom-28 right-5 sm:right-6 z-20">
+                  {/* ⭐ ẢNH CHỨNG CHỈ Ở GÓC TRÁI DƯỚI (User Requirement) */}
+                  <div className="absolute bottom-32 left-5 sm:left-6 z-20">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -283,11 +283,11 @@ export default function DeepStaffSelector({
 
                   {/* Content Gradient Overlay (Bottom) */}
                   <div className="absolute bottom-0 left-0 w-full p-6 pt-12 bg-gradient-to-t from-[#121214] via-[#121214]/85 to-transparent">
-                    {/* Staff ID & Tagline */}
+                    {/* Staff ID & Tagline (Chỉ hiện mã KTV, không hiện tên) */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="inline-block bg-[#e6c487]/15 border border-[#e6c487]/40 px-4 py-1.5 rounded-full shadow-sm">
                         <span className="text-sm tracking-[0.15em] text-[#e6c487] font-bold">
-                          {staff.id} • {staff.fullName}
+                          {staff.id}
                         </span>
                       </div>
                       <span className="text-[11px] text-gray-400 font-medium tracking-wider uppercase">
