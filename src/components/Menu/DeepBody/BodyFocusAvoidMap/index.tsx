@@ -291,14 +291,14 @@ export default function BodyFocusAvoidMap({
         <div className="flex-1 flex flex-col justify-between p-2 sm:p-4 md:p-5 bg-gradient-to-b from-[#121214] to-[#0d0d0f] h-full overflow-hidden">
           <div className="flex flex-col h-full justify-between">
             {/* Table Header */}
-            <div className="grid grid-cols-[1fr_36px_36px] xs:grid-cols-[1fr_42px_42px] sm:grid-cols-[1fr_64px_64px] md:grid-cols-[1fr_76px_76px] gap-1 sm:gap-2 items-center pb-2 mb-0.5 border-b border-white/10 text-xs sm:text-sm md:text-base font-black uppercase tracking-wider flex-none">
-              <div className="text-[#e6c487] pl-0.5 font-bold truncate">
+            <div className="grid grid-cols-[1fr_44px_44px] xs:grid-cols-[1fr_50px_50px] sm:grid-cols-[1fr_64px_64px] md:grid-cols-[1fr_76px_76px] gap-1 sm:gap-2 items-center pb-2 mb-0.5 border-b border-white/10 text-[10px] xs:text-xs sm:text-sm md:text-base font-black uppercase flex-none">
+              <div className="text-[#e6c487] pl-0.5 font-bold break-words whitespace-normal leading-tight">
                 {t.body_map_col_area}
               </div>
-              <div className="text-[#39d67b] text-center font-bold truncate">
+              <div className="text-[#39d67b] text-center font-bold break-words whitespace-normal leading-tight px-0.5">
                 {t.body_map_col_focus}
               </div>
-              <div className="text-[#ff5b66] text-center font-bold truncate">
+              <div className="text-[#ff5b66] text-center font-bold break-words whitespace-normal leading-tight px-0.5">
                 {t.body_map_col_avoid}
               </div>
             </div>
@@ -314,7 +314,7 @@ export default function BodyFocusAvoidMap({
                 return (
                   <div
                     key={key}
-                    className="grid grid-cols-[1fr_36px_36px] xs:grid-cols-[1fr_42px_42px] sm:grid-cols-[1fr_64px_64px] md:grid-cols-[1fr_76px_76px] gap-1 sm:gap-2 items-center py-0.5 sm:py-1 hover:bg-white/[0.03] rounded-lg transition-colors px-0.5 sm:px-1"
+                    className="grid grid-cols-[1fr_44px_44px] xs:grid-cols-[1fr_50px_50px] sm:grid-cols-[1fr_64px_64px] md:grid-cols-[1fr_76px_76px] gap-1 sm:gap-2 items-center py-0.5 sm:py-1 hover:bg-white/[0.03] rounded-lg transition-colors px-0.5 sm:px-1"
                   >
                     {/* Area Name */}
                     <div
