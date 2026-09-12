@@ -37,7 +37,7 @@ export const useSyncAuthState = () => {
 
         // Listen to Auth State Changes (login, logout)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            (_event, session) => {
+            (_event: any, session: any) => {
                 if (session) {
                     setUser(session.user);
                 } else {

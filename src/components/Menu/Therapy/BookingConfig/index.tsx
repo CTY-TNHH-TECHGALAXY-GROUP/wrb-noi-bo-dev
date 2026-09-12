@@ -340,7 +340,7 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
                   <div className="text-left leading-tight">
                     <span className="block text-xs font-bold text-[#e6c487]">{s.id}</span>
                     <span className="block text-[9px] opacity-60">
-                      {(selectedSkillsMap[s.id] || []).length} {t.bc_skills}
+                      {focusParts.length} {t.bc_skills || 'vùng'}
                     </span>
                   </div>
                 </button>

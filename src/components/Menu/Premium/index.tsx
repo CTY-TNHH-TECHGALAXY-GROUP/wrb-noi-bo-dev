@@ -15,6 +15,8 @@ import { getSkillName } from '@/lib/vipStaffUtils';
 import { useMenuData } from '@/components/Menu/MenuContext';
 import { getT } from './Premium.i18n';
 import { type VipEditSaveData } from '@/components/Checkout/VipEditModal';
+import DeepBodyMenu from '@/components/Menu/DeepBody';
+import { getDeepBodyT } from '@/components/Menu/DeepBody/DeepBody.i18n';
 
 // =============================================
 // 👑 Premium Menu – VIP Booking Flow
@@ -37,14 +39,17 @@ interface PremiumMenuProps {
 }
 
 type MenuStep = 'STAFF' | 'BOOKING_CONFIG';
+type VipTab = 'DESIGN_YOUR_JOURNEY' | 'DEEP_BODY_TREATMENT';
 
 const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStandard }: PremiumMenuProps) => {
     const router = useRouter();
     const pathname = usePathname();
     const t = getT(lang);
+    const deepT = getDeepBodyT(lang);
     const { cart, addVipToCart, updateVipCartItem, removeVipGroup } = useMenuData();
     const [step, setStep]         = useState<MenuStep>('STAFF');
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [activeVipTab, setActiveVipTab] = useState<VipTab>('DESIGN_YOUR_JOURNEY');
 
     // Language switcher state
     const [isLangOpen, setIsLangOpen] = useState(false);
@@ -113,6 +118,9 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     };
 
     const getStepTitle = () => {
+        if (activeVipTab === 'DEEP_BODY_TREATMENT') {
+            return deepT.tab_deep_body;
+        }
         switch (step) {
             case 'STAFF':          return t.step_staff;
             case 'BOOKING_CONFIG': return t.step_config;
@@ -280,57 +288,100 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                 </div>
             </header>
 
-            {/* Main Content */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden w-full">
-                <div className="w-full lg:max-w-5xl lg:mx-auto lg:px-8 pb-32">
-                    <AnimatePresence mode="wait">
-                        {/* STAFF STEP */}
-                        {step === 'STAFF' && (
-                            <motion.div
-                                key="staff"
-                                initial={{ opacity: 0, x: 30 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -30 }}
-                                transition={{ duration: 0.3 }}
-                                className="w-full"
-                            >
-                                <StaffSelector
-                                    lang={lang}
-                                    cartHasItems={vipGroupCount > 0}
-                                    onConfirmSelection={(ids, staffInfoList, mode) => {
-                                        setSelectedStaffIds(ids);
-                                        setSelectedStaffInfoList(staffInfoList);
-                                        setStaffGroupingMode(mode || null);
-                                        setStep('BOOKING_CONFIG');
-                                    }}
-                                />
-                            </motion.div>
-                        )}
+            {/* 🌟 VIP MENU SWITCH BAR (Chìa Khóa Menu) */}
+            <div className="sticky top-[61px] z-20 w-full px-4 sm:px-6 py-2 bg-[#0e0e10]/95 backdrop-blur-md border-b border-white/5 flex justify-center">
+                <div className="inline-flex p-1 rounded-full bg-[#1b1b1d] border border-[#e6c487]/30 max-w-md w-full relative shadow-inner">
+                    <button
+                        type="button"
+                        onClick={() => setActiveVipTab('DESIGN_YOUR_JOURNEY')}
+                        className={`flex-1 py-2 px-3 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 ${
+                            activeVipTab === 'DESIGN_YOUR_JOURNEY'
+                                ? 'bg-[#e6c487] text-[#412d00] shadow-[0_2px_10px_rgba(230,196,135,0.3)]'
+                                : 'text-gray-400 hover:text-gray-200'
+                        }`}
+                    >
+                        <span>✨</span>
+                        <span className="truncate">{deepT.tab_design_journey}</span>
+                    </button>
 
-                        {/* BOOKING CONFIG STEP */}
-                        {step === 'BOOKING_CONFIG' && (
-                            <motion.div
-                                key="booking"
-                                initial={{ opacity: 0, x: 30 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -30 }}
-                                transition={{ duration: 0.3 }}
-                                className="w-full"
-                            >
-                                <BookingConfig
-                                    lang={lang}
-                                    isBookingFlow={isBookingFlow}
-                                    selectedStaffIds={selectedStaffIds}
-                                    selectedStaffInfoList={selectedStaffInfoList}
-                                    vipPricingTable={vipPricingTable}
-                                    bufferMinutes={bufferMinutes}
-                                    onConfirm={handleBookingConfirm}
-                                />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                    <button
+                        type="button"
+                        onClick={() => setActiveVipTab('DEEP_BODY_TREATMENT')}
+                        className={`flex-1 py-2 px-3 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 ${
+                            activeVipTab === 'DEEP_BODY_TREATMENT'
+                                ? 'bg-[#e6c487] text-[#412d00] shadow-[0_2px_10px_rgba(230,196,135,0.3)]'
+                                : 'text-gray-400 hover:text-gray-200'
+                        }`}
+                    >
+                        <span>🌿</span>
+                        <span className="truncate">{deepT.tab_deep_body}</span>
+                    </button>
                 </div>
             </div>
+
+            {/* Main Content Area */}
+            {activeVipTab === 'DEEP_BODY_TREATMENT' ? (
+                <div className="flex-1 overflow-hidden w-full">
+                    <DeepBodyMenu
+                        lang={lang}
+                        isBookingFlow={isBookingFlow}
+                        onBack={onBack}
+                        onCheckout={onCheckout}
+                        onSwitchToStandard={onSwitchToStandard}
+                    />
+                </div>
+            ) : (
+                <div className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+                    <div className="w-full lg:max-w-5xl lg:mx-auto lg:px-8 pb-32">
+                        <AnimatePresence mode="wait">
+                            {/* STAFF STEP */}
+                            {step === 'STAFF' && (
+                                <motion.div
+                                    key="staff"
+                                    initial={{ opacity: 0, x: 30 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -30 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="w-full"
+                                >
+                                    <StaffSelector
+                                        lang={lang}
+                                        cartHasItems={vipGroupCount > 0}
+                                        onConfirmSelection={(ids, staffInfoList, mode) => {
+                                            setSelectedStaffIds(ids);
+                                            setSelectedStaffInfoList(staffInfoList);
+                                            setStaffGroupingMode(mode || null);
+                                            setStep('BOOKING_CONFIG');
+                                        }}
+                                    />
+                                </motion.div>
+                            )}
+
+                            {/* BOOKING CONFIG STEP */}
+                            {step === 'BOOKING_CONFIG' && (
+                                <motion.div
+                                    key="booking"
+                                    initial={{ opacity: 0, x: 30 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -30 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="w-full"
+                                >
+                                    <BookingConfig
+                                        lang={lang}
+                                        isBookingFlow={isBookingFlow}
+                                        selectedStaffIds={selectedStaffIds}
+                                        selectedStaffInfoList={selectedStaffInfoList}
+                                        vipPricingTable={vipPricingTable}
+                                        bufferMinutes={bufferMinutes}
+                                        onConfirm={handleBookingConfirm}
+                                    />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </div>
+            )}
 
             {/* ── VIP Cart Bottom Sheet ──────────────── */}
             <VipCartStep

@@ -91,7 +91,7 @@ const SearchableCountrySelect = ({
 
 interface CustomerInfoProps {
     lang: string;
-    dict: { checkout: Record<string, string> };
+    dict: any;
     info: { name: string; email: string; phone: string; gender: string; room?: string };
     onChange: (field: string, value: string) => void;
     isBookingFlow?: boolean;

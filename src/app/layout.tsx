@@ -10,6 +10,7 @@ import { Inter } from "next/font/google";
 import "./globals.css"; // 👈 QUAN TRỌNG: Dòng này để tải file CSS nền đen, font chữ...
 import { MenuProvider } from "@/components/Menu/MenuContext";
 import { AuthProvider } from "@/components/Auth/AuthProvider";
+import FloatingTranslator from "@/components/Translator/FloatingTranslator";
 // Import component fix lỗi height cho iOS
 import IOSViewportFix from "@/components/IOSViewportFix";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
@@ -67,6 +68,7 @@ export default function RootLayout({
             <ServiceWorkerRegister />
             {isVercelDeployment && <Analytics />}
             {children}
+            <FloatingTranslator />
           </MenuProvider>
         </AuthProvider>
       </body>

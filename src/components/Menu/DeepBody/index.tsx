@@ -1,0 +1,201 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import DeepStaffSelector from './StaffSelector';
+import DeepBookingConfig from './BookingConfig';
+import VipCartStep from '../Premium/VipCartStep';
+import { type VipStaffInfo } from '@/lib/vipStaffUtils';
+import { type VipPricingTable } from '@/lib/vipPricingEngine';
+import { useMenuData } from '@/components/Menu/MenuContext';
+import { getDeepBodyT } from './DeepBody.i18n';
+import { type VipEditSaveData } from '@/components/Checkout/VipEditModal';
+
+interface DeepBodyMenuProps {
+  lang: string;
+  isBookingFlow?: boolean;
+  onBack: () => void;
+  onCheckout: () => void;
+  onSwitchToStandard?: () => void;
+}
+
+type MenuStep = 'STAFF' | 'BOOKING_CONFIG';
+
+export default function DeepBodyMenu({
+  lang,
+  isBookingFlow,
+  onBack,
+  onCheckout,
+  onSwitchToStandard,
+}: DeepBodyMenuProps) {
+  const t = getDeepBodyT(lang);
+  const { cart, addVipToCart, updateVipCartItem, removeVipGroup } = useMenuData();
+
+  const [step, setStep] = useState<MenuStep>('STAFF');
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [vipPricingTable, setVipPricingTable] = useState<VipPricingTable | undefined>(undefined);
+
+  const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
+  const [selectedStaffInfoList, setSelectedStaffInfoList] = useState<VipStaffInfo[]>([]);
+  const [staffGroupingMode, setStaffGroupingMode] = useState<'FOUR_HAND' | 'SEPARATE' | null>(null);
+
+  // Fetch VIP pricing table
+  useEffect(() => {
+    fetch('/api/config/menu-vip')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.pricing && typeof data.pricing === 'object' && !Array.isArray(data.pricing)) {
+          setVipPricingTable(data.pricing as VipPricingTable);
+        }
+      })
+      .catch((err) => console.error('[DeepBody] Pricing error:', err));
+  }, []);
+
+  const handleBack = () => {
+    if (step === 'BOOKING_CONFIG') {
+      setStep('STAFF');
+    } else {
+      onBack();
+    }
+  };
+
+  const handleBookingConfirm = (data: {
+    techniqueIds: string[];
+    techniqueNames: string[];
+    totalDuration: number;
+    totalPrice: number;
+    customerNotes?: string;
+  }) => {
+    const displayName =
+      data.techniqueNames.length > 0
+        ? `Deep Body: ${data.techniqueNames.join(' + ')}`
+        : 'Deep Body Therapy';
+
+    const isSeparate = staffGroupingMode === 'SEPARATE';
+
+    if (isSeparate && selectedStaffIds.length > 1) {
+      selectedStaffIds.forEach((staffId) => {
+        const staffInfo = selectedStaffInfoList.find((s) => s.id === staffId);
+        addVipToCart({
+          staffIds: [staffId],
+          staffInfoList: staffInfo ? [staffInfo] : [],
+          skillIds: data.techniqueIds,
+          displayName: `${displayName} - KTV ${staffId}`,
+          duration: data.totalDuration,
+          totalPrice: data.totalPrice,
+          customerNotes: data.customerNotes ? `${data.customerNotes} (Mỗi khách 1 KTV)` : '(Mỗi khách 1 KTV)',
+        });
+      });
+    } else {
+      addVipToCart({
+        staffIds: selectedStaffIds,
+        staffInfoList: selectedStaffInfoList,
+        skillIds: data.techniqueIds,
+        displayName,
+        duration: data.totalDuration,
+        totalPrice: data.totalPrice,
+        customerNotes:
+          staffGroupingMode === 'FOUR_HAND' && selectedStaffIds.length > 1
+            ? `${data.customerNotes || ''} (Tứ thủ Deep Body)`.trim()
+            : data.customerNotes,
+      });
+    }
+
+    setIsCartOpen(true);
+  };
+
+  const handleAddAnother = () => {
+    setSelectedStaffIds([]);
+    setSelectedStaffInfoList([]);
+    setStaffGroupingMode(null);
+    setStep('STAFF');
+  };
+
+  const handleCartUpdateItem = (cartId: string, saveData: VipEditSaveData) => {
+    updateVipCartItem(cartId, {
+      vipSkillIds: saveData.vipSkillIds,
+      vipDuration: saveData.vipDuration,
+      vipDisplayName: saveData.vipDisplayName,
+      vipCustomerNotes: saveData.vipCustomerNotes,
+      priceVND: saveData.priceVND,
+    });
+  };
+
+  return (
+    <div className="w-full h-full flex flex-col relative overflow-hidden">
+      {/* Step Subheader with Back Button if in BOOKING_CONFIG */}
+      {step === 'BOOKING_CONFIG' && (
+        <div className="px-6 py-2 border-b border-white/5 bg-[#121214]/60 backdrop-blur-sm flex items-center justify-between">
+          <button
+            onClick={() => setStep('STAFF')}
+            className="flex items-center gap-1.5 text-xs font-bold text-[#e6c487] hover:underline"
+          >
+            ← {lang === 'vi' ? 'Đổi Chuyên Viên' : 'Change Therapist'}
+          </button>
+          <span className="text-[11px] font-bold text-gray-400 tracking-wider uppercase">
+            {t.step_config}
+          </span>
+        </div>
+      )}
+
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+        <AnimatePresence mode="wait">
+          {step === 'STAFF' && (
+            <motion.div
+              key="deep-staff"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.25 }}
+              className="w-full"
+            >
+              <DeepStaffSelector
+                lang={lang}
+                cartHasItems={cart.some((i) => i.itemType === 'vip')}
+                onConfirmSelection={(ids, staffInfoList, mode) => {
+                  setSelectedStaffIds(ids);
+                  setSelectedStaffInfoList(staffInfoList);
+                  setStaffGroupingMode(mode || null);
+                  setStep('BOOKING_CONFIG');
+                }}
+              />
+            </motion.div>
+          )}
+
+          {step === 'BOOKING_CONFIG' && (
+            <motion.div
+              key="deep-config"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.25 }}
+              className="w-full"
+            >
+              <DeepBookingConfig
+                lang={lang}
+                isBookingFlow={isBookingFlow}
+                selectedStaffIds={selectedStaffIds}
+                selectedStaffInfoList={selectedStaffInfoList}
+                vipPricingTable={vipPricingTable}
+                onConfirm={handleBookingConfirm}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* VIP Cart Bottom Sheet */}
+      <VipCartStep
+        cart={cart}
+        lang={lang}
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        onCheckout={onCheckout}
+        onAddAnother={handleAddAnother}
+        onUpdateItem={handleCartUpdateItem}
+        onRemoveGroup={removeVipGroup}
+      />
+    </div>
+  );
+}

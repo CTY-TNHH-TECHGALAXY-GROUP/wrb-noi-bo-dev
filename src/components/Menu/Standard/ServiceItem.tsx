@@ -192,38 +192,7 @@ export default function ServiceItem({ service, singleOption, quantity, lang, isB
                         <span className="ml-2 font-semibold text-[#C9A96E]">{seeMoreText}</span>
                     </p>
                 ) : null}
-                {singleOption && (
-                    <div className="md:hidden mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 pr-2 text-left">
-                        {singleOption.timeValue > 0 && (
-                            <span className="text-[18px] font-black text-white">
-                                {singleOption.timeValue} {minsText}
-                            </span>
-                        )}
-                        <span className="text-[19px] font-black text-[#C9A96E]">
-                            {formatCurrency(singleOption.priceVND)} VND
-                        </span>
-                        <span className="text-[18px] font-bold text-emerald-500">
-                            {singleOption.priceUSD} USD
-                        </span>
-                    </div>
-                )}
             </div>
-
-            {singleOption && (
-                <div className="hidden md:flex shrink-0 min-w-[220px] flex-col items-end justify-center gap-1 pr-20">
-                    {singleOption.timeValue > 0 && (
-                        <div className="text-[24px] font-black text-white leading-none">
-                            {singleOption.timeValue} <span className="text-[16px] uppercase tracking-wider text-gray-400">{minsText}</span>
-                        </div>
-                    )}
-                    <div className="text-[26px] font-black leading-tight text-[#C9A96E] tabular-nums">
-                        {formatCurrency(singleOption.priceVND)} <span className="text-[15px] text-gray-500">VND</span>
-                    </div>
-                    <div className="text-[22px] font-bold leading-tight text-emerald-500 tabular-nums">
-                        {singleOption.priceUSD} <span className="text-[14px]">USD</span>
-                    </div>
-                </div>
-            )}
 
             {/* 3. Nút Cộng / Badge số lượng (Góc dưới phải tuyệt đối) */}
             <div className="absolute bottom-4 right-4 z-40">
