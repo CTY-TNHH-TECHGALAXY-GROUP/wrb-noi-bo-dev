@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Clock, Check, Info, ShieldCheck, ChevronLeft, ChevronRight, Activity, Plus, ArrowRight } from 'lucide-react';
+import { Sparkles, Clock, Check, Info, ShieldCheck, Activity, Plus, ArrowRight } from 'lucide-react';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 import { type VipPricingTable, type VipDuration, lookupPrice } from '@/lib/vipPricingEngine';
 import { DEEP_BODY_TECHNIQUES, DeepBodyTechnique, DeepBodyLang } from '@/lib/deepBody.constants';
@@ -58,21 +58,9 @@ export default function DeepBookingConfig({
   const [customerNotes, setCustomerNotes] = useState('');
   const [activeTechniqueForModal, setActiveTechniqueForModal] = useState<DeepBodyTechnique | null>(null);
 
-  // Duration scroll indicators
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
   const pricingTable = vipPricingTable || FALLBACK_PRICING;
   const staffCount = Math.max(1, selectedStaffIds.length);
   const currentPrice = lookupPrice(pricingTable, staffCount, selectedDuration);
-
-  const checkScroll = () => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    setCanScrollLeft(scrollLeft > 10);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-  };
 
   const handleToggleTechnique = (id: string) => {
     setSelectedTechniqueIds([id]);
@@ -263,58 +251,44 @@ export default function DeepBookingConfig({
           {t.duration_hint}
         </p>
 
-        {/* Scroll Container */}
-        <div className="relative">
-          {/* Scroll indicators */}
-          {canScrollLeft && (
-            <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#131315] to-transparent z-10 flex items-center justify-start pointer-events-none">
-              <ChevronLeft size={22} className="text-[#e6c487]" />
-            </div>
-          )}
-          {canScrollRight && (
-            <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#131315] to-transparent z-10 flex items-center justify-end pointer-events-none">
-              <ChevronRight size={22} className="text-[#e6c487]" />
-            </div>
-          )}
+        {/* 3 Duration Cards Grid - Exactly 3 cards fit 1 row */}
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 w-full">
+          {AVAILABLE_DURATIONS.map((dur) => {
+            const price = lookupPrice(pricingTable, staffCount, dur);
+            const isSelected = selectedDuration === dur;
 
-          <div
-            ref={scrollRef}
-            onScroll={checkScroll}
-            className="flex gap-3.5 overflow-x-auto pb-3 custom-scrollbar scrollbar-hide snap-x"
-          >
-            {AVAILABLE_DURATIONS.map((dur) => {
-              const price = lookupPrice(pricingTable, staffCount, dur);
-              const isSelected = selectedDuration === dur;
+            return (
+              <button
+                key={dur}
+                type="button"
+                onClick={() => setSelectedDuration(dur)}
+                className={`flex flex-col items-center justify-between min-h-[175px] xs:min-h-[190px] sm:min-h-[210px] md:min-h-[225px] p-3.5 xs:p-4 sm:p-6 md:p-7 rounded-2xl sm:rounded-3xl transition-all duration-200 border cursor-pointer ${
+                  isSelected
+                    ? 'bg-gradient-to-b from-[#24211b] via-[#1d1b17] to-[#161513] border-[#e6c487] text-[#e6c487] shadow-[0_6px_30px_rgba(230,196,135,0.25)] ring-1 ring-[#e6c487]/40 scale-[1.02]'
+                    : 'bg-[#161618] border-white/8 text-gray-300 hover:border-white/20 hover:bg-[#18181b] active:scale-[0.98]'
+                }`}
+              >
+                <span className="text-[11px] xs:text-xs sm:text-sm font-bold uppercase tracking-wider opacity-75">
+                  {t.duration_label}
+                </span>
 
-              return (
-                <button
-                  key={dur}
-                  type="button"
-                  onClick={() => setSelectedDuration(dur)}
-                  className={`flex flex-col items-center justify-between w-[125px] sm:w-[145px] h-[160px] p-4 sm:p-5 rounded-2xl shrink-0 transition-all border snap-center ${
-                    isSelected
-                      ? 'bg-[#1f1d19] border-[#e6c487] text-[#e6c487] shadow-[0_0_15px_rgba(230,196,135,0.2)] scale-102'
-                      : 'bg-[#161618] border-white/5 text-gray-300 hover:border-white/20'
-                  }`}
-                >
-                  <span className="text-xs font-bold uppercase tracking-wider opacity-70">
-                    {t.duration_label}
+                <div className="flex flex-col items-center my-1 sm:my-2">
+                  <span className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-black leading-none tracking-tight">
+                    {dur}
                   </span>
-
-                  <div className="flex flex-col items-center my-1">
-                    <span className="text-4xl sm:text-5xl font-black leading-none">{dur}</span>
-                    <span className="text-sm sm:text-base font-bold mt-0.5">{t.mins}</span>
-                  </div>
-
-                  <div className="w-10 h-px bg-white/10 my-1" />
-
-                  <span className="text-sm sm:text-base font-extrabold tracking-wide whitespace-nowrap">
-                    {price.toLocaleString('vi-VN')} VND
+                  <span className="text-xs xs:text-sm sm:text-base font-bold mt-1 text-gray-300">
+                    {t.mins}
                   </span>
-                </button>
-              );
-            })}
-          </div>
+                </div>
+
+                <div className="w-10 sm:w-16 h-px bg-white/10 my-1 sm:my-1.5" />
+
+                <span className="text-[11px] xs:text-xs sm:text-base md:text-lg font-extrabold tracking-wide whitespace-nowrap text-center">
+                  {price.toLocaleString('vi-VN')} VND
+                </span>
+              </button>
+            );
+          })}
         </div>
       </section>
 
