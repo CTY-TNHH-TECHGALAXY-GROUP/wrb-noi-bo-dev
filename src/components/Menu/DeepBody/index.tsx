@@ -193,9 +193,6 @@ export default function DeepBodyMenu({
           >
             ← {lang === 'vi' ? 'Đổi Chuyên Viên' : 'Change Therapist'}
           </button>
-          <span className="text-[11px] font-bold text-gray-400 tracking-wider uppercase">
-            {t.step_config}
-          </span>
         </div>
       )}
 

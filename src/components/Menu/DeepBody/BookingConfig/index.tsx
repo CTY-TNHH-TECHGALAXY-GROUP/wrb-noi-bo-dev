@@ -156,9 +156,6 @@ export default function DeepBookingConfig({
               </span>
               <ShieldCheck size={14} className="text-emerald-400" />
             </div>
-            <p className="text-[11px] text-gray-400">
-              {staffCount === 2 ? 'Gói Tứ Thủ 2 Chuyên Viên (4-Hands)' : 'Chuyên Viên Trị Liệu Trọng Tâm'}
-            </p>
           </div>
         </div>
 

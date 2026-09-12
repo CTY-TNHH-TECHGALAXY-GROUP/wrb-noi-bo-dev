@@ -158,9 +158,6 @@ export default function BodyFocusAvoidMap({
           <h3 className="text-lg sm:text-xl font-bold text-[#e6c487] tracking-wide">
             {t.body_map_section_title}
           </h3>
-          <p className="text-xs text-gray-400">
-            {t.body_map_section_subtitle}
-          </p>
         </div>
         {(focusAreas.length > 0 || avoidAreas.length > 0) && (
           <div className="flex items-center gap-2">
@@ -344,12 +341,6 @@ export default function BodyFocusAvoidMap({
                   </div>
                 );
               })}
-            </div>
-
-            {/* Footer Note */}
-            <div className="pt-2 mt-0.5 border-t border-white/5 text-[9px] sm:text-xs text-gray-500 italic flex items-center gap-1.5 flex-none">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#e6c487] shrink-0" />
-              <span className="line-clamp-1">{t.body_map_note}</span>
             </div>
           </div>
         </div>
