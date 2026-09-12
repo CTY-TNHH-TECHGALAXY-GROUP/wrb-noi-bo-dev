@@ -87,9 +87,9 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     // Ngăn truy cập trái phép nếu không có giỏ hàng
     useEffect(() => {
         if (!cart || cart.length === 0) {
-            router.push('/');
+            router.push(`/${lang}/${menuType}/menu`);
         }
-    }, [cart, router]);
+    }, [cart, router, lang, menuType]);
     // [NEW] Unified Auto-fill Customer Info (Google Auth, Old User, Contacted First)
     useEffect(() => {
         let autoName = '';

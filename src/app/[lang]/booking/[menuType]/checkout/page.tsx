@@ -74,9 +74,9 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
     // --- EFFECTS ---
     useEffect(() => {
         if (!cart || cart.length === 0) {
-            router.push('/');
+            router.push(`/${lang}/booking/${menuType}/menu`);
         }
-    }, [cart, router]);
+    }, [cart, router, lang, menuType]);
 
     useEffect(() => {
         if (isAuthUser && user) {
