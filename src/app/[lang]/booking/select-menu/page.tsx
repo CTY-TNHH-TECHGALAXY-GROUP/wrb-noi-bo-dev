@@ -24,8 +24,8 @@ export default function BookingSelectMenuPage({ params }: { params: Promise<{ la
         localStorage.setItem('selected_menu_type', type);
 
         // Chuyển hướng đến trang Menu Booking chi tiết
-        // Ví dụ: /vn/booking/standard/menu hoặc /vn/booking/vip/menu?tab=deep_body
-        router.push(type === 'vip' ? `/${lang}/booking/vip/menu?tab=deep_body` : `/${lang}/booking/${type}/menu`);
+        // Ví dụ: /vn/booking/standard/menu hoặc /vn/booking/vip/menu?tab=journey
+        router.push(type === 'vip' ? `/${lang}/booking/vip/menu?tab=journey` : `/${lang}/booking/${type}/menu`);
     };
 
     return (

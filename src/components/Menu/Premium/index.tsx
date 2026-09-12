@@ -49,40 +49,38 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     const deepT = getDeepBodyT(lang);
     const { cart, addVipToCart, updateVipCartItem, removeVipGroup } = useMenuData();
 
-    // Active Tab & Step with URL persistence (Default: DEEP_BODY_TREATMENT / ?tab=deep_body)
+    // Active Tab & Step with URL persistence (Default: DESIGN_YOUR_JOURNEY / ?tab=journey)
     const [activeVipTab, setActiveVipTab] = useState<VipTab>(() => {
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
             const tabParam = params.get('tab');
-            if (tabParam === 'journey' || tabParam === 'DESIGN_YOUR_JOURNEY') {
-                return 'DESIGN_YOUR_JOURNEY';
+            if (tabParam === 'deep_body' || tabParam === 'deep-body' || tabParam === 'DEEP_BODY_TREATMENT') {
+                return 'DEEP_BODY_TREATMENT';
             }
-            return 'DEEP_BODY_TREATMENT';
         }
-        return 'DEEP_BODY_TREATMENT';
+        return 'DESIGN_YOUR_JOURNEY';
     });
 
-    // Reactive sync with URL searchParams & ensure URL has correct tab (?tab=deep_body by default)
+    // Reactive sync with URL searchParams & ensure URL has ?tab=journey by default
     useEffect(() => {
         const tabParam = searchParams?.get('tab');
-        if (tabParam === 'journey' || tabParam === 'DESIGN_YOUR_JOURNEY') {
-            setActiveVipTab('DESIGN_YOUR_JOURNEY');
-            if (typeof window !== 'undefined') {
-                sessionStorage.setItem('vip_active_tab', 'DESIGN_YOUR_JOURNEY');
-            }
-            if (tabParam !== 'journey' && pathname) {
-                router.replace(`${pathname}?tab=journey`, { scroll: false });
-            }
-        } else {
+        if (tabParam === 'deep_body' || tabParam === 'deep-body' || tabParam === 'DEEP_BODY_TREATMENT') {
             setActiveVipTab('DEEP_BODY_TREATMENT');
             if (typeof window !== 'undefined') {
                 sessionStorage.setItem('vip_active_tab', 'DEEP_BODY_TREATMENT');
             }
-            if (tabParam !== 'deep_body' && pathname) {
-                router.replace(`${pathname}?tab=deep_body`, { scroll: false });
+        } else {
+            setActiveVipTab('DESIGN_YOUR_JOURNEY');
+            if (typeof window !== 'undefined') {
+                sessionStorage.setItem('vip_active_tab', 'DESIGN_YOUR_JOURNEY');
+                if (tabParam !== 'journey') {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('tab', 'journey');
+                    window.history.replaceState({}, '', url.toString());
+                }
             }
         }
-    }, [searchParams, pathname, router]);
+    }, [searchParams]);
 
     const [step, setStep] = useState<MenuStep>(() => {
         if (typeof window !== 'undefined') {
@@ -120,14 +118,22 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
         return null;
     });
 
+    const [deepBodyKey, setDeepBodyKey] = useState(0);
+
     const switchVipTab = (newTab: VipTab) => {
         setActiveVipTab(newTab);
-        const tabVal = newTab === 'DEEP_BODY_TREATMENT' ? 'deep_body' : 'journey';
         if (typeof window !== 'undefined') {
             sessionStorage.setItem('vip_active_tab', newTab);
-        }
-        if (pathname) {
-            router.replace(`${pathname}?tab=${tabVal}`, { scroll: false });
+            if (newTab === 'DEEP_BODY_TREATMENT') {
+                sessionStorage.removeItem('deep_body_current_step');
+                sessionStorage.removeItem('deep_body_selected_staff_ids');
+                sessionStorage.removeItem('deep_body_selected_staff_info');
+                sessionStorage.removeItem('deep_body_grouping_mode');
+                setDeepBodyKey(k => k + 1);
+            }
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', newTab === 'DEEP_BODY_TREATMENT' ? 'deep_body' : 'journey');
+            window.history.replaceState({}, '', url.toString());
         }
     };
 
@@ -149,6 +155,9 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     const handleLanguageChange = (newLang: string) => {
         if (!pathname) return;
         setIsLangOpen(false);
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem('is_vip_lang_switching', 'true');
+        }
         const search = typeof window !== 'undefined' ? window.location.search : '';
         const params = new URLSearchParams(search);
         params.set('tab', activeVipTab === 'DEEP_BODY_TREATMENT' ? 'deep_body' : 'journey');
@@ -428,6 +437,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
             {activeVipTab === 'DEEP_BODY_TREATMENT' ? (
                 <div className="flex-1 overflow-hidden w-full">
                     <DeepBodyMenu
+                        key={`deep-body-${deepBodyKey}`}
                         lang={lang}
                         isBookingFlow={isBookingFlow}
                         onBack={onBack}

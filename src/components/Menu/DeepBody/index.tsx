@@ -31,9 +31,11 @@ export default function DeepBodyMenu({
   const t = getDeepBodyT(lang);
   const { cart, addVipToCart, updateVipCartItem, removeVipGroup } = useMenuData();
 
-  // Persisted state across language switch
+  const isLangSwitching = typeof window !== 'undefined' && sessionStorage.getItem('is_vip_lang_switching') === 'true';
+
+  // Persisted state ONLY across language switch; otherwise always start at 'STAFF' (màn hình chung tất cả KTV)
   const [step, setStep] = useState<MenuStep>(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isLangSwitching) {
       const saved = sessionStorage.getItem('deep_body_current_step') as MenuStep | null;
       if (saved === 'BOOKING_CONFIG' || saved === 'STAFF') return saved;
     }
@@ -43,7 +45,7 @@ export default function DeepBodyMenu({
   const [vipPricingTable, setVipPricingTable] = useState<VipPricingTable | undefined>(undefined);
 
   const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isLangSwitching) {
       try {
         const saved = sessionStorage.getItem('deep_body_selected_staff_ids');
         if (saved) return JSON.parse(saved);
@@ -52,7 +54,7 @@ export default function DeepBodyMenu({
     return [];
   });
   const [selectedStaffInfoList, setSelectedStaffInfoList] = useState<VipStaffInfo[]>(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isLangSwitching) {
       try {
         const saved = sessionStorage.getItem('deep_body_selected_staff_info');
         if (saved) return JSON.parse(saved);
@@ -61,12 +63,26 @@ export default function DeepBodyMenu({
     return [];
   });
   const [staffGroupingMode, setStaffGroupingMode] = useState<'FOUR_HAND' | 'SEPARATE' | null>(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isLangSwitching) {
       const saved = sessionStorage.getItem('deep_body_grouping_mode') as 'FOUR_HAND' | 'SEPARATE' | null;
       if (saved === 'FOUR_HAND' || saved === 'SEPARATE') return saved;
     }
     return null;
   });
+
+  // Consume language switch flag or clear stale session on regular visit
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (sessionStorage.getItem('is_vip_lang_switching') === 'true') {
+        sessionStorage.removeItem('is_vip_lang_switching');
+      } else {
+        sessionStorage.removeItem('deep_body_current_step');
+        sessionStorage.removeItem('deep_body_selected_staff_ids');
+        sessionStorage.removeItem('deep_body_selected_staff_info');
+        sessionStorage.removeItem('deep_body_grouping_mode');
+      }
+    }
+  }, []);
 
   // Fetch VIP pricing table
   useEffect(() => {
@@ -84,7 +100,9 @@ export default function DeepBodyMenu({
     if (step === 'BOOKING_CONFIG') {
       setStep('STAFF');
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem('deep_body_current_step', 'STAFF');
+        sessionStorage.removeItem('deep_body_current_step');
+        sessionStorage.removeItem('deep_body_selected_staff_ids');
+        sessionStorage.removeItem('deep_body_selected_staff_info');
       }
     } else {
       if (typeof window !== 'undefined') {

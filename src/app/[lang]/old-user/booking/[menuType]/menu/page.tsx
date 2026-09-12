@@ -22,7 +22,7 @@ export default function OldUserBookingMenuPage({ params }: { params: Promise<{ l
     };
 
     const handleSwitchToVip = () => {
-        router.push(`/${lang}/old-user/booking/vip/menu?tab=deep_body`);
+        router.push(`/${lang}/old-user/booking/vip/menu?tab=journey`);
     };
     const handleSwitchToStandard = () => {
         router.push(`/${lang}/old-user/booking/standard/menu`);
