@@ -23,7 +23,7 @@ interface BodyPoint {
   primary?: boolean;
 }
 
-// Coordinate clusters mapped to the 655x1024 anatomical figure matching the 9 standard body areas
+// Coordinates calibrated to 655 x 1024 native image
 const AREA_CLUSTERS: Record<BodyAreaKey, BodyPoint[]> = {
   HEAD: [
     { x: 50.0, y: 3.8, primary: true },
@@ -130,14 +130,14 @@ export default function BodyFocusAvoidMap({
         newFocus = newFocus.filter((k) => k !== key);
       } else {
         newFocus.push(key);
-        newAvoid = newAvoid.filter((k) => k !== key); // Mutually exclusive
+        newAvoid = newAvoid.filter((k) => k !== key);
       }
     } else {
       if (newAvoid.includes(key)) {
         newAvoid = newAvoid.filter((k) => k !== key);
       } else {
         newAvoid.push(key);
-        newFocus = newFocus.filter((k) => k !== key); // Mutually exclusive
+        newFocus = newFocus.filter((k) => k !== key);
       }
     }
 
@@ -179,44 +179,47 @@ export default function BodyFocusAvoidMap({
       </div>
 
       {/* Main Container: Left Viewer + Right Controls side-by-side on ALL screens (mobile, tablet, desktop) */}
-      <div className="rounded-2xl sm:rounded-3xl border border-[#e6c487]/25 bg-gradient-to-b from-[#141416] to-[#0c0c0e] shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden grid grid-cols-[130px_1fr] xs:grid-cols-[150px_1fr] sm:grid-cols-[200px_1fr] md:grid-cols-[minmax(280px,0.95fr)_minmax(340px,1.25fr)] items-stretch">
+      <div className="rounded-2xl sm:rounded-3xl border border-[#e6c487]/25 bg-gradient-to-b from-[#141416] to-[#0c0c0e] shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-row items-stretch">
         
-        {/* ── LEFT PANEL: BODY ANATOMY VIEWER ── */}
-        <div className="relative min-h-[460px] xs:min-h-[500px] sm:min-h-[580px] md:min-h-[660px] h-full bg-[#070708] flex items-center justify-center p-1 sm:p-3 border-r border-white/5 overflow-hidden select-none">
-          {/* Subtle Ambient Radial Glows */}
+        {/* ── LEFT PANEL: FIXED ASPECT RATIO (655:1024) BODY ANATOMY VIEWER ── */}
+        <div className="relative w-[38%] xs:w-[40%] sm:w-[42%] md:w-[44%] shrink-0 bg-[#070708] flex items-center justify-center p-1 sm:p-2.5 border-r border-white/5 overflow-hidden select-none">
+          {/* Ambient Glows */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(230,196,135,0.08),transparent_55%)] pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(57,214,123,0.04),transparent_50%)] pointer-events-none" />
 
-          {/* High-Resolution Anatomical Meridian Body Map with SVG Overlay */}
-          <div className="relative w-full h-full flex items-center justify-center">
-            {/* Base Glowing Meridian Image */}
+          {/* Unified Container with fixed aspect ratio matching the 655x1024 body image */}
+          <div
+            className="relative w-full"
+            style={{
+              aspectRatio: '655 / 1024',
+              maxHeight: '100%',
+            }}
+          >
+            {/* 1. Base Image - pinned to 100% of container */}
             <img
               src="/images/body-map.webp"
               alt="Anatomical Body Meridian Map"
-              className="w-full h-full max-h-[450px] xs:max-h-[490px] sm:max-h-[560px] md:max-h-[620px] object-contain pointer-events-none drop-shadow-[0_10px_35px_rgba(0,0,0,0.95)] filter contrast-115 brightness-110 saturate-105"
+              className="absolute inset-0 w-full h-full object-fill pointer-events-none filter contrast-115 brightness-110 saturate-105"
               style={{
                 imageRendering: '-webkit-optimize-contrast',
               }}
             />
 
-            {/* SVG Interactive Overlay mapped directly on top of the image (viewBox 0 0 100 100) */}
+            {/* 2. Superimposed SVG Layer - viewBox strictly 0 0 655 1024 to lock 100% with the image */}
             <svg
-              viewBox="0 0 100 100"
-              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 655 1024"
               className="absolute inset-0 w-full h-full"
             >
               <defs>
-                {/* Glow Filter for Focus (Green) */}
                 <filter id="svg-glow-focus" x="-30%" y="-30%" width="160%" height="160%">
-                  <feGaussianBlur stdDeviation="1.5" result="blur" />
+                  <feGaussianBlur stdDeviation="8" result="blur" />
                   <feMerge>
                     <feMergeNode in="blur" />
                     <feMergeNode in="SourceGraphic" />
                   </feMerge>
                 </filter>
-                {/* Glow Filter for Avoid (Red) */}
                 <filter id="svg-glow-avoid" x="-30%" y="-30%" width="160%" height="160%">
-                  <feGaussianBlur stdDeviation="1.5" result="blur" />
+                  <feGaussianBlur stdDeviation="8" result="blur" />
                   <feMerge>
                     <feMergeNode in="blur" />
                     <feMergeNode in="SourceGraphic" />
@@ -224,264 +227,248 @@ export default function BodyFocusAvoidMap({
                 </filter>
               </defs>
 
-              {/* 1. HEAD */}
-              <g
+              {/* 1. HEAD (Y: 20 -> 120) */}
+              <ellipse
+                cx="327"
+                cy="70"
+                rx="55"
+                ry="50"
                 onClick={() => handleToggle('HEAD', 'focus')}
-                className="cursor-pointer transition-all"
-              >
-                <ellipse
-                  cx="50"
-                  cy="7"
-                  rx="7.5"
-                  ry="6.5"
-                  className={`transition-all duration-300 ${
-                    getAreaStatus('HEAD') === 'focus'
-                      ? 'fill-[#39d67b]/25 stroke-[#39d67b] stroke-[1.2]'
-                      : getAreaStatus('HEAD') === 'avoid'
-                      ? 'fill-[#ff5b66]/25 stroke-[#ff5b66] stroke-[1.2]'
-                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[0.8]'
-                  }`}
-                  filter={getAreaStatus('HEAD') ? `url(#svg-glow-${getAreaStatus('HEAD')})` : undefined}
-                />
-              </g>
+                className={`cursor-pointer transition-all duration-300 ${
+                  getAreaStatus('HEAD') === 'focus'
+                    ? 'fill-[#39d67b]/25 stroke-[#39d67b] stroke-[4]'
+                    : getAreaStatus('HEAD') === 'avoid'
+                    ? 'fill-[#ff5b66]/25 stroke-[#ff5b66] stroke-[4]'
+                    : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[2]'
+                }`}
+                filter={getAreaStatus('HEAD') ? `url(#svg-glow-${getAreaStatus('HEAD')})` : undefined}
+              />
 
-              {/* 2. NECK */}
-              <g
+              {/* 2. NECK (Y: 125 -> 180) */}
+              <rect
+                x="292"
+                y="125"
+                width="70"
+                height="50"
+                rx="18"
                 onClick={() => handleToggle('NECK', 'focus')}
-                className="cursor-pointer transition-all"
-              >
-                <rect
-                  x="45.5"
-                  y="13"
-                  width="9"
-                  height="4.5"
-                  rx="2"
-                  className={`transition-all duration-300 ${
-                    getAreaStatus('NECK') === 'focus'
-                      ? 'fill-[#39d67b]/25 stroke-[#39d67b] stroke-[1.2]'
-                      : getAreaStatus('NECK') === 'avoid'
-                      ? 'fill-[#ff5b66]/25 stroke-[#ff5b66] stroke-[1.2]'
-                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[0.8]'
-                  }`}
-                  filter={getAreaStatus('NECK') ? `url(#svg-glow-${getAreaStatus('NECK')})` : undefined}
-                />
-              </g>
+                className={`cursor-pointer transition-all duration-300 ${
+                  getAreaStatus('NECK') === 'focus'
+                    ? 'fill-[#39d67b]/25 stroke-[#39d67b] stroke-[4]'
+                    : getAreaStatus('NECK') === 'avoid'
+                    ? 'fill-[#ff5b66]/25 stroke-[#ff5b66] stroke-[4]'
+                    : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[2]'
+                }`}
+                filter={getAreaStatus('NECK') ? `url(#svg-glow-${getAreaStatus('NECK')})` : undefined}
+              />
 
-              {/* 3. SHOULDER */}
-              <g
+              {/* 3. SHOULDER (Y: 175 -> 225) */}
+              <path
+                d="M 215 210 C 235 175, 290 175, 327 185 C 365 175, 420 175, 440 210"
+                fill="none"
+                strokeLinecap="round"
                 onClick={() => handleToggle('SHOULDER', 'focus')}
-                className="cursor-pointer transition-all"
-              >
-                <path
-                  d="M 33 21 C 36 17, 45 17, 50 18 C 55 17, 64 17, 67 21"
-                  fill="none"
-                  strokeLinecap="round"
-                  className={`transition-all duration-300 ${
-                    getAreaStatus('SHOULDER') === 'focus'
-                      ? 'stroke-[#39d67b] stroke-[2.2]'
-                      : getAreaStatus('SHOULDER') === 'avoid'
-                      ? 'stroke-[#ff5b66] stroke-[2.2]'
-                      : 'stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[1.5]'
-                  }`}
-                  filter={getAreaStatus('SHOULDER') ? `url(#svg-glow-${getAreaStatus('SHOULDER')})` : undefined}
-                />
-              </g>
+                className={`cursor-pointer transition-all duration-300 ${
+                  getAreaStatus('SHOULDER') === 'focus'
+                    ? 'stroke-[#39d67b] stroke-[10]'
+                    : getAreaStatus('SHOULDER') === 'avoid'
+                    ? 'stroke-[#ff5b66] stroke-[10]'
+                    : 'stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[6]'
+                }`}
+                filter={getAreaStatus('SHOULDER') ? `url(#svg-glow-${getAreaStatus('SHOULDER')})` : undefined}
+              />
 
-              {/* 4. ARM (Left & Right) */}
+              {/* 4. ARM (Y: 220 -> 540) */}
               <g
                 onClick={() => handleToggle('ARM', 'focus')}
                 className="cursor-pointer transition-all"
               >
                 {/* Left arm */}
                 <path
-                  d="M 32 21 L 24 35 L 19 50 L 17 56"
+                  d="M 210 210 L 155 360 L 125 500 L 115 540"
                   fill="none"
                   strokeLinecap="round"
                   className={`transition-all duration-300 ${
                     getAreaStatus('ARM') === 'focus'
-                      ? 'stroke-[#39d67b] stroke-[2.2]'
+                      ? 'stroke-[#39d67b] stroke-[12]'
                       : getAreaStatus('ARM') === 'avoid'
-                      ? 'stroke-[#ff5b66] stroke-[2.2]'
-                      : 'stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[1.5]'
+                      ? 'stroke-[#ff5b66] stroke-[12]'
+                      : 'stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[8]'
                   }`}
                   filter={getAreaStatus('ARM') ? `url(#svg-glow-${getAreaStatus('ARM')})` : undefined}
                 />
                 {/* Right arm */}
                 <path
-                  d="M 68 21 L 76 35 L 81 50 L 83 56"
+                  d="M 445 210 L 500 360 L 530 500 L 540 540"
                   fill="none"
                   strokeLinecap="round"
                   className={`transition-all duration-300 ${
                     getAreaStatus('ARM') === 'focus'
-                      ? 'stroke-[#39d67b] stroke-[2.2]'
+                      ? 'stroke-[#39d67b] stroke-[12]'
                       : getAreaStatus('ARM') === 'avoid'
-                      ? 'stroke-[#ff5b66] stroke-[2.2]'
-                      : 'stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[1.5]'
+                      ? 'stroke-[#ff5b66] stroke-[12]'
+                      : 'stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[8]'
                   }`}
                   filter={getAreaStatus('ARM') ? `url(#svg-glow-${getAreaStatus('ARM')})` : undefined}
                 />
               </g>
 
-              {/* 5. BACK / TORSO */}
-              <g
+              {/* 5. BACK / TORSO (Y: 185 -> 470) */}
+              <path
+                d="M 255 210 Q 240 320 240 450 Q 327 480 415 450 Q 415 320 400 210 Z"
                 onClick={() => handleToggle('BACK', 'focus')}
-                className="cursor-pointer transition-all"
-              >
-                <path
-                  d="M 39 21 Q 37 32 37 44 Q 50 47 63 44 Q 63 32 61 21 Z"
-                  className={`transition-all duration-300 ${
-                    getAreaStatus('BACK') === 'focus'
-                      ? 'fill-[#39d67b]/20 stroke-[#39d67b] stroke-[1.2]'
-                      : getAreaStatus('BACK') === 'avoid'
-                      ? 'fill-[#ff5b66]/20 stroke-[#ff5b66] stroke-[1.2]'
-                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[0.8]'
-                  }`}
-                  filter={getAreaStatus('BACK') ? `url(#svg-glow-${getAreaStatus('BACK')})` : undefined}
-                />
-              </g>
+                className={`cursor-pointer transition-all duration-300 ${
+                  getAreaStatus('BACK') === 'focus'
+                    ? 'fill-[#39d67b]/20 stroke-[#39d67b] stroke-[4]'
+                    : getAreaStatus('BACK') === 'avoid'
+                    ? 'fill-[#ff5b66]/20 stroke-[#ff5b66] stroke-[4]'
+                    : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[2]'
+                }`}
+                filter={getAreaStatus('BACK') ? `url(#svg-glow-${getAreaStatus('BACK')})` : undefined}
+              />
 
-              {/* 6. THIGH */}
+              {/* 6. THIGH (Y: 480 -> 640) */}
               <g
                 onClick={() => handleToggle('THIGH', 'focus')}
                 className="cursor-pointer transition-all"
               >
                 {/* Left thigh */}
                 <ellipse
-                  cx="41"
-                  cy="55"
-                  rx="6.5"
-                  ry="9.5"
+                  cx="265"
+                  cy="560"
+                  rx="45"
+                  ry="85"
                   className={`transition-all duration-300 ${
                     getAreaStatus('THIGH') === 'focus'
-                      ? 'fill-[#39d67b]/20 stroke-[#39d67b] stroke-[1.2]'
+                      ? 'fill-[#39d67b]/20 stroke-[#39d67b] stroke-[4]'
                       : getAreaStatus('THIGH') === 'avoid'
-                      ? 'fill-[#ff5b66]/20 stroke-[#ff5b66] stroke-[1.2]'
-                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[0.8]'
+                      ? 'fill-[#ff5b66]/20 stroke-[#ff5b66] stroke-[4]'
+                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[2]'
                   }`}
                   filter={getAreaStatus('THIGH') ? `url(#svg-glow-${getAreaStatus('THIGH')})` : undefined}
                 />
                 {/* Right thigh */}
                 <ellipse
-                  cx="59"
-                  cy="55"
-                  rx="6.5"
-                  ry="9.5"
+                  cx="390"
+                  cy="560"
+                  rx="45"
+                  ry="85"
                   className={`transition-all duration-300 ${
                     getAreaStatus('THIGH') === 'focus'
-                      ? 'fill-[#39d67b]/20 stroke-[#39d67b] stroke-[1.2]'
+                      ? 'fill-[#39d67b]/20 stroke-[#39d67b] stroke-[4]'
                       : getAreaStatus('THIGH') === 'avoid'
-                      ? 'fill-[#ff5b66]/20 stroke-[#ff5b66] stroke-[1.2]'
-                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[0.8]'
+                      ? 'fill-[#ff5b66]/20 stroke-[#ff5b66] stroke-[4]'
+                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[2]'
                   }`}
                   filter={getAreaStatus('THIGH') ? `url(#svg-glow-${getAreaStatus('THIGH')})` : undefined}
                 />
               </g>
 
-              {/* 7. KNEE */}
+              {/* 7. KNEE (Y: 660 -> 725) */}
               <g
                 onClick={() => handleToggle('KNEE', 'focus')}
                 className="cursor-pointer transition-all"
               >
                 <circle
-                  cx="40"
-                  cy="67.5"
-                  r="3.8"
+                  cx="262"
+                  cy="690"
+                  r="28"
                   className={`transition-all duration-300 ${
                     getAreaStatus('KNEE') === 'focus'
-                      ? 'fill-[#39d67b]/30 stroke-[#39d67b] stroke-[1.4]'
+                      ? 'fill-[#39d67b]/30 stroke-[#39d67b] stroke-[4]'
                       : getAreaStatus('KNEE') === 'avoid'
-                      ? 'fill-[#ff5b66]/30 stroke-[#ff5b66] stroke-[1.4]'
-                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[0.8]'
+                      ? 'fill-[#ff5b66]/30 stroke-[#ff5b66] stroke-[4]'
+                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[2]'
                   }`}
                   filter={getAreaStatus('KNEE') ? `url(#svg-glow-${getAreaStatus('KNEE')})` : undefined}
                 />
                 <circle
-                  cx="60"
-                  cy="67.5"
-                  r="3.8"
+                  cx="393"
+                  cy="690"
+                  r="28"
                   className={`transition-all duration-300 ${
                     getAreaStatus('KNEE') === 'focus'
-                      ? 'fill-[#39d67b]/30 stroke-[#39d67b] stroke-[1.4]'
+                      ? 'fill-[#39d67b]/30 stroke-[#39d67b] stroke-[4]'
                       : getAreaStatus('KNEE') === 'avoid'
-                      ? 'fill-[#ff5b66]/30 stroke-[#ff5b66] stroke-[1.4]'
-                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[0.8]'
+                      ? 'fill-[#ff5b66]/30 stroke-[#ff5b66] stroke-[4]'
+                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[2]'
                   }`}
                   filter={getAreaStatus('KNEE') ? `url(#svg-glow-${getAreaStatus('KNEE')})` : undefined}
                 />
               </g>
 
-              {/* 8. CALF */}
+              {/* 8. CALF (Y: 725 -> 860) */}
               <g
                 onClick={() => handleToggle('CALF', 'focus')}
                 className="cursor-pointer transition-all"
               >
                 <ellipse
-                  cx="38.5"
-                  cy="77"
-                  rx="4.5"
-                  ry="8"
+                  cx="250"
+                  cy="785"
+                  rx="30"
+                  ry="65"
                   className={`transition-all duration-300 ${
                     getAreaStatus('CALF') === 'focus'
-                      ? 'fill-[#39d67b]/20 stroke-[#39d67b] stroke-[1.2]'
+                      ? 'fill-[#39d67b]/20 stroke-[#39d67b] stroke-[4]'
                       : getAreaStatus('CALF') === 'avoid'
-                      ? 'fill-[#ff5b66]/20 stroke-[#ff5b66] stroke-[1.2]'
-                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[0.8]'
+                      ? 'fill-[#ff5b66]/20 stroke-[#ff5b66] stroke-[4]'
+                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[2]'
                   }`}
                   filter={getAreaStatus('CALF') ? `url(#svg-glow-${getAreaStatus('CALF')})` : undefined}
                 />
                 <ellipse
-                  cx="61.5"
-                  cy="77"
-                  rx="4.5"
-                  ry="8"
+                  cx="405"
+                  cy="785"
+                  rx="30"
+                  ry="65"
                   className={`transition-all duration-300 ${
                     getAreaStatus('CALF') === 'focus'
-                      ? 'fill-[#39d67b]/20 stroke-[#39d67b] stroke-[1.2]'
+                      ? 'fill-[#39d67b]/20 stroke-[#39d67b] stroke-[4]'
                       : getAreaStatus('CALF') === 'avoid'
-                      ? 'fill-[#ff5b66]/20 stroke-[#ff5b66] stroke-[1.2]'
-                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[0.8]'
+                      ? 'fill-[#ff5b66]/20 stroke-[#ff5b66] stroke-[4]'
+                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[2]'
                   }`}
                   filter={getAreaStatus('CALF') ? `url(#svg-glow-${getAreaStatus('CALF')})` : undefined}
                 />
               </g>
 
-              {/* 9. FOOT */}
+              {/* 9. FOOT (Y: 880 -> 1000) */}
               <g
                 onClick={() => handleToggle('FOOT', 'focus')}
                 className="cursor-pointer transition-all"
               >
                 <ellipse
-                  cx="41"
-                  cy="92"
-                  rx="5.5"
-                  ry="5.5"
+                  cx="270"
+                  cy="935"
+                  rx="40"
+                  ry="45"
                   className={`transition-all duration-300 ${
                     getAreaStatus('FOOT') === 'focus'
-                      ? 'fill-[#39d67b]/25 stroke-[#39d67b] stroke-[1.4]'
+                      ? 'fill-[#39d67b]/25 stroke-[#39d67b] stroke-[4]'
                       : getAreaStatus('FOOT') === 'avoid'
-                      ? 'fill-[#ff5b66]/25 stroke-[#ff5b66] stroke-[1.4]'
-                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[0.8]'
+                      ? 'fill-[#ff5b66]/25 stroke-[#ff5b66] stroke-[4]'
+                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[2]'
                   }`}
                   filter={getAreaStatus('FOOT') ? `url(#svg-glow-${getAreaStatus('FOOT')})` : undefined}
                 />
                 <ellipse
-                  cx="59"
-                  cy="92"
-                  rx="5.5"
-                  ry="5.5"
+                  cx="385"
+                  cy="935"
+                  rx="40"
+                  ry="45"
                   className={`transition-all duration-300 ${
                     getAreaStatus('FOOT') === 'focus'
-                      ? 'fill-[#39d67b]/25 stroke-[#39d67b] stroke-[1.4]'
+                      ? 'fill-[#39d67b]/25 stroke-[#39d67b] stroke-[4]'
                       : getAreaStatus('FOOT') === 'avoid'
-                      ? 'fill-[#ff5b66]/25 stroke-[#ff5b66] stroke-[1.4]'
-                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[0.8]'
+                      ? 'fill-[#ff5b66]/25 stroke-[#ff5b66] stroke-[4]'
+                      : 'fill-transparent stroke-white/0 hover:stroke-[#e6c487]/40 stroke-[2]'
                   }`}
                   filter={getAreaStatus('FOOT') ? `url(#svg-glow-${getAreaStatus('FOOT')})` : undefined}
                 />
               </g>
             </svg>
 
-            {/* Glowing Points Overlay */}
+            {/* 3. Glowing Points Overlay - pinned to exact percentage */}
             <div className="absolute inset-0 pointer-events-none">
               {AREA_LIST.map(({ key }) => {
                 const status = getAreaStatus(key);
@@ -500,18 +487,18 @@ export default function BodyFocusAvoidMap({
                         top: `${pt.y}%`,
                       }}
                       className={`absolute rounded-full -translate-x-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-none ${
-                        pt.primary ? 'w-2.5 h-2.5 sm:w-3.5 sm:h-3.5' : 'w-2 h-2 sm:w-2.5 sm:h-2.5'
+                        pt.primary ? 'w-2.5 h-2.5 sm:w-3.5 sm:h-3.5' : 'w-1.5 h-1.5 sm:w-2.5 sm:h-2.5'
                       } ${
                         isVisible
                           ? 'opacity-100 scale-100'
                           : 'opacity-0 scale-50'
                       } ${
                         isFocus
-                          ? 'bg-[#39d67b] shadow-[0_0_10px_#39d67b,0_0_20px_rgba(57,214,123,0.7)]'
+                          ? 'bg-[#39d67b] shadow-[0_0_8px_#39d67b,0_0_16px_rgba(57,214,123,0.7)]'
                           : ''
                       } ${
                         isAvoid
-                          ? 'bg-[#ff5b66] shadow-[0_0_10px_#ff5b66,0_0_20px_rgba(255,91,102,0.7)]'
+                          ? 'bg-[#ff5b66] shadow-[0_0_8px_#ff5b66,0_0_16px_rgba(255,91,102,0.7)]'
                           : ''
                       }`}
                     >
@@ -532,7 +519,7 @@ export default function BodyFocusAvoidMap({
         </div>
 
         {/* ── RIGHT PANEL: AREA CONTROLS (ALIGNED HORIZONTALLY WITH BODY MAP ACROSS ALL SCREENS) ── */}
-        <div className="flex flex-col justify-between p-2 sm:p-4 md:p-6 bg-gradient-to-b from-[#121214] to-[#0d0d0f] h-full overflow-hidden">
+        <div className="flex-1 flex flex-col justify-between p-2 sm:p-4 md:p-5 bg-gradient-to-b from-[#121214] to-[#0d0d0f] h-full overflow-hidden">
           <div className="flex flex-col h-full justify-between">
             {/* Table Header */}
             <div className="grid grid-cols-[1fr_36px_36px] xs:grid-cols-[1fr_42px_42px] sm:grid-cols-[1fr_64px_64px] md:grid-cols-[1fr_76px_76px] gap-1 sm:gap-2 items-center pb-2 mb-0.5 border-b border-white/10 text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-wider flex-none">
