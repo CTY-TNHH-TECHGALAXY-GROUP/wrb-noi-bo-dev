@@ -2,12 +2,10 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Award, ShieldCheck, Camera, Check, Search, X } from 'lucide-react';
+import { Award, ShieldCheck, Check, Search, X } from 'lucide-react';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 import { getDeepBodyT } from '../DeepBody.i18n';
 import CertificateModal from '../CertificateModal';
-import TechniqueGalleryModal from '../TechniqueGalleryModal';
-import { DEEP_BODY_TECHNIQUES, DeepBodyTechnique } from '@/lib/deepBody.constants';
 
 const MAX_SELECTABLE_STAFF = 2;
 
@@ -69,7 +67,6 @@ export default function DeepStaffSelector({
 
   // Modals
   const [selectedStaffForCert, setSelectedStaffForCert] = useState<VipStaffInfo | null>(null);
-  const [selectedTechniqueForGallery, setSelectedTechniqueForGallery] = useState<DeepBodyTechnique | null>(null);
 
   useEffect(() => {
     setIsLoading(true);
@@ -267,22 +264,6 @@ export default function DeepStaffSelector({
                     </button>
                   </div>
 
-                  {/* Nút Xem Hình Kỹ Thuật (Phía Trên Chứng Chỉ Hoặc Bên Phải) */}
-                  <div className="absolute bottom-28 right-6 z-20">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Open first deep body technique gallery as preview
-                        setSelectedTechniqueForGallery(DEEP_BODY_TECHNIQUES[0]);
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-black/70 hover:bg-black/90 backdrop-blur-md border border-white/20 text-gray-200 hover:text-white shadow-lg text-[10px] font-bold uppercase tracking-wider transition-all active:scale-95"
-                    >
-                      <Camera size={13} className="text-[#e6c487]" />
-                      <span>{t.view_technique}</span>
-                    </button>
-                  </div>
-
                   {/* Content Gradient Overlay (Bottom) */}
                   <div className="absolute bottom-0 left-0 w-full p-6 pt-12 bg-gradient-to-t from-[#121214] via-[#121214]/85 to-transparent">
                     {/* Staff ID & Tagline */}
@@ -387,14 +368,6 @@ export default function DeepStaffSelector({
         staff={selectedStaffForCert}
         lang={lang}
         onClose={() => setSelectedStaffForCert(null)}
-      />
-
-      {/* Technique Gallery Modal */}
-      <TechniqueGalleryModal
-        isOpen={!!selectedTechniqueForGallery}
-        technique={selectedTechniqueForGallery}
-        lang={lang}
-        onClose={() => setSelectedTechniqueForGallery(null)}
       />
     </motion.div>
   );
