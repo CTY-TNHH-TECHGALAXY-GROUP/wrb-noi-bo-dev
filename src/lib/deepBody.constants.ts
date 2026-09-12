@@ -269,3 +269,23 @@ export const DEEP_BODY_DURATION_SERVICES: Record<number, DeepBodyDurationService
     defaultPriceUSD: 58,
   },
 };
+
+export const DEEP_BODY_SKILL_MAP: Record<string, string> = {
+  coconutOil: 'Tinh dầu dừa',
+  thaiTherapy: 'Thái',
+  japaneseShiatsu: 'Shiatsu',
+  hotStoneBazan: 'Đá nóng',
+  deepTissueAcupressure: 'Bấm huyệt chuyên sâu',
+  herbalPoultice: 'Túi thảo dược',
+};
+
+export const formatDeepBodyAdminName = (techniqueIds: string[]): string => {
+  const names = techniqueIds
+    .map((id) => DEEP_BODY_SKILL_MAP[id] || id)
+    .filter(Boolean);
+  const uniqueNames = [...new Set(names)];
+  return uniqueNames.length > 0
+    ? `Body chuyên sâu: ${uniqueNames.join(' + ')}`
+    : 'Body chuyên sâu';
+};
+

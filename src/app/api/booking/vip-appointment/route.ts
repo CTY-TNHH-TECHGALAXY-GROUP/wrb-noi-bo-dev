@@ -312,16 +312,29 @@ export async function POST(request: NextRequest) {
     // 2. Nếu khách chọn 2 KTV (Tứ thủ), tạo ra 2 BookingItems riêng biệt (mỗi item 1 KTV) để Dispatch không bị chia đôi giờ.
     
     const { ALL_VIP_SKILLS } = await import('@/lib/vipSkills.constants');
+    const { DEEP_BODY_SKILL_MAP, formatDeepBodyAdminName } = await import('@/lib/deepBody.constants');
     const SKILL_MAP = Object.fromEntries(ALL_VIP_SKILLS.map((s: any) => [s.id, s]));
-    const skillNames = skills.map((id: string) => {
-      let name = SKILL_MAP[id]?.name?.vi || id;
-      if (name.toLowerCase().includes('ráy')) name = 'Ráy';
-      if (name.toLowerCase().includes('nail') || name.toLowerCase().includes('móng')) name = 'Nail';
-      return name;
-    });
-    // Remove duplicates in case they picked both Ráy Chuyên and Ráy Combo (unlikely but possible)
-    const uniqueSkillNames = [...new Set(skillNames)];
-    const displayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
+
+    const isDeepBody =
+      skills.some((id: string) => id in DEEP_BODY_SKILL_MAP) ||
+      (body.serviceId && typeof body.serviceId === 'string' && body.serviceId.startsWith('NHT'));
+
+    let displayName = '';
+    let adminSkills: string[] = skills;
+
+    if (isDeepBody) {
+      displayName = formatDeepBodyAdminName(skills);
+      adminSkills = [displayName];
+    } else {
+      const skillNames = skills.map((id: string) => {
+        let name = SKILL_MAP[id]?.name?.vi || id;
+        if (name.toLowerCase().includes('ráy')) name = 'Ráy';
+        if (name.toLowerCase().includes('nail') || name.toLowerCase().includes('móng')) name = 'Nail';
+        return name;
+      });
+      const uniqueSkillNames = [...new Set(skillNames)];
+      displayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
+    }
 
     const itemsToInsert: any[] = [];
     const vipServiceId =
@@ -341,7 +354,7 @@ export async function POST(request: NextRequest) {
         options: {
            displayName: displayName, // Dispatch Board sẽ đọc field này để hiển thị thay vì tên gốc
            vipDuration: duration,    // Thời lượng VIP (bảng BookingItems không có cột duration)
-           selectedSkills: skills,   // Danh sách skills khách chọn
+           selectedSkills: adminSkills,   // Danh sách skills khách chọn
         }
       });
     });

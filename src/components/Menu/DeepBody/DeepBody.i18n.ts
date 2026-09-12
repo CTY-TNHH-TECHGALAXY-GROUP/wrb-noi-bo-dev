@@ -10,7 +10,7 @@ export const DEEP_BODY_I18N = {
     kr: '나만의 맞춤 여정',
   },
   tab_deep_body: {
-    vi: 'Trị Liệu Chuyên Sâu',
+    vi: 'Body Chuyên Sâu',
     en: 'Deep Body Treatment',
     cn: '深层身体理疗',
     jp: '深層ボディケア',

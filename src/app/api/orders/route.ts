@@ -6,6 +6,7 @@ import { handleStandardItems } from './handleStandardItems';
 import { handleVipItems } from './handleVipItems';
 import { ALL_VIP_SKILLS, type VipLang } from '@/lib/vipSkills.constants';
 import { getSkillName } from '@/lib/vipStaffUtils';
+import { DEEP_BODY_SKILL_MAP, formatDeepBodyAdminName } from '@/lib/deepBody.constants';
 
 const SKILL_MAP = Object.fromEntries(ALL_VIP_SKILLS.map(s => [s.id, s]));
 
@@ -213,14 +214,29 @@ export async function POST(request: Request) {
                     const ktv = item.vipStaffId ? ` | KTV: ${item.vipStaffId}` : '';
                     // Dịch lại tiếng Việt cho thông báo để nhân viên dễ hiểu
                     const skillIds: string[] = item.vipSkillIds || [];
-                    const skillNames = skillIds.map((id: string) => {
-                        let name = SKILL_MAP[id]?.name?.vi || id;
-                        if (name.toLowerCase().includes('ráy')) name = 'Ráy';
-                        if (name.toLowerCase().includes('nail') || name.toLowerCase().includes('móng')) name = 'Nail';
-                        return name;
-                    });
-                    const uniqueSkillNames = [...new Set(skillNames)];
-                    const vnDisplayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
+                    const isDeepBody =
+                        skillIds.some(id => id in DEEP_BODY_SKILL_MAP) ||
+                        (typeof item.serviceId === 'string' && item.serviceId.startsWith('NHT')) ||
+                        (typeof item.id === 'string' && item.id.startsWith('NHT')) ||
+                        (typeof item.vipDisplayName === 'string' && (
+                            item.vipDisplayName.toLowerCase().includes('deep body') ||
+                            item.vipDisplayName.toLowerCase().includes('body chuyên sâu') ||
+                            item.vipDisplayName.toLowerCase().includes('trị liệu chuyên sâu')
+                        ));
+
+                    let vnDisplayName = '';
+                    if (isDeepBody) {
+                        vnDisplayName = formatDeepBodyAdminName(skillIds);
+                    } else {
+                        const skillNames = skillIds.map((id: string) => {
+                            let name = SKILL_MAP[id]?.name?.vi || id;
+                            if (name.toLowerCase().includes('ráy')) name = 'Ráy';
+                            if (name.toLowerCase().includes('nail') || name.toLowerCase().includes('móng')) name = 'Nail';
+                            return name;
+                        });
+                        const uniqueSkillNames = [...new Set(skillNames)];
+                        vnDisplayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
+                    }
                     
                     notifMessage += `- ${vnDisplayName} (${item.vipDuration ?? 60}p)${ktv}\n`;
                     if (item.vipCustomerNotes && item.vipCustomerNotes.trim()) {
