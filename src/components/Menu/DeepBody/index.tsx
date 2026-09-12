@@ -97,13 +97,16 @@ export default function DeepBodyMenu({
     }
   };
 
-  const handleBookingConfirm = (data: {
-    techniqueIds: string[];
-    techniqueNames: string[];
-    totalDuration: number;
-    totalPrice: number;
-    customerNotes?: string;
-  }) => {
+  const handleBookingConfirm = (
+    data: {
+      techniqueIds: string[];
+      techniqueNames: string[];
+      totalDuration: number;
+      totalPrice: number;
+      customerNotes?: string;
+    },
+    action: 'SELECT_MORE' | 'CHECKOUT' = 'SELECT_MORE'
+  ) => {
     const displayName =
       data.techniqueNames.length > 0
         ? `Deep Body: ${data.techniqueNames.join(' + ')}`
@@ -146,7 +149,14 @@ export default function DeepBodyMenu({
       sessionStorage.removeItem('deep_body_grouping_mode');
     }
 
-    setIsCartOpen(true);
+    if (action === 'CHECKOUT') {
+      onCheckout();
+    } else {
+      setSelectedStaffIds([]);
+      setSelectedStaffInfoList([]);
+      setStaffGroupingMode(null);
+      setStep('STAFF');
+    }
   };
 
   const handleAddAnother = () => {

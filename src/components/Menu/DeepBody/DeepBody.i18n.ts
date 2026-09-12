@@ -197,6 +197,20 @@ export const DEEP_BODY_I18N = {
     jp: 'カートに追加して確認',
     kr: '장바구니 담기 및 확인',
   },
+  btn_select_more: {
+    vi: 'CHỌN THÊM',
+    en: 'SELECT MORE',
+    cn: '继续加选',
+    jp: '追加選択',
+    kr: '더 선택하기',
+  },
+  btn_checkout: {
+    vi: 'THANH TOÁN',
+    en: 'CHECKOUT',
+    cn: '前往结算',
+    jp: 'お会計へ',
+    kr: '결제하기',
+  },
   select_both_warning: {
     vi: 'Vui lòng chọn ít nhất 1 kỹ thuật và 1 thời lượng',
     en: 'Please select at least 1 technique and 1 duration',

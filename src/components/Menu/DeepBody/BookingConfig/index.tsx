@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Clock, Check, Info, ShieldCheck, ChevronLeft, ChevronRight, Activity } from 'lucide-react';
+import { Sparkles, Clock, Check, Info, ShieldCheck, ChevronLeft, ChevronRight, Activity, Plus, ArrowRight } from 'lucide-react';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 import { type VipPricingTable, type VipDuration, lookupPrice } from '@/lib/vipPricingEngine';
 import { DEEP_BODY_TECHNIQUES, DeepBodyTechnique, DeepBodyLang } from '@/lib/deepBody.constants';
@@ -22,13 +22,16 @@ interface DeepBookingConfigProps {
   selectedStaffIds: string[];
   selectedStaffInfoList: VipStaffInfo[];
   vipPricingTable?: VipPricingTable;
-  onConfirm: (data: {
-    techniqueIds: string[];
-    techniqueNames: string[];
-    totalDuration: number;
-    totalPrice: number;
-    customerNotes?: string;
-  }) => void;
+  onConfirm: (
+    data: {
+      techniqueIds: string[];
+      techniqueNames: string[];
+      totalDuration: number;
+      totalPrice: number;
+      customerNotes?: string;
+    },
+    action?: 'SELECT_MORE' | 'CHECKOUT'
+  ) => void;
 }
 
 export default function DeepBookingConfig({
@@ -75,7 +78,12 @@ export default function DeepBookingConfig({
     });
   };
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = (action: 'SELECT_MORE' | 'CHECKOUT') => {
+    if (selectedTechniqueIds.length === 0) {
+      alert(t.select_both_warning);
+      return;
+    }
+
     const selectedTechniques = DEEP_BODY_TECHNIQUES.filter((tech) =>
       selectedTechniqueIds.includes(tech.id)
     );
@@ -83,13 +91,16 @@ export default function DeepBookingConfig({
       (tech) => tech.name[safeLang] || tech.name.en
     );
 
-    onConfirm({
-      techniqueIds: selectedTechniqueIds,
-      techniqueNames,
-      totalDuration: selectedDuration,
-      totalPrice: currentPrice,
-      customerNotes: customerNotes.trim(),
-    });
+    onConfirm(
+      {
+        techniqueIds: selectedTechniqueIds,
+        techniqueNames,
+        totalDuration: selectedDuration,
+        totalPrice: currentPrice,
+        customerNotes: customerNotes.trim(),
+      },
+      action
+    );
   };
 
   const primaryStaff = selectedStaffInfoList[0];
@@ -333,14 +344,28 @@ export default function DeepBookingConfig({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleConfirmOrder}
-          className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#e6c487] hover:bg-[#d6b272] text-black font-bold uppercase tracking-wider text-xs sm:text-sm shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2"
-        >
-          <Sparkles size={16} />
-          <span>{t.add_to_cart}</span>
-        </button>
+        {/* Actions: Left = Select More (sub object), Right = Checkout (main object) */}
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          {/* Sub Object: Select More */}
+          <button
+            type="button"
+            onClick={() => handleConfirmOrder('SELECT_MORE')}
+            className="flex-1 sm:flex-initial px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl border border-[#e6c487]/40 bg-[#1c1c20] hover:bg-[#28282e] text-[#e6c487] font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap"
+          >
+            <Plus size={15} />
+            <span>{t.btn_select_more}</span>
+          </button>
+
+          {/* Main Object: Checkout */}
+          <button
+            type="button"
+            onClick={() => handleConfirmOrder('CHECKOUT')}
+            className="flex-1 sm:flex-initial px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl bg-[#e6c487] hover:bg-[#d6b272] text-[#382600] font-black uppercase tracking-wider text-xs sm:text-sm shadow-[0_4px_20px_rgba(230,196,135,0.35)] active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+          >
+            <span>{t.btn_checkout}</span>
+            <ArrowRight size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Technique Modal Preview */}
