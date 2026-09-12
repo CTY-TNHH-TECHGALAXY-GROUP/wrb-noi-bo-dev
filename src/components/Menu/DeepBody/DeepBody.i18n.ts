@@ -119,13 +119,69 @@ export const DEEP_BODY_I18N = {
     kr: '예약 마감',
   },
 
+  // Focus & Avoid Body Map
+  body_map_section_title: {
+    vi: '1. Vị Trí Cần Chăm Sóc / Tránh Chạm',
+    en: '1. Focus & Avoid Body Areas',
+    cn: '1. 重点调理与避开部位',
+    jp: '1. 重点部位・回避箇所の指定',
+    kr: '1. 집중 관리 및 제외 부위',
+  },
+  body_map_section_subtitle: {
+    vi: 'KTV sẽ dựa vào bản đồ để tối ưu kỹ thuật theo thể trạng của bạn',
+    en: 'Therapists use this map to customize pressure and therapeutic focus',
+    cn: '理疗师将据此深度定制手法力道与调理重点',
+    jp: 'セラピストがマップに基づき施術部位と力加減を最適化します',
+    kr: '테라피스트가 신체 맵을 참조하여 맞춤형 케어를 진행합니다',
+  },
+  body_map_col_area: {
+    vi: 'Vị trí',
+    en: 'Area',
+    cn: '部位',
+    jp: '部位',
+    kr: '부위',
+  },
+  body_map_col_focus: {
+    vi: 'Tập trung',
+    en: 'Focus',
+    cn: '重点',
+    jp: '集中',
+    kr: '집중',
+  },
+  body_map_col_avoid: {
+    vi: 'Tránh',
+    en: 'Avoid',
+    cn: '避开',
+    jp: '回避',
+    kr: '제외',
+  },
+  body_map_note: {
+    vi: 'Các điểm phát sáng thể hiện chính xác vị trí huyệt đạo & cơ bắp cần lưu ý',
+    en: 'Glowing markers accurately trace anatomical meridians & target muscle groups',
+    cn: '发光点精确对应人体经络穴位与深层肌群',
+    jp: '光るマーカーがツボや深層筋肉の位置を正確に示します',
+    kr: '빛나는 마커가 주요 경혈점과 근육 부위를 정확히 나타냅니다',
+  },
+
+  // Body Areas
+  area_head: { vi: 'Đầu', en: 'Head', cn: '头部', jp: '頭部', kr: '머리' },
+  area_neck: { vi: 'Cổ', en: 'Neck', cn: '颈部', jp: '首', kr: '목' },
+  area_shoulders: { vi: 'Vai', en: 'Shoulders', cn: '肩部', jp: '肩', kr: '어깨' },
+  area_arms: { vi: 'Cánh tay', en: 'Arms', cn: '手臂', jp: '腕', kr: '팔' },
+  area_torso: { vi: 'Ngực & Thân trước', en: 'Torso', cn: '躯干/胸腹', jp: '体幹・胸部', kr: '상체/가슴' },
+  area_back: { vi: 'Lưng trên', en: 'Back', cn: '背部', jp: '背中', kr: '등' },
+  area_lowerBack: { vi: 'Thắt lưng / Eo', en: 'Lower Back', cn: '下腰/腰肌', jp: '腰部', kr: '허리' },
+  area_hips: { vi: 'Hông & Mông', en: 'Hips', cn: '髋部/臀部', jp: '骨盤・臀部', kr: '골반/엉덩이' },
+  area_legs: { vi: 'Chân & Đùi', en: 'Legs', cn: '腿部/大腿', jp: '脚・太もも', kr: '다리/허벅지' },
+  area_feet: { vi: 'Bàn chân', en: 'Feet', cn: '足部', jp: '足・足裏', kr: '발' },
+
   // Config Step (Combined on 1 page)
   select_technique_title: {
-    vi: '1. Chọn Phương Pháp Trị Liệu Sâu',
-    en: '1. Select Deep Body Method',
-    cn: '1. 选择深层身体理疗技术',
-    jp: '1. 深層手技メソッドの選択',
-    kr: '1. 심층 테라피 기법 선택',
+    vi: '2. Chọn Phương Pháp Trị Liệu Sâu',
+    en: '2. Select Deep Body Method',
+    cn: '2. 选择深层身体理疗技术',
+    jp: '2. 深層手技メソッドの選択',
+    kr: '2. 심층 테라피 기법 선택',
   },
   select_technique_subtitle: {
     vi: 'Khách hàng có thể chọn 1 phương pháp chính hoặc kết hợp',
@@ -156,11 +212,11 @@ export const DEEP_BODY_I18N = {
     kr: '상세 설명 및 사진 보기',
   },
   select_duration_title: {
-    vi: '2. Chọn Thời Lượng Liệu Trình',
-    en: '2. Select Duration',
-    cn: '2. 选择理疗时长',
-    jp: '2. コース時間の選択',
-    kr: '2. 프로그램 이용 시간 선택',
+    vi: '3. Chọn Thời Lượng Liệu Trình',
+    en: '3. Select Duration',
+    cn: '3. 选择理疗时长',
+    jp: '3. コース時間の選択',
+    kr: '3. 프로그램 이용 시간 선택',
   },
   duration_hint: {
     vi: 'Đã bao gồm thuế GTGT & đồ uống thảo mộc detox',
@@ -177,11 +233,11 @@ export const DEEP_BODY_I18N = {
     kr: '분',
   },
   customer_notes_title: {
-    vi: '3. Ghi Chú Đặc Biệt Cho Chuyên Viên',
-    en: '3. Special Requests for Therapist',
-    cn: '3. 给理疗师的特别嘱咐',
-    jp: '3. セラピストへのご要望・留意事項',
-    kr: '3. 테라피스트 특별 요청사항',
+    vi: '4. Ghi Chú Đặc Biệt Cho Chuyên Viên',
+    en: '4. Special Requests for Therapist',
+    cn: '4. 给理疗师的特别嘱咐',
+    jp: '4. セラピストへのご要望・留意事項',
+    kr: '4. 테라피스트 특별 요청사항',
   },
   customer_notes_placeholder: {
     vi: 'Vùng cần tập trung nhiều (cổ, thắt lưng...), tiền sử chấn thương hoặc mức lực mong muốn...',

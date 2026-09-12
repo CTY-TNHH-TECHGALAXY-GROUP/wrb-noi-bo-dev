@@ -8,6 +8,7 @@ import { type VipPricingTable, type VipDuration, lookupPrice } from '@/lib/vipPr
 import { DEEP_BODY_TECHNIQUES, DeepBodyTechnique, DeepBodyLang } from '@/lib/deepBody.constants';
 import { getDeepBodyT } from '../DeepBody.i18n';
 import TechniqueGalleryModal from '../TechniqueGalleryModal';
+import BodyFocusAvoidMap, { BodyAreaKey } from '../BodyFocusAvoidMap';
 
 const FALLBACK_PRICING: VipPricingTable = {
   '1': { '60': 720000, '70': 840000, '90': 1080000, '120': 1440000, '150': 1800000, '180': 2160000, '240': 2880000 },
@@ -29,6 +30,10 @@ interface DeepBookingConfigProps {
       totalDuration: number;
       totalPrice: number;
       customerNotes?: string;
+      bodyParts?: {
+        focus: string[];
+        avoid: string[];
+      };
     },
     action?: 'SELECT_MORE' | 'CHECKOUT'
   ) => void;
@@ -46,6 +51,8 @@ export default function DeepBookingConfig({
   const t = getDeepBodyT(lang);
 
   // States
+  const [focusAreas, setFocusAreas] = useState<string[]>([]);
+  const [avoidAreas, setAvoidAreas] = useState<string[]>([]);
   const [selectedTechniqueIds, setSelectedTechniqueIds] = useState<string[]>([DEEP_BODY_TECHNIQUES[0].id]);
   const [selectedDuration, setSelectedDuration] = useState<VipDuration>(90);
   const [customerNotes, setCustomerNotes] = useState('');
@@ -91,13 +98,32 @@ export default function DeepBookingConfig({
       (tech) => tech.name[safeLang] || tech.name.en
     );
 
+    // Combine notes with bodyParts info
+    const bodyNoteParts: string[] = [];
+    if (focusAreas.length > 0) {
+      bodyNoteParts.push(`Focus: ${focusAreas.join(', ')}`);
+    }
+    if (avoidAreas.length > 0) {
+      bodyNoteParts.push(`Avoid: ${avoidAreas.join(', ')}`);
+    }
+    const combinedNotes = [
+      customerNotes.trim(),
+      bodyNoteParts.length > 0 ? `[${bodyNoteParts.join(' | ')}]` : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+
     onConfirm(
       {
         techniqueIds: selectedTechniqueIds,
         techniqueNames,
         totalDuration: selectedDuration,
         totalPrice: currentPrice,
-        customerNotes: customerNotes.trim(),
+        customerNotes: combinedNotes,
+        bodyParts: {
+          focus: focusAreas,
+          avoid: avoidAreas,
+        },
       },
       action
     );
@@ -153,7 +179,18 @@ export default function DeepBookingConfig({
         </div>
       </motion.div>
 
-      {/* ── SECTION 1: DEEP BODY TECHNIQUES ── */}
+      {/* ── SECTION 1: BODY MAP (FOCUS & AVOID) ── */}
+      <BodyFocusAvoidMap
+        lang={lang}
+        focusAreas={focusAreas}
+        avoidAreas={avoidAreas}
+        onChange={(newFocus, newAvoid) => {
+          setFocusAreas(newFocus);
+          setAvoidAreas(newAvoid);
+        }}
+      />
+
+      {/* ── SECTION 2: DEEP BODY TECHNIQUES ── */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-2">
           <div>
@@ -185,7 +222,7 @@ export default function DeepBookingConfig({
                 }`}
               >
                 <div>
-                  {/* Top row: Badge & Intensity */}
+                  {/* Top row: Badge */}
                   <div className="flex items-center justify-between gap-2 mb-2.5">
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -196,11 +233,6 @@ export default function DeepBookingConfig({
                     >
                       {tech.badge[safeLang] || tech.badge.en}
                     </span>
-
-                    <div className="flex items-center gap-1 text-[11px] text-[#e6c487] font-semibold">
-                      <Activity size={13} />
-                      <span>{t.intensity_label}: {tech.intensity}/5</span>
-                    </div>
                   </div>
 
                   {/* Title & Checkmark */}

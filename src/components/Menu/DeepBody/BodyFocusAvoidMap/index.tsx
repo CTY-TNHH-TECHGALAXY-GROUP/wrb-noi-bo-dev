@@ -1,0 +1,360 @@
+'use client';
+
+import React from 'react';
+import { Check } from 'lucide-react';
+import { getDeepBodyT } from '../DeepBody.i18n';
+
+export type BodyAreaKey =
+  | 'head'
+  | 'neck'
+  | 'shoulders'
+  | 'arms'
+  | 'torso'
+  | 'back'
+  | 'lowerBack'
+  | 'hips'
+  | 'legs'
+  | 'feet';
+
+export type MarkerMode = 'focus' | 'avoid' | null;
+
+interface BodyPoint {
+  x: number; // percentage (0 - 100)
+  y: number; // percentage (0 - 100)
+  primary?: boolean;
+}
+
+// Coordinate clusters precisely mapped to the 655x1024 anatomical figure
+const AREA_CLUSTERS: Record<BodyAreaKey, BodyPoint[]> = {
+  head: [
+    { x: 50.0, y: 3.8, primary: true },
+    { x: 50.0, y: 6.8, primary: true },
+    { x: 50.0, y: 10.2 },
+  ],
+  neck: [
+    { x: 50.0, y: 14.2, primary: true },
+    { x: 50.0, y: 16.6 },
+    { x: 47.2, y: 15.5 },
+    { x: 52.8, y: 15.5 },
+  ],
+  shoulders: [
+    { x: 33.2, y: 19.8, primary: true },
+    { x: 66.8, y: 19.8, primary: true },
+    { x: 38.6, y: 18.2 },
+    { x: 61.4, y: 18.2 },
+    { x: 43.8, y: 18.0 },
+    { x: 56.2, y: 18.0 },
+  ],
+  arms: [
+    { x: 26.5, y: 27.2 },
+    { x: 73.5, y: 27.2 },
+    { x: 24.0, y: 35.5, primary: true },
+    { x: 76.0, y: 35.5, primary: true },
+    { x: 20.0, y: 47.0, primary: true },
+    { x: 80.0, y: 47.0, primary: true },
+    { x: 19.0, y: 52.0 },
+    { x: 81.0, y: 52.0 },
+  ],
+  torso: [
+    { x: 50.0, y: 21.6, primary: true },
+    { x: 42.5, y: 22.8 },
+    { x: 57.5, y: 22.8 },
+    { x: 50.0, y: 28.5, primary: true },
+    { x: 43.0, y: 29.8 },
+    { x: 57.0, y: 29.8 },
+  ],
+  back: [
+    { x: 50.0, y: 33.2, primary: true },
+    { x: 44.5, y: 34.0 },
+    { x: 55.5, y: 34.0 },
+    { x: 50.0, y: 37.8, primary: true },
+  ],
+  lowerBack: [
+    { x: 50.0, y: 41.5, primary: true },
+    { x: 45.2, y: 41.8 },
+    { x: 54.8, y: 41.8 },
+    { x: 50.0, y: 45.0, primary: true },
+  ],
+  hips: [
+    { x: 40.0, y: 43.5, primary: true },
+    { x: 60.0, y: 43.5, primary: true },
+    { x: 37.5, y: 48.0 },
+    { x: 62.5, y: 48.0 },
+    { x: 50.0, y: 48.8, primary: true },
+  ],
+  legs: [
+    { x: 37.5, y: 56.5, primary: true },
+    { x: 62.5, y: 56.5, primary: true },
+    { x: 40.0, y: 67.5, primary: true },
+    { x: 60.0, y: 67.5, primary: true },
+    { x: 37.5, y: 78.5 },
+    { x: 62.5, y: 78.5 },
+  ],
+  feet: [
+    { x: 42.0, y: 88.0, primary: true },
+    { x: 58.0, y: 88.0, primary: true },
+    { x: 41.0, y: 92.5 },
+    { x: 59.0, y: 92.5 },
+    { x: 40.0, y: 96.0 },
+    { x: 60.0, y: 96.0 },
+  ],
+};
+
+const AREA_LIST: { key: BodyAreaKey; i18nKey: string }[] = [
+  { key: 'head', i18nKey: 'area_head' },
+  { key: 'neck', i18nKey: 'area_neck' },
+  { key: 'shoulders', i18nKey: 'area_shoulders' },
+  { key: 'arms', i18nKey: 'area_arms' },
+  { key: 'torso', i18nKey: 'area_torso' },
+  { key: 'back', i18nKey: 'area_back' },
+  { key: 'lowerBack', i18nKey: 'area_lowerBack' },
+  { key: 'hips', i18nKey: 'area_hips' },
+  { key: 'legs', i18nKey: 'area_legs' },
+  { key: 'feet', i18nKey: 'area_feet' },
+];
+
+interface BodyFocusAvoidMapProps {
+  lang: string;
+  focusAreas: string[];
+  avoidAreas: string[];
+  onChange: (focus: string[], avoid: string[]) => void;
+}
+
+export default function BodyFocusAvoidMap({
+  lang,
+  focusAreas,
+  avoidAreas,
+  onChange,
+}: BodyFocusAvoidMapProps) {
+  const t = getDeepBodyT(lang);
+
+  const handleToggle = (key: BodyAreaKey, type: 'focus' | 'avoid') => {
+    let newFocus = [...focusAreas];
+    let newAvoid = [...avoidAreas];
+
+    if (type === 'focus') {
+      if (newFocus.includes(key)) {
+        newFocus = newFocus.filter((k) => k !== key);
+      } else {
+        newFocus.push(key);
+        newAvoid = newAvoid.filter((k) => k !== key); // Mutually exclusive
+      }
+    } else {
+      if (newAvoid.includes(key)) {
+        newAvoid = newAvoid.filter((k) => k !== key);
+      } else {
+        newAvoid.push(key);
+        newFocus = newFocus.filter((k) => k !== key); // Mutually exclusive
+      }
+    }
+
+    onChange(newFocus, newAvoid);
+  };
+
+  const getAreaStatus = (key: BodyAreaKey): MarkerMode => {
+    if (focusAreas.includes(key)) return 'focus';
+    if (avoidAreas.includes(key)) return 'avoid';
+    return null;
+  };
+
+  return (
+    <section className="mb-8">
+      {/* Section Header */}
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h3 className="text-lg sm:text-xl font-bold text-[#e6c487] tracking-wide">
+            {t.body_map_section_title}
+          </h3>
+          <p className="text-xs text-gray-400">
+            {t.body_map_section_subtitle}
+          </p>
+        </div>
+        {(focusAreas.length > 0 || avoidAreas.length > 0) && (
+          <div className="flex items-center gap-2">
+            {focusAreas.length > 0 && (
+              <span className="text-[11px] font-bold text-[#39d67b] bg-[#39d67b]/15 px-2.5 py-0.5 rounded-full border border-[#39d67b]/30">
+                {focusAreas.length} {t.body_map_col_focus}
+              </span>
+            )}
+            {avoidAreas.length > 0 && (
+              <span className="text-[11px] font-bold text-[#ff5b66] bg-[#ff5b66]/15 px-2.5 py-0.5 rounded-full border border-[#ff5b66]/30">
+                {avoidAreas.length} {t.body_map_col_avoid}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Main Container: Left Viewer + Right Controls */}
+      <div className="rounded-3xl border border-[#e6c487]/25 bg-gradient-to-b from-[#141416] to-[#0c0c0e] shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden grid grid-cols-1 md:grid-cols-[minmax(320px,1.05fr)_minmax(320px,1.15fr)]">
+        
+        {/* ── LEFT PANEL: BODY ANATOMY VIEWER ── */}
+        <div className="relative min-h-[440px] sm:min-h-[560px] md:min-h-[640px] bg-[#070708] flex items-center justify-center p-3 border-b md:border-b-0 md:border-r border-white/5 overflow-hidden select-none">
+          {/* Subtle Ambient Radial Glows */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(230,196,135,0.08),transparent_55%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(57,214,123,0.04),transparent_50%)] pointer-events-none" />
+
+          {/* High-Resolution Anatomical Meridian Body Map */}
+          <div className="relative w-full h-full max-w-[400px] max-h-[600px] flex items-center justify-center">
+            <img
+              src="/images/body-map.webp"
+              alt="Anatomical Body Meridian Map"
+              className="w-auto h-full max-h-[580px] object-contain pointer-events-none drop-shadow-[0_10px_35px_rgba(0,0,0,0.95)] filter contrast-110 brightness-110 saturate-105"
+              style={{
+                imageRendering: '-webkit-optimize-contrast',
+              }}
+            />
+
+            {/* Glowing Points Overlay */}
+            <div className="absolute inset-0 pointer-events-none">
+              {AREA_LIST.map(({ key }) => {
+                const status = getAreaStatus(key);
+                const points = AREA_CLUSTERS[key] || [];
+
+                return points.map((pt, i) => {
+                  const isVisible = status !== null;
+                  const isFocus = status === 'focus';
+                  const isAvoid = status === 'avoid';
+
+                  return (
+                    <span
+                      key={`${key}-${i}`}
+                      style={{
+                        left: `${pt.x}%`,
+                        top: `${pt.y}%`,
+                      }}
+                      className={`absolute rounded-full -translate-x-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-none ${
+                        pt.primary ? 'w-3.5 h-3.5' : 'w-2.5 h-2.5'
+                      } ${
+                        isVisible
+                          ? 'opacity-100 scale-100'
+                          : 'opacity-0 scale-50'
+                      } ${
+                        isFocus
+                          ? 'bg-[#39d67b] shadow-[0_0_12px_#39d67b,0_0_24px_rgba(57,214,123,0.7)]'
+                          : ''
+                      } ${
+                        isAvoid
+                          ? 'bg-[#ff5b66] shadow-[0_0_12px_#ff5b66,0_0_24px_rgba(255,91,102,0.7)]'
+                          : ''
+                      }`}
+                    >
+                      {/* Inner Ping Core for Primary Dots */}
+                      {isVisible && pt.primary && (
+                        <span
+                          className={`absolute inset-0 rounded-full animate-ping opacity-75 ${
+                            isFocus ? 'bg-[#39d67b]' : 'bg-[#ff5b66]'
+                          }`}
+                        />
+                      )}
+                    </span>
+                  );
+                });
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* ── RIGHT PANEL: AREA CONTROLS ── */}
+        <div className="flex flex-col justify-between p-4 sm:p-6 bg-gradient-to-b from-[#121214] to-[#0d0d0f]">
+          <div>
+            {/* Table Header */}
+            <div className="grid grid-cols-[1fr_68px_68px] sm:grid-cols-[1fr_80px_80px] gap-2 items-center pb-3 mb-2 border-b border-white/10 text-xs sm:text-sm font-black uppercase tracking-wider">
+              <div className="text-[#e6c487] pl-1 font-bold">
+                {t.body_map_col_area}
+              </div>
+              <div className="text-[#39d67b] text-center font-bold">
+                {t.body_map_col_focus}
+              </div>
+              <div className="text-[#ff5b66] text-center font-bold">
+                {t.body_map_col_avoid}
+              </div>
+            </div>
+
+            {/* Rows */}
+            <div className="divide-y divide-white/5">
+              {AREA_LIST.map(({ key, i18nKey }) => {
+                const status = getAreaStatus(key);
+                const isFocus = status === 'focus';
+                const isAvoid = status === 'avoid';
+                const label = (t as any)[i18nKey] || key;
+
+                return (
+                  <div
+                    key={key}
+                    className="grid grid-cols-[1fr_68px_68px] sm:grid-cols-[1fr_80px_80px] gap-2 items-center py-2.5 sm:py-3 hover:bg-white/[0.02] rounded-xl transition-colors px-1"
+                  >
+                    {/* Area Name */}
+                    <div
+                      className={`text-sm sm:text-base font-semibold transition-colors flex items-center gap-2 ${
+                        isFocus
+                          ? 'text-[#39d67b] font-bold'
+                          : isAvoid
+                          ? 'text-[#ff5b66] font-bold'
+                          : 'text-gray-200'
+                      }`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          isFocus
+                            ? 'bg-[#39d67b] shadow-[0_0_6px_#39d67b]'
+                            : isAvoid
+                            ? 'bg-[#ff5b66] shadow-[0_0_6px_#ff5b66]'
+                            : 'bg-white/20'
+                        }`}
+                      />
+                      <span>{label}</span>
+                    </div>
+
+                    {/* Focus Toggle */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggle(key, 'focus')}
+                      aria-label={`Focus ${label}`}
+                      className={`w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl flex items-center justify-center transition-all cursor-pointer border ${
+                        isFocus
+                          ? 'bg-[#39d67b]/15 border-[#39d67b] text-[#39d67b] shadow-[0_0_16px_rgba(57,214,123,0.3)] scale-105'
+                          : 'bg-[#18181b] border-white/10 text-transparent hover:border-white/25 active:scale-95'
+                      }`}
+                    >
+                      <Check
+                        size={20}
+                        strokeWidth={3}
+                        className={isFocus ? 'opacity-100' : 'opacity-0'}
+                      />
+                    </button>
+
+                    {/* Avoid Toggle */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggle(key, 'avoid')}
+                      aria-label={`Avoid ${label}`}
+                      className={`w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl flex items-center justify-center transition-all cursor-pointer border ${
+                        isAvoid
+                          ? 'bg-[#ff5b66]/15 border-[#ff5b66] text-[#ff5b66] shadow-[0_0_16px_rgba(255,91,102,0.3)] scale-105'
+                          : 'bg-[#18181b] border-white/10 text-transparent hover:border-white/25 active:scale-95'
+                      }`}
+                    >
+                      <Check
+                        size={20}
+                        strokeWidth={3}
+                        className={isAvoid ? 'opacity-100' : 'opacity-0'}
+                      />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Footer Note */}
+          <div className="pt-4 mt-2 border-t border-white/5 text-[11px] sm:text-xs text-gray-500 italic flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#e6c487] shrink-0" />
+            <span>{t.body_map_note}</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+}

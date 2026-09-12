@@ -67,10 +67,6 @@ export default function TechniqueGalleryModal({
                 <span className="px-2.5 py-0.5 rounded-full bg-[#e6c487]/20 border border-[#e6c487]/40 text-[#e6c487] text-[10px] font-bold uppercase tracking-wider">
                   {technique.badge[safeLang] || technique.badge.en}
                 </span>
-                <span className="text-xs text-gray-400 flex items-center gap-1 font-medium">
-                  <Activity size={13} className="text-[#e6c487]" />
-                  {t.intensity_label}: {technique.intensity}/5
-                </span>
               </div>
               <h3 className="text-lg sm:text-2xl font-bold text-white leading-tight">
                 {technique.name[safeLang] || technique.name.en}
