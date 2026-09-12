@@ -31,13 +31,42 @@ export default function DeepBodyMenu({
   const t = getDeepBodyT(lang);
   const { cart, addVipToCart, updateVipCartItem, removeVipGroup } = useMenuData();
 
-  const [step, setStep] = useState<MenuStep>('STAFF');
+  // Persisted state across language switch
+  const [step, setStep] = useState<MenuStep>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('deep_body_current_step') as MenuStep | null;
+      if (saved === 'BOOKING_CONFIG' || saved === 'STAFF') return saved;
+    }
+    return 'STAFF';
+  });
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [vipPricingTable, setVipPricingTable] = useState<VipPricingTable | undefined>(undefined);
 
-  const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
-  const [selectedStaffInfoList, setSelectedStaffInfoList] = useState<VipStaffInfo[]>([]);
-  const [staffGroupingMode, setStaffGroupingMode] = useState<'FOUR_HAND' | 'SEPARATE' | null>(null);
+  const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = sessionStorage.getItem('deep_body_selected_staff_ids');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return [];
+  });
+  const [selectedStaffInfoList, setSelectedStaffInfoList] = useState<VipStaffInfo[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = sessionStorage.getItem('deep_body_selected_staff_info');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return [];
+  });
+  const [staffGroupingMode, setStaffGroupingMode] = useState<'FOUR_HAND' | 'SEPARATE' | null>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('deep_body_grouping_mode') as 'FOUR_HAND' | 'SEPARATE' | null;
+      if (saved === 'FOUR_HAND' || saved === 'SEPARATE') return saved;
+    }
+    return null;
+  });
 
   // Fetch VIP pricing table
   useEffect(() => {
@@ -54,7 +83,16 @@ export default function DeepBodyMenu({
   const handleBack = () => {
     if (step === 'BOOKING_CONFIG') {
       setStep('STAFF');
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('deep_body_current_step', 'STAFF');
+      }
     } else {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('deep_body_current_step');
+        sessionStorage.removeItem('deep_body_selected_staff_ids');
+        sessionStorage.removeItem('deep_body_selected_staff_info');
+        sessionStorage.removeItem('deep_body_grouping_mode');
+      }
       onBack();
     }
   };
@@ -101,6 +139,13 @@ export default function DeepBodyMenu({
       });
     }
 
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('deep_body_current_step');
+      sessionStorage.removeItem('deep_body_selected_staff_ids');
+      sessionStorage.removeItem('deep_body_selected_staff_info');
+      sessionStorage.removeItem('deep_body_grouping_mode');
+    }
+
     setIsCartOpen(true);
   };
 
@@ -109,6 +154,12 @@ export default function DeepBodyMenu({
     setSelectedStaffInfoList([]);
     setStaffGroupingMode(null);
     setStep('STAFF');
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('deep_body_current_step');
+      sessionStorage.removeItem('deep_body_selected_staff_ids');
+      sessionStorage.removeItem('deep_body_selected_staff_info');
+      sessionStorage.removeItem('deep_body_grouping_mode');
+    }
   };
 
   const handleCartUpdateItem = (cartId: string, saveData: VipEditSaveData) => {
@@ -158,6 +209,13 @@ export default function DeepBodyMenu({
                   setSelectedStaffInfoList(staffInfoList);
                   setStaffGroupingMode(mode || null);
                   setStep('BOOKING_CONFIG');
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.setItem('deep_body_current_step', 'BOOKING_CONFIG');
+                    sessionStorage.setItem('deep_body_selected_staff_ids', JSON.stringify(ids));
+                    sessionStorage.setItem('deep_body_selected_staff_info', JSON.stringify(staffInfoList));
+                    if (mode) sessionStorage.setItem('deep_body_grouping_mode', mode);
+                    else sessionStorage.removeItem('deep_body_grouping_mode');
+                  }
                 }}
               />
             </motion.div>

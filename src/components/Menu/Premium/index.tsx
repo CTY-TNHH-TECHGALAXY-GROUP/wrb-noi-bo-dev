@@ -47,9 +47,70 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     const t = getT(lang);
     const deepT = getDeepBodyT(lang);
     const { cart, addVipToCart, updateVipCartItem, removeVipGroup } = useMenuData();
-    const [step, setStep]         = useState<MenuStep>('STAFF');
+    // Active Tab & Step with sessionStorage & URL persistence
+    const [activeVipTab, setActiveVipTab] = useState<VipTab>(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const tabParam = params.get('tab');
+            if (tabParam === 'deep_body' || tabParam === 'deep-body' || tabParam === 'DEEP_BODY_TREATMENT') {
+                return 'DEEP_BODY_TREATMENT';
+            }
+            if (tabParam === 'journey' || tabParam === 'DESIGN_YOUR_JOURNEY') {
+                return 'DESIGN_YOUR_JOURNEY';
+            }
+            const saved = sessionStorage.getItem('vip_active_tab') as VipTab | null;
+            if (saved === 'DEEP_BODY_TREATMENT' || saved === 'DESIGN_YOUR_JOURNEY') {
+                return saved;
+            }
+        }
+        return 'DESIGN_YOUR_JOURNEY';
+    });
+
+    const [step, setStep] = useState<MenuStep>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = sessionStorage.getItem('vip_current_step') as MenuStep | null;
+            if (saved === 'BOOKING_CONFIG' || saved === 'STAFF') return saved;
+        }
+        return 'STAFF';
+    });
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const [activeVipTab, setActiveVipTab] = useState<VipTab>('DESIGN_YOUR_JOURNEY');
+
+    // Selected staff for current booking flow (persisted for language switch)
+    const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>(() => {
+        if (typeof window !== 'undefined') {
+            try {
+                const saved = sessionStorage.getItem('vip_selected_staff_ids');
+                if (saved) return JSON.parse(saved);
+            } catch (e) {}
+        }
+        return [];
+    });
+    const [selectedStaffInfoList, setSelectedStaffInfoList] = useState<VipStaffInfo[]>(() => {
+        if (typeof window !== 'undefined') {
+            try {
+                const saved = sessionStorage.getItem('vip_selected_staff_info');
+                if (saved) return JSON.parse(saved);
+            } catch (e) {}
+        }
+        return [];
+    });
+    const [staffGroupingMode, setStaffGroupingMode] = useState<'FOUR_HAND' | 'SEPARATE' | null>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = sessionStorage.getItem('vip_staff_grouping_mode') as 'FOUR_HAND' | 'SEPARATE' | null;
+            if (saved === 'FOUR_HAND' || saved === 'SEPARATE') return saved;
+        }
+        return null;
+    });
+
+    const switchVipTab = (newTab: VipTab) => {
+        setActiveVipTab(newTab);
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem('vip_active_tab', newTab);
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', newTab === 'DEEP_BODY_TREATMENT' ? 'deep_body' : 'journey');
+            window.history.replaceState({}, '', url.toString());
+        }
+    };
 
     // Language switcher state
     const [isLangOpen, setIsLangOpen] = useState(false);
@@ -69,16 +130,15 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     const handleLanguageChange = (newLang: string) => {
         if (!pathname) return;
         setIsLangOpen(false);
-        router.replace(pathname.replace(`/${lang}/`, `/${newLang}/`));
+        const search = typeof window !== 'undefined' ? window.location.search : '';
+        const params = new URLSearchParams(search);
+        params.set('tab', activeVipTab === 'DEEP_BODY_TREATMENT' ? 'deep_body' : 'journey');
+        const queryStr = `?${params.toString()}`;
+        router.replace(pathname.replace(`/${lang}/`, `/${newLang}/`) + queryStr);
     };
 
     // VIP pricing table from SystemConfigs
     const [vipPricingTable, setVipPricingTable] = useState<VipPricingTable | undefined>(undefined);
-
-    // Selected staff for current booking flow
-    const [selectedStaffIds, setSelectedStaffIds]           = useState<string[]>([]);
-    const [selectedStaffInfoList, setSelectedStaffInfoList] = useState<VipStaffInfo[]>([]);
-    const [staffGroupingMode, setStaffGroupingMode] = useState<'FOUR_HAND' | 'SEPARATE' | null>(null);
     const [bufferMinutes, setBufferMinutes]                 = useState<number>(30);
 
     // Số lượng gói VIP đã đặt (để hiển thị badge trên nút Cart)
@@ -112,8 +172,21 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     // ── Navigation ──────────────────────────────────
     const handleBack = () => {
         switch (step) {
-            case 'STAFF':          onBack(); break;
-            case 'BOOKING_CONFIG': setStep('STAFF'); break;
+            case 'STAFF':
+                if (typeof window !== 'undefined') {
+                    sessionStorage.removeItem('vip_current_step');
+                    sessionStorage.removeItem('vip_selected_staff_ids');
+                    sessionStorage.removeItem('vip_selected_staff_info');
+                    sessionStorage.removeItem('vip_staff_grouping_mode');
+                }
+                onBack();
+                break;
+            case 'BOOKING_CONFIG':
+                setStep('STAFF');
+                if (typeof window !== 'undefined') {
+                    sessionStorage.setItem('vip_current_step', 'STAFF');
+                }
+                break;
         }
     };
 
@@ -174,6 +247,13 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
             });
         }
 
+        if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('vip_current_step');
+            sessionStorage.removeItem('vip_selected_staff_ids');
+            sessionStorage.removeItem('vip_selected_staff_info');
+            sessionStorage.removeItem('vip_staff_grouping_mode');
+        }
+
         // Mở Cart sheet overlay thay vì navigate sang step mới
         setIsCartOpen(true);
     };
@@ -195,6 +275,12 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
         setSelectedStaffInfoList([]);
         setStaffGroupingMode(null);
         setStep('STAFF');
+        if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('vip_current_step');
+            sessionStorage.removeItem('vip_selected_staff_ids');
+            sessionStorage.removeItem('vip_selected_staff_info');
+            sessionStorage.removeItem('vip_staff_grouping_mode');
+        }
     };
 
     return (
@@ -293,7 +379,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                 <div className="inline-flex p-1 rounded-full bg-[#1b1b1d] border border-[#e6c487]/30 max-w-md w-full relative shadow-inner">
                     <button
                         type="button"
-                        onClick={() => setActiveVipTab('DESIGN_YOUR_JOURNEY')}
+                        onClick={() => switchVipTab('DESIGN_YOUR_JOURNEY')}
                         className={`flex-1 py-2 px-3 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 ${
                             activeVipTab === 'DESIGN_YOUR_JOURNEY'
                                 ? 'bg-[#e6c487] text-[#412d00] shadow-[0_2px_10px_rgba(230,196,135,0.3)]'
@@ -306,7 +392,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
 
                     <button
                         type="button"
-                        onClick={() => setActiveVipTab('DEEP_BODY_TREATMENT')}
+                        onClick={() => switchVipTab('DEEP_BODY_TREATMENT')}
                         className={`flex-1 py-2 px-3 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 ${
                             activeVipTab === 'DEEP_BODY_TREATMENT'
                                 ? 'bg-[#e6c487] text-[#412d00] shadow-[0_2px_10px_rgba(230,196,135,0.3)]'
@@ -352,6 +438,13 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                                             setSelectedStaffInfoList(staffInfoList);
                                             setStaffGroupingMode(mode || null);
                                             setStep('BOOKING_CONFIG');
+                                            if (typeof window !== 'undefined') {
+                                                sessionStorage.setItem('vip_current_step', 'BOOKING_CONFIG');
+                                                sessionStorage.setItem('vip_selected_staff_ids', JSON.stringify(ids));
+                                                sessionStorage.setItem('vip_selected_staff_info', JSON.stringify(staffInfoList));
+                                                if (mode) sessionStorage.setItem('vip_staff_grouping_mode', mode);
+                                                else sessionStorage.removeItem('vip_staff_grouping_mode');
+                                            }
                                         }}
                                     />
                                 </motion.div>
