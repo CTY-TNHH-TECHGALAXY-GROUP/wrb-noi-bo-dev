@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useParams, useRouter, notFound } from 'next/navigation';
 import StandardMenu from '@/components/Menu/Standard';
 import PremiumMenu from '@/components/Menu/Premium';
@@ -21,12 +21,20 @@ export default function OldUserMenuPage() {
         router.push(`/${lang}/old-user/${menuType}/checkout`);
     };
 
+    const handleSwitchToVip = () => {
+        router.push(`/${lang}/old-user/vip/menu?tab=journey`);
+    };
+
     if (menuType === 'standard' || menuType === 'spa') {
-        return <StandardMenu lang={lang} menuType={menuType} onBack={handleBack} onCheckout={handleCheckout} />;
+        return <StandardMenu lang={lang} menuType={menuType} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} />;
     }
 
     if (menuType === 'vip' || menuType === 'premium') {
-        return <PremiumMenu lang={lang} isBookingFlow={false} onBack={handleBack} onCheckout={handleCheckout} />;
+        return (
+            <Suspense fallback={null}>
+                <PremiumMenu lang={lang} isBookingFlow={false} onBack={handleBack} onCheckout={handleCheckout} />
+            </Suspense>
+        );
     }
 
     return notFound();

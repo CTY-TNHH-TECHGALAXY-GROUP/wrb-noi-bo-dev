@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { useParams, usePathname, useRouter, notFound } from 'next/navigation';
 
 // --- IMPORT 2 GIAO DIá»†N Lá»šN ---
@@ -52,26 +52,30 @@ export default function MenuPage() {
         router.push(`/${lang}/${menuType}/checkout`);
     };
 
-    // 4. Cross-menu navigation (cart giá»¯ nguyÃªn qua MenuContext)
+    // 4. Cross-menu navigation (cart giữ nguyên qua MenuContext)
     const handleSwitchToVip = () => {
-        router.push(`/${lang}/vip/menu`);
+        router.push(`/${lang}/vip/menu?tab=journey`);
     };
     const handleSwitchToStandard = () => {
         router.push(`/${lang}/standard/menu`);
     };
 
-    // 5. LOGIC ÄIá»€U PHá»I (ROUTING)
+    // 5. LOGIC ĐIỀU PHỐI (ROUTING)
 
-    // TrÆ°á»ng há»£p 1: Menu ThÆ°á»ng & Spa
+    // Trường hợp 1: Menu Thường & Spa
     if (menuType === 'standard' || menuType === 'spa') {
         return <StandardMenu lang={lang} menuType={menuType} onBack={handleBack} onCheckout={handleCheckout} onSwitchToVip={handleSwitchToVip} showHiddenServices={true} showEntryActions={menuType === 'standard'} showPickerBack={false} />;
     }
 
-    // TrÆ°á»ng há»£p 2: Menu VIP (Premium)
+    // Trường hợp 2: Menu VIP (Premium)
     if (menuType === 'vip') {
-        return <PremiumMenu lang={lang} isBookingFlow={false} onBack={handleBack} onCheckout={handleCheckout} onSwitchToStandard={handleSwitchToStandard} />;
+        return (
+            <Suspense fallback={null}>
+                <PremiumMenu lang={lang} isBookingFlow={false} onBack={handleBack} onCheckout={handleCheckout} onSwitchToStandard={handleSwitchToStandard} />
+            </Suspense>
+        );
     }
 
-    // TrÆ°á»ng há»£p 3: NgÆ°á»i dÃ¹ng nháº­p báº­y báº¡ (vd: .../abc/menu) -> Tráº£ vá» 404
+    // TrÆ°á» ng há»£p 3: NgÆ°á» i dÃ¹ng nháº­p báº­y báº¡ (vd: .../abc/menu) -> Tráº£ vá»  404
     return notFound();
 }

@@ -18,7 +18,7 @@ export default function OldUserBookingSelectMenuPage({ params }: { params: Promi
 
     const handleSelectMenu = (type: string) => {
         localStorage.setItem('selected_menu_type', type);
-        router.push(`/${lang}/old-user/booking/${type}/menu`);
+        router.push(type === 'vip' ? `/${lang}/old-user/booking/vip/menu?tab=journey` : `/${lang}/old-user/booking/${type}/menu`);
     };
 
     return (

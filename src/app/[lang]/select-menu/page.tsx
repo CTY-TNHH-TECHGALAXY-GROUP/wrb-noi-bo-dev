@@ -28,8 +28,8 @@ export default function SelectMenuPage({ params }: { params: Promise<{ lang: str
         localStorage.setItem('selected_menu_type', type);
 
         // 2. Chuyển hướng đến trang Menu chi tiết
-        // Ví dụ: /vn/standard/menu hoặc /vn/vip/menu
-        router.push(`/${lang}/${type}/menu`);
+        // Ví dụ: /vn/standard/menu hoặc /vn/vip/menu?tab=journey
+        router.push(type === 'vip' ? `/${lang}/vip/menu?tab=journey` : `/${lang}/${type}/menu`);
     };
 
     return (

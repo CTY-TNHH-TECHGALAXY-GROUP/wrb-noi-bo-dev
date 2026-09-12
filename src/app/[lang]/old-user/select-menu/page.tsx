@@ -19,7 +19,7 @@ export default function OldUserSelectMenuPage({ params }: { params: Promise<{ la
     const handleSelectMenu = (type: string) => {
         localStorage.setItem('selected_menu_type', type);
         // Redirect to OLD USER menu path
-        router.push(`/${lang}/old-user/${type}/menu`);
+        router.push(type === 'vip' ? `/${lang}/old-user/vip/menu?tab=journey` : `/${lang}/old-user/${type}/menu`);
     };
 
     return (

@@ -252,7 +252,7 @@ export async function GET(_req: NextRequest) {
         turnsCompleted,
         travelTimeMins,
         availableFrom: formatTimeVn(s.available_from),
-        certificateUrl: s.certificate_url ?? null,
+        certificateUrl: (s as any).certificate_url ?? null,
       };
     });
 

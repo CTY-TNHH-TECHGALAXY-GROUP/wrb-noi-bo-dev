@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use } from 'react';
+import React, { use, Suspense } from 'react';
 import { useRouter, notFound } from 'next/navigation';
 
 // --- IMPORT 2 GIAO DIỆN LỚN ---
@@ -28,7 +28,7 @@ export default function BookingMenuPage({ params }: { params: Promise<{ lang: st
 
     // 4. Cross-menu navigation (cart giữ nguyên qua MenuContext)
     const handleSwitchToVip = () => {
-        router.push(`/${lang}/booking/vip/menu`);
+        router.push(`/${lang}/booking/vip/menu?tab=journey`);
     };
     const handleSwitchToStandard = () => {
         router.push(`/${lang}/booking/standard/menu`);
@@ -42,7 +42,11 @@ export default function BookingMenuPage({ params }: { params: Promise<{ lang: st
 
     // Trường hợp 2: Menu VIP (Premium)
     if (menuType === 'vip') {
-        return <PremiumMenu lang={lang} isBookingFlow={true} onBack={handleBack} onCheckout={handleCheckout} onSwitchToStandard={handleSwitchToStandard} />;
+        return (
+            <Suspense fallback={null}>
+                <PremiumMenu lang={lang} isBookingFlow={true} onBack={handleBack} onCheckout={handleCheckout} onSwitchToStandard={handleSwitchToStandard} />
+            </Suspense>
+        );
     }
 
     // Trường hợp 3: Người dùng nhập bậy bạ -> Trả về 404

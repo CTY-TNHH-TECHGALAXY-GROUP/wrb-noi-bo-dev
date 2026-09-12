@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { languages } from '@/app/(intro)/LanguageSelector.lang';
 
 import StaffSelector from './StaffSelector';
@@ -44,10 +44,12 @@ type VipTab = 'DESIGN_YOUR_JOURNEY' | 'DEEP_BODY_TREATMENT';
 const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStandard }: PremiumMenuProps) => {
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const t = getT(lang);
     const deepT = getDeepBodyT(lang);
     const { cart, addVipToCart, updateVipCartItem, removeVipGroup } = useMenuData();
-    // Active Tab & Step with sessionStorage & URL persistence
+
+    // Active Tab & Step with URL persistence (Default: DESIGN_YOUR_JOURNEY / ?tab=journey)
     const [activeVipTab, setActiveVipTab] = useState<VipTab>(() => {
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
@@ -55,16 +57,30 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
             if (tabParam === 'deep_body' || tabParam === 'deep-body' || tabParam === 'DEEP_BODY_TREATMENT') {
                 return 'DEEP_BODY_TREATMENT';
             }
-            if (tabParam === 'journey' || tabParam === 'DESIGN_YOUR_JOURNEY') {
-                return 'DESIGN_YOUR_JOURNEY';
-            }
-            const saved = sessionStorage.getItem('vip_active_tab') as VipTab | null;
-            if (saved === 'DEEP_BODY_TREATMENT' || saved === 'DESIGN_YOUR_JOURNEY') {
-                return saved;
-            }
         }
         return 'DESIGN_YOUR_JOURNEY';
     });
+
+    // Reactive sync with URL searchParams & ensure URL has ?tab=journey by default
+    useEffect(() => {
+        const tabParam = searchParams?.get('tab');
+        if (tabParam === 'deep_body' || tabParam === 'deep-body' || tabParam === 'DEEP_BODY_TREATMENT') {
+            setActiveVipTab('DEEP_BODY_TREATMENT');
+            if (typeof window !== 'undefined') {
+                sessionStorage.setItem('vip_active_tab', 'DEEP_BODY_TREATMENT');
+            }
+        } else {
+            setActiveVipTab('DESIGN_YOUR_JOURNEY');
+            if (typeof window !== 'undefined') {
+                sessionStorage.setItem('vip_active_tab', 'DESIGN_YOUR_JOURNEY');
+                if (tabParam !== 'journey') {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('tab', 'journey');
+                    window.history.replaceState({}, '', url.toString());
+                }
+            }
+        }
+    }, [searchParams]);
 
     const [step, setStep] = useState<MenuStep>(() => {
         if (typeof window !== 'undefined') {

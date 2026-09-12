@@ -103,6 +103,8 @@ export default function DeepBodyMenu({
       techniqueNames: string[];
       totalDuration: number;
       totalPrice: number;
+      totalPriceUSD?: number;
+      serviceId?: string;
       customerNotes?: string;
     },
     action: 'SELECT_MORE' | 'CHECKOUT' = 'SELECT_MORE'

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use } from 'react';
+import React, { use, Suspense } from 'react';
 import { useRouter, notFound } from 'next/navigation';
 
 import StandardMenu from '@/components/Menu/Standard';
@@ -22,7 +22,7 @@ export default function OldUserBookingMenuPage({ params }: { params: Promise<{ l
     };
 
     const handleSwitchToVip = () => {
-        router.push(`/${lang}/old-user/booking/vip/menu`);
+        router.push(`/${lang}/old-user/booking/vip/menu?tab=journey`);
     };
     const handleSwitchToStandard = () => {
         router.push(`/${lang}/old-user/booking/standard/menu`);
@@ -33,7 +33,11 @@ export default function OldUserBookingMenuPage({ params }: { params: Promise<{ l
     }
 
     if (menuType === 'vip') {
-        return <PremiumMenu lang={lang} isBookingFlow={true} onBack={handleBack} onCheckout={handleCheckout} onSwitchToStandard={handleSwitchToStandard} />;
+        return (
+            <Suspense fallback={null}>
+                <PremiumMenu lang={lang} isBookingFlow={true} onBack={handleBack} onCheckout={handleCheckout} onSwitchToStandard={handleSwitchToStandard} />
+            </Suspense>
+        );
     }
 
     return notFound();
