@@ -136,7 +136,7 @@ export default function DeepBookingConfig({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col px-4 sm:px-6 pt-2 pb-16 max-w-5xl mx-auto"
+      className="flex flex-col px-2 sm:px-6 pt-2 pb-16 max-w-5xl mx-auto"
     >
       {/* Therapist Summary Bar */}
       <motion.div
