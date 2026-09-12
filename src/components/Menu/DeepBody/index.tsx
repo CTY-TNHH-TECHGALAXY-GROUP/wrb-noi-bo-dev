@@ -186,10 +186,10 @@ export default function DeepBodyMenu({
     <div className="w-full h-full flex flex-col relative overflow-hidden">
       {/* Step Subheader with Back Button if in BOOKING_CONFIG */}
       {step === 'BOOKING_CONFIG' && (
-        <div className="px-6 py-2 border-b border-white/5 bg-[#121214]/60 backdrop-blur-sm flex items-center justify-between">
+        <div className="px-6 py-2.5 border-b border-white/5 bg-[#121214]/60 backdrop-blur-sm flex items-center justify-between">
           <button
             onClick={() => setStep('STAFF')}
-            className="flex items-center gap-1.5 text-xs font-bold text-[#e6c487] hover:underline"
+            className="flex items-center gap-2 text-sm sm:text-base font-bold text-[#e6c487] hover:underline"
           >
             ← {t.btn_change_staff}
           </button>

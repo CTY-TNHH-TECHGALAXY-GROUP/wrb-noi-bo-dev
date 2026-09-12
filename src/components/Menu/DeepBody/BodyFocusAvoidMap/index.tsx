@@ -155,19 +155,19 @@ export default function BodyFocusAvoidMap({
       {/* Section Header */}
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="text-lg sm:text-xl font-bold text-[#e6c487] tracking-wide">
+          <h3 className="text-xl sm:text-2xl font-bold text-[#e6c487] tracking-wide">
             {t.body_map_section_title}
           </h3>
         </div>
         {(focusAreas.length > 0 || avoidAreas.length > 0) && (
           <div className="flex items-center gap-2">
             {focusAreas.length > 0 && (
-              <span className="text-[11px] font-bold text-[#39d67b] bg-[#39d67b]/15 px-2.5 py-0.5 rounded-full border border-[#39d67b]/30">
+              <span className="text-xs sm:text-sm font-bold text-[#39d67b] bg-[#39d67b]/15 px-3 py-1 rounded-full border border-[#39d67b]/30">
                 {focusAreas.length} {t.body_map_col_focus}
               </span>
             )}
             {avoidAreas.length > 0 && (
-              <span className="text-[11px] font-bold text-[#ff5b66] bg-[#ff5b66]/15 px-2.5 py-0.5 rounded-full border border-[#ff5b66]/30">
+              <span className="text-xs sm:text-sm font-bold text-[#ff5b66] bg-[#ff5b66]/15 px-3 py-1 rounded-full border border-[#ff5b66]/30">
                 {avoidAreas.length} {t.body_map_col_avoid}
               </span>
             )}
@@ -256,7 +256,7 @@ export default function BodyFocusAvoidMap({
         <div className="flex-1 flex flex-col justify-between p-2 sm:p-4 md:p-5 bg-gradient-to-b from-[#121214] to-[#0d0d0f] h-full overflow-hidden">
           <div className="flex flex-col h-full justify-between">
             {/* Table Header */}
-            <div className="grid grid-cols-[1fr_36px_36px] xs:grid-cols-[1fr_42px_42px] sm:grid-cols-[1fr_64px_64px] md:grid-cols-[1fr_76px_76px] gap-1 sm:gap-2 items-center pb-2 mb-0.5 border-b border-white/10 text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-wider flex-none">
+            <div className="grid grid-cols-[1fr_36px_36px] xs:grid-cols-[1fr_42px_42px] sm:grid-cols-[1fr_64px_64px] md:grid-cols-[1fr_76px_76px] gap-1 sm:gap-2 items-center pb-2 mb-0.5 border-b border-white/10 text-xs sm:text-sm md:text-base font-black uppercase tracking-wider flex-none">
               <div className="text-[#e6c487] pl-0.5 font-bold truncate">
                 {t.body_map_col_area}
               </div>
@@ -283,21 +283,21 @@ export default function BodyFocusAvoidMap({
                   >
                     {/* Area Name */}
                     <div
-                      className={`text-[11px] xs:text-xs sm:text-sm md:text-[15px] font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 truncate ${
+                      className={`text-xs xs:text-sm sm:text-base md:text-lg font-bold transition-colors flex items-center gap-1.5 sm:gap-2 truncate ${
                         isFocus
-                          ? 'text-[#39d67b] font-bold'
+                          ? 'text-[#39d67b]'
                           : isAvoid
-                          ? 'text-[#ff5b66] font-bold'
-                          : 'text-gray-200'
+                          ? 'text-[#ff5b66]'
+                          : 'text-gray-100'
                       }`}
                     >
                       <span
-                        className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 transition-all ${
+                        className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full shrink-0 transition-all ${
                           isFocus
                             ? 'bg-[#39d67b] shadow-[0_0_6px_#39d67b]'
                             : isAvoid
                             ? 'bg-[#ff5b66] shadow-[0_0_6px_#ff5b66]'
-                            : 'bg-white/20'
+                            : 'bg-white/25'
                         }`}
                       />
                       <span className="truncate">{label}</span>

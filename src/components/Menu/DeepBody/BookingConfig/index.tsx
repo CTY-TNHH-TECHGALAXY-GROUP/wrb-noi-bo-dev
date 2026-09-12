@@ -164,20 +164,20 @@ export default function DeepBookingConfig({
             </div>
           )}
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs uppercase font-bold text-[#e6c487] tracking-wider">
+            <div className="flex items-center gap-2">
+              <span className="text-sm sm:text-base uppercase font-bold text-[#e6c487] tracking-wider">
                 {primaryStaff?.id} • {primaryStaff?.fullName}
               </span>
-              <ShieldCheck size={14} className="text-emerald-400" />
+              <ShieldCheck size={16} className="text-emerald-400" />
             </div>
           </div>
         </div>
 
         <div className="text-right">
-          <span className="text-[10px] uppercase tracking-widest text-gray-400 block font-medium">
+          <span className="text-xs uppercase tracking-widest text-gray-400 block font-semibold">
             {t.menu_badge}
           </span>
-          <span className="text-xs font-bold text-[#e6c487] tracking-wider uppercase">
+          <span className="text-sm sm:text-base font-bold text-[#e6c487] tracking-wider uppercase">
             {t.tab_deep_body}
           </span>
         </div>
@@ -197,10 +197,10 @@ export default function DeepBookingConfig({
       {/* ── SECTION 2: DEEP BODY TECHNIQUES ── */}
       <section className="mb-8">
         <div className="mb-2">
-          <h3 className="text-lg sm:text-xl font-bold text-[#e6c487] tracking-wide">
+          <h3 className="text-xl sm:text-2xl font-bold text-[#e6c487] tracking-wide">
             {t.select_technique_title}
           </h3>
-          <p className="text-xs text-gray-400">
+          <p className="text-sm sm:text-base text-gray-300">
             {t.select_technique_subtitle}
           </p>
         </div>
@@ -224,25 +224,25 @@ export default function DeepBookingConfig({
                 }`}
               >
                 {/* Left content: Title & Info Icon */}
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <h4 className="text-xl sm:text-2xl md:text-[26px] font-black leading-tight tracking-wide text-white group-hover:text-[#e6c487] transition-colors truncate">
+                <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                  <h4 className="text-2xl sm:text-3xl md:text-[32px] font-black leading-tight tracking-wide text-white group-hover:text-[#e6c487] transition-colors truncate">
                     {tech.name[safeLang] || tech.name.en}
                   </h4>
-                  <div className="w-6 h-6 rounded-full bg-white/5 group-hover:bg-[#e6c487]/20 flex items-center justify-center text-gray-400 group-hover:text-[#e6c487] transition-colors shrink-0">
-                    <Info size={14} />
+                  <div className="w-7 h-7 rounded-full bg-white/5 group-hover:bg-[#e6c487]/20 flex items-center justify-center text-gray-400 group-hover:text-[#e6c487] transition-colors shrink-0">
+                    <Info size={16} />
                   </div>
                 </div>
 
                 {/* Right: Radio Selection Button */}
                 <div className="flex items-center justify-end shrink-0 pl-2 sm:pl-4">
                   <div
-                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all ${
+                    className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all ${
                       isSelected
                         ? 'bg-[#e6c487] text-[#1c1c1e] shadow-[0_0_12px_rgba(230,196,135,0.4)] scale-105'
                         : 'border-2 border-white/25 group-hover:border-white/40'
                     }`}
                   >
-                    {isSelected && <Check size={18} strokeWidth={3.5} />}
+                    {isSelected && <Check size={20} strokeWidth={3.5} />}
                   </div>
                 </div>
               </div>
@@ -253,13 +253,13 @@ export default function DeepBookingConfig({
 
       {/* ── SECTION 2: DURATION PICKER (Horizontal Slider) ── */}
       <section className="mb-8">
-        <div className="flex items-center gap-2 mb-1">
-          <Clock size={18} className="text-[#e6c487]" />
-          <h3 className="text-lg sm:text-xl font-bold text-[#e6c487] tracking-wide">
+        <div className="flex items-center gap-2.5 mb-1.5">
+          <Clock size={22} className="text-[#e6c487]" />
+          <h3 className="text-xl sm:text-2xl font-bold text-[#e6c487] tracking-wide">
             {t.select_duration_title}
           </h3>
         </div>
-        <p className="text-xs text-gray-400 mb-4">
+        <p className="text-sm sm:text-base text-gray-300 font-medium mb-4">
           {t.duration_hint}
         </p>
 
@@ -268,19 +268,19 @@ export default function DeepBookingConfig({
           {/* Scroll indicators */}
           {canScrollLeft && (
             <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#131315] to-transparent z-10 flex items-center justify-start pointer-events-none">
-              <ChevronLeft size={20} className="text-[#e6c487]" />
+              <ChevronLeft size={22} className="text-[#e6c487]" />
             </div>
           )}
           {canScrollRight && (
             <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#131315] to-transparent z-10 flex items-center justify-end pointer-events-none">
-              <ChevronRight size={20} className="text-[#e6c487]" />
+              <ChevronRight size={22} className="text-[#e6c487]" />
             </div>
           )}
 
           <div
             ref={scrollRef}
             onScroll={checkScroll}
-            className="flex gap-3 overflow-x-auto pb-3 custom-scrollbar scrollbar-hide snap-x"
+            className="flex gap-3.5 overflow-x-auto pb-3 custom-scrollbar scrollbar-hide snap-x"
           >
             {AVAILABLE_DURATIONS.map((dur) => {
               const price = lookupPrice(pricingTable, staffCount, dur);
@@ -291,24 +291,24 @@ export default function DeepBookingConfig({
                   key={dur}
                   type="button"
                   onClick={() => setSelectedDuration(dur)}
-                  className={`flex flex-col items-center justify-between w-[110px] sm:w-[125px] h-[140px] p-4 rounded-2xl shrink-0 transition-all border snap-center ${
+                  className={`flex flex-col items-center justify-between w-[125px] sm:w-[145px] h-[160px] p-4 sm:p-5 rounded-2xl shrink-0 transition-all border snap-center ${
                     isSelected
                       ? 'bg-[#1f1d19] border-[#e6c487] text-[#e6c487] shadow-[0_0_15px_rgba(230,196,135,0.2)] scale-102'
                       : 'bg-[#161618] border-white/5 text-gray-300 hover:border-white/20'
                   }`}
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  <span className="text-xs font-bold uppercase tracking-wider opacity-70">
                     {t.duration_label}
                   </span>
 
                   <div className="flex flex-col items-center my-1">
-                    <span className="text-3xl sm:text-4xl font-black leading-none">{dur}</span>
-                    <span className="text-xs font-semibold">{t.mins}</span>
+                    <span className="text-4xl sm:text-5xl font-black leading-none">{dur}</span>
+                    <span className="text-sm sm:text-base font-bold mt-0.5">{t.mins}</span>
                   </div>
 
-                  <div className="w-8 h-px bg-white/10 my-1" />
+                  <div className="w-10 h-px bg-white/10 my-1" />
 
-                  <span className="text-xs sm:text-sm font-bold tracking-wide whitespace-nowrap">
+                  <span className="text-sm sm:text-base font-extrabold tracking-wide whitespace-nowrap">
                     {price.toLocaleString('vi-VN')} VND
                   </span>
                 </button>
@@ -320,7 +320,7 @@ export default function DeepBookingConfig({
 
       {/* ── SECTION 3: CUSTOMER NOTES ── */}
       <section className="mb-8">
-        <h3 className="text-sm font-bold text-[#e6c487] uppercase tracking-wider mb-2">
+        <h3 className="text-base sm:text-lg font-bold text-[#e6c487] uppercase tracking-wider mb-2.5">
           {t.customer_notes_title}
         </h3>
         <textarea
@@ -328,35 +328,35 @@ export default function DeepBookingConfig({
           onChange={(e) => setCustomerNotes(e.target.value)}
           rows={3}
           placeholder={t.customer_notes_placeholder}
-          className="w-full bg-[#171719] border border-white/10 rounded-2xl p-4 text-xs sm:text-sm text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-[#e6c487]/50 transition-colors"
+          className="w-full bg-[#171719] border border-white/10 rounded-2xl p-4 sm:p-5 text-sm sm:text-base text-gray-200 placeholder:text-gray-500 focus:outline-none focus:border-[#e6c487]/50 transition-colors leading-relaxed"
         />
       </section>
 
       {/* ── SECTION 4: CONFIRMATION SUMMARY & CTA BUTTON ── */}
-      <div className="sticky bottom-6 z-30 p-4 sm:p-5 rounded-2xl bg-[#141416]/95 backdrop-blur-xl border border-[#e6c487]/40 shadow-[0_15px_40px_rgba(0,0,0,0.8)] flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="sticky bottom-6 z-30 p-4 sm:p-6 rounded-2xl bg-[#141416]/95 backdrop-blur-xl border border-[#e6c487]/40 shadow-[0_15px_40px_rgba(0,0,0,0.8)] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-          <span className="text-[10px] uppercase tracking-widest text-gray-400 block font-medium">
+          <span className="text-xs sm:text-sm uppercase tracking-widest text-gray-300 block font-bold">
             {t.total_estimated}
           </span>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-[#e6c487]">
+          <div className="flex items-baseline gap-2.5 mt-0.5">
+            <span className="text-3xl sm:text-4xl md:text-5xl font-black text-[#e6c487]">
               {currentPrice.toLocaleString('vi-VN')} VND
             </span>
-            <span className="text-xs text-gray-400">
+            <span className="text-sm sm:text-base font-medium text-gray-300">
               • {selectedDuration} {t.mins}
             </span>
           </div>
         </div>
 
         {/* Actions: Left = Select More (sub object), Right = Checkout (main object) */}
-        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           {/* Sub Object: Select More */}
           <button
             type="button"
             onClick={() => handleConfirmOrder('SELECT_MORE')}
-            className="flex-1 sm:flex-initial px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl border border-[#e6c487]/40 bg-[#1c1c20] hover:bg-[#28282e] text-[#e6c487] font-bold uppercase tracking-wider text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap"
+            className="flex-1 sm:flex-initial px-5 sm:px-7 py-4 sm:py-4.5 rounded-xl border border-[#e6c487]/40 bg-[#1c1c20] hover:bg-[#28282e] text-[#e6c487] font-bold uppercase tracking-wider text-sm sm:text-base shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
           >
-            <Plus size={15} />
+            <Plus size={18} />
             <span>{t.btn_select_more}</span>
           </button>
 
@@ -364,10 +364,10 @@ export default function DeepBookingConfig({
           <button
             type="button"
             onClick={() => handleConfirmOrder('CHECKOUT')}
-            className="flex-1 sm:flex-initial px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl bg-[#e6c487] hover:bg-[#d6b272] text-[#382600] font-black uppercase tracking-wider text-xs sm:text-sm shadow-[0_4px_20px_rgba(230,196,135,0.35)] active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+            className="flex-1 sm:flex-initial px-7 sm:px-9 py-4 sm:py-4.5 rounded-xl bg-[#e6c487] hover:bg-[#d6b272] text-[#382600] font-black uppercase tracking-wider text-sm sm:text-base shadow-[0_4px_20px_rgba(230,196,135,0.35)] active:scale-95 transition-all flex items-center justify-center gap-2.5 whitespace-nowrap"
           >
             <span>{t.btn_checkout}</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={18} />
           </button>
         </div>
       </div>
