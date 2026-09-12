@@ -374,15 +374,15 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                 </div>
             </header>
 
-            {/* 🌟 VIP MENU SWITCH BAR (Chìa Khóa Menu) */}
-            <div className="sticky top-[61px] z-20 w-full px-4 sm:px-6 py-2 bg-[#0e0e10]/95 backdrop-blur-md border-b border-white/5 flex justify-center">
-                <div className="inline-flex p-1 rounded-full bg-[#1b1b1d] border border-[#e6c487]/30 max-w-md w-full relative shadow-inner">
+            {/* 🌟 VIP MENU SWITCH BAR (Chìa Khóa Menu - Square Bo Góc Responsive All Devices) */}
+            <div className="sticky top-[61px] z-20 w-full px-3 sm:px-6 py-2.5 bg-[#0e0e10]/95 backdrop-blur-md border-b border-white/5 flex justify-center">
+                <div className="inline-flex p-1.5 rounded-2xl bg-[#1b1b1d] border border-[#e6c487]/35 max-w-xl w-full relative shadow-inner">
                     <button
                         type="button"
                         onClick={() => switchVipTab('DESIGN_YOUR_JOURNEY')}
-                        className={`flex-1 py-2 px-3 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 ${
+                        className={`flex-1 py-3 px-3 sm:px-4 rounded-xl text-xs sm:text-sm md:text-base font-extrabold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
                             activeVipTab === 'DESIGN_YOUR_JOURNEY'
-                                ? 'bg-[#e6c487] text-[#412d00] shadow-[0_2px_10px_rgba(230,196,135,0.3)]'
+                                ? 'bg-[#e6c487] text-[#412d00] shadow-[0_2px_12px_rgba(230,196,135,0.35)]'
                                 : 'text-gray-400 hover:text-gray-200'
                         }`}
                     >
@@ -393,9 +393,9 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                     <button
                         type="button"
                         onClick={() => switchVipTab('DEEP_BODY_TREATMENT')}
-                        className={`flex-1 py-2 px-3 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 ${
+                        className={`flex-1 py-3 px-3 sm:px-4 rounded-xl text-xs sm:text-sm md:text-base font-extrabold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
                             activeVipTab === 'DEEP_BODY_TREATMENT'
-                                ? 'bg-[#e6c487] text-[#412d00] shadow-[0_2px_10px_rgba(230,196,135,0.3)]'
+                                ? 'bg-[#e6c487] text-[#412d00] shadow-[0_2px_12px_rgba(230,196,135,0.35)]'
                                 : 'text-gray-400 hover:text-gray-200'
                         }`}
                     >

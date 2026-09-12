@@ -133,39 +133,39 @@ export default function DeepBookingConfig({
       exit={{ opacity: 0 }}
       className="flex flex-col px-2 sm:px-6 pt-2 pb-16 max-w-5xl mx-auto"
     >
-      {/* Therapist Summary Bar */}
+      {/* Therapist Summary Bar - Square Bo Góc Responsive All Devices */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6 p-4 rounded-2xl bg-[#1a1a1d] border border-[#e6c487]/30 flex items-center justify-between shadow-md"
+        className="mb-6 p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl bg-[#1a1a1d] border border-[#e6c487]/35 flex items-center justify-between shadow-lg"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
           {primaryStaff?.avatarUrl ? (
             <img
               src={primaryStaff.avatarUrl}
               alt={primaryStaff.fullName}
-              className="w-12 h-12 rounded-xl object-cover border border-[#e6c487]/40 shadow"
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover border border-[#e6c487]/50 shadow-md shrink-0"
             />
           ) : (
-            <div className="w-12 h-12 rounded-xl bg-[#e6c487]/20 flex items-center justify-center font-bold text-[#e6c487]">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-[#e6c487]/20 flex items-center justify-center font-bold text-[#e6c487] text-lg sm:text-xl shrink-0">
               {primaryStaff?.id || t.staff_label}
             </div>
           )}
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm sm:text-base uppercase font-bold text-[#e6c487] tracking-wider">
+              <span className="text-base sm:text-lg md:text-xl uppercase font-black text-[#e6c487] tracking-wider truncate">
                 {primaryStaff?.id} • {primaryStaff?.fullName}
               </span>
-              <ShieldCheck size={16} className="text-emerald-400" />
+              <ShieldCheck size={18} className="text-emerald-400 shrink-0" />
             </div>
           </div>
         </div>
 
-        <div className="text-right">
-          <span className="text-xs uppercase tracking-widest text-gray-400 block font-semibold">
+        <div className="text-right shrink-0 pl-3">
+          <span className="text-xs sm:text-sm uppercase tracking-widest text-gray-400 block font-bold">
             {t.menu_badge}
           </span>
-          <span className="text-sm sm:text-base font-bold text-[#e6c487] tracking-wider uppercase">
+          <span className="text-sm sm:text-base md:text-lg font-extrabold text-[#e6c487] tracking-wider uppercase">
             {t.tab_deep_body}
           </span>
         </div>
@@ -252,7 +252,7 @@ export default function DeepBookingConfig({
         </p>
 
         {/* 3 Duration Cards Grid - Exactly 3 cards fit 1 row */}
-        <div className="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 w-full">
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-5 w-full">
           {AVAILABLE_DURATIONS.map((dur) => {
             const price = lookupPrice(pricingTable, staffCount, dur);
             const isSelected = selectedDuration === dur;
@@ -262,28 +262,28 @@ export default function DeepBookingConfig({
                 key={dur}
                 type="button"
                 onClick={() => setSelectedDuration(dur)}
-                className={`flex flex-col items-center justify-between min-h-[175px] xs:min-h-[190px] sm:min-h-[210px] md:min-h-[225px] p-3.5 xs:p-4 sm:p-6 md:p-7 rounded-2xl sm:rounded-3xl transition-all duration-200 border cursor-pointer ${
+                className={`flex flex-col items-center justify-between min-h-[190px] xs:min-h-[205px] sm:min-h-[225px] md:min-h-[240px] p-4 sm:p-6 md:p-7 rounded-2xl sm:rounded-3xl transition-all duration-200 border cursor-pointer ${
                   isSelected
                     ? 'bg-gradient-to-b from-[#24211b] via-[#1d1b17] to-[#161513] border-[#e6c487] text-[#e6c487] shadow-[0_6px_30px_rgba(230,196,135,0.25)] ring-1 ring-[#e6c487]/40 scale-[1.02]'
                     : 'bg-[#161618] border-white/8 text-gray-300 hover:border-white/20 hover:bg-[#18181b] active:scale-[0.98]'
                 }`}
               >
-                <span className="text-[11px] xs:text-xs sm:text-sm font-bold uppercase tracking-wider opacity-75">
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider opacity-75">
                   {t.duration_label}
                 </span>
 
                 <div className="flex flex-col items-center my-1 sm:my-2">
-                  <span className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-black leading-none tracking-tight">
+                  <span className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl font-black leading-none tracking-tight">
                     {dur}
                   </span>
-                  <span className="text-xs xs:text-sm sm:text-base font-bold mt-1 text-gray-300">
+                  <span className="text-sm sm:text-base md:text-lg font-bold mt-1 text-gray-300">
                     {t.mins}
                   </span>
                 </div>
 
-                <div className="w-10 sm:w-16 h-px bg-white/10 my-1 sm:my-1.5" />
+                <div className="w-12 sm:w-16 h-px bg-white/10 my-1 sm:my-1.5" />
 
-                <span className="text-[11px] xs:text-xs sm:text-base md:text-lg font-extrabold tracking-wide whitespace-nowrap text-center">
+                <span className="text-xs xs:text-sm sm:text-base md:text-lg font-black tracking-wide whitespace-nowrap text-center">
                   {price.toLocaleString('vi-VN')} VND
                 </span>
               </button>
@@ -306,29 +306,35 @@ export default function DeepBookingConfig({
         />
       </section>
 
-      {/* ── SECTION 4: CONFIRMATION SUMMARY & CTA BUTTON ── */}
-      <div className="sticky bottom-6 z-30 p-4 sm:p-6 rounded-2xl bg-[#141416]/95 backdrop-blur-xl border border-[#e6c487]/40 shadow-[0_15px_40px_rgba(0,0,0,0.8)] flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div>
-          <span className="text-xs sm:text-sm uppercase tracking-widest text-gray-300 block font-bold">
-            {t.total_estimated}
-          </span>
-          <div className="flex items-baseline gap-2.5 mt-0.5">
-            <span className="text-3xl sm:text-4xl md:text-5xl font-black text-[#e6c487]">
+      {/* ── SECTION 4: CONFIRMATION SUMMARY & CTA BUTTON (Xếp 2 nút xuống, tăng size duration) ── */}
+      <div className="sticky bottom-6 z-30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#141416]/95 backdrop-blur-xl border border-[#e6c487]/40 shadow-[0_15px_40px_rgba(0,0,0,0.85)] flex flex-col gap-4">
+        {/* Top: Summary & Prominent Duration */}
+        <div className="flex items-center justify-between w-full pb-3 border-b border-white/10">
+          <div>
+            <span className="text-xs sm:text-sm uppercase tracking-widest text-gray-400 block font-bold mb-1">
+              {t.total_estimated}
+            </span>
+            <span className="text-3xl sm:text-4xl md:text-5xl font-black text-[#e6c487] tracking-tight">
               {currentPrice.toLocaleString('vi-VN')} VND
             </span>
-            <span className="text-sm sm:text-base font-medium text-gray-300">
-              • {selectedDuration} {t.mins}
+          </div>
+
+          {/* Large prominent duration badge */}
+          <div className="flex items-center gap-2.5 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-[#e6c487]/15 border border-[#e6c487]/35 text-[#e6c487] shadow-inner">
+            <Clock size={22} className="shrink-0 text-[#e6c487]" />
+            <span className="text-lg sm:text-xl md:text-2xl font-black tracking-wide whitespace-nowrap">
+              {selectedDuration} {t.mins}
             </span>
           </div>
         </div>
 
-        {/* Actions: Left = Select More (sub object), Right = Checkout (main object) */}
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+        {/* Bottom (Xếp 2 nút xuống): 2 CTA Buttons */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full">
           {/* Sub Object: Select More */}
           <button
             type="button"
             onClick={() => handleConfirmOrder('SELECT_MORE')}
-            className="flex-1 sm:flex-initial px-5 sm:px-7 py-4 sm:py-4.5 rounded-xl border border-[#e6c487]/40 bg-[#1c1c20] hover:bg-[#28282e] text-[#e6c487] font-bold uppercase tracking-wider text-sm sm:text-base shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+            className="w-full py-4 sm:py-4.5 rounded-xl border border-[#e6c487]/40 bg-[#1c1c20] hover:bg-[#28282e] text-[#e6c487] font-bold uppercase tracking-wider text-sm sm:text-base shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
           >
             <Plus size={18} />
             <span>{t.btn_select_more}</span>
@@ -338,7 +344,7 @@ export default function DeepBookingConfig({
           <button
             type="button"
             onClick={() => handleConfirmOrder('CHECKOUT')}
-            className="flex-1 sm:flex-initial px-7 sm:px-9 py-4 sm:py-4.5 rounded-xl bg-[#e6c487] hover:bg-[#d6b272] text-[#382600] font-black uppercase tracking-wider text-sm sm:text-base shadow-[0_4px_20px_rgba(230,196,135,0.35)] active:scale-95 transition-all flex items-center justify-center gap-2.5 whitespace-nowrap"
+            className="w-full py-4 sm:py-4.5 rounded-xl bg-[#e6c487] hover:bg-[#d6b272] text-[#382600] font-black uppercase tracking-wider text-sm sm:text-base shadow-[0_4px_20px_rgba(230,196,135,0.35)] active:scale-95 transition-all flex items-center justify-center gap-2.5 whitespace-nowrap"
           >
             <span>{t.btn_checkout}</span>
             <ArrowRight size={18} />
