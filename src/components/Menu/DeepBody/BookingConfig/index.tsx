@@ -309,7 +309,7 @@ export default function DeepBookingConfig({
                   <div className="w-8 h-px bg-white/10 my-1" />
 
                   <span className="text-xs sm:text-sm font-bold tracking-wide whitespace-nowrap">
-                    {price.toLocaleString('vi-VN')} đ
+                    {price.toLocaleString('vi-VN')} VND
                   </span>
                 </button>
               );

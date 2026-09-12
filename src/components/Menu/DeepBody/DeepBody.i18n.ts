@@ -267,11 +267,11 @@ export const DEEP_BODY_I18N = {
     kr: '3. 프로그램 이용 시간 선택',
   },
   duration_hint: {
-    vi: 'Đã bao gồm thuế GTGT & đồ uống thảo mộc detox',
-    en: 'Prices in VND • VAT & organic detox tea included',
-    cn: '价格包含增值税及特调排毒养生草本茶',
-    jp: '税込み価格 • デトックスハーブティーサービス付き',
-    kr: 'VAT 포함가 • 디톡스 한방차 무료 제공',
+    vi: 'Giá đã bao gồm VAT',
+    en: 'Price included VAT',
+    cn: '价格已含增值税',
+    jp: '税込価格',
+    kr: 'VAT 포함 가격',
   },
   mins: {
     vi: 'phút',
