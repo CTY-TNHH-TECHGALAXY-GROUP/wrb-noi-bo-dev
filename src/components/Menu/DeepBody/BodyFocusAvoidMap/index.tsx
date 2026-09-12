@@ -5,16 +5,15 @@ import { Check } from 'lucide-react';
 import { getDeepBodyT } from '../DeepBody.i18n';
 
 export type BodyAreaKey =
-  | 'head'
-  | 'neck'
-  | 'shoulders'
-  | 'arms'
-  | 'torso'
-  | 'back'
-  | 'lowerBack'
-  | 'hips'
-  | 'legs'
-  | 'feet';
+  | 'HEAD'
+  | 'NECK'
+  | 'SHOULDER'
+  | 'ARM'
+  | 'BACK'
+  | 'THIGH'
+  | 'KNEE'
+  | 'CALF'
+  | 'FOOT';
 
 export type MarkerMode = 'focus' | 'avoid' | null;
 
@@ -24,20 +23,20 @@ interface BodyPoint {
   primary?: boolean;
 }
 
-// Coordinate clusters precisely mapped to the 655x1024 anatomical figure
+// Coordinate clusters mapped to the 655x1024 anatomical figure matching the 9 standard body areas
 const AREA_CLUSTERS: Record<BodyAreaKey, BodyPoint[]> = {
-  head: [
+  HEAD: [
     { x: 50.0, y: 3.8, primary: true },
     { x: 50.0, y: 6.8, primary: true },
     { x: 50.0, y: 10.2 },
   ],
-  neck: [
+  NECK: [
     { x: 50.0, y: 14.2, primary: true },
     { x: 50.0, y: 16.6 },
     { x: 47.2, y: 15.5 },
     { x: 52.8, y: 15.5 },
   ],
-  shoulders: [
+  SHOULDER: [
     { x: 33.2, y: 19.8, primary: true },
     { x: 66.8, y: 19.8, primary: true },
     { x: 38.6, y: 18.2 },
@@ -45,7 +44,7 @@ const AREA_CLUSTERS: Record<BodyAreaKey, BodyPoint[]> = {
     { x: 43.8, y: 18.0 },
     { x: 56.2, y: 18.0 },
   ],
-  arms: [
+  ARM: [
     { x: 26.5, y: 27.2 },
     { x: 73.5, y: 27.2 },
     { x: 24.0, y: 35.5, primary: true },
@@ -55,42 +54,37 @@ const AREA_CLUSTERS: Record<BodyAreaKey, BodyPoint[]> = {
     { x: 19.0, y: 52.0 },
     { x: 81.0, y: 52.0 },
   ],
-  torso: [
-    { x: 50.0, y: 21.6, primary: true },
-    { x: 42.5, y: 22.8 },
-    { x: 57.5, y: 22.8 },
+  BACK: [
+    { x: 50.0, y: 21.6 },
     { x: 50.0, y: 28.5, primary: true },
-    { x: 43.0, y: 29.8 },
-    { x: 57.0, y: 29.8 },
-  ],
-  back: [
-    { x: 50.0, y: 33.2, primary: true },
     { x: 44.5, y: 34.0 },
     { x: 55.5, y: 34.0 },
     { x: 50.0, y: 37.8, primary: true },
-  ],
-  lowerBack: [
-    { x: 50.0, y: 41.5, primary: true },
     { x: 45.2, y: 41.8 },
     { x: 54.8, y: 41.8 },
     { x: 50.0, y: 45.0, primary: true },
   ],
-  hips: [
-    { x: 40.0, y: 43.5, primary: true },
-    { x: 60.0, y: 43.5, primary: true },
-    { x: 37.5, y: 48.0 },
-    { x: 62.5, y: 48.0 },
-    { x: 50.0, y: 48.8, primary: true },
-  ],
-  legs: [
+  THIGH: [
+    { x: 40.0, y: 48.8, primary: true },
+    { x: 60.0, y: 48.8, primary: true },
     { x: 37.5, y: 56.5, primary: true },
     { x: 62.5, y: 56.5, primary: true },
+    { x: 38.5, y: 62.0 },
+    { x: 61.5, y: 62.0 },
+  ],
+  KNEE: [
     { x: 40.0, y: 67.5, primary: true },
     { x: 60.0, y: 67.5, primary: true },
-    { x: 37.5, y: 78.5 },
-    { x: 62.5, y: 78.5 },
+    { x: 39.0, y: 70.0 },
+    { x: 61.0, y: 70.0 },
   ],
-  feet: [
+  CALF: [
+    { x: 37.5, y: 75.5, primary: true },
+    { x: 62.5, y: 75.5, primary: true },
+    { x: 37.0, y: 81.5 },
+    { x: 63.0, y: 81.5 },
+  ],
+  FOOT: [
     { x: 42.0, y: 88.0, primary: true },
     { x: 58.0, y: 88.0, primary: true },
     { x: 41.0, y: 92.5 },
@@ -101,16 +95,15 @@ const AREA_CLUSTERS: Record<BodyAreaKey, BodyPoint[]> = {
 };
 
 const AREA_LIST: { key: BodyAreaKey; i18nKey: string }[] = [
-  { key: 'head', i18nKey: 'area_head' },
-  { key: 'neck', i18nKey: 'area_neck' },
-  { key: 'shoulders', i18nKey: 'area_shoulders' },
-  { key: 'arms', i18nKey: 'area_arms' },
-  { key: 'torso', i18nKey: 'area_torso' },
-  { key: 'back', i18nKey: 'area_back' },
-  { key: 'lowerBack', i18nKey: 'area_lowerBack' },
-  { key: 'hips', i18nKey: 'area_hips' },
-  { key: 'legs', i18nKey: 'area_legs' },
-  { key: 'feet', i18nKey: 'area_feet' },
+  { key: 'HEAD', i18nKey: 'area_head' },
+  { key: 'NECK', i18nKey: 'area_neck' },
+  { key: 'SHOULDER', i18nKey: 'area_shoulders' },
+  { key: 'ARM', i18nKey: 'area_arms' },
+  { key: 'BACK', i18nKey: 'area_back' },
+  { key: 'THIGH', i18nKey: 'area_thigh' },
+  { key: 'KNEE', i18nKey: 'area_knee' },
+  { key: 'CALF', i18nKey: 'area_calf' },
+  { key: 'FOOT', i18nKey: 'area_feet' },
 ];
 
 interface BodyFocusAvoidMapProps {

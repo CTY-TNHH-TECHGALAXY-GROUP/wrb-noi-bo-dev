@@ -163,17 +163,16 @@ export const DEEP_BODY_I18N = {
     kr: '빛나는 마커가 주요 경혈점과 근육 부위를 정확히 나타냅니다',
   },
 
-  // Body Areas
+  // Body Areas (matching standard 9 body parts)
   area_head: { vi: 'Đầu', en: 'Head', cn: '头部', jp: '頭部', kr: '머리' },
   area_neck: { vi: 'Cổ', en: 'Neck', cn: '颈部', jp: '首', kr: '목' },
-  area_shoulders: { vi: 'Vai', en: 'Shoulders', cn: '肩部', jp: '肩', kr: '어깨' },
-  area_arms: { vi: 'Cánh tay', en: 'Arms', cn: '手臂', jp: '腕', kr: '팔' },
-  area_torso: { vi: 'Ngực & Thân trước', en: 'Torso', cn: '躯干/胸腹', jp: '体幹・胸部', kr: '상체/가슴' },
-  area_back: { vi: 'Lưng trên', en: 'Back', cn: '背部', jp: '背中', kr: '등' },
-  area_lowerBack: { vi: 'Thắt lưng / Eo', en: 'Lower Back', cn: '下腰/腰肌', jp: '腰部', kr: '허리' },
-  area_hips: { vi: 'Hông & Mông', en: 'Hips', cn: '髋部/臀部', jp: '骨盤・臀部', kr: '골반/엉덩이' },
-  area_legs: { vi: 'Chân & Đùi', en: 'Legs', cn: '腿部/大腿', jp: '脚・太もも', kr: '다리/허벅지' },
-  area_feet: { vi: 'Bàn chân', en: 'Feet', cn: '足部', jp: '足・足裏', kr: '발' },
+  area_shoulders: { vi: 'Vai', en: 'Shoulder', cn: '肩部', jp: '肩', kr: '어깨' },
+  area_arms: { vi: 'Tay', en: 'Arm', cn: '手臂', jp: '腕', kr: '팔' },
+  area_back: { vi: 'Lưng', en: 'Back', cn: '背部', jp: '背中', kr: '등' },
+  area_thigh: { vi: 'Đùi', en: 'Thigh', cn: '大腿', jp: '太もも', kr: '허벅지' },
+  area_knee: { vi: 'Gối', en: 'Knee', cn: '膝盖', jp: '膝', kr: '무릎' },
+  area_calf: { vi: 'Bắp chân', en: 'Calf', cn: '小腿', jp: 'ふくらはぎ', kr: '종아리' },
+  area_feet: { vi: 'Bàn chân', en: 'Foot', cn: '脚', jp: '足', kr: '발' },
 
   // Config Step (Combined on 1 page)
   select_technique_title: {
