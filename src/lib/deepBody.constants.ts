@@ -23,7 +23,7 @@ export const DEEP_BODY_TECHNIQUES: DeepBodyTechnique[] = [
   {
     id: 'coconutOil',
     name: {
-      vi: 'Tinh Dầu Dừa',
+      vi: 'Tinh dầu dừa',
       en: 'Coconut Oil',
       cn: '椰子精油',
       jp: 'ココナッツオイル',
@@ -77,7 +77,7 @@ export const DEEP_BODY_TECHNIQUES: DeepBodyTechnique[] = [
       vi: 'Bấm huyệt dọc hệ kinh lạc Sen kết hợp các động tác kéo giãn yoga thụ động giúp mở khớp, kéo giãn tối đa.',
       en: 'Dynamic combination of acupressure along Sen energy lines and passive yoga stretches to restore mobility.',
       cn: '沿人体经络穴位施压，配合被动瑜伽拉伸，舒展全身关节与紧绷筋骨。',
-      jp: 'セン（経絡）に沿ったツボ刺激とパッシブヨガのストレッチで、関節可動域を広げ柔軟性を回復。',
+      jp: 'セン（経絡）に沿ったツボ刺激とパッシブヨガのストレッチで、関節可动域を広げ柔軟性を回復。',
       kr: '에너지 라인을 따라 지압하고 수동적 요가 스트레칭으로 굳은 관절과 근육을 유연하게 늘려줍니다.',
     },
     fullDesc: {
@@ -109,13 +109,13 @@ export const DEEP_BODY_TECHNIQUES: DeepBodyTechnique[] = [
     },
   },
   {
-    id: 'japaneseShiatsu',
+    id: 'shiatsu',
     name: {
-      vi: 'Shiatsu',
-      en: 'Shiatsu',
+      vi: 'Bấm huyệt',
+      en: 'Shiatsu Acupressure',
       cn: '指压理疗',
       jp: '指圧',
-      kr: '시아추',
+      kr: '시아추 지압',
     },
     shortDesc: {
       vi: 'Bấm huyệt định chuẩn bằng đầu ngón cái, cân bằng hệ thần kinh tự chủ và giải tỏa áp lực nội tạng.',
@@ -153,9 +153,9 @@ export const DEEP_BODY_TECHNIQUES: DeepBodyTechnique[] = [
     },
   },
   {
-    id: 'hotStoneBazan',
+    id: 'hotStone',
     name: {
-      vi: 'Đá Nóng',
+      vi: 'Đá nóng',
       en: 'Hot Stone',
       cn: '热石理疗',
       jp: 'ホットストーン',
@@ -197,13 +197,13 @@ export const DEEP_BODY_TECHNIQUES: DeepBodyTechnique[] = [
     },
   },
   {
-    id: 'mixFourTherapies',
+    id: 'mixofourtherapies',
     name: {
-      vi: 'Kết Hợp 4 Liệu Pháp',
-      en: 'Mix of Four Therapies',
-      cn: '综合四重理疗',
-      jp: '4種ブレンドセラピー',
-      kr: '4가지 복합 테라피',
+      vi: 'Kết hợp 4 liệu trình  (Ấn huyệt, Thái, Dầu & Đá Nóng)',
+      en: 'Mix of Four Therapies (Acupressure, Thai, Oil & Hot Stone)',
+      cn: '四重综合疗程（指压、泰式、精油与热石）',
+      jp: '4種融合トリートメント（指圧・タイ式・オイル・ホットストーン）',
+      kr: '4가지 복합 테라피 (지압, 타이, 오일 & 핫스톤)',
     },
     shortDesc: {
       vi: 'Sự kết hợp tinh hoa giữa Tinh Dầu Dừa, Bấm Huyệt Thái, Shiatsu và Đá Nóng Bazan giúp phục hồi toàn diện.',
@@ -273,10 +273,14 @@ export const DEEP_BODY_DURATION_SERVICES: Record<number, DeepBodyDurationService
 export const DEEP_BODY_SKILL_MAP: Record<string, string> = {
   coconutOil: 'Tinh dầu dừa',
   thaiTherapy: 'Thái',
-  japaneseShiatsu: 'Shiatsu',
+  shiatsu: 'Bấm huyệt',
+  hotStone: 'Đá nóng',
+  mixofourtherapies: 'Kết hợp 4 liệu trình  (Ấn huyệt, Thái, Dầu & Đá Nóng)',
+  // Backward compatibility aliases:
+  japaneseShiatsu: 'Bấm huyệt',
   hotStoneBazan: 'Đá nóng',
-  deepTissueAcupressure: 'Bấm huyệt chuyên sâu',
-  herbalPoultice: 'Túi thảo dược',
+  mixFourTherapies: 'Kết hợp 4 liệu trình  (Ấn huyệt, Thái, Dầu & Đá Nóng)',
+  mixOfFourTherapies: 'Kết hợp 4 liệu trình  (Ấn huyệt, Thái, Dầu & Đá Nóng)',
 };
 
 export const formatDeepBodyAdminName = (techniqueIds: string[]): string => {
