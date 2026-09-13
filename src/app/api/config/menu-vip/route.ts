@@ -15,7 +15,7 @@ export async function GET() {
         }
 
         // Fetch all configs in parallel
-        const [enabledRes, pricingRes, bufferRes] = await Promise.all([
+        const [enabledRes, pricingRes, bufferRes, deepBodyRes] = await Promise.all([
             supabase
                 .from('SystemConfigs')
                 .select('value')
@@ -30,6 +30,11 @@ export async function GET() {
                 .from('SystemConfigs')
                 .select('value')
                 .eq('key', 'menu_vip_buffer_minutes')
+                .maybeSingle(),
+            supabase
+                .from('SystemConfigs')
+                .select('value')
+                .eq('key', 'menu_deep_body_config')
                 .maybeSingle(),
         ]);
 
@@ -50,7 +55,14 @@ export async function GET() {
             bufferMinutes = parseInt(String(bufferRes.data.value), 10) || 30;
         }
 
-        return NextResponse.json({ enabled, pricing, bufferMinutes });
+        // Parse Deep Body Methods from SystemConfigs
+        let deepBodyMethods = null;
+        if (deepBodyRes.data?.value) {
+            const raw = deepBodyRes.data.value;
+            deepBodyMethods = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        }
+
+        return NextResponse.json({ enabled, pricing, bufferMinutes, deepBodyMethods });
     } catch (error: any) {
         console.error('[API] GET /api/config/menu-vip error:', error);
         return NextResponse.json({ enabled: false, pricing: [], bufferMinutes: 30 });

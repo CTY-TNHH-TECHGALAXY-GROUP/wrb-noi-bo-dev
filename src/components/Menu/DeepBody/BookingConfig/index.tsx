@@ -24,6 +24,7 @@ interface DeepBookingConfigProps {
   selectedStaffIds: string[];
   selectedStaffInfoList: VipStaffInfo[];
   vipPricingTable?: VipPricingTable;
+  dynamicMethods?: DeepBodyTechnique[];
   onConfirm: (
     data: {
       serviceId: string;
@@ -48,15 +49,18 @@ export default function DeepBookingConfig({
   selectedStaffIds,
   selectedStaffInfoList,
   vipPricingTable,
+  dynamicMethods,
   onConfirm,
 }: DeepBookingConfigProps) {
   const safeLang = (['vi', 'en', 'cn', 'jp', 'kr'].includes(lang) ? lang : 'en') as DeepBodyLang;
   const t = getDeepBodyT(lang);
 
+  const methodsList = dynamicMethods && dynamicMethods.length > 0 ? dynamicMethods : DEEP_BODY_TECHNIQUES;
+
   // States
   const [focusAreas, setFocusAreas] = useState<string[]>([]);
   const [avoidAreas, setAvoidAreas] = useState<string[]>([]);
-  const [selectedTechniqueIds, setSelectedTechniqueIds] = useState<string[]>([DEEP_BODY_TECHNIQUES[0].id]);
+  const [selectedTechniqueIds, setSelectedTechniqueIds] = useState<string[]>([methodsList[0].id]);
   const [selectedDuration, setSelectedDuration] = useState<VipDuration>(90);
   const [customerNotes, setCustomerNotes] = useState('');
   const [activeTechniqueForModal, setActiveTechniqueForModal] = useState<DeepBodyTechnique | null>(null);
@@ -176,7 +180,7 @@ export default function DeepBookingConfig({
       return;
     }
 
-    const selectedTechniques = DEEP_BODY_TECHNIQUES.filter((tech) =>
+    const selectedTechniques = methodsList.filter((tech) =>
       selectedTechniqueIds.includes(tech.id)
     );
     const techniqueNames = selectedTechniques.map(
@@ -301,7 +305,7 @@ export default function DeepBookingConfig({
 
         {/* Techniques List (1 card per row, large prominent typography matching Standard style) */}
         <div className="flex flex-col gap-3 sm:gap-3.5 mt-4">
-          {DEEP_BODY_TECHNIQUES.map((tech) => {
+          {methodsList.map((tech) => {
             const isSelected = selectedTechniqueIds.includes(tech.id);
 
             return (

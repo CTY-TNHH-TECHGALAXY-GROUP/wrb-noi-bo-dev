@@ -7,6 +7,7 @@ import DeepBookingConfig from './BookingConfig';
 import VipCartStep from '../Premium/VipCartStep';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 import { type VipPricingTable } from '@/lib/vipPricingEngine';
+import { type DeepBodyTechnique } from '@/lib/deepBody.constants';
 import { useMenuData } from '@/components/Menu/MenuContext';
 import { getDeepBodyT } from './DeepBody.i18n';
 import { type VipEditSaveData } from '@/components/Checkout/VipEditModal';
@@ -57,6 +58,7 @@ export default function DeepBodyMenu({
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [vipPricingTable, setVipPricingTable] = useState<VipPricingTable | undefined>(undefined);
+  const [dynamicMethods, setDynamicMethods] = useState<DeepBodyTechnique[] | undefined>(undefined);
 
   const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>(() => {
     if (typeof window !== 'undefined' && isLangSwitching) {
@@ -111,13 +113,16 @@ export default function DeepBodyMenu({
     };
   }, [step]);
 
-  // Fetch VIP pricing table
+  // Fetch VIP pricing table & Deep Body methods from SystemConfigs
   useEffect(() => {
     fetch('/api/config/menu-vip')
       .then((res) => res.json())
       .then((data) => {
         if (data.pricing && typeof data.pricing === 'object' && !Array.isArray(data.pricing)) {
           setVipPricingTable(data.pricing as VipPricingTable);
+        }
+        if (data.deepBodyMethods && Array.isArray(data.deepBodyMethods) && data.deepBodyMethods.length > 0) {
+          setDynamicMethods(data.deepBodyMethods as DeepBodyTechnique[]);
         }
       })
       .catch((err) => console.error('[DeepBody] Pricing error:', err));
@@ -296,6 +301,7 @@ export default function DeepBodyMenu({
                 selectedStaffIds={selectedStaffIds}
                 selectedStaffInfoList={selectedStaffInfoList}
                 vipPricingTable={vipPricingTable}
+                dynamicMethods={dynamicMethods}
                 onConfirm={handleBookingConfirm}
               />
             </motion.div>

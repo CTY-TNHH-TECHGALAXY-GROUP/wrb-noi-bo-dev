@@ -50,17 +50,30 @@ export async function GET(_req: NextRequest) {
 
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
-    // ─── Step 1: Fetch all active staff ─────────────────────────────────────
-    const { data: staffList, error: staffError } = await supabase
+    // ─── Step 1: Fetch all active staff (Hỗ trợ tự động nhận certificate_url ngay khi có cột trong DB) ───
+    let staffList: any[] | null = null;
+    const { data: staffWithCert, error: certErr } = await supabase
       .from('Staff')
-      .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type')
+      .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type, certificate_url')
       .eq('status', 'ĐANG LÀM')
-      .eq('is_active_therapy_menu', true) // Lấy KTV cho Therapy Menu
+      .eq('is_active_therapy_menu', true)
       .order('full_name');
 
-    if (staffError) {
-      console.error('[vip-available] Staff query error:', staffError);
-      return NextResponse.json({ error: 'Failed to fetch staff' }, { status: 500 });
+    if (!certErr && staffWithCert) {
+      staffList = staffWithCert;
+    } else {
+      const { data: staffFallback, error: fallbackErr } = await supabase
+        .from('Staff')
+        .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type')
+        .eq('status', 'ĐANG LÀM')
+        .eq('is_active_therapy_menu', true)
+        .order('full_name');
+
+      if (fallbackErr) {
+        console.error('[therapy-available] Staff query error:', fallbackErr);
+        return NextResponse.json({ error: 'Failed to fetch staff' }, { status: 500 });
+      }
+      staffList = staffFallback;
     }
 
     if (!staffList || staffList.length === 0) {
