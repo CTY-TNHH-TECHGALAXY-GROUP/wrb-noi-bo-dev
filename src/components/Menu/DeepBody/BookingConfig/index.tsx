@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Clock, Check, Info, ShieldCheck, Activity, Plus, ArrowRight } from 'lucide-react';
+import { Sparkles, Clock, Check, Info, ShieldCheck, Activity, Plus, ArrowRight, ChevronDown } from 'lucide-react';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 import { type VipPricingTable, type VipDuration, lookupPrice, lookupUsdPrice } from '@/lib/vipPricingEngine';
 import { DEEP_BODY_TECHNIQUES, DeepBodyTechnique, DeepBodyLang, DEEP_BODY_DURATION_SERVICES } from '@/lib/deepBody.constants';
@@ -60,6 +60,85 @@ export default function DeepBookingConfig({
   const [selectedDuration, setSelectedDuration] = useState<VipDuration>(90);
   const [customerNotes, setCustomerNotes] = useState('');
   const [activeTechniqueForModal, setActiveTechniqueForModal] = useState<DeepBodyTechnique | null>(null);
+  const [showScrollDown, setShowScrollDown] = useState(true);
+
+  // Helper smooth scroll xuống tiếp theo
+  const handleScrollDown = () => {
+    const scrollParents = document.querySelectorAll('.overflow-y-auto');
+    let scrolled = false;
+    scrollParents.forEach((el) => {
+      if (el.scrollHeight > el.clientHeight) {
+        el.scrollBy({ top: 420, behavior: 'smooth' });
+        scrolled = true;
+      }
+    });
+    if (!scrolled && typeof window !== 'undefined') {
+      window.scrollBy({ top: 420, behavior: 'smooth' });
+    }
+  };
+
+  // Mũi tên floating hiển thị liên tục và CHỈ ẨN KHI GẦN ĐẾN CUỐI TRANG
+  useEffect(() => {
+    const checkScrollPosition = () => {
+      const scrollParents = document.querySelectorAll('.overflow-y-auto');
+      let isNearBottom = false;
+
+      scrollParents.forEach((el) => {
+        if (el.scrollHeight > el.clientHeight) {
+          const remaining = el.scrollHeight - el.scrollTop - el.clientHeight;
+          if (remaining < 220) {
+            isNearBottom = true;
+          }
+        }
+      });
+
+      if (typeof window !== 'undefined') {
+        const docRemaining = document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
+        if (docRemaining < 220) {
+          isNearBottom = true;
+        }
+      }
+
+      setShowScrollDown(!isNearBottom);
+    };
+
+    window.addEventListener('scroll', checkScrollPosition, { passive: true });
+    const scrollParents = document.querySelectorAll('.overflow-y-auto');
+    scrollParents.forEach((el) => el.addEventListener('scroll', checkScrollPosition, { passive: true }));
+
+    checkScrollPosition();
+
+    return () => {
+      window.removeEventListener('scroll', checkScrollPosition);
+      scrollParents.forEach((el) => el.removeEventListener('scroll', checkScrollPosition));
+    };
+  }, []);
+
+  // Luôn cuộn lên đỉnh đầu trang khi vào (bắt đầu từ số 1: Vị trí trọng tâm & Tránh chạm)
+  useEffect(() => {
+    const scrollToTop = () => {
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }
+      const scrollParents = document.querySelectorAll('.overflow-y-auto');
+      scrollParents.forEach((el) => {
+        el.scrollTop = 0;
+      });
+    };
+
+    scrollToTop();
+    const t1 = setTimeout(scrollToTop, 50);
+    const t2 = setTimeout(scrollToTop, 150);
+    const t3 = setTimeout(scrollToTop, 300);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, []);
 
   const { services } = useMenuData();
   const staffCount = Math.max(1, selectedStaffIds.length);
@@ -210,7 +289,7 @@ export default function DeepBookingConfig({
       />
 
       {/* ── SECTION 2: DEEP BODY TECHNIQUES ── */}
-      <section className="mb-8">
+      <section id="deep-section-technique" className="mb-8 scroll-mt-24">
         <div className="mb-2">
           <h3 className="text-xl sm:text-2xl font-bold text-[#e6c487] tracking-wide">
             {t.select_technique_title}
@@ -342,6 +421,25 @@ export default function DeepBookingConfig({
 
       {/* ── SECTION 4: CONFIRMATION SUMMARY & CTA BUTTON (Xếp 2 nút xuống, tăng size duration) ── */}
       <div className="sticky bottom-6 z-30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#141416]/95 backdrop-blur-xl border border-[#e6c487]/40 shadow-[0_15px_40px_rgba(0,0,0,0.85)] flex flex-col gap-4">
+        {/* Mũi tên nổi có background blur hướng dẫn khách cuộn xuống dưới */}
+        <AnimatePresence>
+          {showScrollDown && (
+            <motion.button
+              type="button"
+              initial={{ opacity: 0, y: 10, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+              onClick={handleScrollDown}
+              className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 z-40 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/80 backdrop-blur-md border border-[#e6c487]/60 text-[#e6c487] shadow-[0_4px_20px_rgba(0,0,0,0.85)] flex items-center justify-center hover:bg-black/95 hover:border-[#e6c487] hover:scale-110 active:scale-95 transition-all cursor-pointer group"
+              aria-label="Cuộn xuống xem tiếp"
+              title="Cuộn xuống xem tiếp"
+            >
+              <ChevronDown size={24} className="animate-bounce text-[#e6c487] group-hover:text-white transition-colors" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+
         {/* Top: Summary & Prominent Duration */}
         <div className="flex items-center justify-between w-full pb-3 border-b border-white/10">
           <div>

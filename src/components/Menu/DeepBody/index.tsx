@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DeepStaffSelector from './StaffSelector';
 import DeepBookingConfig from './BookingConfig';
@@ -32,6 +32,20 @@ export default function DeepBodyMenu({
   const { cart, addVipToCart, updateVipCartItem, removeVipGroup } = useMenuData();
 
   const isLangSwitching = typeof window !== 'undefined' && sessionStorage.getItem('is_vip_lang_switching') === 'true';
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToTop = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+      scrollContainerRef.current.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+  };
 
   // Persisted state ONLY across language switch; otherwise always start at 'STAFF' (màn hình chung tất cả KTV)
   const [step, setStep] = useState<MenuStep>(() => {
@@ -84,6 +98,19 @@ export default function DeepBodyMenu({
     }
   }, []);
 
+  // Auto scroll to top whenever step changes (ensures entering section 1 from the top on all cards)
+  useEffect(() => {
+    scrollToTop();
+    const t1 = setTimeout(scrollToTop, 50);
+    const t2 = setTimeout(scrollToTop, 150);
+    const t3 = setTimeout(scrollToTop, 300);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [step]);
+
   // Fetch VIP pricing table
   useEffect(() => {
     fetch('/api/config/menu-vip')
@@ -97,6 +124,7 @@ export default function DeepBodyMenu({
   }, []);
 
   const handleBack = () => {
+    scrollToTop();
     if (step === 'BOOKING_CONFIG') {
       setStep('STAFF');
       if (typeof window !== 'undefined') {
@@ -221,7 +249,7 @@ export default function DeepBodyMenu({
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden w-full">
         <AnimatePresence mode="wait">
           {step === 'STAFF' && (
             <motion.div
@@ -240,6 +268,7 @@ export default function DeepBodyMenu({
                   setSelectedStaffInfoList(staffInfoList);
                   setStaffGroupingMode(mode || null);
                   setStep('BOOKING_CONFIG');
+                  scrollToTop();
                   if (typeof window !== 'undefined') {
                     sessionStorage.setItem('deep_body_current_step', 'BOOKING_CONFIG');
                     sessionStorage.setItem('deep_body_selected_staff_ids', JSON.stringify(ids));
