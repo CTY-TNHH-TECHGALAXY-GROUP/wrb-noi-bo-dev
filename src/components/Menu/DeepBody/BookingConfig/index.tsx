@@ -34,6 +34,9 @@ interface DeepBookingConfigProps {
       totalPrice: number;
       totalPriceUSD?: number;
       customerNotes?: string;
+      focus?: string[];
+      avoid?: string[];
+      note?: string;
       bodyParts?: {
         focus: string[];
         avoid: string[];
@@ -187,31 +190,32 @@ export default function DeepBookingConfig({
       (tech) => tech.name[safeLang] || tech.name.en
     );
 
-    // Map body area keys to localized names according to user language
-    const AREA_I18N_MAP: Record<string, string> = {
-      HEAD: t.area_head,
-      NECK: t.area_neck,
-      SHOULDER: t.area_shoulders,
-      ARM: t.area_arms,
-      BACK: t.area_back,
-      THIGH: t.area_thigh,
-      KNEE: t.area_knee,
-      CALF: t.area_calf,
-      FOOT: t.area_feet,
+    // Map body area keys to standard Vietnamese for Admin Dispatch & KTV
+    const AREA_VN_MAP: Record<string, string> = {
+      HEAD: 'Đầu',
+      NECK: 'Cổ',
+      SHOULDER: 'Vai',
+      ARM: 'Tay',
+      BACK: 'Lưng',
+      THIGH: 'Đùi',
+      KNEE: 'Gối',
+      CALF: 'Bắp chân',
+      FOOT: 'Bàn chân',
     };
-    const getAreaName = (k: string) => AREA_I18N_MAP[k] || k;
+    const getAreaNameVN = (k: string) => AREA_VN_MAP[k] || k;
 
-    // Combine notes with bodyParts info in the selected language
+    // Combine notes with bodyParts info standardized in Vietnamese for Admin/KTV
     const bodyNoteParts: string[] = [];
     if (focusAreas.length > 0) {
-      bodyNoteParts.push(`${t.body_map_col_focus}: ${focusAreas.map(getAreaName).join(', ')}`);
+      bodyNoteParts.push(`Tập trung: ${focusAreas.map(getAreaNameVN).join(', ')}`);
     }
     if (avoidAreas.length > 0) {
-      bodyNoteParts.push(`${t.body_map_col_avoid}: ${avoidAreas.map(getAreaName).join(', ')}`);
+      bodyNoteParts.push(`Tránh: ${avoidAreas.map(getAreaNameVN).join(', ')}`);
     }
+    const cleanCustomerNote = customerNotes.trim();
     const combinedNotes = [
-      customerNotes.trim(),
       bodyNoteParts.length > 0 ? `[${bodyNoteParts.join(' | ')}]` : '',
+      cleanCustomerNote,
     ]
       .filter(Boolean)
       .join(' ');
@@ -225,6 +229,9 @@ export default function DeepBookingConfig({
         totalPrice: currentPrice,
         totalPriceUSD: currentUsdPrice,
         customerNotes: combinedNotes,
+        focus: focusAreas,
+        avoid: avoidAreas,
+        note: cleanCustomerNote,
         bodyParts: {
           focus: focusAreas,
           avoid: avoidAreas,

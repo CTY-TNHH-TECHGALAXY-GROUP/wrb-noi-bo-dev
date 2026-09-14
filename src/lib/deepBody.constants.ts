@@ -199,7 +199,7 @@ export const DEEP_BODY_TECHNIQUES: DeepBodyTechnique[] = [
   {
     id: 'mixofourtherapies',
     name: {
-      vi: 'Kết hợp 4 liệu trình  (Ấn huyệt, Thái, Dầu & Đá Nóng)',
+      vi: '4 liệu trình (Ấn huyệt, Thái, Dầu & Đá Nóng)',
       en: 'Mix of Four Therapies (Acupressure, Thai, Oil & Hot Stone)',
       cn: '四重综合疗程（指压、泰式、精油与热石）',
       jp: '4種融合トリートメント（指圧・タイ式・オイル・ホットストーン）',
@@ -272,18 +272,34 @@ export const DEEP_BODY_DURATION_SERVICES: Record<number, DeepBodyDurationService
 
 export const DEEP_BODY_SKILL_MAP: Record<string, string> = {
   coconutOil: 'Tinh dầu dừa',
+  oilBody: 'Dầu',
+  oil: 'Dầu',
   thaiTherapy: 'Thái',
+  thai: 'Thái',
   shiatsu: 'Bấm huyệt',
   hotStone: 'Đá nóng',
-  mixofourtherapies: 'Kết hợp 4 liệu trình  (Ấn huyệt, Thái, Dầu & Đá Nóng)',
+  mixofourtherapies: '4 liệu trình (Ấn huyệt, Thái, Dầu & Đá Nóng)',
   // Backward compatibility aliases:
   japaneseShiatsu: 'Bấm huyệt',
   hotStoneBazan: 'Đá nóng',
-  mixFourTherapies: 'Kết hợp 4 liệu trình  (Ấn huyệt, Thái, Dầu & Đá Nóng)',
-  mixOfFourTherapies: 'Kết hợp 4 liệu trình  (Ấn huyệt, Thái, Dầu & Đá Nóng)',
+  mixFourTherapies: '4 liệu trình (Ấn huyệt, Thái, Dầu & Đá Nóng)',
+  mixOfFourTherapies: '4 liệu trình (Ấn huyệt, Thái, Dầu & Đá Nóng)',
 };
 
 export const formatDeepBodyAdminName = (techniqueIds: string[]): string => {
+  // If 4 techniques are selected or mix of four therapies is selected:
+  const isAllFour =
+    techniqueIds.some(
+      (id) =>
+        id.toLowerCase().includes('mix') ||
+        id.toLowerCase().includes('four') ||
+        id === 'mixofourtherapies'
+    ) || techniqueIds.length >= 4;
+
+  if (isAllFour) {
+    return '4 liệu trình (Ấn huyệt, Thái, Dầu & Đá Nóng)';
+  }
+
   const names = techniqueIds
     .map((id) => DEEP_BODY_SKILL_MAP[id] || id)
     .filter(Boolean);

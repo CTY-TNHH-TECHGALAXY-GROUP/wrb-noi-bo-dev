@@ -50,6 +50,9 @@ interface MenuContextType {
         totalPrice: number;
         totalPriceUSD?: number;
         customerNotes?: string;
+        focus?: string[];
+        avoid?: string[];
+        note?: string;
     }) => void;
     updateVipCartItem: (cartId: string, updates: {
         vipSkillIds?: string[];
@@ -167,6 +170,9 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
         totalPrice: number;
         totalPriceUSD?: number;
         customerNotes?: string;
+        focus?: string[];
+        avoid?: string[];
+        note?: string;
     }) => {
         const targetId = params.serviceId || 'NHS0800';
         const newItems: CartItem[] = params.staffIds.map((staffId, index) => {
@@ -194,6 +200,9 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
                 vipDisplayName: params.displayName,
                 vipDuration: params.duration,
                 vipCustomerNotes: params.customerNotes,
+                vipFocus: params.focus || [],
+                vipAvoid: params.avoid || [],
+                vipNote: params.note || '',
                 // Add to options so it gets saved to Supabase JSONB
                 options: {
                     serviceId: targetId,
@@ -201,6 +210,10 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
                     vipDuration: params.duration,
                     vipStaffId: staffId,
                     selectedSkills: params.skillIds,
+                    focus: params.focus || [],
+                    avoid: params.avoid || [],
+                    note: params.note || '',
+                    customerNotes: params.customerNotes || '',
                     notes: { tag0: false, tag1: false, privateRoom: false, content: params.customerNotes || '' }
                 } as any
             } as CartItem;

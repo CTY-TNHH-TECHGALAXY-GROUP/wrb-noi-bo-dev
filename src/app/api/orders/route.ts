@@ -19,10 +19,13 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { customer, items, paymentMethod, amountPaid, totalVND, lang, vatInvoice, preBookingId } = body;
 
-        // Normalize language code to prevent mismatch (e.g. 'VN' → 'vi', 'vn' → 'vi')
+        // Normalize language code to prevent mismatch (e.g. 'VN' → 'vi', 'zh' → 'cn', 'ko' → 'kr')
         const VALID_LANGS = ['vi', 'en', 'kr', 'jp', 'cn'];
         const normalizedLang = (() => {
             const raw = (lang || '').toLowerCase().trim();
+            if (raw === 'zh' || raw.startsWith('zh-')) return 'cn';
+            if (raw === 'ko' || raw.startsWith('ko-')) return 'kr';
+            if (raw === 'ja' || raw.startsWith('ja-')) return 'jp';
             return VALID_LANGS.includes(raw) ? raw : 'vi';
         })();
         console.log(`[POST /api/orders] lang from body: "${lang}", normalized: "${normalizedLang}"`);
@@ -199,7 +202,7 @@ export async function POST(request: Request) {
             standardInsertedCount = await handleStandardItems(supabaseAdmin, customId, standardItems, 0);
         }
         if (hasVip) {
-            await handleVipItems(supabaseAdmin, customId, vipItems, standardInsertedCount);
+            await handleVipItems(supabaseAdmin, customId, vipItems, standardInsertedCount, normalizedLang);
         }
 
         // 5. Build and Send Notification

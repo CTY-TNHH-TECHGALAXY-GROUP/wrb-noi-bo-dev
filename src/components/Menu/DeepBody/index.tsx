@@ -157,15 +157,35 @@ export default function DeepBodyMenu({
       totalPriceUSD?: number;
       serviceId?: string;
       customerNotes?: string;
+      focus?: string[];
+      avoid?: string[];
+      note?: string;
+      bodyParts?: {
+        focus: string[];
+        avoid: string[];
+      };
     },
     action: 'SELECT_MORE' | 'CHECKOUT' = 'SELECT_MORE'
   ) => {
-    const displayName =
-      data.techniqueNames.length > 0
-        ? `${t.tab_deep_body}: ${data.techniqueNames.join(' + ')}`
-        : t.tab_deep_body;
+    const isAllFour =
+      data.techniqueIds.some(
+        (id) =>
+          id.toLowerCase().includes('mix') ||
+          id.toLowerCase().includes('four') ||
+          id === 'mixofourtherapies'
+      ) ||
+      data.techniqueIds.length >= 4 ||
+      data.techniqueNames.length >= 4;
+
+    const displayName = isAllFour
+      ? '4 liệu trình (Ấn huyệt, Thái, Dầu & Đá Nóng)'
+      : data.techniqueNames.length > 0
+      ? `${t.tab_deep_body}: ${data.techniqueNames.join(' + ')}`
+      : t.tab_deep_body;
 
     const isSeparate = staffGroupingMode === 'SEPARATE';
+    const separateTag = '(Mỗi khách 1 KTV)';
+    const fourHandsTag = '(Tứ thủ - 2 KTV)';
 
     if (isSeparate && selectedStaffIds.length > 1) {
       selectedStaffIds.forEach((staffId) => {
@@ -179,7 +199,10 @@ export default function DeepBodyMenu({
           duration: data.totalDuration,
           totalPrice: data.totalPrice,
           totalPriceUSD: data.totalPriceUSD,
-          customerNotes: data.customerNotes ? `${data.customerNotes} (${t.prefix_separate})` : `(${t.prefix_separate})`,
+          customerNotes: data.customerNotes ? `${data.customerNotes} ${separateTag}` : separateTag,
+          focus: data.focus,
+          avoid: data.avoid,
+          note: data.note,
         });
       });
     } else {
@@ -194,8 +217,11 @@ export default function DeepBodyMenu({
         totalPriceUSD: data.totalPriceUSD,
         customerNotes:
           staffGroupingMode === 'FOUR_HAND' && selectedStaffIds.length > 1
-            ? `${data.customerNotes ? `${data.customerNotes} ` : ''}(${t.prefix_four_hands})`.trim()
+            ? `${data.customerNotes ? `${data.customerNotes} ` : ''}${fourHandsTag}`.trim()
             : data.customerNotes,
+        focus: data.focus,
+        avoid: data.avoid,
+        note: data.note,
       });
     }
 
