@@ -29,6 +29,23 @@ it('normalizePhotoList removes empty/null and trims strings', () => {
   assert.deepEqual(result, ['a', 'b']);
 });
 
+// 1b. normalize: extracts url from objects with metadata
+it('normalizePhotoList extracts url from metadata objects {url, kind, therapyId}', () => {
+  const input = [
+    'https://cdn.example.com/legacy.jpg',
+    { url: 'https://cdn.example.com/therapy.jpg', kind: 'therapy', therapyId: 'hotStone' },
+    { url: 'https://cdn.example.com/mix.jpg', kind: 'mix' },
+    null,
+    { invalid: true },
+  ];
+  const result = normalizePhotoList(input);
+  assert.deepEqual(result, [
+    'https://cdn.example.com/legacy.jpg',
+    'https://cdn.example.com/therapy.jpg',
+    'https://cdn.example.com/mix.jpg',
+  ]);
+});
+
 // 2. NHP: avatar + gallery → [avatar, ...gallery]
 it('NHP: avatar + gallery displays avatar first, then gallery', () => {
   const res = resolveMenuPhotos({

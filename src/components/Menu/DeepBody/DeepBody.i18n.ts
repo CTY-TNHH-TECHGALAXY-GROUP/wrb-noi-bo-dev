@@ -427,6 +427,13 @@ export const DEEP_BODY_I18N = {
     jp: '2人目のセラピストは選択された手技に対応していません',
     kr: '두 번째 테라피스트는 선택한 기법을 지원하지 않습니다',
   },
+  staff_selection_stale_warning: {
+    vi: 'Danh sách nhân viên đã thay đổi. Vui lòng chọn lại.',
+    en: 'The therapist list has changed. Please select again.',
+    cn: '技师列表已更新，请重新选择。',
+    jp: 'セラピスト一覧が変更されました。もう一度選択してください。',
+    kr: '직원 목록이 변경되었습니다. 다시 선택해 주세요.',
+  },
   selected_methods_count: {
     vi: 'Đã chọn {count} phương pháp',
     en: '{count} methods selected',

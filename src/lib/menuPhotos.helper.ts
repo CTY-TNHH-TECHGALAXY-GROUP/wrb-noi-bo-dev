@@ -10,8 +10,15 @@ export function normalizePhotoList(value: unknown): string[] {
   if (!value) return [];
   if (Array.isArray(value)) {
     return value
-      .filter((item): item is string => typeof item === 'string')
-      .map((item) => item.trim())
+      .map((item) => {
+        // String thuần → giữ nguyên
+        if (typeof item === 'string') return item.trim();
+        // Object có URL (từ gallery metadata) → bóc tách lấy URL
+        if (item && typeof item === 'object' && typeof (item as any).url === 'string') {
+          return (item as any).url.trim();
+        }
+        return '';
+      })
       .filter(Boolean);
   }
   if (typeof value === 'string') {

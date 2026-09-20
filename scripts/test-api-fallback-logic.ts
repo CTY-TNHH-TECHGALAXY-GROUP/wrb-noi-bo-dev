@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { isMissingGalleryUrls, normalizeFallbackStaffList } from '../src/lib/staffQueryHelper';
 
 let passedCount = 0;
 
@@ -76,20 +77,11 @@ async function executeStaffQuery({
     flagKey
   );
 
-  // 2. Specific Fallback check
-  const isMissingGalleryUrls =
-    staffError?.code === '42703' &&
-    typeof staffError.message === 'string' &&
-    staffError.message.includes('gallery_urls');
-
-  if (isMissingGalleryUrls) {
+  // 2. Specific Fallback check using production helper
+  if (staffError && isMissingGalleryUrls(staffError)) {
     const retry = await runDbQuery('id, full_name, avatar_url, status', flagKey);
-    // TS2322 fix: normalized gallery_urls: []
-    staffList =
-      retry.data?.map((staff) => ({
-        ...staff,
-        gallery_urls: [],
-      })) ?? null;
+    // TS2322 fix: normalized gallery_urls: [] via production helper
+    staffList = normalizeFallbackStaffList(retry.data);
     staffError = retry.error;
   }
 
@@ -154,25 +146,40 @@ it('Therapy API: Fallback preserves is_active_therapy_menu and normalizes galler
 
 // Case 5: Error on a DIFFERENT column does not trigger gallery_urls fallback
 it('Non-gallery_urls error (e.g. unknown column) does NOT trigger fallback retry', async () => {
-  let queryCount = 0;
-  const runQuery = async () => {
-    queryCount++;
-    const staffError = {
-      code: '42703',
-      message: 'column Staff.unknown_field does not exist',
-    };
-    const isMissingGalleryUrls =
-      staffError?.code === '42703' &&
-      typeof staffError.message === 'string' &&
-      staffError.message.includes('gallery_urls');
-
-    if (isMissingGalleryUrls) {
-      queryCount++; // Should NOT happen
-    }
+  const staffError = {
+    code: '42703',
+    message: 'column Staff.unknown_field does not exist',
   };
+  assert.equal(isMissingGalleryUrls(staffError), false);
+});
 
-  await runQuery();
-  assert.equal(queryCount, 1); // Only 1 query attempted, no retry
+// Case 6: Production helper isMissingGalleryUrls strictly checks code 42703 and regex gallery_urls
+it('Production helper isMissingGalleryUrls validates 42703 code and column name accurately', () => {
+  // 42703 + missing gallery_urls -> true
+  assert.equal(
+    isMissingGalleryUrls({ code: '42703', message: 'column Staff.gallery_urls does not exist' }),
+    true
+  );
+  // 42703 + missing certificate_url -> false
+  assert.equal(
+    isMissingGalleryUrls({ code: '42703', message: 'column Staff.certificate_url does not exist' }),
+    false
+  );
+  // 42703 + other column -> false
+  assert.equal(
+    isMissingGalleryUrls({ code: '42703', message: 'column Staff.some_other_col does not exist' }),
+    false
+  );
+  // Permission error mentioning gallery_urls (different error code) -> false
+  assert.equal(
+    isMissingGalleryUrls({ code: '42501', message: 'permission denied for table or column gallery_urls' }),
+    false
+  );
+  // null / undefined / missing message -> false
+  assert.equal(isMissingGalleryUrls(null), false);
+  assert.equal(isMissingGalleryUrls(undefined), false);
+  assert.equal(isMissingGalleryUrls({ code: '42703' }), false);
+  assert.equal(isMissingGalleryUrls({ message: 'column Staff.gallery_urls does not exist' }), false);
 });
 
 console.log(`\n🎉 ALL ${passedCount} API FALLBACK REGRESSION TEST CASES PASSED!\n`);

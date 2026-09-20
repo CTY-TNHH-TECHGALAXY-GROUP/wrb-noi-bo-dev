@@ -13,6 +13,12 @@ import { getDeepBodyT } from '../DeepBody.i18n';
 import CertificateModal from '../CertificateModal';
 import StaffImageCarousel from './StaffImageCarousel';
 import MixTechniquePopover from './MixTechniquePopover';
+import {
+  evaluateActiveItemChange,
+  evaluateMixApply,
+  canConfirmBooking,
+  resolveSelectedStaff,
+} from './staffSelector.logic';
 
 const MAX_SELECTABLE_STAFF = 2;
 
@@ -199,6 +205,8 @@ export default function DeepStaffSelector({
       null;
 
     if (activeItem?.kind === 'mix') {
+      setSelectedIds([staff.id]);
+      setSelectedTechniqueIds([]);
       setMixStaff(staff);
       return;
     }
@@ -213,8 +221,21 @@ export default function DeepStaffSelector({
 
   const handleMixApply = (chosenTechniqueIds: DeepBodyBaseTechniqueId[]) => {
     if (!mixStaff) return;
-    setSelectedTechniqueIds(chosenTechniqueIds);
-    setSelectedIds([mixStaff.id]);
+
+    const result = evaluateMixApply({
+      mixStaff,
+      chosenTechniqueIds,
+      selectedIds,
+      staffList,
+      unsupportedWarningText: t.staff_second_unsupported_warning,
+    });
+
+    setSelectedIds(result.nextSelectedIds);
+    setSelectedTechniqueIds(result.nextTechniqueIds);
+    if (result.warningMessage) {
+      setWarningMessage(result.warningMessage);
+    }
+
     setMixStaff(null);
   };
 
@@ -224,17 +245,66 @@ export default function DeepStaffSelector({
 
   const handleConfirm = () => {
     if (selectedIds.length === 0) return;
+
+    const primaryStaff = staffList.find((s) => s.id === selectedIds[0]);
+    const activeItem = primaryStaff
+      ? (activeGalleryByStaff[primaryStaff.id] ?? primaryStaff.therapyGallery?.[0] ?? null)
+      : null;
+
+    const check = canConfirmBooking({
+      selectedIds,
+      activeItem,
+      selectedTechniqueIds,
+    });
+
+    if (!check.canConfirm) {
+      if (check.requiresMixModal && primaryStaff) {
+        setMixStaff(primaryStaff);
+      }
+      return;
+    }
+
+    const selectedStaff = resolveSelectedStaff(selectedIds, staffList);
+    if (!selectedStaff) {
+      setWarningMessage(t.staff_selection_stale_warning);
+      return;
+    }
+
     if (selectedIds.length === 2 && !showGroupingPopup) {
       setShowGroupingPopup(true);
       return;
     }
-    const selectedStaff = staffList.filter((s) => selectedIds.includes(s.id));
     onConfirmSelection(selectedIds, selectedStaff, undefined, selectedTechniqueIds);
   };
 
   const handleGroupingConfirm = (mode: 'FOUR_HAND' | 'SEPARATE') => {
+    const primaryStaff = staffList.find((s) => s.id === selectedIds[0]);
+    const activeItem = primaryStaff
+      ? (activeGalleryByStaff[primaryStaff.id] ?? primaryStaff.therapyGallery?.[0] ?? null)
+      : null;
+
+    const check = canConfirmBooking({
+      selectedIds,
+      activeItem,
+      selectedTechniqueIds,
+    });
+
+    if (!check.canConfirm) {
+      setShowGroupingPopup(false);
+      if (check.requiresMixModal && primaryStaff) {
+        setMixStaff(primaryStaff);
+      }
+      return;
+    }
+
+    const selectedStaff = resolveSelectedStaff(selectedIds, staffList);
+    if (!selectedStaff) {
+      setShowGroupingPopup(false);
+      setWarningMessage(t.staff_selection_stale_warning);
+      return;
+    }
+
     setShowGroupingPopup(false);
-    const selectedStaff = staffList.filter((s) => selectedIds.includes(s.id));
     onConfirmSelection(selectedIds, selectedStaff, mode, selectedTechniqueIds);
   };
 
@@ -344,6 +414,29 @@ export default function DeepStaffSelector({
 
                         return { ...current, [staff.id]: item };
                       });
+
+                      const result = evaluateActiveItemChange({
+                        staff,
+                        item,
+                        selectedIds,
+                        staffList,
+                        unsupportedWarningText: t.staff_second_unsupported_warning,
+                      });
+
+                      if (!result.shouldUpdateSelection) return;
+
+                      if (result.nextSelectedIds !== undefined) {
+                        setSelectedIds(result.nextSelectedIds);
+                      }
+                      if (result.nextTechniqueIds !== undefined) {
+                        setSelectedTechniqueIds(result.nextTechniqueIds);
+                      }
+                      if (result.warningMessage) {
+                        setWarningMessage(result.warningMessage);
+                      }
+                      if (result.openMixStaff) {
+                        setMixStaff(result.openMixStaff);
+                      }
                     }}
                   />
 

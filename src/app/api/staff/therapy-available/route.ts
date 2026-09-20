@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { type VipStaffInfo, type StaffAvailability, type ShiftType, SHIFT_MAP } from '@/lib/vipStaffUtils';
+import { isMissingGalleryUrls, normalizeFallbackStaffList } from '@/lib/staffQueryHelper';
 import { resolveTherapyGalleryForStaff } from '@/lib/menuPhotos.helper';
 
 export const dynamic = 'force-dynamic';
@@ -59,23 +60,17 @@ export async function GET(_req: NextRequest) {
       .eq('is_active_therapy_menu', true)
       .order('full_name');
 
-    // Fallback if gallery_urls specifically does not exist in DB schema yet
-    const isMissingGalleryUrls =
-      staffErr?.code === '42703' &&
-      typeof staffErr.message === 'string' &&
-      staffErr.message.includes('gallery_urls');
-
-    if (isMissingGalleryUrls) {
+    if (staffErr && isMissingGalleryUrls(staffErr)) {
       const retry = await supabase
         .from('Staff')
         .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type, certificate_url')
         .eq('status', 'ĐANG LÀM')
         .eq('is_active_therapy_menu', true)
         .order('full_name');
-      staffList = retry.data?.map((staff) => ({
-        ...staff,
-        gallery_urls: [],
-      })) ?? null;
+      const fallbackData = normalizeFallbackStaffList(retry.data);
+      if (fallbackData) {
+        staffList = fallbackData as typeof staffList;
+      }
       staffErr = retry.error;
     }
 
