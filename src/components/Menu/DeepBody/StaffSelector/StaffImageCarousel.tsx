@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import type { TherapyGalleryParsedItem } from '@/lib/menuPhotos.helper';
 
@@ -68,8 +68,29 @@ export default function StaffImageCarousel({
     );
   }, [items, images]);
 
+  const preferredIndex = useMemo(() => {
+    const taggedIndex = normalizedItems.findIndex(
+      (item) => item.kind === 'therapy' || item.kind === 'mix'
+    );
+    return taggedIndex >= 0 ? taggedIndex : 0;
+  }, [normalizedItems]);
+
   const total = normalizedItems.length;
   const validIndex = total > 0 ? Math.min(currentIndex, total - 1) : 0;
+
+  useEffect(() => {
+    if (!normalizedItems.length) return;
+
+    if (currentIndex !== preferredIndex) {
+      setCurrentIndex(preferredIndex);
+      return;
+    }
+
+    if (onActiveItemChange) {
+      const activeItem = normalizedItems[preferredIndex] ?? null;
+      onActiveItemChange(activeItem);
+    }
+  }, [normalizedItems, preferredIndex, currentIndex, onActiveItemChange]);
 
   // Touch and drag swipe detection
   const startXRef = useRef<number | null>(null);

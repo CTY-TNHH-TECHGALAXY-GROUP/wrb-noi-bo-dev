@@ -54,6 +54,28 @@ export function applyPrimaryTechniques({
 }
 
 /**
+ * Resolve the active gallery item when there is no current active state yet.
+ * This is used to preserve the true therapy badge / selection from the first
+ * gallery item instead of falling back to a stale or guessed value.
+ */
+export function resolveInitialActiveGalleryItem(
+  staff: VipStaffInfo,
+  activeGalleryByStaff: Record<string, TherapyGalleryParsedItem | null>
+): TherapyGalleryParsedItem | null {
+  const current = activeGalleryByStaff[staff.id] ?? null;
+  if (current) return current;
+
+  const gallery = staff.therapyGallery ?? [];
+  if (gallery.length === 0) return null;
+
+  const firstTagged = gallery.find(
+    (item) => item?.kind === 'therapy' || item?.kind === 'mix'
+  );
+
+  return firstTagged ?? gallery[0] ?? null;
+}
+
+/**
  * Xử lý khi người dùng đổi ảnh trên carousel:
  * 1. KTV chưa chọn: đổi ảnh chỉ để xem, không tự chọn KTV.
  * 2. KTV thứ hai: đổi ảnh không ghi đè phương pháp chung.

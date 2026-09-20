@@ -17,6 +17,7 @@ import {
   evaluateMixApply,
   canConfirmBooking,
   resolveSelectedStaff,
+  resolveInitialActiveGalleryItem,
 } from './staffSelector.logic';
 
 const MAX_SELECTABLE_STAFF = 2;
@@ -152,7 +153,7 @@ export default function DeepStaffSelector({
       return;
     }
 
-    const activeItem = activeGalleryByStaff[staff.id] ?? null;
+    const activeItem = resolveInitialActiveGalleryItem(staff, activeGalleryByStaff);
 
     if (selectedIds.length === 0) {
       if (activeItem?.kind === 'therapy') {
@@ -196,7 +197,7 @@ export default function DeepStaffSelector({
   const handleBookNow = (staff: VipStaffInfo) => {
     if (isUnavailable(staff)) return;
 
-    const activeItem = activeGalleryByStaff[staff.id] ?? null;
+    const activeItem = resolveInitialActiveGalleryItem(staff, activeGalleryByStaff);
 
     if (activeItem?.kind === 'mix') {
       setSelectedIds([staff.id]);
@@ -429,7 +430,13 @@ export default function DeepStaffSelector({
                           return current;
                         }
 
-                        return { ...current, [staff.id]: item };
+                        const next = { ...current, [staff.id]: item };
+
+                        if (item?.kind === 'therapy' && selectedIds.includes(staff.id)) {
+                          setSelectedTechniqueIds([item.therapyId]);
+                        }
+
+                        return next;
                       });
                     }}
                   />

@@ -154,6 +154,7 @@ import {
   evaluateMixApply,
   canConfirmBooking,
   resolveSelectedStaff,
+  resolveInitialActiveGalleryItem,
 } from '../src/components/Menu/DeepBody/StaffSelector/staffSelector.logic';
 import type { VipStaffInfo } from '../src/lib/vipStaffUtils';
 
@@ -369,6 +370,37 @@ it('resolveSelectedStaff with missing/stale staff ID returns null and halts conf
   const resolved = resolveSelectedStaff(selectedIds, staffList);
 
   assert.equal(resolved, null); // Must return null so UI can warn and halt
+});
+
+// Case 19: Initial active gallery item resolves from first therapy item when no active state exists yet
+it('resolveInitialActiveGalleryItem prefers first image metadata when active state is empty', () => {
+  const initial = resolveInitialActiveGalleryItem(mockStaff1, {});
+
+  assert.notEqual(initial, null);
+  assert.equal(initial?.kind, 'therapy');
+  if (initial?.kind === 'therapy') {
+    assert.equal(initial.therapyId, 'shiatsu');
+  }
+});
+
+// Case 20: Legacy/untagged lead image does not win over a properly tagged Thai photo later in the sequence
+it('resolveInitialActiveGalleryItem skips legacy lead images and picks the first valid tagged method', () => {
+  const staffWithLegacyLead: VipStaffInfo = {
+    ...mockStaff1,
+    therapyGallery: [
+      { url: 'https://cdn.example.com/lead-untagged.jpg', kind: 'legacy' },
+      { url: 'https://cdn.example.com/thai.jpg', kind: 'therapy', therapyId: 'thaiTherapy' },
+      { url: 'https://cdn.example.com/hotstone.jpg', kind: 'therapy', therapyId: 'hotStone' },
+    ],
+  };
+
+  const initial = resolveInitialActiveGalleryItem(staffWithLegacyLead, {});
+
+  assert.notEqual(initial, null);
+  assert.equal(initial?.kind, 'therapy');
+  if (initial?.kind === 'therapy') {
+    assert.equal(initial.therapyId, 'thaiTherapy');
+  }
 });
 
 console.log(`\n🎉 ALL ${passedCount} CAROUSEL LOGIC TEST CASES PASSED!\n`);
