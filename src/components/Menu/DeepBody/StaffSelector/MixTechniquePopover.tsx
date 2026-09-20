@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Sparkles, AlertCircle } from 'lucide-react';
+import React, { useEffect, useId, useRef, useState } from 'react';
+import { X, Check, AlertCircle } from 'lucide-react';
 import {
   DEEP_BODY_BASE_TECHNIQUE_IDS,
   type DeepBodyBaseTechniqueId,
@@ -32,6 +31,20 @@ export default function MixTechniquePopover({
 }: MixTechniquePopoverProps) {
   const t = getDeepBodyT(lang);
   const safeLang = (['vi', 'en', 'cn', 'jp', 'kr'].includes(lang) ? lang : 'en') as DeepBodyLang;
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!isOpen || !staff || !dialog) return;
+    dialog.showModal();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      dialog.close();
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen, staff]);
 
   const [selectedIds, setSelectedIds] = useState<DeepBodyBaseTechniqueId[]>(() => {
     if (initialSelected.length >= 2) return initialSelected;
@@ -66,36 +79,30 @@ export default function MixTechniquePopover({
   };
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-        {/* Backdrop click to cancel */}
-        <div className="absolute inset-0" onClick={onCancel} />
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          transition={{ duration: 0.2 }}
-          className="relative w-full max-w-lg bg-[#141416] border border-[#e6c487]/30 rounded-3xl p-5 sm:p-7 shadow-2xl z-10 overflow-hidden flex flex-col max-h-[90vh]"
+      <dialog
+        ref={dialogRef}
+        aria-labelledby={titleId}
+        onCancel={(event) => { event.preventDefault(); onCancel(); }}
+        onClick={(event) => { if (event.target === event.currentTarget) onCancel(); }}
+        className="fixed inset-0 m-auto w-[calc(100%_-_1.5rem)] max-w-md max-h-[calc(100dvh_-_2rem)] overflow-y-auto overscroll-contain rounded-2xl border border-[#e6c487]/30 bg-[#141416] p-0 text-white shadow-2xl backdrop:bg-black/75 backdrop:backdrop-blur-sm"
+      >
+        <div
+          className="flex min-h-0 flex-col p-4 sm:p-5"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-start justify-between pb-4 border-b border-white/10">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Sparkles size={18} className="text-[#e6c487]" />
-                <h3 className="text-lg sm:text-xl font-bold text-white font-luxury">
+          <div className="flex shrink-0 items-start justify-between gap-3 pb-3 border-b border-white/10">
+            <div className="min-w-0">
+              <div className="mb-1">
+                <h3 id={titleId} className="text-base sm:text-lg font-semibold leading-snug break-words text-white">
                   {t.mix_popover_title}
                 </h3>
               </div>
-              <p className="text-xs sm:text-sm text-gray-400">
-                {t.mix_popover_desc}
-              </p>
             </div>
             <button
               type="button"
               onClick={onCancel}
-              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
+              className="w-11 h-11 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0 focus-visible:outline-2 focus-visible:outline-[#e6c487]"
               aria-label={t.close}
             >
               <X size={18} />
@@ -103,21 +110,22 @@ export default function MixTechniquePopover({
           </div>
 
           {/* Techniques list */}
-          <div className="flex-1 overflow-y-auto py-4 space-y-3">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-3 space-y-2">
             {DEEP_BODY_BASE_TECHNIQUE_IDS.map((techId) => {
               const techInfo = DEEP_BODY_TECHNIQUES.find((t) => t.id === techId);
               const isSelected = selectedIds.includes(techId);
               const hasSkill = staffHasDeepBodyTechnique(staff.skills, techId);
 
               const name = techInfo?.name[safeLang] || techInfo?.name.en || techId;
-              const shortDesc =
-                techInfo?.shortDesc[safeLang] || techInfo?.shortDesc.en || '';
 
               return (
-                <div
+                <button
                   key={techId}
+                  type="button"
+                  aria-pressed={isSelected}
+                  disabled={!hasSkill}
                   onClick={() => handleToggle(techId)}
-                  className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex items-start gap-3.5 cursor-pointer select-none ${
+                  className={`w-full min-h-12 p-3 rounded-xl border transition-colors flex items-center gap-3 text-left cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-[#e6c487] ${
                     !hasSkill
                       ? 'opacity-40 border-white/5 bg-white/5 cursor-not-allowed'
                       : isSelected
@@ -126,7 +134,7 @@ export default function MixTechniquePopover({
                   }`}
                 >
                   <div
-                    className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 border transition-all ${
+                    className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 border transition-colors ${
                       isSelected
                         ? 'bg-[#e6c487] border-[#e6c487] text-black font-bold'
                         : 'border-white/30 bg-black/40 text-transparent'
@@ -135,45 +143,40 @@ export default function MixTechniquePopover({
                     <Check size={14} className={isSelected ? 'text-black stroke-[3]' : 'opacity-0'} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <h4 className={`text-sm sm:text-base font-bold ${isSelected ? 'text-[#e6c487]' : 'text-white'}`}>
+                    <div className="flex flex-wrap items-center justify-between gap-1">
+                      <span className={`text-sm sm:text-base font-medium break-words ${isSelected ? 'text-[#e6c487]' : 'text-white'}`}>
                         {name}
-                      </h4>
+                      </span>
                       {!hasSkill && (
                         <span className="text-[10px] text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
                           {t.staff_not_supported_label}
                         </span>
                       )}
                     </div>
-                    {shortDesc && (
-                      <p className="text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">
-                        {shortDesc}
-                      </p>
-                    )}
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
 
           {/* Validation Warning if < 2 */}
           {selectedIds.length < 2 && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs mb-3">
+            <div role="status" className="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs mb-3">
               <AlertCircle size={14} className="shrink-0" />
               <span>{t.mix_min_warning}</span>
             </div>
           )}
 
           {/* Footer actions */}
-          <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+          <div className="shrink-0 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
             <span className="text-xs text-gray-400 font-medium">
               {t.selected_methods_count.replace('{count}', String(selectedIds.length))}
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex w-full sm:w-auto items-center gap-2">
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+                className="min-h-11 flex-1 px-4 py-2 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
               >
                 {t.mix_cancel}
               </button>
@@ -181,7 +184,7 @@ export default function MixTechniquePopover({
                 type="button"
                 onClick={handleApply}
                 disabled={isApplyDisabled}
-                className={`px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg cursor-pointer ${
+                className={`min-h-11 flex-1 px-5 py-2 rounded-xl text-sm font-bold transition-colors cursor-pointer ${
                   isApplyDisabled
                     ? 'opacity-40 bg-zinc-700 text-gray-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-[#e6c487] to-[#c9a96e] text-black hover:brightness-110 active:scale-95'
@@ -191,8 +194,7 @@ export default function MixTechniquePopover({
               </button>
             </div>
           </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
+        </div>
+      </dialog>
   );
 }

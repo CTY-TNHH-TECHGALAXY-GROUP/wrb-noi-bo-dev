@@ -602,7 +602,7 @@ export default function DeepBookingConfig({
       </section>
 
       {/* ── SECTION 4: CONFIRMATION SUMMARY & CTA BUTTON (Xếp 2 nút xuống, tăng size duration) ── */}
-      <div className="sticky bottom-6 z-30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#141416]/95 backdrop-blur-xl border border-[#e6c487]/40 shadow-[0_15px_40px_rgba(0,0,0,0.85)] flex flex-col gap-4">
+      <div className="relative sm:sticky sm:bottom-6 z-30 p-3 sm:p-5 rounded-2xl sm:rounded-3xl bg-[#141416]/95 backdrop-blur-xl border border-[#e6c487]/40 shadow-[0_15px_40px_rgba(0,0,0,0.85)] flex flex-col gap-3">
         {/* Mũi tên nổi có background blur hướng dẫn khách cuộn xuống dưới */}
         <AnimatePresence>
           {showScrollDown && (
@@ -623,7 +623,7 @@ export default function DeepBookingConfig({
         </AnimatePresence>
 
         {/* Top: Summary & Prominent Duration */}
-        <div className="flex items-center justify-between w-full pb-3 border-b border-white/10">
+        <div className="flex flex-wrap items-center justify-between gap-3 min-w-0 w-full pb-3 border-b border-white/10">
           <div>
             <span className="text-xs sm:text-sm uppercase tracking-widest text-gray-400 block font-bold mb-1">
               {t.total_estimated}
@@ -648,7 +648,7 @@ export default function DeepBookingConfig({
         </div>
 
         {/* Bottom (Xếp 2 nút xuống): 2 CTA Buttons */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full">
+        <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3 sm:gap-4 w-full">
           {/* Sub Object: Select More */}
           <button
             type="button"

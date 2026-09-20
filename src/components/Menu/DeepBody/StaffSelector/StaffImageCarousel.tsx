@@ -2,7 +2,10 @@
 
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { TherapyGalleryParsedItem } from '@/lib/menuPhotos.helper';
+import {
+  type TherapyGalleryParsedItem,
+  sortTherapyGalleryItems,
+} from '@/lib/menuPhotos.helper';
 
 const THERAPY_BADGE_LABELS: Record<string, Record<string, string>> = {
   coconutOil: {
@@ -63,9 +66,10 @@ export default function StaffImageCarousel({
 
   const normalizedItems = useMemo<TherapyGalleryParsedItem[]>(() => {
     const rawList = items ?? images ?? [];
-    return rawList.map((it) =>
+    const mapped = rawList.map((it) =>
       typeof it === 'string' ? { url: it, kind: 'legacy' as const } : it
     );
+    return sortTherapyGalleryItems(mapped);
   }, [items, images]);
 
   const preferredIndex = useMemo(() => {
@@ -288,29 +292,35 @@ export default function StaffImageCarousel({
           {/* Left Arrow Button */}
           <button
             type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               goToPrev();
             }}
-            className="absolute left-3.5 top-[40%] -translate-y-1/2 z-25 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 active:scale-90 text-white/90 hover:text-[#e6c487] border border-white/20 hover:border-[#e6c487]/60 flex items-center justify-center backdrop-blur-md shadow-xl transition-all cursor-pointer opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
+            className="absolute left-3 sm:left-4 top-[45%] -translate-y-1/2 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/75 hover:bg-black/95 text-[#e6c487] border border-[#e6c487]/50 hover:border-[#e6c487] flex items-center justify-center backdrop-blur-md shadow-[0_4px_15px_rgba(0,0,0,0.6)] transition-all cursor-pointer opacity-90 hover:opacity-100 active:scale-90"
             aria-label="Ảnh trước"
           >
-            <ChevronLeft size={18} />
+            <ChevronLeft size={22} />
           </button>
 
           {/* Right Arrow Button */}
           <button
             type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               goToNext();
             }}
-            className="absolute right-3.5 top-[40%] -translate-y-1/2 z-25 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 active:scale-90 text-white/90 hover:text-[#e6c487] border border-white/20 hover:border-[#e6c487]/60 flex items-center justify-center backdrop-blur-md shadow-xl transition-all cursor-pointer opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
+            className="absolute right-3 sm:right-4 top-[45%] -translate-y-1/2 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/75 hover:bg-black/95 text-[#e6c487] border border-[#e6c487]/50 hover:border-[#e6c487] flex items-center justify-center backdrop-blur-md shadow-[0_4px_15px_rgba(0,0,0,0.6)] transition-all cursor-pointer opacity-90 hover:opacity-100 active:scale-90"
             aria-label="Ảnh kế tiếp"
           >
-            <ChevronRight size={18} />
+            <ChevronRight size={22} />
           </button>
         </>
       )}

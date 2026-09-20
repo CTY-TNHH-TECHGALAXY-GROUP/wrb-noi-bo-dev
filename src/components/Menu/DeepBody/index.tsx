@@ -282,7 +282,7 @@ export default function DeepBodyMenu({
   };
 
   return (
-    <div className="w-full h-full flex flex-col relative overflow-hidden">
+    <div className="w-full h-full min-h-0 min-w-0 flex flex-col relative overflow-hidden">
       {/* Step Subheader with Back Button if in BOOKING_CONFIG */}
       {step === 'BOOKING_CONFIG' && (
         <div className="px-6 py-2.5 border-b border-white/5 bg-[#121214]/60 backdrop-blur-sm flex items-center justify-between">
@@ -296,7 +296,7 @@ export default function DeepBodyMenu({
       )}
 
       {/* Main Content Area */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+      <div ref={scrollContainerRef} className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden w-full">
         <AnimatePresence mode="wait">
           {step === 'STAFF' && (
             <motion.div

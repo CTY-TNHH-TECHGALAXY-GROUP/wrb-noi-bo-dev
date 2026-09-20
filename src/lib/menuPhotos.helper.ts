@@ -179,6 +179,36 @@ export function normalizeTherapyGallery(
   return result;
 }
 
+export const THERAPY_DISPLAY_ORDER: Record<string, number> = {
+  coconutOil: 1,
+  hotStone: 2,
+  thaiTherapy: 3,
+  shiatsu: 4,
+  mix: 5,
+};
+
+export function sortTherapyGalleryItems(
+  items: TherapyGalleryParsedItem[]
+): TherapyGalleryParsedItem[] {
+  return [...items].sort((a, b) => {
+    const orderA =
+      a.kind === 'therapy'
+        ? (THERAPY_DISPLAY_ORDER[a.therapyId] ?? 90)
+        : a.kind === 'mix'
+        ? (THERAPY_DISPLAY_ORDER.mix ?? 90)
+        : 99;
+
+    const orderB =
+      b.kind === 'therapy'
+        ? (THERAPY_DISPLAY_ORDER[b.therapyId] ?? 90)
+        : b.kind === 'mix'
+        ? (THERAPY_DISPLAY_ORDER.mix ?? 90)
+        : 99;
+
+    return orderA - orderB;
+  });
+}
+
 export function resolveTherapyGalleryForStaff({
   staffId,
   nhtConfig,
@@ -197,14 +227,14 @@ export function resolveTherapyGalleryForStaff({
     const configObj = nhtConfig as Record<string, unknown>;
     const rawStaffData = (configObj.staff as Record<string, unknown>)?.[staffId] ?? configObj[staffId];
     const parsed = normalizeTherapyGallery(rawStaffData);
-    if (parsed.length > 0) return parsed;
+    if (parsed.length > 0) return sortTherapyGalleryItems(parsed);
   }
 
   // 2. Staff.gallery_urls if it contains structured therapy metadata (therapy or mix)
   if (galleryUrls) {
     const parsed = normalizeTherapyGallery(galleryUrls);
     if (parsed.some((it) => it.kind === 'therapy' || it.kind === 'mix')) {
-      return parsed;
+      return sortTherapyGalleryItems(parsed);
     }
   }
 
@@ -213,13 +243,13 @@ export function resolveTherapyGalleryForStaff({
     const legacyObj = legacyConfig as Record<string, unknown>;
     const rawLegacyData = (legacyObj.staff as Record<string, unknown>)?.[staffId] ?? legacyObj[staffId];
     const parsed = normalizeTherapyGallery(rawLegacyData);
-    if (parsed.length > 0) return parsed;
+    if (parsed.length > 0) return sortTherapyGalleryItems(parsed);
   }
 
   // 4. Staff.gallery_urls fallback (plain URLs / legacy)
   if (galleryUrls) {
     const parsed = normalizeTherapyGallery(galleryUrls);
-    if (parsed.length > 0) return parsed;
+    if (parsed.length > 0) return sortTherapyGalleryItems(parsed);
   }
 
   // 5. Avatar fallback

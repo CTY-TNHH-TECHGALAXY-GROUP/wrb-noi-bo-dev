@@ -312,7 +312,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     };
 
     return (
-        <div className="w-full h-full bg-[#131315] text-[#e4e2e4] flex flex-col relative overflow-hidden">
+        <div className="w-full h-full min-h-0 min-w-0 bg-[#131315] text-[#e4e2e4] flex flex-col relative overflow-hidden">
             {/* Progress Bar */}
             <div className="absolute top-0 left-0 h-[2px] bg-[#1b1b1d] w-full z-50">
                 <motion.div
@@ -325,7 +325,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
 
             {/* Header */}
             <header className={`sticky top-0 ${isLangOpen ? 'z-[80]' : 'z-40'} bg-[#0e0e10]/80 backdrop-blur-xl shadow-[0_0_40px_rgba(201,169,110,0.04)]`}>
-                <div className="flex justify-between items-center px-6 py-3.5">
+                <div className="flex justify-between items-center gap-2 px-3 sm:px-6 py-3">
                     <button
                         onClick={handleBack}
                         className="text-[#e6c487] p-1 hover:bg-white/5 rounded-full transition-colors"
@@ -335,12 +335,12 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                         </svg>
                     </button>
 
-                    <h1 className="premium-therapist-display-font text-lg tracking-[0.2em] text-[#e6c487]">
+                    <h1 className="premium-therapist-display-font min-w-0 flex-1 text-sm sm:text-lg leading-snug tracking-wide sm:tracking-[0.2em] break-words text-[#e6c487]">
                         {getStepTitle()}
                     </h1>
 
                     {/* Right: Cart badge hoặc Switch to Standard */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-2">
                         {/* Language Selector */}
                         <div className="relative z-[100] shrink-0 flex items-center" ref={langRef}>
                             <button
@@ -403,8 +403,8 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
             </header>
 
             {/* 🌟 VIP MENU SWITCH BAR (Chìa Khóa Menu - Square Bo Góc Responsive All Devices) */}
-            <div className="sticky top-[61px] z-20 w-full px-3 sm:px-6 py-2.5 bg-[#0e0e10]/95 backdrop-blur-md border-b border-white/5 flex justify-center">
-                <div className="inline-flex p-1.5 rounded-2xl bg-[#1b1b1d] border border-[#e6c487]/35 max-w-xl w-full relative shadow-inner">
+            <div className="shrink-0 z-20 w-full px-3 sm:px-6 py-2 bg-[#0e0e10]/95 backdrop-blur-md border-b border-white/5 flex justify-center">
+                <div className="grid grid-cols-2 min-w-0 p-1 rounded-2xl bg-[#1b1b1d] border border-[#e6c487]/35 max-w-xl w-full relative shadow-inner">
                     <button
                         type="button"
                         onClick={() => switchVipTab('DESIGN_YOUR_JOURNEY')}
@@ -415,7 +415,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                         }`}
                     >
                         <span>✨</span>
-                        <span className="truncate">{deepT.tab_design_journey}</span>
+                        <span className="min-w-0 break-words leading-snug">{deepT.tab_design_journey}</span>
                     </button>
 
                     <button
@@ -428,14 +428,14 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                         }`}
                     >
                         <span>🌿</span>
-                        <span className="truncate">{deepT.tab_deep_body}</span>
+                        <span className="min-w-0 break-words leading-snug">{deepT.tab_deep_body}</span>
                     </button>
                 </div>
             </div>
 
             {/* Main Content Area */}
             {activeVipTab === 'DEEP_BODY_TREATMENT' ? (
-                <div className="flex-1 overflow-hidden w-full">
+                <div className="flex-1 min-h-0 min-w-0 overflow-hidden w-full">
                     <DeepBodyMenu
                         key={`deep-body-${deepBodyKey}`}
                         lang={lang}
@@ -446,7 +446,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                     />
                 </div>
             ) : (
-                <div className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+                <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden w-full">
                     <div className="w-full lg:max-w-5xl lg:mx-auto lg:px-8 pb-32">
                         <AnimatePresence mode="wait">
                             {/* STAFF STEP */}
