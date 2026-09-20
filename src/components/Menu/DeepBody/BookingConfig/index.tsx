@@ -250,22 +250,7 @@ export default function DeepBookingConfig({
   const currentUsdPrice = isFourHands ? Math.round(currentService.priceUSD * 1.5) : currentService.priceUSD;
 
   const handleToggleTechnique = (techId: DeepBodyBaseTechniqueId) => {
-    setSelectedTechniqueIds((prev) => {
-      // If currently single technique
-      if (prev.length === 1) {
-        if (prev[0] === techId) return prev;
-        return [techId]; // Switch to the clicked single technique
-      }
-      // If currently in mix mode
-      if (prev.includes(techId)) {
-        return prev.filter((id) => id !== techId);
-      } else {
-        if (prev.length < 4) {
-          return [...prev, techId];
-        }
-        return prev;
-      }
-    });
+    setSelectedTechniqueIds([techId]);
   };
 
   const handleOpenMixPopover = () => {
@@ -413,7 +398,9 @@ export default function DeepBookingConfig({
         {/* Techniques List (1 card per row, large prominent typography matching Standard style) */}
         <div className="flex flex-col gap-3 sm:gap-3.5 mt-4">
           {baseMethods.map((tech) => {
-            const isSelected = selectedTechniqueIds.includes(tech.id as DeepBodyBaseTechniqueId);
+            const isSelected =
+              selectedTechniqueIds.length === 1 &&
+              selectedTechniqueIds[0] === (tech.id as DeepBodyBaseTechniqueId);
 
             return (
               <div
@@ -475,7 +462,7 @@ export default function DeepBookingConfig({
               <div className="flex flex-col min-w-0 flex-1">
                 <div className="flex items-center gap-3.5">
                   <h4 className="text-2xl sm:text-3xl md:text-[32px] font-black leading-tight tracking-wide text-white group-hover:text-[#e6c487] transition-colors truncate">
-                    {mixMethod.name[safeLang] || mixMethod.name.en}
+                    Mix
                   </h4>
                   <button
                     type="button"
@@ -532,10 +519,10 @@ export default function DeepBookingConfig({
         {/* Dynamic Duration Cards Grid matching ma trận thời lượng */}
         <div className={`grid gap-2.5 xs:gap-3 sm:gap-4 md:gap-5 w-full ${
           availableServices.length === 3
-            ? 'grid-cols-3'
+            ? 'grid-cols-2 sm:grid-cols-3'
             : availableServices.length === 4
-            ? 'grid-cols-2 sm:grid-cols-4'
-            : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5'
+            ? 'grid-cols-2 lg:grid-cols-4'
+            : 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-5'
         }`}>
           {availableServices.map((svc, idx) => {
             const isSelected = effectiveDuration === svc.timeValue;
@@ -571,7 +558,7 @@ export default function DeepBookingConfig({
 
                 <div className="w-12 sm:w-16 h-px bg-white/10 my-1 sm:my-1.5" />
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-center font-black">
+                <div className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 text-center font-black">
                   <span className="text-xs xs:text-sm sm:text-base md:text-lg tracking-tight whitespace-nowrap">
                     {priceVND.toLocaleString('vi-VN')} VND
                   </span>

@@ -126,7 +126,7 @@ export default function PaymentModal({
             <div className={`
                 relative w-full max-w-lg bg-[#1c1c1e] border border-white/5 md:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col
                 transform transition-transform duration-300
-                pb-safe max-h-[90vh]
+                pb-safe max-h-[90dvh]
                 ${(isClosing || !isVisible) ? 'translate-y-full md:scale-95 md:translate-y-0 md:opacity-0' : 'translate-y-0 md:scale-100 md:opacity-100'}
             `}>
                 
@@ -146,7 +146,7 @@ export default function PaymentModal({
                 </div>
 
                 {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-6">
                     {/* Pay Warning Banner */}
                     <div
                         className="relative overflow-hidden rounded-2xl border border-[#E8C97A]/35 bg-gradient-to-br from-[#2a1d0c] via-[#15110a] to-[#080808] p-4 text-center shadow-[0_0_30px_rgba(212,175,55,0.18)]"

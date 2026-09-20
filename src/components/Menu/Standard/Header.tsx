@@ -86,7 +86,7 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
                 onMouseLeave={handleMouseLeave}
                 onMouseUp={handleMouseUp}
                 onMouseMove={handleMouseMove}
-                className={`flex flex-row overflow-x-auto md:justify-center snap-x hide-scrollbar gap-x-5 md:gap-x-8 pt-5 px-4 pb-3 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'} cursor-grab`}
+                className={`standard-category-nav flex flex-row overflow-x-auto justify-start snap-x hide-scrollbar gap-x-5 md:gap-x-8 pt-3 px-4 pb-3 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'} cursor-grab`}
                 style={{ scrollBehavior: 'smooth' }}
             >
                 {repeatedCategories.map((cat, index) => {

@@ -403,4 +403,44 @@ it('resolveInitialActiveGalleryItem skips legacy lead images and picks the first
   }
 });
 
+// Case 21: Mix vs single therapy card mutual exclusion
+it('When Mix is active, single therapy cards are unselected and only Mix card is selected', () => {
+  const selectedMixTechniqueIds: ('coconutOil' | 'thaiTherapy')[] = ['coconutOil', 'thaiTherapy'];
+
+  // Single card isSelected logic from BookingConfig
+  const isCoconutSelected =
+    selectedMixTechniqueIds.length === 1 && selectedMixTechniqueIds[0] === 'coconutOil';
+  const isThaiSelected =
+    selectedMixTechniqueIds.length === 1 && selectedMixTechniqueIds[0] === 'thaiTherapy';
+  const isMixSelected = selectedMixTechniqueIds.length >= 2;
+
+  assert.equal(isCoconutSelected, false);
+  assert.equal(isThaiSelected, false);
+  assert.equal(isMixSelected, true);
+
+  // Switch to single therapy
+  const singleIds: ['thaiTherapy'] = ['thaiTherapy'];
+  const isSingleThaiSelected = singleIds.length === 1 && singleIds[0] === 'thaiTherapy';
+  const isSingleMixSelected = singleIds.length >= 2;
+
+  assert.equal(isSingleThaiSelected, true);
+  assert.equal(isSingleMixSelected, false);
+});
+
+// Case 22: Applying Mix immediately confirms selection to booking config step
+it('Applying Mix immediately resolves staff and validates readiness for direct transition to booking config', () => {
+  const applied = evaluateMixApply({
+    mixStaff: mockStaff1,
+    chosenTechniqueIds: ['coconutOil', 'thaiTherapy'],
+    selectedIds: ['KTV01'],
+    staffList: [mockStaff1],
+  });
+
+  const resolvedStaff = resolveSelectedStaff(applied.nextSelectedIds, [mockStaff1]);
+  assert.notEqual(resolvedStaff, null);
+  assert.equal(resolvedStaff?.length, 1);
+  assert.equal(resolvedStaff?.[0].id, 'KTV01');
+  assert.deepEqual(applied.nextTechniqueIds, ['coconutOil', 'thaiTherapy']);
+});
+
 console.log(`\n🎉 ALL ${passedCount} CAROUSEL LOGIC TEST CASES PASSED!\n`);

@@ -51,6 +51,7 @@ export interface StaffImageCarouselProps {
   staffId: string;
   staffName: string;
   lang?: string;
+  imageFit?: 'contain' | 'cover';
   onActiveItemChange?: (item: TherapyGalleryParsedItem | null) => void;
 }
 
@@ -60,6 +61,7 @@ export default function StaffImageCarousel({
   staffId,
   staffName,
   lang = 'vi',
+  imageFit = 'contain',
   onActiveItemChange,
 }: StaffImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -230,22 +232,39 @@ export default function StaffImageCarousel({
         style={{ transform: `translateX(-${validIndex * 100}%)` }}
       >
         {normalizedItems.map((item, idx) => (
-          <div key={idx} className="w-full h-full shrink-0 relative bg-[#131315] flex items-center justify-center overflow-hidden">
-            {/* Ambient blurred backdrop so letterbox/pillarbox blends softly */}
-            <img
-              src={item.url}
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-25 pointer-events-none"
-            />
-            {/* Full uncropped image */}
-            <img
-              src={item.url}
-              alt={`${staffName} - ${idx + 1}`}
-              className="w-full h-full object-contain relative z-10 pointer-events-none"
-              loading={idx === 0 ? 'eager' : 'lazy'}
-              draggable={false}
-            />
+          <div
+            key={idx}
+            className={`w-full h-full shrink-0 relative flex items-center justify-center overflow-hidden ${
+              imageFit === 'cover' ? 'bg-[#1b1b1d]' : 'bg-[#131315]'
+            }`}
+          >
+            {imageFit === 'cover' ? (
+              <img
+                src={item.url}
+                alt={`${staffName} - ${idx + 1}`}
+                className="w-full h-full object-cover object-top pointer-events-none transition-transform duration-700 group-hover:scale-105"
+                loading={idx === 0 ? 'eager' : 'lazy'}
+                draggable={false}
+              />
+            ) : (
+              <>
+                {/* Ambient blurred backdrop so letterbox/pillarbox blends softly */}
+                <img
+                  src={item.url}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-25 pointer-events-none"
+                />
+                {/* Full uncropped image */}
+                <img
+                  src={item.url}
+                  alt={`${staffName} - ${idx + 1}`}
+                  className="w-full h-full object-contain relative z-10 pointer-events-none"
+                  loading={idx === 0 ? 'eager' : 'lazy'}
+                  draggable={false}
+                />
+              </>
+            )}
           </div>
         ))}
       </div>

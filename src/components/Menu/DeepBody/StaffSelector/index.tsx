@@ -250,6 +250,19 @@ export default function DeepStaffSelector({
     }
 
     setMixStaff(null);
+
+    const selectedStaff = resolveSelectedStaff(result.nextSelectedIds, staffList);
+    if (!selectedStaff) {
+      setWarningMessage(t.staff_selection_stale_warning);
+      return;
+    }
+
+    if (result.nextSelectedIds.length === 2 && !showGroupingPopup) {
+      setShowGroupingPopup(true);
+      return;
+    }
+
+    onConfirmSelection(result.nextSelectedIds, selectedStaff, undefined, result.nextTechniqueIds);
   };
 
   const handleMixCancel = () => {
@@ -428,6 +441,7 @@ export default function DeepStaffSelector({
                 <div className="relative h-[470px] md:h-[510px] w-full overflow-hidden bg-[#1b1b1d]">
                   {/* Image Carousel (Lướt ảnh qua lại) */}
                   <StaffImageCarousel
+                    imageFit="contain"
                     items={carouselItems}
                     staffId={staff.id}
                     staffName={staff.fullName}

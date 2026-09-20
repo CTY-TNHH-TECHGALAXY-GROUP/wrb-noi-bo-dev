@@ -34,8 +34,8 @@ interface MainSheetProps {
 const CONFIG = {
     ANIMATION_DURATION: 300,
     BORDER_RADIUS: '30px',
-    MAX_HEIGHT: '85vh',
-    HEADER_IMAGE_HEIGHT: '18rem', // h-72 = 18rem = 288px
+    MAX_HEIGHT: 'calc(100dvh - 1rem)',
+    HEADER_IMAGE_HEIGHT: 'min(18rem, 25dvh)',
     OVERLAY_COLOR: 'bg-black/60',
     BG_COLOR: 'bg-[#0d0d0d]',
     // Time slot button stagger
@@ -210,7 +210,7 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
             <div className={`fixed inset-0 ${CONFIG.OVERLAY_COLOR} z-40 transition-opacity duration-${CONFIG.ANIMATION_DURATION} ${isClosing ? 'opacity-0' : 'opacity-100'}`} onClick={handleClose} />
 
             <div className={`
-          fixed bottom-0 left-0 w-full ${CONFIG.BG_COLOR} rounded-t-[${CONFIG.BORDER_RADIUS}] z-50 overflow-hidden flex flex-col shadow-2xl
+          responsive-sheet fixed bottom-0 left-0 w-full ${CONFIG.BG_COLOR} rounded-t-[${CONFIG.BORDER_RADIUS}] z-50 flex flex-col shadow-2xl
           transform transition-transform 
           duration-${CONFIG.ANIMATION_DURATION}
           ease-out

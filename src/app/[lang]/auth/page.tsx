@@ -80,12 +80,12 @@ export default function AuthPage() {
 
 
     return (
-        <div className="w-full h-[100dvh] flex flex-col items-center bg-[#FAF9F6] relative overflow-hidden font-sans pb-[env(safe-area-inset-bottom)]">
+        <div className="w-full min-h-[100dvh] flex flex-col items-center bg-[#FAF9F6] relative font-sans pb-[env(safe-area-inset-bottom)]">
 
             {/* Background soft glow / texture (optional) */}
             <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-multiply bg-gradient-to-b from-[#FDFCF8] to-[#F1EDE4]" />
 
-            <div className="z-10 w-full max-w-md md:max-w-lg flex flex-col px-6 md:px-10 h-full text-center">
+            <div className="z-10 w-full max-w-md md:max-w-lg flex flex-col px-6 md:px-10 min-h-[100dvh] text-center">
 
                 {/* HEADER */}
                 <div

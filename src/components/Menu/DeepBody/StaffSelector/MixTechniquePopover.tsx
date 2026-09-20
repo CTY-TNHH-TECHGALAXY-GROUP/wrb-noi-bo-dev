@@ -48,10 +48,13 @@ export default function MixTechniquePopover({
 
   const [selectedIds, setSelectedIds] = useState<DeepBodyBaseTechniqueId[]>(() => {
     if (initialSelected.length >= 2) return initialSelected;
-    // Default select first 2 techniques that staff supports
     const available = DEEP_BODY_BASE_TECHNIQUE_IDS.filter((id) =>
       staffHasDeepBodyTechnique(staff?.skills, id)
     );
+    if (initialSelected.length === 1 && available.includes(initialSelected[0])) {
+      const peer = available.find((id) => id !== initialSelected[0]);
+      return peer ? [initialSelected[0], peer] : available.slice(0, 2);
+    }
     return available.slice(0, 2);
   });
 
@@ -176,7 +179,7 @@ export default function MixTechniquePopover({
               <button
                 type="button"
                 onClick={onCancel}
-                className="min-h-11 flex-1 px-4 py-2 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                className="min-h-11 flex-1 whitespace-nowrap px-4 py-2 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
               >
                 {t.mix_cancel}
               </button>
@@ -184,7 +187,7 @@ export default function MixTechniquePopover({
                 type="button"
                 onClick={handleApply}
                 disabled={isApplyDisabled}
-                className={`min-h-11 flex-1 px-5 py-2 rounded-xl text-sm font-bold transition-colors cursor-pointer ${
+                className={`min-h-11 flex-1 whitespace-nowrap px-5 py-2 rounded-xl text-sm font-bold transition-colors cursor-pointer ${
                   isApplyDisabled
                     ? 'opacity-40 bg-zinc-700 text-gray-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-[#e6c487] to-[#c9a96e] text-black hover:brightness-110 active:scale-95'

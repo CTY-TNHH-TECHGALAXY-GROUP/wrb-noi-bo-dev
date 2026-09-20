@@ -458,10 +458,10 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 80 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="fixed inset-x-0 bottom-0 z-50 border-t border-white/8 bg-gradient-to-t from-[#101012] via-[#101012]/96 to-[#101012]/82 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-8 shadow-[0_-24px_45px_rgba(0,0,0,0.72)] backdrop-blur-2xl"
+            className="short-screen-flow fixed inset-x-0 bottom-0 z-50 border-t border-white/8 bg-gradient-to-t from-[#101012] via-[#101012]/96 to-[#101012]/82 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-8 shadow-[0_-24px_45px_rgba(0,0,0,0.72)] backdrop-blur-2xl"
           >
             <div className="mx-auto w-full lg:w-[500px]">
-              <div className="flex justify-between items-end mb-2 px-1">
+              <div className="flex flex-wrap gap-3 justify-between items-end mb-2 px-1">
                 <div>
                   <div className="text-[10px] text-[#998f81] uppercase tracking-wider">{t.bc_selected}</div>
                   <div className="text-lg font-bold text-[#e4e2e4]">{effectiveDuration} {t.bc_mins}</div>
@@ -494,7 +494,7 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-[#131315] border border-[#e6c487]/30 rounded-3xl p-5 w-full max-w-sm shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
+              className="responsive-panel bg-[#131315] border border-[#e6c487]/30 rounded-3xl p-5 w-full max-w-sm shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
             >
               {/* Header */}
               <div className="flex justify-between items-center mb-4">
@@ -561,7 +561,7 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
                         setSelectedSlot(null);
                         setShowCalendar(false);
                       }}
-                      className={`h-9 w-9 rounded-xl flex items-center justify-center text-xs transition-all ${
+                      className={`min-h-9 w-full rounded-xl flex items-center justify-center text-xs transition-all ${
                         isSelected
                           ? 'bg-[#e6c487] text-[#412d00] font-bold'
                           : disabled
@@ -598,7 +598,7 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="bg-[#131315] border border-[#e6c487]/30 rounded-3xl p-6 w-full max-w-md shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col max-h-[80vh]"
+              className="bg-[#131315] border border-[#e6c487]/30 rounded-3xl p-6 w-full max-w-md shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col max-h-[80dvh]"
             >
               <div className="flex justify-between items-center mb-5 pb-4 border-b border-[#4d463a]/30">
                 <h4 className="font-sans not-italic text-xl text-[#e6c487]">

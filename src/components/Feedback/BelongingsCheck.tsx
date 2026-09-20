@@ -21,7 +21,7 @@ export const BelongingsCheck = ({ lang = 'vi', onConfirm }: { lang?: 'vi' | 'en'
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 animate-in fade-in">
             <div
-                className="bg-white w-full max-w-sm p-6 shadow-2xl flex flex-col gap-5 animate-in zoom-in-95 items-center text-center"
+                className="responsive-panel bg-white w-full max-w-sm p-6 shadow-2xl flex flex-col gap-5 animate-in zoom-in-95 items-center text-center"
                 style={{ borderRadius: PANEL_RADIUS }}
             >
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex justify-center items-center text-amber-600 mb-2">

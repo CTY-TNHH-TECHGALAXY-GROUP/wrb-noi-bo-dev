@@ -62,8 +62,8 @@ export default function AlertModal({ isOpen, title, message, type = 'error', onC
 
     return (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-[#1c1c1e] w-full max-w-sm rounded-[32px] p-6 shadow-2xl border border-white/5 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${iconColors}`}>
+            <div role="alertdialog" aria-modal="true" aria-label={title || defaultTitle} className="responsive-panel bg-[#1c1c1e] w-full max-w-sm rounded-[32px] p-6 shadow-2xl border border-white/5 text-center animate-in zoom-in-95 duration-200">
+                <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 ${iconColors}`}>
                     {icon}
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">{title || defaultTitle}</h3>

@@ -104,7 +104,7 @@ export default function TimeSlotPicker({ lang, totalDuration, onConfirm }: TimeS
           <motion.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute bottom-4 left-4 right-4"
+            className="relative mt-6 mb-4"
           >
             <button
               onClick={onConfirm}

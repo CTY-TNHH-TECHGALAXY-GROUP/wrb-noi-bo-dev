@@ -98,7 +98,8 @@
 
 .row {
   display: grid;
-  grid-template-columns: 135px 1fr;
+  grid-template-columns: 135px minmax(0, 1fr);
+  overflow-wrap: anywhere;
   gap: 12px;
   padding: 4px 0;
   font-size: 14px;
@@ -122,6 +123,8 @@
   border-collapse: collapse;
   font-size: 14px;
 }
+
+.tableScroll { overflow-x: auto; }
 
 .invoiceTable th {
   text-align: left;
@@ -271,13 +274,15 @@
   .header { flex-direction: column; }
   .invoiceTitle { text-align: left; }
   .grid, .payment { grid-template-columns: 1fr; }
-  .row { grid-template-columns: 105px 1fr; }
-  .invoiceTable th:nth-child(5), .invoiceTable td:nth-child(5) { display: none; }
+  .row { grid-template-columns: 90px minmax(0, 1fr); }
+  .invoiceTable { min-width: 620px; }
   .page { width: min(100% - 16px, 920px); border-radius: 0; }
   .footer { flex-direction: column; }
 }
 
 @media print {
+  .tableScroll { overflow: visible; }
+  .invoiceTable { min-width: 0; }
 
   .invoiceContainer {
     background: #fff;

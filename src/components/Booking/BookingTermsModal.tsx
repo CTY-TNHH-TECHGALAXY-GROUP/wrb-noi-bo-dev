@@ -22,7 +22,7 @@ export default function BookingTermsModal({ isOpen, onClose, lang }: BookingTerm
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="bg-[#1b1b1d] w-full max-w-lg rounded-[32px] overflow-hidden border border-[#4d463a]/30 shadow-2xl flex flex-col max-h-[85vh]"
+            className="bg-[#1b1b1d] w-full max-w-lg rounded-[32px] overflow-hidden border border-[#4d463a]/30 shadow-2xl flex flex-col max-h-[85dvh]"
           >
             {/* Header */}
             <div className="flex justify-between items-center p-6 border-b border-[#4d463a]/20 bg-[#131315]">
@@ -38,7 +38,7 @@ export default function BookingTermsModal({ isOpen, onClose, lang }: BookingTerm
             </div>
 
             {/* Content */}
-            <div className="p-6 overflow-y-auto custom-scrollbar text-[#d0c5b5] space-y-6 text-sm leading-relaxed">
+            <div className="min-h-0 p-4 sm:p-6 overflow-y-auto custom-scrollbar text-[#d0c5b5] space-y-6 text-sm leading-relaxed">
               <section>
                 <h3 className="text-[#e6c487] font-bold mb-2 uppercase tracking-wide text-xs">1. {lang === 'en' ? 'Arrival Time' : 'Thời gian có mặt'}</h3>
                 <p>{lang === 'en' ? 'Please arrive 10-15 minutes prior to your scheduled appointment to allow time for check-in and preparation.' : 'Quý khách vui lòng đến trước 10-15 phút so với giờ hẹn để làm thủ tục và chuẩn bị.'}</p>

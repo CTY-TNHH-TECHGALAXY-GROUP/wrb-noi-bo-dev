@@ -32,12 +32,12 @@ export const ServiceCountdownGauge = ({ startTimeISO, durationMinutes, lang = 'v
     return (
         <div className="flex flex-col items-center gap-6 p-6 animate-fade-in-up">
             {/* Vòng cung Gauge */}
-            <div className="relative flex justify-center items-center" style={{ width: GAUGE_SIZE, height: GAUGE_SIZE }}>
+            <div className="relative flex justify-center items-center aspect-square max-w-full" style={{ width: GAUGE_SIZE }}>
                 <svg
                     width={GAUGE_SIZE}
                     height={GAUGE_SIZE}
                     viewBox={`0 0 ${GAUGE_SIZE} ${GAUGE_SIZE}`}
-                    className="absolute transform rotate-[135deg]"
+                    className="absolute w-full h-full transform rotate-[135deg]"
                 >
                     {/* Background Track */}
                     <circle

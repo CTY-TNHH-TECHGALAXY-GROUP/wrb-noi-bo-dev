@@ -125,7 +125,7 @@ const PaymentMethods = ({ lang, dict, selected, onChange, onInfoContinue }: Paym
                     onClick={closeModal}
                 >
                     <div
-                        className={`bg-[#1c1c1e] w-full max-w-sm max-h-[85vh] flex flex-col rounded-[32px] overflow-hidden shadow-2xl border border-white/5 ${isClosing ? 'animate-out zoom-out-95' : 'animate-in zoom-in-95 duration-200'}`}
+                        className={`bg-[#1c1c1e] w-full max-w-sm max-h-[85dvh] flex flex-col rounded-[32px] overflow-hidden shadow-2xl border border-white/5 ${isClosing ? 'animate-out zoom-out-95' : 'animate-in zoom-in-95 duration-200'}`}
                         onClick={(e) => {
                             e.stopPropagation();
                             handleInfoContinue();
@@ -204,7 +204,7 @@ const PaymentMethods = ({ lang, dict, selected, onChange, onInfoContinue }: Paym
                             {modalContent === 'card' && (
                                 <div>
                                     <p className="text-center text-sm font-bold text-white mb-4 uppercase tracking-wider">{dict.payment_methods.accepted_cards}</p>
-                                    <div className="grid grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                         {ACCEPTED_CARDS.map((card) => (
                                             <div key={card.name} className="flex flex-col items-center gap-2">
                                                 <div className="w-full aspect-[4/3] flex items-center justify-center p-2 rounded-xl border border-white/5 shadow-sm bg-white overflow-hidden">

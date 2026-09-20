@@ -60,7 +60,7 @@ export default function ServiceItem({ service, singleOption, quantity, lang, isB
                 onClick={onClick}
                 className={`
                     relative w-full min-h-[210px] sm:min-h-[230px] md:min-h-[250px] overflow-hidden rounded-[28px] border px-5 py-5 sm:px-7 sm:py-6 md:px-9
-                    flex items-center gap-5 sm:gap-7 md:gap-8 cursor-pointer active:scale-[0.985] transition-all duration-300
+                    flex flex-col sm:flex-row items-stretch sm:items-center gap-5 sm:gap-7 md:gap-8 cursor-pointer active:scale-[0.985] transition-all duration-300
                     bg-[radial-gradient(circle_at_18%_50%,rgba(218,163,64,0.20),transparent_32%),linear-gradient(115deg,rgba(18,11,5,0.82),rgba(0,0,0,0.54))]
                     shadow-[0_18px_44px_rgba(0,0,0,0.34),inset_0_1px_0_rgba(255,238,170,0.08)]
                     ${isSelected ? 'border-white/20' : 'border-white/10 hover:border-white/18'}
@@ -91,7 +91,7 @@ export default function ServiceItem({ service, singleOption, quantity, lang, isB
                     ) : null}
                 </div>
 
-                <div className="relative z-20 flex w-[126px] shrink-0 flex-col items-end justify-center gap-4 sm:w-[172px] md:w-[220px]">
+                <div className="relative z-20 flex w-full shrink-0 flex-row flex-wrap items-center justify-between gap-4 sm:w-[172px] md:w-[220px] sm:flex-col sm:items-end sm:justify-center">
                     {singleOption.timeValue > 0 && (
                         <div className="rounded-full border border-white/12 bg-black/25 px-4 py-1.5 text-center sm:px-6 sm:py-2">
                             <span className="text-[18px] font-black tracking-[0.08em] text-[#ffe7a3] sm:text-[24px] md:text-[28px]">

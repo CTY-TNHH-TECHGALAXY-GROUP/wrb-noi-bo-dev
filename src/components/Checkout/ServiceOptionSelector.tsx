@@ -63,7 +63,7 @@ export const ServiceOptionSelector = ({ initialOptions, onChange, lang = 'vi' }:
                 <label className="text-base font-medium text-gray-700">
                     {localeText.duration}
                 </label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {DURATIONS.map((dur) => (
                         <button
                             key={dur}

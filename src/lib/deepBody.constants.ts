@@ -199,11 +199,11 @@ export const DEEP_BODY_TECHNIQUES: DeepBodyTechnique[] = [
   {
     id: 'mixofourtherapies',
     name: {
-      vi: '4 liệu trình (Ấn huyệt, Thái, Dầu & Đá Nóng)',
-      en: 'Mix of Four Therapies (Acupressure, Thai, Oil & Hot Stone)',
-      cn: '四重综合疗程（指压、泰式、精油与热石）',
-      jp: '4種融合トリートメント（指圧・タイ式・オイル・ホットストーン）',
-      kr: '4가지 복합 테라피 (지압, 타이, 오일 & 핫스톤)',
+      vi: 'Mix',
+      en: 'Mix',
+      cn: 'Mix',
+      jp: 'Mix',
+      kr: 'Mix',
     },
     shortDesc: {
       vi: 'Sự kết hợp tinh hoa giữa Tinh Dầu Dừa, Bấm Huyệt Thái, Shiatsu và Đá Nóng Bazan giúp phục hồi toàn diện.',

@@ -169,7 +169,7 @@ const TherapyMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     };
 
     return (
-        <div className="w-full h-full bg-[#131315] text-[#e4e2e4] flex flex-col relative overflow-hidden">
+        <div className="w-full h-full min-h-0 min-w-0 bg-[#131315] text-[#e4e2e4] flex flex-col relative overflow-hidden">
             {/* Progress Bar */}
             <div className="absolute top-0 left-0 h-[2px] bg-[#1b1b1d] w-full z-30">
                 <motion.div
@@ -181,8 +181,8 @@ const TherapyMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
             </div>
 
             {/* Header */}
-            <header className="sticky top-0 z-20 bg-[#0e0e10]/80 backdrop-blur-xl shadow-[0_0_40px_rgba(201,169,110,0.04)]">
-                <div className="flex justify-between items-center px-6 py-3.5">
+            <header className="shrink-0 z-20 bg-[#0e0e10]/80 backdrop-blur-xl shadow-[0_0_40px_rgba(201,169,110,0.04)]">
+                <div className="flex justify-between items-center gap-2 px-3 sm:px-6 py-3.5">
                     <button
                         onClick={handleBack}
                         className="text-[#e6c487] p-1 hover:bg-white/5 rounded-full transition-colors"
@@ -192,12 +192,12 @@ const TherapyMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                         </svg>
                     </button>
 
-                    <h1 className="premium-therapist-display-font text-lg tracking-[0.2em] text-[#e6c487]">
+                    <h1 className="premium-therapist-display-font flex-1 text-sm sm:text-lg tracking-wide sm:tracking-[0.2em] text-[#e6c487]">
                         {getStepTitle()}
                     </h1>
 
                     {/* Right: Cart badge hoặc Switch to Standard */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                         {/* Cart badge — hiển thị khi có gói đã đặt */}
                         {vipGroupCount > 0 && (
                             <button
@@ -226,7 +226,7 @@ const TherapyMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
             </header>
 
             {/* Main Content */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+            <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden w-full">
                 <div className="w-full lg:max-w-5xl lg:mx-auto lg:px-8 pb-32">
                     <AnimatePresence mode="wait">
                         {/* STAFF STEP */}

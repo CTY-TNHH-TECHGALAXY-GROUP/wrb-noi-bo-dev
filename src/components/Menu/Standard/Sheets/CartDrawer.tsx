@@ -23,7 +23,7 @@ interface CartDrawerProps {
 const CONFIG = {
     ANIMATION_DURATION: 300,
     BORDER_RADIUS: '30px',
-    MAX_HEIGHT: '85vh',
+    MAX_HEIGHT: 'calc(100dvh - 1rem)',
     OVERLAY_COLOR: 'bg-black/60',
     BG_COLOR: 'bg-[#0d0d0d]',
     FOOTER_BG: 'bg-[#1c1c1e]',
@@ -356,7 +356,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
 
             {/* Drawer Container */}
             <div className={`
-                fixed bottom-0 left-0 w-full ${CONFIG.BG_COLOR} rounded-t-[${CONFIG.BORDER_RADIUS}] z-50 overflow-hidden flex flex-col shadow-2xl
+                responsive-sheet fixed bottom-0 left-0 w-full ${CONFIG.BG_COLOR} rounded-t-[${CONFIG.BORDER_RADIUS}] z-50 flex flex-col shadow-2xl
                 transform transition-transform duration-${CONFIG.ANIMATION_DURATION} ease-out pb-safe
                 ${(isClosing || !isVisible) ? 'translate-y-full' : 'translate-y-0'}
             `} style={{ maxHeight: CONFIG.MAX_HEIGHT }}>

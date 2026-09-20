@@ -324,7 +324,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
             </div>
 
             {/* Header */}
-            <header className={`sticky top-0 ${isLangOpen ? 'z-[80]' : 'z-40'} bg-[#0e0e10]/80 backdrop-blur-xl shadow-[0_0_40px_rgba(201,169,110,0.04)]`}>
+            <header className={`shrink-0 ${isLangOpen ? 'z-[80]' : 'z-40'} bg-[#0e0e10]/80 backdrop-blur-xl shadow-[0_0_40px_rgba(201,169,110,0.04)]`}>
                 <div className="flex justify-between items-center gap-2 px-3 sm:px-6 py-3">
                     <button
                         onClick={handleBack}

@@ -59,7 +59,7 @@ export const PostReviewScale = ({ lang = 'vi' }: { lang?: 'vi' | 'en' }) => {
                 </div>
 
                 {/* 5 Faces Icons */}
-                <div className="flex justify-between w-full px-2 gap-2">
+                <div className="flex flex-wrap justify-center w-full gap-3">
                     {FACES.map((face) => {
                         const isSelected = score === face.score;
                         let label = '';
@@ -97,10 +97,10 @@ export const PostReviewScale = ({ lang = 'vi' }: { lang?: 'vi' | 'en' }) => {
                 {showTipping && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-in fade-in">
                         <div
-                            className="bg-white w-full max-w-sm p-6 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95"
+                            className="responsive-panel bg-white w-full max-w-sm p-6 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95"
                             style={{ borderRadius: MODAL_RADIUS }}
                         >
-                            <div className="flex justify-center -mt-12">
+                            <div className="flex justify-center">
                                 <div className="bg-emerald-100 w-16 h-16 rounded-full flex items-center justify-center border-4 border-white shadow-sm">
                                     <span className="text-3xl animate-bounce">💖</span>
                                 </div>

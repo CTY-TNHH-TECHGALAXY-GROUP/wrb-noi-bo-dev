@@ -116,8 +116,8 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                         return (
                             <div key={item.cartId} className="border border-white/10 rounded-2xl p-4 shadow-sm bg-[#0d0d0d] mb-4">
                                 {/* Row 1: Name + Price */}
-                                <div className="flex justify-between items-start mb-1 gap-2">
-                                    <h4 className="text-white font-bold text-lg truncate flex-1 flex items-center gap-2">
+                                <div className="flex flex-wrap justify-between items-start mb-1 gap-2">
+                                    <h4 className="text-white font-bold text-lg min-w-0 basis-full sm:basis-auto sm:flex-1 flex items-center gap-2">
                                         {idx + 1}. {isVipItem ? vipDisplayName : (item.names[lang] || item.names.en)}
                                         {isVipItem && <Crown size={16} className="text-[#e6c487] shrink-0" />}
                                     </h4>
@@ -308,7 +308,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                 <div className="h-0 border-t-2 border-dashed border-white/10 my-6"></div>
 
                 {/* Total */}
-                <div className="flex justify-between items-baseline">
+                <div className="flex flex-wrap gap-3 justify-between items-baseline">
                     <span className="text-white font-bold text-lg">{dict.checkout?.total_bill || 'Total'}</span>
                     <div className="text-right">
                         <span className={`block text-3xl font-black ${currency === 'USD' ? 'text-emerald-600' : 'text-[#C9A96E]'}`}>

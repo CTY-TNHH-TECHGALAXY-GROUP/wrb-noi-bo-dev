@@ -106,9 +106,9 @@ export default function SkillBuilder({ lang, selectedStaffIds, onConfirmSkills }
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0d0d0d] via-[#0d0d0d] to-transparent pt-12"
+            className="relative p-4 bg-gradient-to-t from-[#0d0d0d] via-[#0d0d0d] to-transparent pt-12"
           >
-            <div className="flex justify-between items-end mb-4 px-2">
+            <div className="flex flex-wrap gap-3 justify-between items-end mb-4 px-2">
               <div>
                 <div className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">{isVi ? 'Thời gian phục vụ' : 'Total Duration'}</div>
                 <div className="text-3xl font-black text-white">{totalDuration} <span className="text-xl font-medium">{isVi ? 'phút' : 'mins'}</span></div>

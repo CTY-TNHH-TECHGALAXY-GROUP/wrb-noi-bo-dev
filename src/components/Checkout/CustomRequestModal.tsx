@@ -77,7 +77,7 @@ export default function CustomRequestModal({ isOpen, onClose, onSave, lang, item
 
             {/* Modal Content */}
             <div className={`
-                bg-[#1c1c1e] border border-white/5 w-full max-w-lg max-h-[90vh] flex flex-col rounded-t-3xl md:rounded-3xl shadow-2xl pointer-events-auto
+                bg-[#1c1c1e] border border-white/5 w-full max-w-lg max-h-[90dvh] flex flex-col rounded-t-3xl md:rounded-3xl shadow-2xl pointer-events-auto
                 transform transition-all duration-300
             `}>
                 {/* Header */}
@@ -117,7 +117,7 @@ export default function CustomRequestModal({ isOpen, onClose, onSave, lang, item
                 </div>
 
                 {/* Body Content */}
-                <div className="flex-1 overflow-y-auto p-5">
+                <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5">
                     {/* BODY TAB */}
                     {tab === 'BODY' && (
                         <div className="space-y-4">

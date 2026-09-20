@@ -41,7 +41,7 @@ export default function CertificateModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-lg bg-[#141416] border border-[#e6c487]/40 rounded-[2rem] p-6 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col z-10"
+          className="relative w-full max-w-lg max-h-[calc(100dvh_-_3rem)] bg-[#141416] border border-[#e6c487]/40 rounded-[2rem] p-4 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-y-auto overscroll-contain z-10"
         >
           {/* Top Gold Accent */}
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-[#e6c487] to-transparent opacity-80" />

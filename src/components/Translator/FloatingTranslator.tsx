@@ -362,7 +362,7 @@ export default function FloatingTranslator() {
                         className={`fixed z-[9999] bg-[#121214]/98 border border-[#e6c487]/30 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] text-white overflow-hidden flex flex-col transition-all duration-300 ${
                             isExpanded
                                 ? 'inset-3 sm:inset-6 rounded-3xl'
-                                : 'bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-32px)] sm:w-[460px] h-[640px] max-h-[90vh] rounded-3xl'
+                                : 'bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw_-_32px)] sm:w-[460px] h-[640px] max-h-[calc(100dvh_-_3rem)] rounded-3xl'
                         }`}
                     >
                         {/* HEADER */}

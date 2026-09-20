@@ -386,8 +386,8 @@ export const DEEP_BODY_I18N = {
     kr: '닫기',
   },
   mix_popover_title: {
-    vi: 'Tùy Chọn Liệu Trình Kết Hợp (Mix)',
-    en: 'Customize Combined Treatment (Mix)',
+    vi: 'Chọn phương pháp Mix',
+    en: 'Choose Mix therapies',
     cn: '自选组合疗程（Mix）',
     jp: '複合トリートメント選択（Mix）',
     kr: '맞춤 복합 테라피 선택 (Mix)',

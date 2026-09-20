@@ -81,9 +81,9 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
             </AnimatePresence>
 
             <div
-                className="glass-footer w-full max-w-[100vw] box-border px-3 sm:px-4 md:px-6 pt-4 sm:pt-5 md:pt-6 flex items-center justify-between gap-2 sm:gap-3 animate-[slide-up_0.3s_ease-out] bg-black/90 backdrop-blur-xl border-t border-gray-800 overflow-visible"
+                className="glass-footer w-full box-border px-3 sm:px-4 md:px-6 pt-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-3 bg-black/90 backdrop-blur-xl border-t border-gray-800 overflow-visible shrink-0"
                 style={{
-                    position: 'fixed',
+                    position: 'relative',
                     bottom: 0,
                     left: 0,
                     right: 0,
@@ -114,7 +114,7 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 15, scale: 0.95 }}
                                 transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 25 }}
-                                className="absolute bottom-[calc(100%+16px)] left-0 z-[110] flex flex-col gap-4 p-2"
+                                className="absolute bottom-[calc(100%+16px)] left-0 z-[110] flex flex-col gap-2 p-2 max-h-[60dvh] overflow-y-auto rounded-2xl bg-black/95"
                             >
                                 {languages.map((l) => (
                                     <button
@@ -134,13 +134,13 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
                 </div>
 
             {/* Thông tin Tiền & Thời gian */}
-            <div className="flex-1 flex flex-col items-start md:items-center justify-center min-w-0 overflow-hidden px-1 sm:px-2">
+            <div className="order-first w-full sm:order-none sm:w-auto sm:flex-1 flex flex-col items-start md:items-center justify-center min-w-0 px-1 sm:px-2">
                 {maxMinutes > 0 && (
-                    <div className="max-w-full text-[clamp(9px,1.8vw,15px)] text-gray-400 font-bold tracking-[0.14em] uppercase mb-1 flex items-center gap-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                    <div className="max-w-full text-xs text-gray-400 font-bold tracking-wide uppercase mb-1 flex flex-wrap items-center gap-1">
                         {t('total_est')} <span className="text-[#C9A96E] font-bold ml-1">• {maxMinutes} {t('mins')}</span>
                     </div>
                 )}
-                <div className="w-full flex items-baseline justify-start md:justify-center gap-1 whitespace-nowrap overflow-hidden">
+                <div className="w-full flex flex-wrap items-baseline justify-start md:justify-center gap-1">
                     <span className="text-[clamp(22px,4.4vw,42px)] font-bold text-white tracking-wide tabular-nums leading-none">{formatCurrency(totalVND)}</span>
                     <span className="text-[clamp(10px,1.7vw,16px)] text-gray-500 font-bold mb-0.5 ml-0.5">VND</span>
 

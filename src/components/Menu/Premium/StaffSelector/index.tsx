@@ -302,6 +302,7 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
                 <div className="relative h-[450px] md:h-[500px] w-full overflow-hidden bg-[#1b1b1d]">
                   {/* Image Carousel (Avatar trước, sau đó là Gallery) */}
                   <StaffImageCarousel
+                    imageFit="cover"
                     images={(() => {
                       const { primary, photos } = resolveMenuPhotos({ staff, menu: 'nhp' });
                       return photos.length > 0 ? photos : (primary ? [primary] : []);

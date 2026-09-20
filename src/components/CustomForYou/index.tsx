@@ -154,13 +154,13 @@ export default function CustomForYouModal({
             />
 
             {/* Modal Content - Fixed Height for no scroll */}
-            <div className="relative w-full sm:w-[95vw] max-w-2xl bg-[#0d0d0d] rounded-t-[32px] rounded-b-none sm:rounded-[32px] overflow-hidden flex flex-col h-[90vh] sm:h-[85vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10 shadow-2xl">
+            <div className="relative w-full sm:w-[95vw] max-w-2xl bg-[#0d0d0d] rounded-t-[32px] rounded-b-none sm:rounded-[32px] overflow-hidden flex flex-col h-[90dvh] sm:h-[85dvh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10 shadow-2xl">
 
                 {/* Header */}
-                <div className="px-6 py-5 flex items-center justify-between z-20">
+                <div className="px-4 py-3 sm:px-6 sm:py-5 flex items-center justify-between gap-2 shrink-0 z-20">
                     <div>
-                        <h2 className="text-3xl sm:text-4xl md:text-[42px] font-sans tracking-wide text-[#C9A96E] leading-tight">{dict.custom_for_you?.title}</h2>
-                        <p className="text-xl sm:text-2xl md:text-[28px] text-gray-400 font-medium mt-1 leading-snug">
+                        <h2 className="text-xl sm:text-2xl font-sans tracking-wide text-[#C9A96E] leading-tight">{dict.custom_for_you?.title}</h2>
+                        <p className="text-sm sm:text-base text-gray-400 font-medium mt-1 leading-snug">
                             {getText(serviceData.NAMES, lang)}
                         </p>
                     </div>
@@ -173,7 +173,7 @@ export default function CustomForYouModal({
                 </div>
 
                 {/* Content Area - Hidden overflow and flex to fit */}
-                <div className="flex-1 overflow-hidden relative">
+                <div className="flex-1 min-h-0 overflow-hidden relative">
                     <div 
                         className="absolute inset-0 overflow-y-auto px-6 py-2 custom-scrollbar"
                         onScroll={handleScroll}
@@ -230,16 +230,16 @@ export default function CustomForYouModal({
 
                 {/* Footer Action */}
                 <div className="bg-[#0d0d0d] pb-[env(safe-area-inset-bottom)] z-20 p-4 border-t border-white/10">
-                    <div className="grid grid-cols-[1.15fr_0.85fr] gap-3">
+                    <div className="grid grid-cols-2 gap-2">
                         <button
                             onClick={() => onSave(prefs)}
-                            className="custom-continue-order-btn bg-[#151515] hover:bg-[#202020] border border-white/10 text-gray-100 font-bold py-4 sm:py-5 md:py-6 rounded-[18px] flex items-center justify-center text-lg sm:text-xl md:text-2xl transition-all active:scale-[0.98] shadow-lg"
+                            className="custom-continue-order-btn bg-[#151515] hover:bg-[#202020] border border-white/10 text-gray-100 font-bold px-2 py-3 rounded-[18px] flex items-center justify-center text-sm sm:text-base transition-all active:scale-[0.98] shadow-lg"
                         >
                             {getText({ en: 'Continue order', vi: 'Tiếp tục chọn', jp: '注文を続ける', kr: '계속 선택', cn: '继续点单' }, lang)}
                         </button>
                         <button
                             onClick={() => (onSaveAndCheckout ? onSaveAndCheckout(prefs) : onSave(prefs))}
-                            className="custom-save-checkout-btn bg-[#C9A96E] hover:bg-[#dfc599] border border-transparent text-black font-bold py-4 sm:py-5 md:py-6 rounded-[18px] flex items-center justify-center gap-2 text-lg sm:text-xl md:text-2xl transition-all active:scale-[0.98] shadow-lg shadow-[#C9A96E]/20"
+                            className="custom-save-checkout-btn bg-[#C9A96E] hover:bg-[#dfc599] border border-transparent text-black font-bold px-2 py-3 rounded-[18px] flex items-center justify-center gap-2 text-sm sm:text-base transition-all active:scale-[0.98] shadow-lg shadow-[#C9A96E]/20"
                         >
                             <Check className="w-6 h-6 md:w-8 md:h-8" />
                             {getText({ en: 'Checkout', vi: 'Thanh toán', jp: 'お会計へ', kr: '결제하기', cn: '去结账' }, lang)}

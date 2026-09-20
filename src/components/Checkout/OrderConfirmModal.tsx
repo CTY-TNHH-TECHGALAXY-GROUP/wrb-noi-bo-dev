@@ -174,7 +174,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
         return (
             <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
                 <div 
-                    className="bg-[#1c1c1e] border border-white/5 w-full p-8 shadow-2xl flex flex-col items-center text-center space-y-6 m-4 relative overflow-hidden animate-in zoom-in-95 duration-300"
+                    className="bg-[#1c1c1e] border border-white/5 w-full p-8 shadow-2xl flex flex-col items-center text-center space-y-6 m-4 relative responsive-panel animate-in zoom-in-95 duration-300"
                     style={{ maxWidth: UI_CONFIG.SUCCESS_MODAL_MAX_WIDTH, borderRadius: UI_CONFIG.BORDER_RADIUS }}
                 >
                     {/* Gold Glow Background */}
@@ -270,7 +270,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     return (
         <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in pb-0 sm:pb-0">
             <div
-                className="bg-[#1c1c1e] border border-white/10 w-full max-h-[90vh] sm:h-auto rounded-t-[32px] shadow-2xl flex flex-col overflow-hidden relative animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300"
+                className="bg-[#1c1c1e] border border-white/10 w-full max-h-[90dvh] sm:h-auto rounded-t-[32px] shadow-2xl flex flex-col responsive-panel relative animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300"
                 style={{ maxWidth: UI_CONFIG.MODAL_MAX_WIDTH, borderRadius: UI_CONFIG.BORDER_RADIUS }}
                 onClick={(e) => e.stopPropagation()}
             >

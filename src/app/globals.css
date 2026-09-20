@@ -6,6 +6,54 @@
 
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-xs: 25rem;
+}
+
+/* Intrinsic content must not force flex/grid columns outside their viewport.
+   Explicit min-width utilities still win (e.g. horizontal date carousels). */
+@layer base {
+  :where(.flex, .grid) > * { min-width: 0; }
+  :where(.flex-1, .grow):where(.overflow-y-auto, .overflow-hidden) { min-height: 0; }
+  :where(input, select, textarea) { max-width: 100%; }
+  :where(h1, h2, h3, h4, p, label, button) { overflow-wrap: anywhere; }
+  :where(video, canvas, iframe) { max-width: 100%; }
+}
+
+/* Opt-in shared surfaces: scroll the whole panel on short screens so that
+   a tall header/footer never makes the body or confirmation button unreachable. */
+.responsive-panel {
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.responsive-sheet {
+  max-height: calc(100dvh - 1rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (min-width: 768px) {
+  .responsive-sheet {
+    left: max(1rem, calc((100% - 48rem) / 2));
+    width: min(48rem, calc(100% - 2rem));
+  }
+}
+@media (max-height: 500px) {
+  .responsive-sheet, .responsive-panel { display: block; }
+  .responsive-sheet > .overflow-y-auto, .responsive-panel > .overflow-y-auto { overflow-y: visible; }
+  .short-screen-flow { position: relative; top: auto; bottom: auto; }
+  .standard-category-nav { padding-block: .5rem; }
+  .standard-category-nav > button { width: 5rem; gap: .25rem; }
+  .standard-category-nav > button > div { width: 3rem; height: 3rem; margin-inline: auto; }
+  .standard-category-nav > button > span { font-size: .75rem; }
+}
+@media (pointer: coarse) {
+  /* Prevent focus zoom without disabling user zoom. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea {
+    font-size: max(1rem, 1em);
+  }
+}
+
 /* --- 0. ENVIRONMENT VARIABLES CONFIGURATION (NEW - IMPORTANT FOR MOBILE) --- */
 :root {
   --font-primary: var(--font-inter, Inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -37,7 +85,7 @@ body,
   /* Mobile optimizations from HTML */
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
-  touch-action: pan-x pan-y;
+  touch-action: manipulation;
   /* Ensure full height — allow vertical scroll, block horizontal */
   height: var(--app-height, 100dvh);
   overflow-x: hidden;

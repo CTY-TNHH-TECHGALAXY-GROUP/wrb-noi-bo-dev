@@ -251,8 +251,8 @@ const VipCartStep = ({
             {/* ── Sheet Container ───────────────────── */}
             <div
                 className={`
-                    fixed bottom-0 left-0 w-full bg-[#0d0d0d] rounded-t-[30px] z-[100]
-                    overflow-hidden flex flex-col shadow-2xl
+                    responsive-sheet fixed bottom-0 left-0 w-full bg-[#0d0d0d] rounded-t-[30px] z-[100]
+                    flex flex-col shadow-2xl
                     transform transition-transform duration-${ANIMATION_DURATION} ease-out
                     ${(isClosing || !isVisible) ? 'translate-y-full' : 'translate-y-0'}
                 `}

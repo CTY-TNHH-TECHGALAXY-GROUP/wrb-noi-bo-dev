@@ -12,9 +12,9 @@ interface CheckoutHeaderProps {
 export default function CheckoutHeader({ title, backLabel = "Menu", onBack, rightAction }: CheckoutHeaderProps) {
     const logoUrl = useAppLogo();
     return (
-        <div className="sticky top-0 z-50 bg-[#0d0d0d]/95 backdrop-blur-sm pb-4 mb-6 shadow-sm border-b border-white/10 transition-all pt-[calc(env(safe-area-inset-top))]">
+        <div className="short-screen-flow sticky top-0 z-50 bg-[#0d0d0d]/95 backdrop-blur-sm pb-4 mb-6 shadow-sm border-b border-white/10 transition-all pt-[calc(env(safe-area-inset-top))]">
             {/* Top Bar: Back + Title */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 mb-4">
+            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_auto] items-center gap-3 px-4 py-3 border-b border-white/10 mb-4">
                 <button
                     onClick={onBack}
                     className="flex items-center gap-1 text-[#C9A96E] font-medium text-sm hover:text-[#E2C285] transition-colors"
@@ -22,7 +22,7 @@ export default function CheckoutHeader({ title, backLabel = "Menu", onBack, righ
                     <ChevronLeft size={20} />
                     <span>{backLabel}</span>
                 </button>
-                <h1 className="text-[#C9A96E] font-bold text-base absolute left-1/2 -translate-x-1/2">
+                <h1 className="text-[#C9A96E] font-bold text-base text-center">
                     {title}
                 </h1>
                 {rightAction ? (

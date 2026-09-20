@@ -364,6 +364,7 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                     <div className={styles.customerDivider}></div>
 
                     <div className={styles.sectionTitle}>{t.serviceDetails}</div>
+                    <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Invoice services">
                     <table className={styles.invoiceTable}>
                         <thead>
                             <tr>
@@ -417,6 +418,7 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
                             )}
                         </tbody>
                     </table>
+                    </div>
 
                     <div className={styles.totals}>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', paddingTop: '10px' }}>
@@ -488,4 +490,3 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
         </div>
     );
 };
-

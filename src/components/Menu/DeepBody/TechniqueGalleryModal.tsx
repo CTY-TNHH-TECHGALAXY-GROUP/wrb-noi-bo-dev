@@ -55,7 +55,7 @@ export default function TechniqueGalleryModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-2xl bg-[#141416] border border-[#e6c487]/40 rounded-[2rem] p-6 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col max-h-[90vh] z-10"
+          className="relative w-full max-w-2xl bg-[#141416] border border-[#e6c487]/40 rounded-[2rem] p-4 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-y-auto overscroll-contain max-h-[calc(100dvh_-_3rem)] z-10"
         >
           {/* Top Gold Accent */}
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-[#e6c487] to-transparent opacity-80" />
@@ -77,7 +77,7 @@ export default function TechniqueGalleryModal({
           </div>
 
           {/* Scrollable Content */}
-          <div className="overflow-y-auto py-4 space-y-4 custom-scrollbar pr-1">
+          <div className="py-4 space-y-4 pr-1">
             {/* Image Slider */}
             <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black/60 border border-white/10 shadow-lg group">
               <img
