@@ -145,6 +145,24 @@ export default function DeepStaffSelector({
     if (isUnavailable(staff)) return;
 
     if (selectedIds.includes(staff.id)) {
+      const activeItem = resolveInitialActiveGalleryItem(staff, activeGalleryByStaff);
+
+      if (
+        selectedIds.length === 1 &&
+        selectedIds[0] === staff.id &&
+        activeItem &&
+        ((activeItem.kind === 'therapy' && !selectedTechniqueIds.includes(activeItem.therapyId)) ||
+          activeItem.kind === 'mix')
+      ) {
+        if (activeItem.kind === 'therapy') {
+          setSelectedTechniqueIds([activeItem.therapyId]);
+        } else if (activeItem.kind === 'mix') {
+          setSelectedTechniqueIds([]);
+          setMixStaff(staff);
+        }
+        return;
+      }
+
       const nextIds = selectedIds.filter((item) => item !== staff.id);
       setSelectedIds(nextIds);
       if (nextIds.length === 0) {

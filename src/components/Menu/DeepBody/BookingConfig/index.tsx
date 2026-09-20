@@ -96,6 +96,23 @@ export default function DeepBookingConfig({
     }
     return [DEEP_BODY_BASE_TECHNIQUE_IDS[0]];
   });
+
+  useEffect(() => {
+    if (!initialTechniqueIds || initialTechniqueIds.length === 0) {
+      if (selectedTechniqueIds.length === 0) {
+        setSelectedTechniqueIds([DEEP_BODY_BASE_TECHNIQUE_IDS[0]]);
+      }
+      return;
+    }
+
+    const valid = initialTechniqueIds.filter((id) =>
+      DEEP_BODY_BASE_TECHNIQUE_IDS.includes(id as DeepBodyBaseTechniqueId)
+    );
+
+    if (valid.length > 0) {
+      setSelectedTechniqueIds(valid);
+    }
+  }, [initialTechniqueIds]);
   const [isMixPopoverOpen, setIsMixPopoverOpen] = useState(false);
   const [customerNotes, setCustomerNotes] = useState('');
   const [activeTechniqueForModal, setActiveTechniqueForModal] = useState<DeepBodyTechnique | null>(null);

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { TherapyGalleryParsedItem } from '@/lib/menuPhotos.helper';
 
 const THERAPY_BADGE_LABELS: Record<string, Record<string, string>> = {
@@ -77,20 +77,19 @@ export default function StaffImageCarousel({
 
   const total = normalizedItems.length;
   const validIndex = total > 0 ? Math.min(currentIndex, total - 1) : 0;
+  const initializedKeyRef = useRef<string | null>(null);
+
+  const staffKey = `${staffId}-${normalizedItems.map((it) => it.url).join(',')}`;
 
   useEffect(() => {
     if (!normalizedItems.length) return;
 
-    if (currentIndex !== preferredIndex) {
+    if (initializedKeyRef.current !== staffKey) {
+      initializedKeyRef.current = staffKey;
       setCurrentIndex(preferredIndex);
-      return;
+      onActiveItemChange?.(normalizedItems[preferredIndex] ?? null);
     }
-
-    if (onActiveItemChange) {
-      const activeItem = normalizedItems[preferredIndex] ?? null;
-      onActiveItemChange(activeItem);
-    }
-  }, [normalizedItems, preferredIndex, currentIndex, onActiveItemChange]);
+  }, [staffKey, normalizedItems, preferredIndex, onActiveItemChange]);
 
   // Touch and drag swipe detection
   const startXRef = useRef<number | null>(null);
@@ -227,11 +226,19 @@ export default function StaffImageCarousel({
         style={{ transform: `translateX(-${validIndex * 100}%)` }}
       >
         {normalizedItems.map((item, idx) => (
-          <div key={idx} className="w-full h-full shrink-0 relative bg-[#1b1b1d]">
+          <div key={idx} className="w-full h-full shrink-0 relative bg-[#131315] flex items-center justify-center overflow-hidden">
+            {/* Ambient blurred backdrop so letterbox/pillarbox blends softly */}
+            <img
+              src={item.url}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-25 pointer-events-none"
+            />
+            {/* Full uncropped image */}
             <img
               src={item.url}
               alt={`${staffName} - ${idx + 1}`}
-              className="w-full h-full object-cover object-top pointer-events-none transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-contain relative z-10 pointer-events-none"
               loading={idx === 0 ? 'eager' : 'lazy'}
               draggable={false}
             />
@@ -239,11 +246,12 @@ export default function StaffImageCarousel({
         ))}
       </div>
 
-      {/* Therapy Metadata Badge Indicator (Non-clickable, informative) */}
+      {/* Therapy Label (No icon, no frame) */}
       {badgeLabel && (
-        <div className="absolute bottom-4 left-4 z-20 pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-[#e6c487]/40 shadow-lg text-xs font-semibold text-[#e6c487]">
-          <Sparkles size={12} className="text-[#e6c487] shrink-0" />
-          <span>{badgeLabel}</span>
+        <div className="absolute top-16 left-5 sm:left-6 z-20 pointer-events-none select-none">
+          <span className="text-xs sm:text-sm font-black tracking-[0.15em] uppercase text-[#e6c487] drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
+            {badgeLabel}
+          </span>
         </div>
       )}
 

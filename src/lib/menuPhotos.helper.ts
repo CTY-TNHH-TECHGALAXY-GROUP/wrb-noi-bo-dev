@@ -200,7 +200,15 @@ export function resolveTherapyGalleryForStaff({
     if (parsed.length > 0) return parsed;
   }
 
-  // 2. deep_body_therapist_photos legacy
+  // 2. Staff.gallery_urls if it contains structured therapy metadata (therapy or mix)
+  if (galleryUrls) {
+    const parsed = normalizeTherapyGallery(galleryUrls);
+    if (parsed.some((it) => it.kind === 'therapy' || it.kind === 'mix')) {
+      return parsed;
+    }
+  }
+
+  // 3. deep_body_therapist_photos legacy
   if (legacyConfig && typeof legacyConfig === 'object') {
     const legacyObj = legacyConfig as Record<string, unknown>;
     const rawLegacyData = (legacyObj.staff as Record<string, unknown>)?.[staffId] ?? legacyObj[staffId];
@@ -208,13 +216,13 @@ export function resolveTherapyGalleryForStaff({
     if (parsed.length > 0) return parsed;
   }
 
-  // 3. Staff.gallery_urls
+  // 4. Staff.gallery_urls fallback (plain URLs / legacy)
   if (galleryUrls) {
     const parsed = normalizeTherapyGallery(galleryUrls);
     if (parsed.length > 0) return parsed;
   }
 
-  // 4. Avatar fallback
+  // 5. Avatar fallback
   if (typeof avatarUrl === 'string' && avatarUrl.trim()) {
     return [{ url: avatarUrl.trim(), kind: 'legacy' }];
   }
