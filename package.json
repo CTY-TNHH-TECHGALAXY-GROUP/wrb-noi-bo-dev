@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:menu-photos": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/test-menu-photos.ts",
+    "test:carousel": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/test-carousel-logic.ts",
+    "test:api-fallback": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/test-api-fallback-logic.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",

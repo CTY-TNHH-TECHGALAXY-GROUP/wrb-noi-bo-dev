@@ -12,6 +12,7 @@ import {
   type VipSkill,
   type VipLang,
 } from './vipSkills.constants';
+import type { TherapyGalleryParsedItem } from './menuPhotos.helper';
 
 // --- Staff skills shape from DB ---
 export type StaffSkills = Record<string, boolean | string>;
@@ -156,4 +157,6 @@ export interface VipStaffInfo {
   travelTimeMins?: number;    // Only available when availability === 'ON_CALL'
   availableFrom?: string | null; // HH:mm for ON_CALL KTVs
   certificateUrl?: string | null; // Therapy Menu
+  galleryUrls?: string[]; // Multiple photos / gallery images for KTV
+  therapyGallery?: TherapyGalleryParsedItem[];
 }

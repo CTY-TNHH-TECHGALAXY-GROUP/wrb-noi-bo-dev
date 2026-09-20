@@ -133,11 +133,15 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                 <div 
                                     className={`mt-2 p-3 bg-black/30 rounded-xl border border-white/5 space-y-2.5 text-sm mb-1 ${
                                         isVipItem
-                                            ? 'cursor-pointer hover:bg-[#e6c487]/5 hover:border-[#e6c487]/20 active:scale-[0.99] transition-all'
+                                            ? (item.id?.startsWith('NHT')
+                                                ? 'transition-all'
+                                                : 'cursor-pointer hover:bg-[#e6c487]/5 hover:border-[#e6c487]/20 active:scale-[0.99] transition-all')
                                             : 'cursor-pointer hover:bg-black/40 active:scale-[0.99] transition-all'
                                     }`}
                                     onClick={() => isVipItem
-                                        ? onVipEditRequest?.(item)
+                                        ? (item.id?.startsWith('NHT')
+                                            ? undefined  // Deep Body — no edit modal available
+                                            : onVipEditRequest?.(item))
                                         : onCustomRequest(item)
                                     }
                                 >

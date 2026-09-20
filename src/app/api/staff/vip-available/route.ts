@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { type VipStaffInfo, type StaffAvailability, type ShiftType, SHIFT_MAP } from '@/lib/vipStaffUtils';
+import { resolveMenuPhotos } from '@/lib/menuPhotos.helper';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,12 +52,32 @@ export async function GET(_req: NextRequest) {
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
     // ─── Step 1: Fetch all active staff ─────────────────────────────────────
-    const { data: staffList, error: staffError } = await supabase
+    let { data: staffList, error: staffError } = await supabase
       .from('Staff')
-      .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type')
+      .select('id, full_name, avatar_url, gallery_urls, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type')
       .eq('status', 'ĐANG LÀM')
       .eq('is_active_vip_menu', true) // Bắt buộc phải được check VIP Menu
       .order('full_name');
+
+    // Fallback if gallery_urls specifically does not exist in DB schema yet
+    const isMissingGalleryUrls =
+      staffError?.code === '42703' &&
+      typeof staffError.message === 'string' &&
+      staffError.message.includes('gallery_urls');
+
+    if (isMissingGalleryUrls) {
+      const retry = await supabase
+        .from('Staff')
+        .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type')
+        .eq('status', 'ĐANG LÀM')
+        .eq('is_active_vip_menu', true)
+        .order('full_name');
+      staffList = retry.data?.map((staff) => ({
+        ...staff,
+        gallery_urls: [],
+      })) ?? null;
+      staffError = retry.error;
+    }
 
     if (staffError) {
       console.error('[vip-available] Staff query error:', staffError);
@@ -134,6 +155,23 @@ export async function GET(_req: NextRequest) {
       });
     }
 
+    // ─── Step 3.6: Fetch dynamic photos config from SystemConfigs (Admin Điều Phối gắn link) ─
+    let configPhotosMap: Record<string, string[]> = {};
+    try {
+      const { data: configPhotosData } = await supabase
+        .from('SystemConfigs')
+        .select('value')
+        .eq('key', 'nhp_therapist_photos')
+        .maybeSingle();
+
+      if (configPhotosData?.value) {
+        const raw = configPhotosData.value;
+        configPhotosMap = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      }
+    } catch (e) {
+      console.warn('[vip-available] Note: nhp_therapist_photos config fetch error:', e);
+    }
+
     // ─── Step 5: Merge into VipStaffInfo[] ──────────────────────────────────
     const result: VipStaffInfo[] = staffList.map((s) => {
       const tq = turnQueueMap.get(s.id);
@@ -193,11 +231,13 @@ export async function GET(_req: NextRequest) {
           isStaffOnCall = false;
       } else {
           // Fallback to legacy feature_flags (chỉ dùng nếu online_status chưa được set)
-          const featureFlags = s.feature_flags as Record<string, any> | null;
+          const featureFlags = s.feature_flags as Record<string, unknown> | null;
           const isAllowedOnCall = featureFlags?.allow_on_call === true;
           const isOnCallEnabled = featureFlags?.is_on_call === true;
           isStaffOnCall = isAllowedOnCall && isOnCallEnabled;
-          if (isStaffOnCall) staffTravelTimeMins = featureFlags?.travel_time_mins || 30;
+          if (isStaffOnCall) {
+            staffTravelTimeMins = typeof featureFlags?.travel_time_mins === 'number' ? featureFlags.travel_time_mins : 30;
+          }
       }
 
       if (tq) {
@@ -235,10 +275,17 @@ export async function GET(_req: NextRequest) {
         }
       }
 
+      const { primary, photos } = resolveMenuPhotos({
+        staff: s,
+        configPhotos: configPhotosMap[s.id],
+        menu: 'nhp',
+      });
+
       return {
         id: s.id,
         fullName: s.full_name,
-        avatarUrl: s.avatar_url ?? null,
+        avatarUrl: primary ?? s.avatar_url ?? null,
+        galleryUrls: photos,
         gender: s.gender ?? null,
         skills: s.skills ?? {},
         height: s.height ?? null,
@@ -283,7 +330,7 @@ export async function GET(_req: NextRequest) {
 
     return NextResponse.json({ staff: result });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[vip-available] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

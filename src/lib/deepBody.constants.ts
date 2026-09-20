@@ -242,6 +242,35 @@ export const DEEP_BODY_TECHNIQUES: DeepBodyTechnique[] = [
   },
 ];
 
+export const DEEP_BODY_BASE_TECHNIQUE_IDS = [
+  'coconutOil',
+  'thaiTherapy',
+  'shiatsu',
+  'hotStone',
+] as const;
+
+export type DeepBodyBaseTechniqueId =
+  (typeof DEEP_BODY_BASE_TECHNIQUE_IDS)[number];
+
+export const DEEP_BODY_SKILL_KEY: Record<DeepBodyBaseTechniqueId, string> = {
+  coconutOil: 'oilBody',
+  thaiTherapy: 'thaiBody',
+  shiatsu: 'shiatsuBody',
+  hotStone: 'hotStoneBody',
+};
+
+export const staffHasDeepBodyTechnique = (
+  skills: Record<string, unknown> | undefined | null,
+  therapyId: DeepBodyBaseTechniqueId
+): boolean => {
+  if (!skills) return false;
+  const key = DEEP_BODY_SKILL_KEY[therapyId];
+  return skills[key] === true || skills[therapyId] === true;
+};
+
+export const getDeepBodyMinDuration = (count: number) =>
+  count >= 4 ? 120 : count === 3 ? 90 : 70;
+
 export interface DeepBodyDurationService {
   duration: number;
   serviceId: string;
@@ -267,6 +296,18 @@ export const DEEP_BODY_DURATION_SERVICES: Record<number, DeepBodyDurationService
     serviceId: 'NHT0004',
     defaultPriceVND: 1440000,
     defaultPriceUSD: 58,
+  },
+  150: {
+    duration: 150,
+    serviceId: 'NHT0005',
+    defaultPriceVND: 1800000,
+    defaultPriceUSD: 72,
+  },
+  180: {
+    duration: 180,
+    serviceId: 'NHT0006',
+    defaultPriceVND: 2160000,
+    defaultPriceUSD: 86,
   },
 };
 

@@ -4,8 +4,15 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Award, ShieldCheck, Check, Search, X } from 'lucide-react';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
+import {
+  type DeepBodyBaseTechniqueId,
+  staffHasDeepBodyTechnique,
+} from '@/lib/deepBody.constants';
+import { type TherapyGalleryParsedItem } from '@/lib/menuPhotos.helper';
 import { getDeepBodyT } from '../DeepBody.i18n';
 import CertificateModal from '../CertificateModal';
+import StaffImageCarousel from './StaffImageCarousel';
+import MixTechniquePopover from './MixTechniquePopover';
 
 const MAX_SELECTABLE_STAFF = 2;
 
@@ -15,7 +22,8 @@ interface DeepStaffSelectorProps {
   onConfirmSelection: (
     selectedStaffIds: string[],
     staffInfoList: VipStaffInfo[],
-    groupingMode?: 'FOUR_HAND' | 'SEPARATE' | null
+    groupingMode: 'FOUR_HAND' | 'SEPARATE' | null | undefined,
+    techniqueIds: DeepBodyBaseTechniqueId[]
   ) => void;
 }
 
@@ -65,11 +73,33 @@ export default function DeepStaffSelector({
   const [searchQuery, setSearchQuery] = useState('');
   const [showGroupingPopup, setShowGroupingPopup] = useState(false);
 
-  // Modals
+  // Active gallery item tracked per therapist from carousel
+  const [activeGalleryByStaff, setActiveGalleryByStaff] = useState<
+    Record<string, TherapyGalleryParsedItem | null>
+  >({});
+
+  // Selected technique IDs established by photos/mix
+  const [selectedTechniqueIds, setSelectedTechniqueIds] = useState<
+    DeepBodyBaseTechniqueId[]
+  >([]);
+
+  // Mix popover state
+  const [mixStaff, setMixStaff] = useState<VipStaffInfo | null>(null);
+
+  // Warning toast message (e.g. 2nd therapist does not support selected therapy)
+  const [warningMessage, setWarningMessage] = useState<string | null>(null);
+
+  // Certificate Modal
   const [selectedStaffForCert, setSelectedStaffForCert] = useState<VipStaffInfo | null>(null);
 
+  // Auto-dismiss warning message
   useEffect(() => {
-    setIsLoading(true);
+    if (!warningMessage) return;
+    const timer = setTimeout(() => setWarningMessage(null), 4000);
+    return () => clearTimeout(timer);
+  }, [warningMessage]);
+
+  useEffect(() => {
     fetch('/api/staff/therapy-available')
       .then((res) => res.json())
       .then((data) => {
@@ -83,9 +113,13 @@ export default function DeepStaffSelector({
 
   const filteredStaff = useMemo(() => {
     const query = searchQuery.trim().toUpperCase();
+
     if (!query) return staffList;
+
     return staffList.filter(
-      (s) => s.id.toUpperCase().includes(query) || s.fullName.toUpperCase().includes(query)
+      (s) =>
+        s.id.toUpperCase().includes(query) ||
+        s.fullName.toUpperCase().includes(query)
     );
   }, [staffList, searchQuery]);
 
@@ -101,39 +135,107 @@ export default function DeepStaffSelector({
   const isUnavailable = (staff: VipStaffInfo) =>
     staff.availability === 'OFF_DUTY' || staff.availability === 'ON_LEAVE';
 
-  const handleToggle = (id: string) => {
-    const staff = staffList.find((s) => s.id === id);
-    if (!staff || isUnavailable(staff)) return;
+  const handleToggle = (staff: VipStaffInfo) => {
+    if (isUnavailable(staff)) return;
 
-    if (selectedIds.includes(id)) {
-      setSelectedIds((prev) => prev.filter((item) => item !== id));
-    } else {
-      if (selectedIds.length >= MAX_SELECTABLE_STAFF) {
-        setSelectedIds([id]);
+    if (selectedIds.includes(staff.id)) {
+      const nextIds = selectedIds.filter((item) => item !== staff.id);
+      setSelectedIds(nextIds);
+      if (nextIds.length === 0) {
+        setSelectedTechniqueIds([]);
+      }
+      return;
+    }
+
+    const activeItem =
+      activeGalleryByStaff[staff.id] ??
+      staff.therapyGallery?.[0] ??
+      null;
+
+    if (selectedIds.length === 0) {
+      if (activeItem?.kind === 'therapy') {
+        setSelectedTechniqueIds([activeItem.therapyId]);
+        setSelectedIds([staff.id]);
+      } else if (activeItem?.kind === 'mix') {
+        // Mở popover chọn 2-4 phương pháp cho Mix
+        setMixStaff(staff);
       } else {
-        const next = [...selectedIds, id];
-        setSelectedIds(next);
-        if (next.length === 2 && cartHasItems) {
-          setShowGroupingPopup(true);
+        // Legacy image mà chưa có metadata: chọn KTV, để BookingConfig yêu cầu chọn
+        setSelectedTechniqueIds([]);
+        setSelectedIds([staff.id]);
+      }
+    } else {
+      // KTV thứ hai: không ghi đè therapy đã chọn bởi KTV đầu tiên
+      // Kiểm tra KTV thứ hai có hỗ trợ các kỹ thuật đã chọn không
+      if (selectedTechniqueIds.length > 0) {
+        const unsupported = selectedTechniqueIds.filter(
+          (therapyId) => !staffHasDeepBodyTechnique(staff.skills, therapyId)
+        );
+
+        if (unsupported.length > 0) {
+          setWarningMessage(t.staff_second_unsupported_warning);
+          return;
         }
+      }
+
+      if (selectedIds.length >= MAX_SELECTABLE_STAFF) {
+        return;
+      }
+
+      const next = [...selectedIds, staff.id];
+      setSelectedIds(next);
+      if (next.length === 2 && cartHasItems) {
+        setShowGroupingPopup(true);
       }
     }
   };
 
+  const handleBookNow = (staff: VipStaffInfo) => {
+    if (isUnavailable(staff)) return;
+
+    const activeItem =
+      activeGalleryByStaff[staff.id] ??
+      staff.therapyGallery?.[0] ??
+      null;
+
+    if (activeItem?.kind === 'mix') {
+      setMixStaff(staff);
+      return;
+    }
+
+    const techIds: DeepBodyBaseTechniqueId[] =
+      activeItem?.kind === 'therapy' ? [activeItem.therapyId] : [];
+
+    setSelectedIds([staff.id]);
+    setSelectedTechniqueIds(techIds);
+    onConfirmSelection([staff.id], [staff], undefined, techIds);
+  };
+
+  const handleMixApply = (chosenTechniqueIds: DeepBodyBaseTechniqueId[]) => {
+    if (!mixStaff) return;
+    setSelectedTechniqueIds(chosenTechniqueIds);
+    setSelectedIds([mixStaff.id]);
+    setMixStaff(null);
+  };
+
+  const handleMixCancel = () => {
+    setMixStaff(null);
+  };
+
   const handleConfirm = () => {
     if (selectedIds.length === 0) return;
-    if (selectedIds.length === 2) {
+    if (selectedIds.length === 2 && !showGroupingPopup) {
       setShowGroupingPopup(true);
       return;
     }
     const selectedStaff = staffList.filter((s) => selectedIds.includes(s.id));
-    onConfirmSelection(selectedIds, selectedStaff);
+    onConfirmSelection(selectedIds, selectedStaff, undefined, selectedTechniqueIds);
   };
 
   const handleGroupingConfirm = (mode: 'FOUR_HAND' | 'SEPARATE') => {
     setShowGroupingPopup(false);
     const selectedStaff = staffList.filter((s) => selectedIds.includes(s.id));
-    onConfirmSelection(selectedIds, selectedStaff, mode);
+    onConfirmSelection(selectedIds, selectedStaff, mode, selectedTechniqueIds);
   };
 
   return (
@@ -165,7 +267,7 @@ export default function DeepStaffSelector({
             className="bg-transparent border-none focus:ring-0 focus:outline-none text-xs sm:text-sm w-full placeholder:text-[#998f81]/50 text-[#e4e2e4]"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-gray-400 hover:text-white">
+            <button onClick={() => setSearchQuery('')} className="text-gray-400 hover:text-white cursor-pointer">
               <X size={16} />
             </button>
           )}
@@ -196,13 +298,20 @@ export default function DeepStaffSelector({
             const unavailable = isUnavailable(staff);
             const statusStyle = STATUS_STYLES[staff.availability] || STATUS_STYLES.AVAILABLE;
 
+            const carouselItems =
+              staff.therapyGallery && staff.therapyGallery.length > 0
+                ? staff.therapyGallery
+                : staff.avatarUrl
+                ? [staff.avatarUrl]
+                : [];
+
             return (
               <motion.div
                 key={staff.id}
                 initial={{ opacity: 0, y: 25 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.06, duration: 0.35 }}
-                onClick={() => handleToggle(staff.id)}
+                onClick={() => handleToggle(staff)}
                 className={`group relative rounded-[2rem] overflow-hidden shadow-2xl transition-all duration-300 border ${
                   isSelected
                     ? 'ring-2 ring-[#e6c487] ring-offset-2 ring-offset-[#131315] border-[#e6c487]'
@@ -211,17 +320,32 @@ export default function DeepStaffSelector({
               >
                 {/* Image Container */}
                 <div className="relative h-[470px] md:h-[510px] w-full overflow-hidden bg-[#1b1b1d]">
-                  {staff.avatarUrl ? (
-                    <img
-                      src={staff.avatarUrl}
-                      alt={staff.fullName}
-                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#252528] to-[#121214]">
-                      <span className="text-3xl text-[#e6c487]/40 font-bold tracking-widest">{staff.id}</span>
-                    </div>
-                  )}
+                  {/* Image Carousel (Lướt ảnh qua lại) */}
+                  <StaffImageCarousel
+                    items={carouselItems}
+                    staffId={staff.id}
+                    staffName={staff.fullName}
+                    lang={lang}
+                    onActiveItemChange={(item) => {
+                      setActiveGalleryByStaff((current) => {
+                        const previous = current[staff.id] ?? null;
+                        const previousTherapyId =
+                          previous?.kind === 'therapy' ? previous.therapyId : undefined;
+                        const nextTherapyId =
+                          item?.kind === 'therapy' ? item.therapyId : undefined;
+
+                        if (
+                          previous?.url === item?.url &&
+                          previous?.kind === item?.kind &&
+                          previousTherapyId === nextTherapyId
+                        ) {
+                          return current;
+                        }
+
+                        return { ...current, [staff.id]: item };
+                      });
+                    }}
+                  />
 
                   {/* Status Badge (Top Left) */}
                   <div className={`absolute top-5 left-5 px-3 py-1.5 rounded-full ${statusStyle.style} z-20`}>
@@ -237,7 +361,7 @@ export default function DeepStaffSelector({
                     </div>
                   )}
 
-                  {/* ⭐ ẢNH CHỨNG CHỈ Ở GÓC TRÁI DƯỚI (User Requirement) */}
+                  {/* ẢNH CHỨNG CHỈ Ở GÓC TRÁI DƯỚI */}
                   <div className="absolute bottom-32 left-5 sm:left-6 z-20">
                     <button
                       type="button"
@@ -257,7 +381,6 @@ export default function DeepStaffSelector({
                             className="w-full h-full object-cover p-1 group-hover/cert:scale-105 transition-transform"
                           />
                         ) : (
-                          /* Stylized Mini Certificate Preview Mockup */
                           <div className="w-full h-full p-2 bg-gradient-to-b from-[#242428] via-[#1a1a1d] to-[#121214] flex flex-col items-center justify-center text-center relative">
                             <div className="absolute inset-1 border border-[#e6c487]/30 rounded-md pointer-events-none" />
                             <Award size={18} className="text-[#e6c487] mb-0.5 group-hover/cert:rotate-12 transition-transform" />
@@ -271,7 +394,7 @@ export default function DeepStaffSelector({
                         )}
                       </div>
 
-                      {/* Footer là "View Certificate" giống hiện tại */}
+                      {/* Footer */}
                       <div className="w-full bg-black/90 py-1.5 px-2 flex items-center justify-center gap-1 border-t border-white/10">
                         <span className="text-[10px] sm:text-[11px] font-bold text-white group-hover/cert:text-[#e6c487] transition-colors leading-tight flex items-center gap-1 whitespace-nowrap">
                           {t.certificate_view}
@@ -283,7 +406,7 @@ export default function DeepStaffSelector({
 
                   {/* Content Gradient Overlay (Bottom) */}
                   <div className="absolute bottom-0 left-0 w-full p-6 pt-12 bg-gradient-to-t from-[#121214] via-[#121214]/85 to-transparent">
-                    {/* Staff ID & Tagline (Chỉ hiện mã KTV, không hiện tên) */}
+                    {/* Staff ID & Tagline */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="inline-block bg-[#e6c487]/15 border border-[#e6c487]/40 px-4 py-1.5 rounded-full shadow-sm">
                         <span className="text-sm tracking-[0.15em] text-[#e6c487] font-bold">
@@ -301,11 +424,9 @@ export default function DeepStaffSelector({
                       disabled={unavailable}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (!unavailable) {
-                          onConfirmSelection([staff.id], [staff]);
-                        }
+                        handleBookNow(staff);
                       }}
-                      className={`w-full py-3.5 rounded-full text-center text-xs sm:text-sm font-bold tracking-[0.1em] uppercase transition-all shadow-lg ${
+                      className={`w-full py-3.5 rounded-full text-center text-xs sm:text-sm font-bold tracking-[0.1em] uppercase transition-all shadow-lg cursor-pointer ${
                         !unavailable
                           ? 'bg-[#e6c487] text-[#412d00] hover:bg-[#cba86a] active:scale-95'
                           : 'bg-black/60 border border-white/10 text-gray-500 cursor-not-allowed'
@@ -332,7 +453,7 @@ export default function DeepStaffSelector({
           >
             <button
               onClick={handleConfirm}
-              className="w-full py-4 rounded-full bg-[#e6c487] text-[#412d00] font-bold tracking-[0.12em] text-xs sm:text-sm shadow-[0_15px_30px_rgba(0,0,0,0.6)] flex items-center justify-center gap-2 active:scale-95 uppercase"
+              className="w-full py-4 rounded-full bg-[#e6c487] text-[#412d00] font-bold tracking-[0.12em] text-xs sm:text-sm shadow-[0_15px_30px_rgba(0,0,0,0.6)] flex items-center justify-center gap-2 active:scale-95 uppercase cursor-pointer"
             >
               <span>{t.book_now} ({selectedIds.length})</span>
             </button>
@@ -363,19 +484,52 @@ export default function DeepStaffSelector({
               <div className="space-y-3">
                 <button
                   onClick={() => handleGroupingConfirm('FOUR_HAND')}
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#e6c487]/15 border border-[#e6c487]/40 text-[#e6c487] font-bold text-xs uppercase"
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#e6c487]/15 border border-[#e6c487]/40 text-[#e6c487] font-bold text-xs uppercase cursor-pointer"
                 >
                   {t.arrangement_four_hands}
                 </button>
                 <button
                   onClick={() => handleGroupingConfirm('SEPARATE')}
-                  className="w-full py-3.5 px-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-xs uppercase"
+                  className="w-full py-3.5 px-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-xs uppercase cursor-pointer"
                 >
                   {t.arrangement_separate}
                 </button>
               </div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Mix Technique Selection Popover */}
+      {mixStaff && (
+        <MixTechniquePopover
+          key={`${mixStaff.id}-${selectedTechniqueIds.join(',')}`}
+          isOpen={!!mixStaff}
+          staff={mixStaff}
+          lang={lang}
+          initialSelected={selectedTechniqueIds}
+          onApply={handleMixApply}
+          onCancel={handleMixCancel}
+        />
+      )}
+
+      {/* Warning Toast */}
+      <AnimatePresence>
+        {warningMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 inset-x-4 sm:inset-x-0 mx-auto max-w-md z-50 p-4 rounded-2xl bg-red-950/90 border border-red-500/40 text-red-200 text-xs sm:text-sm shadow-2xl flex items-center justify-between gap-3 backdrop-blur-md"
+          >
+            <span>{warningMessage}</span>
+            <button
+              onClick={() => setWarningMessage(null)}
+              className="text-red-300 hover:text-white cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+          </motion.div>
         )}
       </AnimatePresence>
 

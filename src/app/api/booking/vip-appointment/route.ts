@@ -355,6 +355,10 @@ export async function POST(request: NextRequest) {
            displayName: displayName, // Dispatch Board sẽ đọc field này để hiển thị thay vì tên gốc
            vipDuration: duration,    // Thời lượng VIP (bảng BookingItems không có cột duration)
            selectedSkills: adminSkills,   // Danh sách skills khách chọn
+           focus: body.focus || [],          // Vùng cần tập trung massage
+           avoid: body.avoid || [],          // Vùng cần tránh
+           note: body.note || '',            // Ghi chú riêng của khách
+           customerNotes: body.customerNote || body.customerNotes || '',
         }
       });
     });

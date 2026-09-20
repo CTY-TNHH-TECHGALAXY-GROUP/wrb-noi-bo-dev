@@ -294,7 +294,7 @@ export default function ServiceList({ categories, services, cart, lang, directio
                                             <div
                                                 onClick={() => {
                                                     if (menu.id === 'Therapy') {
-                                                        setComingSoon('therapy');
+                                                        router.push(`/${lang}/vip/menu?tab=deep_body`);
                                                         return;
                                                     }
                                                     sessionStorage.setItem('standard_menu_mode', 'MENU');

@@ -385,13 +385,69 @@ export const DEEP_BODY_I18N = {
     jp: '閉じる',
     kr: '닫기',
   },
+  mix_popover_title: {
+    vi: 'Tùy Chọn Liệu Trình Kết Hợp (Mix)',
+    en: 'Customize Combined Treatment (Mix)',
+    cn: '自选组合疗程（Mix）',
+    jp: '複合トリートメント選択（Mix）',
+    kr: '맞춤 복합 테라피 선택 (Mix)',
+  },
+  mix_popover_desc: {
+    vi: 'Chọn từ 2 đến 4 phương pháp trị liệu cho liệu trình kết hợp:',
+    en: 'Select 2 to 4 therapeutic methods for your combined session:',
+    cn: '请选择2至4种理疗手法组成您的专属疗程：',
+    jp: '複合セッション用に2〜4種類の手技をお選びください：',
+    kr: '복합 세션에 적용할 기법을 2~4가지 선택해 주세요:',
+  },
+  mix_apply: {
+    vi: 'Xác Nhận',
+    en: 'Apply',
+    cn: '确认',
+    jp: '適用',
+    kr: '적용',
+  },
+  mix_cancel: {
+    vi: 'Hủy',
+    en: 'Cancel',
+    cn: '取消',
+    jp: 'キャンセル',
+    kr: '취소',
+  },
+  mix_min_warning: {
+    vi: 'Vui lòng chọn từ 2 đến 4 phương pháp cho liệu trình Mix',
+    en: 'Please select between 2 and 4 methods for Mix treatment',
+    cn: '组合疗程请选择2至4种手法',
+    jp: 'Mixコースは2〜4種類の手技を選択してください',
+    kr: '믹스 테라피는 2~4가지 기법을 선택해야 합니다',
+  },
+  staff_second_unsupported_warning: {
+    vi: 'KTV thứ hai không hỗ trợ phương pháp trị liệu đã chọn',
+    en: 'The second therapist does not support the selected treatment',
+    cn: '第二位理疗师不支持已选的理疗项目',
+    jp: '2人目のセラピストは選択された手技に対応していません',
+    kr: '두 번째 테라피스트는 선택한 기법을 지원하지 않습니다',
+  },
+  selected_methods_count: {
+    vi: 'Đã chọn {count} phương pháp',
+    en: '{count} methods selected',
+    cn: '已选 {count} 种手法',
+    jp: '{count}種類選択中',
+    kr: '{count}개 기법 선택됨',
+  },
+  staff_not_supported_label: {
+    vi: 'KTV không hỗ trợ',
+    en: 'Not supported',
+    cn: '暂不支持',
+    jp: '未対応',
+    kr: '미지원',
+  },
 };
 
 export const getDeepBodyT = (lang: string) => {
   const safeLang = (['vi', 'en', 'cn', 'jp', 'kr'].includes(lang) ? lang : 'en') as DeepBodyLang;
   return new Proxy(DEEP_BODY_I18N, {
     get: (target, prop: string) => {
-      const entry = (target as any)[prop];
+      const entry = (target as Record<string, Record<string, string>>)[prop];
       if (!entry) return prop;
       return entry[safeLang] || entry['en'] || entry['vi'] || prop;
     },

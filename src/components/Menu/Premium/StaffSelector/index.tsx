@@ -4,6 +4,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type VipStaffInfo, getStaffVipSkills, groupSkillsByType } from '@/lib/vipStaffUtils';
 import { getT, tpl } from '../Premium.i18n';
+import StaffImageCarousel from '../../DeepBody/StaffSelector/StaffImageCarousel';
+import { resolveMenuPhotos } from '@/lib/menuPhotos.helper';
 
 // =============================================
 // 🧑 Staff Selector – REAL DATA (Pha 3)
@@ -80,10 +82,12 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
       .finally(() => setIsLoading(false));
   }, []);
 
-  // Filter by search query
+  // Filter by search query (API already gates is_active_vip_menu === true)
   const filteredStaff = useMemo(() => {
     const query = searchQuery.trim().toUpperCase();
+
     if (!query) return staffList;
+
     return staffList.filter(
       (s) =>
         s.id.toUpperCase().includes(query) ||
@@ -296,20 +300,15 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
               >
                 {/* Image Container */}
                 <div className="relative h-[450px] md:h-[500px] w-full overflow-hidden bg-[#1b1b1d]">
-                  {staff.avatarUrl ? (
-                    <img
-                      src={staff.avatarUrl}
-                      alt={staff.fullName}
-                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
-                    />
-                  ) : (
-                    /* Fallback avatar */
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#2a2a2c] to-[#1b1b1d]">
-                      <span className="text-3xl text-[#e6c487]/30 font-bold tracking-wider">
-                        {staff.id}
-                      </span>
-                    </div>
-                  )}
+                  {/* Image Carousel (Avatar trước, sau đó là Gallery) */}
+                  <StaffImageCarousel
+                    images={(() => {
+                      const { primary, photos } = resolveMenuPhotos({ staff, menu: 'nhp' });
+                      return photos.length > 0 ? photos : (primary ? [primary] : []);
+                    })()}
+                    staffId={staff.id}
+                    staffName={staff.fullName}
+                  />
 
                   {/* Status Badge */}
                   {getStatusBadge(staff)}

@@ -309,7 +309,7 @@ export default function BodyFocusAvoidMap({
                 const status = getAreaStatus(key);
                 const isFocus = status === 'focus';
                 const isAvoid = status === 'avoid';
-                const label = (t as any)[i18nKey] || key;
+                const label = (t as Record<string, string>)[i18nKey] || key;
 
                 return (
                   <div

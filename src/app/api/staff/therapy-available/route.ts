@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { type VipStaffInfo, type StaffAvailability, type ShiftType, SHIFT_MAP } from '@/lib/vipStaffUtils';
+import { resolveTherapyGalleryForStaff } from '@/lib/menuPhotos.helper';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,30 +51,37 @@ export async function GET(_req: NextRequest) {
 
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
-    // ─── Step 1: Fetch all active staff (Hỗ trợ tự động nhận certificate_url ngay khi có cột trong DB) ───
-    let staffList: any[] | null = null;
-    const { data: staffWithCert, error: certErr } = await supabase
+    // ─── Step 1: Fetch all active staff ─────────────────────────────────────
+    let { data: staffList, error: staffErr } = await supabase
       .from('Staff')
-      .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type, certificate_url')
+      .select('id, full_name, avatar_url, gallery_urls, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type, certificate_url')
       .eq('status', 'ĐANG LÀM')
       .eq('is_active_therapy_menu', true)
       .order('full_name');
 
-    if (!certErr && staffWithCert) {
-      staffList = staffWithCert;
-    } else {
-      const { data: staffFallback, error: fallbackErr } = await supabase
+    // Fallback if gallery_urls specifically does not exist in DB schema yet
+    const isMissingGalleryUrls =
+      staffErr?.code === '42703' &&
+      typeof staffErr.message === 'string' &&
+      staffErr.message.includes('gallery_urls');
+
+    if (isMissingGalleryUrls) {
+      const retry = await supabase
         .from('Staff')
-        .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type')
+        .select('id, full_name, avatar_url, gender, skills, height, feature_flags, online_status, travel_minutes, available_from, available_until, work_type, certificate_url')
         .eq('status', 'ĐANG LÀM')
         .eq('is_active_therapy_menu', true)
         .order('full_name');
+      staffList = retry.data?.map((staff) => ({
+        ...staff,
+        gallery_urls: [],
+      })) ?? null;
+      staffErr = retry.error;
+    }
 
-      if (fallbackErr) {
-        console.error('[therapy-available] Staff query error:', fallbackErr);
-        return NextResponse.json({ error: 'Failed to fetch staff' }, { status: 500 });
-      }
-      staffList = staffFallback;
+    if (staffErr) {
+      console.error('[therapy-available] Staff query error:', staffErr);
+      return NextResponse.json({ error: 'Failed to fetch staff' }, { status: 500 });
     }
 
     if (!staffList || staffList.length === 0) {
@@ -114,6 +122,30 @@ export async function GET(_req: NextRequest) {
 
     if (shiftError) {
       console.error('[vip-available] KTVShifts query error:', shiftError);
+    }
+
+    // ─── Step 3.6: Fetch dynamic photos config from SystemConfigs (Admin Điều Phối gắn link) ─
+    let nhtPhotosMap: Record<string, unknown> = {};
+    let legacyPhotosMap: Record<string, unknown> = {};
+    try {
+      const { data: configPhotosData } = await supabase
+        .from('SystemConfigs')
+        .select('key, value')
+        .in('key', ['nht_therapist_photos', 'deep_body_therapist_photos']);
+
+      if (configPhotosData && configPhotosData.length > 0) {
+        const nhtCfg = configPhotosData.find((c: { key: string }) => c.key === 'nht_therapist_photos');
+        const legacyCfg = configPhotosData.find((c: { key: string }) => c.key === 'deep_body_therapist_photos');
+
+        if (nhtCfg?.value) {
+          nhtPhotosMap = typeof nhtCfg.value === 'string' ? JSON.parse(nhtCfg.value) : nhtCfg.value;
+        }
+        if (legacyCfg?.value) {
+          legacyPhotosMap = typeof legacyCfg.value === 'string' ? JSON.parse(legacyCfg.value) : legacyCfg.value;
+        }
+      }
+    } catch (e) {
+      console.warn('[therapy-available] Note: nht_therapist_photos config fetch error:', e);
     }
 
     // ─── Step 4: Build lookup maps ───────────────────────────────────────────
@@ -206,11 +238,13 @@ export async function GET(_req: NextRequest) {
           isStaffOnCall = false;
       } else {
           // Fallback to legacy feature_flags (chỉ dùng nếu online_status chưa được set)
-          const featureFlags = s.feature_flags as Record<string, any> | null;
+          const featureFlags = s.feature_flags as Record<string, unknown> | null;
           const isAllowedOnCall = featureFlags?.allow_on_call === true;
           const isOnCallEnabled = featureFlags?.is_on_call === true;
           isStaffOnCall = isAllowedOnCall && isOnCallEnabled;
-          if (isStaffOnCall) staffTravelTimeMins = featureFlags?.travel_time_mins || 30;
+          if (isStaffOnCall) {
+            staffTravelTimeMins = typeof featureFlags?.travel_time_mins === 'number' ? featureFlags.travel_time_mins : 30;
+          }
       }
 
       if (tq) {
@@ -248,10 +282,20 @@ export async function GET(_req: NextRequest) {
         }
       }
 
+      const therapyGallery = resolveTherapyGalleryForStaff({
+        staffId: s.id,
+        nhtConfig: nhtPhotosMap,
+        legacyConfig: legacyPhotosMap,
+        galleryUrls: s.gallery_urls,
+        avatarUrl: s.avatar_url,
+      });
+
       return {
         id: s.id,
         fullName: s.full_name,
-        avatarUrl: s.avatar_url ?? null,
+        avatarUrl: s.avatar_url ?? therapyGallery[0]?.url ?? null,
+        galleryUrls: therapyGallery.map((item) => item.url),
+        therapyGallery,
         gender: s.gender ?? null,
         skills: s.skills ?? {},
         height: s.height ?? null,
@@ -265,7 +309,7 @@ export async function GET(_req: NextRequest) {
         turnsCompleted,
         travelTimeMins,
         availableFrom: formatTimeVn(s.available_from),
-        certificateUrl: (s as any).certificate_url ?? null,
+        certificateUrl: (s as { certificate_url?: string | null }).certificate_url ?? null,
       };
     });
 
@@ -297,8 +341,8 @@ export async function GET(_req: NextRequest) {
 
     return NextResponse.json({ staff: result });
 
-  } catch (error: any) {
-    console.error('[vip-available] Unexpected error:', error);
+  } catch (error: unknown) {
+    console.error('[therapy-available] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

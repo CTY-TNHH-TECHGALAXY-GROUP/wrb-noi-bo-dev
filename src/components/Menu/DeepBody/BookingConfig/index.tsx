@@ -2,29 +2,43 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Clock, Check, Info, ShieldCheck, Activity, Plus, ArrowRight, ChevronDown } from 'lucide-react';
+import { Clock, Check, Info, ShieldCheck, Plus, ArrowRight, ChevronDown } from 'lucide-react';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
-import { type VipPricingTable, type VipDuration, lookupPrice, lookupUsdPrice } from '@/lib/vipPricingEngine';
-import { DEEP_BODY_TECHNIQUES, DeepBodyTechnique, DeepBodyLang, DEEP_BODY_DURATION_SERVICES } from '@/lib/deepBody.constants';
+import type { VipPricingTable } from '@/lib/vipPricingEngine';
+import {
+  DEEP_BODY_TECHNIQUES,
+  DeepBodyTechnique,
+  DeepBodyLang,
+  DEEP_BODY_DURATION_SERVICES,
+  DEEP_BODY_BASE_TECHNIQUE_IDS,
+  type DeepBodyBaseTechniqueId,
+  getDeepBodyMinDuration,
+} from '@/lib/deepBody.constants';
 import { useMenuData } from '@/components/Menu/MenuContext';
 import { getDeepBodyT } from '../DeepBody.i18n';
 import TechniqueGalleryModal from '../TechniqueGalleryModal';
-import BodyFocusAvoidMap, { BodyAreaKey } from '../BodyFocusAvoidMap';
+import BodyFocusAvoidMap from '../BodyFocusAvoidMap';
+import MixTechniquePopover from '../StaffSelector/MixTechniquePopover';
 
-const FALLBACK_PRICING: VipPricingTable = {
-  '1': { '60': 720000, '70': 840000, '90': 1080000, '120': 1440000, '150': 1800000, '180': 2160000, '240': 2880000 },
-  '2': { '60': 1080000, '70': 1260000, '90': 1620000, '120': 2160000, '150': 2700000, '180': 3240000, '240': 4320000 },
+const DEEP_BODY_DURATION_LIST = [70, 90, 120, 150, 180] as const;
+
+const DEEP_BODY_SERVICE_ID_MAP: Record<number, string> = {
+  70: 'NHT0002',
+  90: 'NHT0003',
+  120: 'NHT0004',
+  150: 'NHT0005',
+  180: 'NHT0006',
 };
-
-const AVAILABLE_DURATIONS: VipDuration[] = [70, 90, 120];
 
 interface DeepBookingConfigProps {
   lang: string;
   isBookingFlow?: boolean;
   selectedStaffIds: string[];
   selectedStaffInfoList: VipStaffInfo[];
+  staffGroupingMode?: 'FOUR_HAND' | 'SEPARATE' | null;
   vipPricingTable?: VipPricingTable;
   dynamicMethods?: DeepBodyTechnique[];
+  initialTechniqueIds?: DeepBodyBaseTechniqueId[];
   onConfirm: (
     data: {
       serviceId: string;
@@ -48,11 +62,11 @@ interface DeepBookingConfigProps {
 
 export default function DeepBookingConfig({
   lang,
-  isBookingFlow,
   selectedStaffIds,
   selectedStaffInfoList,
-  vipPricingTable,
+  staffGroupingMode,
   dynamicMethods,
+  initialTechniqueIds,
   onConfirm,
 }: DeepBookingConfigProps) {
   const safeLang = (['vi', 'en', 'cn', 'jp', 'kr'].includes(lang) ? lang : 'en') as DeepBodyLang;
@@ -60,11 +74,29 @@ export default function DeepBookingConfig({
 
   const methodsList = dynamicMethods && dynamicMethods.length > 0 ? dynamicMethods : DEEP_BODY_TECHNIQUES;
 
+  const baseMethods = useMemo(() => {
+    return methodsList.filter((tech) =>
+      DEEP_BODY_BASE_TECHNIQUE_IDS.includes(tech.id as DeepBodyBaseTechniqueId)
+    );
+  }, [methodsList]);
+
+  const mixMethod = useMemo(() => {
+    return methodsList.find((tech) => tech.id === 'mixofourtherapies');
+  }, [methodsList]);
+
   // States
   const [focusAreas, setFocusAreas] = useState<string[]>([]);
   const [avoidAreas, setAvoidAreas] = useState<string[]>([]);
-  const [selectedTechniqueIds, setSelectedTechniqueIds] = useState<string[]>([methodsList[0].id]);
-  const [selectedDuration, setSelectedDuration] = useState<VipDuration>(90);
+  const [selectedTechniqueIds, setSelectedTechniqueIds] = useState<DeepBodyBaseTechniqueId[]>(() => {
+    if (initialTechniqueIds && initialTechniqueIds.length > 0) {
+      const valid = initialTechniqueIds.filter((id) =>
+        DEEP_BODY_BASE_TECHNIQUE_IDS.includes(id as DeepBodyBaseTechniqueId)
+      );
+      if (valid.length > 0) return valid;
+    }
+    return [DEEP_BODY_BASE_TECHNIQUE_IDS[0]];
+  });
+  const [isMixPopoverOpen, setIsMixPopoverOpen] = useState(false);
   const [customerNotes, setCustomerNotes] = useState('');
   const [activeTechniqueForModal, setActiveTechniqueForModal] = useState<DeepBodyTechnique | null>(null);
   const [showScrollDown, setShowScrollDown] = useState(true);
@@ -148,33 +180,84 @@ export default function DeepBookingConfig({
   }, []);
 
   const { services } = useMenuData();
-  const staffCount = Math.max(1, selectedStaffIds.length);
+  // Only apply Four-Hands multiplier when explicitly FOUR_HAND mode
+  const isFourHands = staffGroupingMode === 'FOUR_HAND' && selectedStaffIds.length > 1;
 
-  // Helper lấy service ID chuẩn trong DB (NHT0002, NHT0003, NHT0004) và bắt giá trực tiếp từ DB
-  const getServiceInfo = (dur: number) => {
-    const config = DEEP_BODY_DURATION_SERVICES[dur];
-    const targetServiceId = config?.serviceId || `NHT000${dur === 70 ? 2 : dur === 90 ? 3 : 4}`;
-    const dbService = services.find((s) => s.id === targetServiceId);
+  const deepBodyServices = useMemo(() => {
+    return DEEP_BODY_DURATION_LIST.map((dur) => {
+      const config = DEEP_BODY_DURATION_SERVICES[dur];
+      const targetId = DEEP_BODY_SERVICE_ID_MAP[dur] || config?.serviceId;
+      const found = services.find(
+        (s) => s.id === targetId || (s.timeValue === dur && s.id.startsWith('NHT'))
+      );
+      return {
+        id: found?.id || targetId,
+        timeValue: dur,
+        priceVND:
+          found?.priceVND ??
+          config?.defaultPriceVND ??
+          (dur === 70 ? 840000 : dur === 90 ? 1080000 : dur === 120 ? 1440000 : dur === 150 ? 1800000 : 2160000),
+        priceUSD:
+          found?.priceUSD ??
+          config?.defaultPriceUSD ??
+          (dur === 70 ? 35 : dur === 90 ? 43 : dur === 120 ? 58 : dur === 150 ? 72 : 86),
+      };
+    });
+  }, [services]);
 
-    const baseVnd = dbService?.priceVND ?? config?.defaultPriceVND ?? (dur === 70 ? 840000 : dur === 90 ? 1080000 : 1440000);
-    const baseUsd = dbService?.priceUSD ?? config?.defaultPriceUSD ?? (dur === 70 ? 35 : dur === 90 ? 43 : 58);
+  const minDuration = getDeepBodyMinDuration(selectedTechniqueIds.length);
 
-    const priceVND = staffCount > 1 ? Math.round(baseVnd * 1.5) : baseVnd;
-    const priceUSD = staffCount > 1 ? Math.round(baseUsd * 1.5) : baseUsd;
+  const availableServices = useMemo(() => {
+    return deepBodyServices.filter((s) => s.timeValue >= minDuration);
+  }, [deepBodyServices, minDuration]);
 
-    return {
-      serviceId: targetServiceId,
-      priceVND,
-      priceUSD,
-    };
+  const [selectedDuration, setSelectedDuration] = useState<number>(() => {
+    const initialMin = getDeepBodyMinDuration(initialTechniqueIds?.length || 1);
+    return Math.max(90, initialMin);
+  });
+
+  const effectiveDuration =
+    selectedDuration >= minDuration
+      ? selectedDuration
+      : (availableServices[0]?.timeValue ?? minDuration);
+
+  const currentService = useMemo(() => {
+    return (
+      availableServices.find((s) => s.timeValue === effectiveDuration) ||
+      availableServices[0] ||
+      deepBodyServices[0]
+    );
+  }, [availableServices, effectiveDuration, deepBodyServices]);
+
+  const currentPrice = isFourHands ? Math.round(currentService.priceVND * 1.5) : currentService.priceVND;
+  const currentUsdPrice = isFourHands ? Math.round(currentService.priceUSD * 1.5) : currentService.priceUSD;
+
+  const handleToggleTechnique = (techId: DeepBodyBaseTechniqueId) => {
+    setSelectedTechniqueIds((prev) => {
+      // If currently single technique
+      if (prev.length === 1) {
+        if (prev[0] === techId) return prev;
+        return [techId]; // Switch to the clicked single technique
+      }
+      // If currently in mix mode
+      if (prev.includes(techId)) {
+        return prev.filter((id) => id !== techId);
+      } else {
+        if (prev.length < 4) {
+          return [...prev, techId];
+        }
+        return prev;
+      }
+    });
   };
 
-  const currentService = getServiceInfo(selectedDuration);
-  const currentPrice = currentService.priceVND;
-  const currentUsdPrice = currentService.priceUSD;
+  const handleOpenMixPopover = () => {
+    setIsMixPopoverOpen(true);
+  };
 
-  const handleToggleTechnique = (id: string) => {
-    setSelectedTechniqueIds([id]);
+  const handleApplyMix = (newIds: DeepBodyBaseTechniqueId[]) => {
+    setSelectedTechniqueIds(newIds);
+    setIsMixPopoverOpen(false);
   };
 
   const handleConfirmOrder = (action: 'SELECT_MORE' | 'CHECKOUT') => {
@@ -183,8 +266,8 @@ export default function DeepBookingConfig({
       return;
     }
 
-    const selectedTechniques = methodsList.filter((tech) =>
-      selectedTechniqueIds.includes(tech.id)
+    const selectedTechniques = baseMethods.filter((tech) =>
+      selectedTechniqueIds.includes(tech.id as DeepBodyBaseTechniqueId)
     );
     const techniqueNames = selectedTechniques.map(
       (tech) => tech.name[safeLang] || tech.name.en
@@ -222,10 +305,10 @@ export default function DeepBookingConfig({
 
     onConfirm(
       {
-        serviceId: currentService.serviceId,
+        serviceId: currentService.id,
         techniqueIds: selectedTechniqueIds,
         techniqueNames,
-        totalDuration: selectedDuration,
+        totalDuration: currentService.timeValue,
         totalPrice: currentPrice,
         totalPriceUSD: currentUsdPrice,
         customerNotes: combinedNotes,
@@ -257,9 +340,9 @@ export default function DeepBookingConfig({
         className="mb-6 p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl bg-[#1a1a1d] border border-[#e6c487]/35 flex items-center justify-between shadow-lg"
       >
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
-          {primaryStaff?.avatarUrl ? (
+          {(primaryStaff?.avatarUrl || primaryStaff?.galleryUrls?.[0]) ? (
             <img
-              src={primaryStaff.avatarUrl}
+              src={primaryStaff?.avatarUrl || primaryStaff?.galleryUrls?.[0]}
               alt={primaryStaff.fullName}
               className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover border border-[#e6c487]/50 shadow-md shrink-0"
             />
@@ -312,15 +395,14 @@ export default function DeepBookingConfig({
 
         {/* Techniques List (1 card per row, large prominent typography matching Standard style) */}
         <div className="flex flex-col gap-3 sm:gap-3.5 mt-4">
-          {methodsList.map((tech) => {
-            const isSelected = selectedTechniqueIds.includes(tech.id);
+          {baseMethods.map((tech) => {
+            const isSelected = selectedTechniqueIds.includes(tech.id as DeepBodyBaseTechniqueId);
 
             return (
               <div
                 key={tech.id}
                 onClick={() => {
-                  handleToggleTechnique(tech.id);
-                  setActiveTechniqueForModal(tech);
+                  handleToggleTechnique(tech.id as DeepBodyBaseTechniqueId);
                 }}
                 className={`group relative p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-4 ${
                   isSelected
@@ -333,12 +415,20 @@ export default function DeepBookingConfig({
                   <h4 className="text-2xl sm:text-3xl md:text-[32px] font-black leading-tight tracking-wide text-white group-hover:text-[#e6c487] transition-colors truncate">
                     {tech.name[safeLang] || tech.name.en}
                   </h4>
-                  <div className="w-7 h-7 rounded-full bg-white/5 group-hover:bg-[#e6c487]/20 flex items-center justify-center text-gray-400 group-hover:text-[#e6c487] transition-colors shrink-0">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveTechniqueForModal(tech);
+                    }}
+                    className="w-7 h-7 rounded-full bg-white/5 hover:bg-[#e6c487]/20 flex items-center justify-center text-gray-400 hover:text-[#e6c487] transition-colors shrink-0"
+                    aria-label="Chi tiết kỹ thuật"
+                  >
                     <Info size={16} />
-                  </div>
+                  </button>
                 </div>
 
-                {/* Right: Radio Selection Button */}
+                {/* Right: Radio/Check Selection Button */}
                 <div className="flex items-center justify-end shrink-0 pl-2 sm:pl-4">
                   <div
                     className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all ${
@@ -353,6 +443,60 @@ export default function DeepBookingConfig({
               </div>
             );
           })}
+
+          {/* Mix Card */}
+          {mixMethod && (
+            <div
+              key={mixMethod.id}
+              onClick={handleOpenMixPopover}
+              className={`group relative p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-4 ${
+                selectedTechniqueIds.length >= 2
+                  ? 'bg-gradient-to-r from-[#1f1d19] via-[#1a1916] to-[#161513] border-[#e6c487] shadow-[0_4px_25px_rgba(230,196,135,0.18)] ring-1 ring-[#e6c487]/30'
+                  : 'bg-[#151517] border-white/8 hover:border-white/20 hover:bg-[#18181b]'
+              }`}
+            >
+              <div className="flex flex-col min-w-0 flex-1">
+                <div className="flex items-center gap-3.5">
+                  <h4 className="text-2xl sm:text-3xl md:text-[32px] font-black leading-tight tracking-wide text-white group-hover:text-[#e6c487] transition-colors truncate">
+                    {mixMethod.name[safeLang] || mixMethod.name.en}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveTechniqueForModal(mixMethod);
+                    }}
+                    className="w-7 h-7 rounded-full bg-white/5 hover:bg-[#e6c487]/20 flex items-center justify-center text-gray-400 hover:text-[#e6c487] transition-colors shrink-0"
+                    aria-label="Chi tiết gói kết hợp"
+                  >
+                    <Info size={16} />
+                  </button>
+                </div>
+                {selectedTechniqueIds.length >= 2 && (
+                  <p className="text-xs sm:text-sm text-[#e6c487]/90 mt-1 font-semibold truncate">
+                    {t.selected_methods_count.replace('{count}', String(selectedTechniqueIds.length))}: {
+                      baseMethods
+                        .filter((m) => selectedTechniqueIds.includes(m.id as DeepBodyBaseTechniqueId))
+                        .map((m) => m.name[safeLang] || m.name.en)
+                        .join(' + ')
+                    }
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end shrink-0 pl-2 sm:pl-4">
+                <div
+                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all ${
+                    selectedTechniqueIds.length >= 2
+                      ? 'bg-[#e6c487] text-[#1c1c1e] shadow-[0_0_12px_rgba(230,196,135,0.4)] scale-105'
+                      : 'border-2 border-white/25 group-hover:border-white/40'
+                  }`}
+                >
+                  {selectedTechniqueIds.length >= 2 && <Check size={20} strokeWidth={3.5} />}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -368,18 +512,28 @@ export default function DeepBookingConfig({
           {t.duration_hint}
         </p>
 
-        {/* 3 Duration Cards Grid - Exactly 3 cards fit 1 row */}
-        <div className="grid grid-cols-3 gap-2.5 xs:gap-3 sm:gap-4 md:gap-5 w-full">
-          {AVAILABLE_DURATIONS.map((dur) => {
-            const svc = getServiceInfo(dur);
-            const isSelected = selectedDuration === dur;
+        {/* Dynamic Duration Cards Grid matching ma trận thời lượng */}
+        <div className={`grid gap-2.5 xs:gap-3 sm:gap-4 md:gap-5 w-full ${
+          availableServices.length === 3
+            ? 'grid-cols-3'
+            : availableServices.length === 4
+            ? 'grid-cols-2 sm:grid-cols-4'
+            : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5'
+        }`}>
+          {availableServices.map((svc, idx) => {
+            const isSelected = effectiveDuration === svc.timeValue;
+            const priceVND = isFourHands ? Math.round(svc.priceVND * 1.5) : svc.priceVND;
+            const priceUSD = isFourHands ? Math.round(svc.priceUSD * 1.5) : svc.priceUSD;
+            const isLastOfFive = availableServices.length === 5 && idx === 4;
 
             return (
               <button
-                key={dur}
+                key={svc.id}
                 type="button"
-                onClick={() => setSelectedDuration(dur)}
+                onClick={() => setSelectedDuration(svc.timeValue)}
                 className={`flex flex-col items-center justify-between min-h-[190px] xs:min-h-[205px] sm:min-h-[225px] md:min-h-[240px] p-2.5 xs:p-3 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl transition-all duration-200 border cursor-pointer ${
+                  isLastOfFive ? 'col-span-2 sm:col-span-1' : ''
+                } ${
                   isSelected
                     ? 'bg-gradient-to-b from-[#24211b] via-[#1d1b17] to-[#161513] border-[#e6c487] text-[#e6c487] shadow-[0_6px_30px_rgba(230,196,135,0.25)] ring-1 ring-[#e6c487]/40 scale-[1.02]'
                     : 'bg-[#161618] border-white/8 text-gray-300 hover:border-white/20 hover:bg-[#18181b] active:scale-[0.98]'
@@ -391,7 +545,7 @@ export default function DeepBookingConfig({
 
                 <div className="flex flex-col items-center my-1 sm:my-2">
                   <span className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl font-black leading-none tracking-tight">
-                    {dur}
+                    {svc.timeValue}
                   </span>
                   <span className="text-sm sm:text-base md:text-lg font-bold mt-1 text-gray-300">
                     {t.mins}
@@ -402,12 +556,12 @@ export default function DeepBookingConfig({
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-center font-black">
                   <span className="text-xs xs:text-sm sm:text-base md:text-lg tracking-tight whitespace-nowrap">
-                    {svc.priceVND.toLocaleString('vi-VN')} VND
+                    {priceVND.toLocaleString('vi-VN')} VND
                   </span>
                   <span className={`text-[11px] xs:text-xs sm:text-sm md:text-base font-bold whitespace-nowrap ${
                     isSelected ? 'text-[#e6c487]/90' : 'text-gray-400'
                   }`}>
-                    / ${svc.priceUSD}
+                    / ${priceUSD}
                   </span>
                 </div>
               </button>
@@ -471,7 +625,7 @@ export default function DeepBookingConfig({
           <div className="flex items-center gap-2.5 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-[#e6c487]/15 border border-[#e6c487]/35 text-[#e6c487] shadow-inner">
             <Clock size={22} className="shrink-0 text-[#e6c487]" />
             <span className="text-lg sm:text-xl md:text-2xl font-black tracking-wide whitespace-nowrap">
-              {selectedDuration} {t.mins}
+              {effectiveDuration} {t.mins}
             </span>
           </div>
         </div>
@@ -507,6 +661,19 @@ export default function DeepBookingConfig({
         lang={lang}
         onClose={() => setActiveTechniqueForModal(null)}
       />
+
+      {/* Mix Technique Popover */}
+      {mixMethod && primaryStaff && isMixPopoverOpen && (
+        <MixTechniquePopover
+          key={`${primaryStaff.id}-${selectedTechniqueIds.join(',')}`}
+          isOpen={isMixPopoverOpen}
+          staff={primaryStaff}
+          lang={lang}
+          initialSelected={selectedTechniqueIds}
+          onApply={handleApplyMix}
+          onCancel={() => setIsMixPopoverOpen(false)}
+        />
+      )}
     </motion.div>
   );
 }

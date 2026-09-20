@@ -7,7 +7,7 @@ import DeepBookingConfig from './BookingConfig';
 import VipCartStep from '../Premium/VipCartStep';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 import { type VipPricingTable } from '@/lib/vipPricingEngine';
-import { type DeepBodyTechnique } from '@/lib/deepBody.constants';
+import { type DeepBodyTechnique, type DeepBodyBaseTechniqueId } from '@/lib/deepBody.constants';
 import { useMenuData } from '@/components/Menu/MenuContext';
 import { getDeepBodyT } from './DeepBody.i18n';
 import { type VipEditSaveData } from '@/components/Checkout/VipEditModal';
@@ -85,6 +85,15 @@ export default function DeepBodyMenu({
     }
     return null;
   });
+  const [selectedTechniqueIds, setSelectedTechniqueIds] = useState<DeepBodyBaseTechniqueId[]>(() => {
+    if (typeof window !== 'undefined' && isLangSwitching) {
+      try {
+        const saved = sessionStorage.getItem('deep_body_selected_technique_ids');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return [];
+  });
 
   // Consume language switch flag or clear stale session on regular visit
   useEffect(() => {
@@ -96,6 +105,7 @@ export default function DeepBodyMenu({
         sessionStorage.removeItem('deep_body_selected_staff_ids');
         sessionStorage.removeItem('deep_body_selected_staff_info');
         sessionStorage.removeItem('deep_body_grouping_mode');
+        sessionStorage.removeItem('deep_body_selected_technique_ids');
       }
     }
   }, []);
@@ -136,6 +146,7 @@ export default function DeepBodyMenu({
         sessionStorage.removeItem('deep_body_current_step');
         sessionStorage.removeItem('deep_body_selected_staff_ids');
         sessionStorage.removeItem('deep_body_selected_staff_info');
+        sessionStorage.removeItem('deep_body_selected_technique_ids');
       }
     } else {
       if (typeof window !== 'undefined') {
@@ -143,6 +154,7 @@ export default function DeepBodyMenu({
         sessionStorage.removeItem('deep_body_selected_staff_ids');
         sessionStorage.removeItem('deep_body_selected_staff_info');
         sessionStorage.removeItem('deep_body_grouping_mode');
+        sessionStorage.removeItem('deep_body_selected_technique_ids');
       }
       onBack();
     }
@@ -230,6 +242,7 @@ export default function DeepBodyMenu({
       sessionStorage.removeItem('deep_body_selected_staff_ids');
       sessionStorage.removeItem('deep_body_selected_staff_info');
       sessionStorage.removeItem('deep_body_grouping_mode');
+      sessionStorage.removeItem('deep_body_selected_technique_ids');
     }
 
     if (action === 'CHECKOUT') {
@@ -238,6 +251,7 @@ export default function DeepBodyMenu({
       setSelectedStaffIds([]);
       setSelectedStaffInfoList([]);
       setStaffGroupingMode(null);
+      setSelectedTechniqueIds([]);
       setStep('STAFF');
     }
   };
@@ -246,12 +260,14 @@ export default function DeepBodyMenu({
     setSelectedStaffIds([]);
     setSelectedStaffInfoList([]);
     setStaffGroupingMode(null);
+    setSelectedTechniqueIds([]);
     setStep('STAFF');
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('deep_body_current_step');
       sessionStorage.removeItem('deep_body_selected_staff_ids');
       sessionStorage.removeItem('deep_body_selected_staff_info');
       sessionStorage.removeItem('deep_body_grouping_mode');
+      sessionStorage.removeItem('deep_body_selected_technique_ids');
     }
   };
 
@@ -272,7 +288,7 @@ export default function DeepBodyMenu({
         <div className="px-6 py-2.5 border-b border-white/5 bg-[#121214]/60 backdrop-blur-sm flex items-center justify-between">
           <button
             onClick={() => setStep('STAFF')}
-            className="flex items-center gap-2 text-sm sm:text-base font-bold text-[#e6c487] hover:underline"
+            className="flex items-center gap-2 text-sm sm:text-base font-bold text-[#e6c487] hover:underline cursor-pointer"
           >
             ← {t.btn_change_staff}
           </button>
@@ -294,16 +310,18 @@ export default function DeepBodyMenu({
               <DeepStaffSelector
                 lang={lang}
                 cartHasItems={cart.some((i) => i.itemType === 'vip')}
-                onConfirmSelection={(ids, staffInfoList, mode) => {
+                onConfirmSelection={(ids, staffInfoList, mode, techniqueIds) => {
                   setSelectedStaffIds(ids);
                   setSelectedStaffInfoList(staffInfoList);
                   setStaffGroupingMode(mode || null);
+                  setSelectedTechniqueIds(techniqueIds);
                   setStep('BOOKING_CONFIG');
                   scrollToTop();
                   if (typeof window !== 'undefined') {
                     sessionStorage.setItem('deep_body_current_step', 'BOOKING_CONFIG');
                     sessionStorage.setItem('deep_body_selected_staff_ids', JSON.stringify(ids));
                     sessionStorage.setItem('deep_body_selected_staff_info', JSON.stringify(staffInfoList));
+                    sessionStorage.setItem('deep_body_selected_technique_ids', JSON.stringify(techniqueIds));
                     if (mode) sessionStorage.setItem('deep_body_grouping_mode', mode);
                     else sessionStorage.removeItem('deep_body_grouping_mode');
                   }
@@ -326,8 +344,10 @@ export default function DeepBodyMenu({
                 isBookingFlow={isBookingFlow}
                 selectedStaffIds={selectedStaffIds}
                 selectedStaffInfoList={selectedStaffInfoList}
+                staffGroupingMode={staffGroupingMode}
                 vipPricingTable={vipPricingTable}
                 dynamicMethods={dynamicMethods}
+                initialTechniqueIds={selectedTechniqueIds}
                 onConfirm={handleBookingConfirm}
               />
             </motion.div>
