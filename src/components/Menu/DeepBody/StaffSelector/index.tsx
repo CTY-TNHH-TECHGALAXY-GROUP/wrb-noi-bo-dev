@@ -14,7 +14,6 @@ import CertificateModal from '../CertificateModal';
 import StaffImageCarousel from './StaffImageCarousel';
 import MixTechniquePopover from './MixTechniquePopover';
 import {
-  evaluateActiveItemChange,
   evaluateMixApply,
   canConfirmBooking,
   resolveSelectedStaff,
@@ -153,10 +152,7 @@ export default function DeepStaffSelector({
       return;
     }
 
-    const activeItem =
-      activeGalleryByStaff[staff.id] ??
-      staff.therapyGallery?.[0] ??
-      null;
+    const activeItem = activeGalleryByStaff[staff.id] ?? null;
 
     if (selectedIds.length === 0) {
       if (activeItem?.kind === 'therapy') {
@@ -164,6 +160,7 @@ export default function DeepStaffSelector({
         setSelectedIds([staff.id]);
       } else if (activeItem?.kind === 'mix') {
         // Mở popover chọn 2-4 phương pháp cho Mix
+        setSelectedTechniqueIds([]);
         setMixStaff(staff);
       } else {
         // Legacy image mà chưa có metadata: chọn KTV, để BookingConfig yêu cầu chọn
@@ -199,10 +196,7 @@ export default function DeepStaffSelector({
   const handleBookNow = (staff: VipStaffInfo) => {
     if (isUnavailable(staff)) return;
 
-    const activeItem =
-      activeGalleryByStaff[staff.id] ??
-      staff.therapyGallery?.[0] ??
-      null;
+    const activeItem = activeGalleryByStaff[staff.id] ?? null;
 
     if (activeItem?.kind === 'mix') {
       setSelectedIds([staff.id]);
@@ -248,13 +242,24 @@ export default function DeepStaffSelector({
 
     const primaryStaff = staffList.find((s) => s.id === selectedIds[0]);
     const activeItem = primaryStaff
-      ? (activeGalleryByStaff[primaryStaff.id] ?? primaryStaff.therapyGallery?.[0] ?? null)
+      ? (activeGalleryByStaff[primaryStaff.id] ?? null)
       : null;
+
+    let currentTechniqueIds = selectedTechniqueIds;
+    if (currentTechniqueIds.length === 0 && activeItem) {
+      if (activeItem.kind === 'therapy') {
+        currentTechniqueIds = [activeItem.therapyId];
+        setSelectedTechniqueIds(currentTechniqueIds);
+      } else if (activeItem.kind === 'mix') {
+        if (primaryStaff) setMixStaff(primaryStaff);
+        return;
+      }
+    }
 
     const check = canConfirmBooking({
       selectedIds,
       activeItem,
-      selectedTechniqueIds,
+      selectedTechniqueIds: currentTechniqueIds,
     });
 
     if (!check.canConfirm) {
@@ -274,19 +279,31 @@ export default function DeepStaffSelector({
       setShowGroupingPopup(true);
       return;
     }
-    onConfirmSelection(selectedIds, selectedStaff, undefined, selectedTechniqueIds);
+    onConfirmSelection(selectedIds, selectedStaff, undefined, currentTechniqueIds);
   };
 
   const handleGroupingConfirm = (mode: 'FOUR_HAND' | 'SEPARATE') => {
     const primaryStaff = staffList.find((s) => s.id === selectedIds[0]);
     const activeItem = primaryStaff
-      ? (activeGalleryByStaff[primaryStaff.id] ?? primaryStaff.therapyGallery?.[0] ?? null)
+      ? (activeGalleryByStaff[primaryStaff.id] ?? null)
       : null;
+
+    let currentTechniqueIds = selectedTechniqueIds;
+    if (currentTechniqueIds.length === 0 && activeItem) {
+      if (activeItem.kind === 'therapy') {
+        currentTechniqueIds = [activeItem.therapyId];
+        setSelectedTechniqueIds(currentTechniqueIds);
+      } else if (activeItem.kind === 'mix') {
+        setShowGroupingPopup(false);
+        if (primaryStaff) setMixStaff(primaryStaff);
+        return;
+      }
+    }
 
     const check = canConfirmBooking({
       selectedIds,
       activeItem,
-      selectedTechniqueIds,
+      selectedTechniqueIds: currentTechniqueIds,
     });
 
     if (!check.canConfirm) {
@@ -305,7 +322,7 @@ export default function DeepStaffSelector({
     }
 
     setShowGroupingPopup(false);
-    onConfirmSelection(selectedIds, selectedStaff, mode, selectedTechniqueIds);
+    onConfirmSelection(selectedIds, selectedStaff, mode, currentTechniqueIds);
   };
 
   return (
@@ -414,29 +431,6 @@ export default function DeepStaffSelector({
 
                         return { ...current, [staff.id]: item };
                       });
-
-                      const result = evaluateActiveItemChange({
-                        staff,
-                        item,
-                        selectedIds,
-                        staffList,
-                        unsupportedWarningText: t.staff_second_unsupported_warning,
-                      });
-
-                      if (!result.shouldUpdateSelection) return;
-
-                      if (result.nextSelectedIds !== undefined) {
-                        setSelectedIds(result.nextSelectedIds);
-                      }
-                      if (result.nextTechniqueIds !== undefined) {
-                        setSelectedTechniqueIds(result.nextTechniqueIds);
-                      }
-                      if (result.warningMessage) {
-                        setWarningMessage(result.warningMessage);
-                      }
-                      if (result.openMixStaff) {
-                        setMixStaff(result.openMixStaff);
-                      }
                     }}
                   />
 

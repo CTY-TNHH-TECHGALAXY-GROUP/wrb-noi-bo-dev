@@ -65,13 +65,11 @@ export function evaluateActiveItemChange({
   staff,
   item,
   selectedIds,
-  staffList,
-  unsupportedWarningText,
 }: {
   staff: VipStaffInfo;
   item: TherapyGalleryParsedItem | null;
   selectedIds: string[];
-  staffList: VipStaffInfo[];
+  staffList?: VipStaffInfo[];
   unsupportedWarningText?: string;
 }): {
   shouldUpdateSelection: boolean;
@@ -84,6 +82,14 @@ export function evaluateActiveItemChange({
     return { shouldUpdateSelection: false };
   }
 
+  if (item?.kind === 'therapy') {
+    return {
+      shouldUpdateSelection: true,
+      nextSelectedIds: [staff.id],
+      nextTechniqueIds: [item.therapyId],
+    };
+  }
+
   if (item?.kind === 'mix') {
     return {
       shouldUpdateSelection: true,
@@ -92,22 +98,10 @@ export function evaluateActiveItemChange({
     };
   }
 
-  const techIds: DeepBodyBaseTechniqueId[] =
-    item?.kind === 'therapy' ? [item.therapyId] : [];
-
-  const res = applyPrimaryTechniques({
-    staffId: staff.id,
-    techniqueIds: techIds,
-    selectedIds,
-    staffList,
-    unsupportedWarningText,
-  });
-
   return {
     shouldUpdateSelection: true,
-    nextSelectedIds: res.nextSelectedIds,
-    nextTechniqueIds: res.nextTechniqueIds,
-    warningMessage: res.warningMessage,
+    nextSelectedIds: [staff.id],
+    nextTechniqueIds: [],
   };
 }
 
