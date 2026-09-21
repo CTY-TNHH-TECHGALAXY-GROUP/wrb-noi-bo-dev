@@ -116,12 +116,15 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                         return (
                             <div key={item.cartId} className="border border-white/10 rounded-2xl p-4 shadow-sm bg-[#0d0d0d] mb-4">
                                 {/* Row 1: Name + Price */}
-                                <div className="flex flex-wrap justify-between items-start mb-1 gap-2">
-                                    <h4 className="text-white font-bold text-lg min-w-0 basis-full sm:basis-auto sm:flex-1 flex items-center gap-2">
-                                        {idx + 1}. {isVipItem ? vipDisplayName : (item.names[lang] || item.names.en)}
-                                        {isVipItem && <Crown size={16} className="text-[#e6c487] shrink-0" />}
+                                <div className="flex justify-between items-start mb-1.5 gap-3">
+                                    <h4 className="text-white font-bold text-base sm:text-lg min-w-0 flex-1 flex items-center gap-2 leading-snug">
+                                        <span>
+                                            {idx + 1}. {isVipItem ? vipDisplayName : (item.names[lang] || item.names.en)}
+                                            {item.qty > 1 && <span className="text-[#C9A96E] font-normal text-sm ml-1.5">(x{item.qty})</span>}
+                                        </span>
+                                        {isVipItem && <Crown size={16} className="text-[#e6c487] shrink-0 inline-block" />}
                                     </h4>
-                                    <span className={`font-bold text-lg shrink-0 ${currency === 'USD' ? 'text-emerald-600' : 'text-white'}`}>
+                                    <span className={`font-bold text-base sm:text-lg shrink-0 whitespace-nowrap text-right pt-0.5 tabular-nums ${currency === 'USD' ? 'text-emerald-600' : 'text-white'}`}>
                                         {currency === 'USD'
                                             ? `${(item.priceUSD * item.qty)} USD`
                                             : `${formatCurrency(item.priceVND * item.qty)} VND`

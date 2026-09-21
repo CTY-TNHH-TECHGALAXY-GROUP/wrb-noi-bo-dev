@@ -432,9 +432,13 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                     {/* Total Row */}
                     <div className="flex justify-between items-end mb-6">
                         <span className="text-gray-400 font-bold tracking-widest text-sm mb-1 uppercase">{t('total')}</span>
-                        <div className="text-right">
-                            <div className="text-xl font-bold text-[#C9A96E]">
-                                {formatCurrency(totalVND)} VND <span className="text-sm font-normal text-gray-400">/</span> <span className="text-emerald-600 font-bold">{totalUSD} USD</span>
+                        <div className="text-right flex flex-col sm:flex-row sm:items-baseline sm:gap-2 justify-end">
+                            <div className="text-lg sm:text-xl font-bold text-[#C9A96E]">
+                                {formatCurrency(totalVND)} <span className="text-xs sm:text-sm text-gray-400 font-normal">VND</span>
+                            </div>
+                            <span className="hidden sm:inline text-sm font-normal text-gray-400">/</span>
+                            <div className="text-base sm:text-xl text-emerald-500 font-bold">
+                                {totalUSD} <span className="text-xs sm:text-sm font-normal">USD</span>
                             </div>
                         </div>
                     </div>

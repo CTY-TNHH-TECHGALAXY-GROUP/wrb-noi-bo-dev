@@ -281,8 +281,10 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
                                                     </>
                                                 )}
                                             </div>
-                                            <div className="text-white font-bold mt-1.5 text-lg">
-                                                {formatCurrency(item.priceVND)} VND <span className="text-gray-600 font-normal text-base px-1">/</span> <span className="text-emerald-500">{item.priceUSD} USD</span>
+                                            <div className="text-white font-bold mt-1.5 text-base sm:text-lg flex flex-col sm:flex-row sm:items-baseline">
+                                                <span className="whitespace-nowrap">{formatCurrency(item.priceVND)} VND</span>
+                                                <span className="hidden sm:inline text-gray-600 font-normal text-base px-1">/</span>
+                                                <span className="text-emerald-500 whitespace-nowrap">{item.priceUSD} USD</span>
                                             </div>
                                             <div className="text-sm text-gray-400 mt-1 flex items-center gap-1">
                                                 <span>{t('qty')}:</span>
@@ -384,7 +386,7 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
                                                 }}
                                                 whileTap={{ scale: 0.95 }}
                                                 className={`
-                                        flex flex-col items-center justify-center py-4 px-2 rounded-xl border transition-colors relative overflow-hidden
+                                        flex flex-col items-center justify-center pt-5 sm:pt-6 pb-3.5 sm:pb-4 px-2 rounded-xl border transition-colors relative overflow-hidden min-h-[110px] sm:min-h-[120px]
                                         ${selectedService.id === svc.id
                                                         ? 'bg-[#1c1c1e] text-white border-white/15'
                                                         : 'bg-[#0d0d0d] text-gray-400 border-gray-700 hover:border-gray-500'}
@@ -392,20 +394,23 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
                                             >
                                                 {/* [LOGIC NEW] Badge Best Choice */}
                                                 {svc.BEST_CHOICE && (
-                                                    <div className="absolute top-0 right-0 bg-red-600 text-white text-[11px] sm:text-[13px] md:text-[14px] font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-bl-lg z-10 uppercase tracking-wider">
+                                                    <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] sm:text-[11px] md:text-xs font-black px-2.5 py-1 sm:px-3 sm:py-1 rounded-bl-lg z-10 uppercase tracking-wider shadow-sm">
                                                         {t('recommended')}
                                                     </div>
                                                 )}
 
                                                 {svc.timeValue > 0 && (
-                                                    <span className={`text-3xl md:text-[32px] font-bold mb-2 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
+                                                    <span className={`text-2xl sm:text-3xl md:text-[32px] font-bold mb-1 leading-tight ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
                                                         {svc.timeValue}{t('mins')}
                                                     </span>
                                                 )}
-                                                <div className="text-xl md:text-[24px] font-bold flex gap-1.5 items-center justify-center w-full mt-0.5">
-                                                    <span className="text-[#C9A96E]">{formatCurrency(svc.priceVND)}</span>
-                                                    <span className="text-gray-500 font-normal text-lg">/</span>
-                                                    <span className="text-emerald-500">{svc.priceUSD} USD</span>
+                                                <div className="flex flex-col items-center justify-center w-full mt-0.5 leading-tight">
+                                                    <span className="text-base sm:text-lg md:text-xl font-bold text-[#C9A96E] whitespace-nowrap tabular-nums">
+                                                        {formatCurrency(svc.priceVND)} <span className="text-[11px] sm:text-xs font-semibold text-gray-400">VND</span>
+                                                    </span>
+                                                    <span className="text-xs sm:text-sm md:text-base font-bold text-emerald-500 whitespace-nowrap tabular-nums mt-0.5">
+                                                        {svc.priceUSD} USD
+                                                    </span>
                                                 </div>
 
                                                 {/* Badge số lượng nếu đã có trong giỏ (khi đang chọn món khác) */}
@@ -439,26 +444,29 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
                                                     exit={{ opacity: 0, scale: 0.85 }}
                                                     whileTap={{ scale: 0.95 }}
                                                     className={`
-                                            flex flex-col items-center justify-center py-4 px-2 rounded-xl border transition-colors relative overflow-hidden
+                                            flex flex-col items-center justify-center pt-5 sm:pt-6 pb-3.5 sm:pb-4 px-2 rounded-xl border transition-colors relative overflow-hidden min-h-[110px] sm:min-h-[120px]
                                             ${selectedService.id === svc.id
                                                             ? 'bg-[#1c1c1e] text-white border-white/15'
                                                             : 'bg-[#0d0d0d] text-gray-400 border-gray-700 hover:border-gray-500'}
                                         `}
                                                 >
                                                     {svc.BEST_CHOICE && (
-                                                        <div className="absolute top-0 right-0 bg-red-600 text-white text-[11px] sm:text-[13px] md:text-[14px] font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-bl-lg z-10 uppercase tracking-wider">
+                                                        <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] sm:text-[11px] md:text-xs font-black px-2.5 py-1 sm:px-3 sm:py-1 rounded-bl-lg z-10 uppercase tracking-wider shadow-sm">
                                                             {t('recommended')}
                                                         </div>
                                                     )}
                                                     {svc.timeValue > 0 && (
-                                                        <span className={`text-3xl md:text-[32px] font-bold mb-2 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
+                                                        <span className={`text-2xl sm:text-3xl md:text-[32px] font-bold mb-1 leading-tight ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
                                                             {svc.timeValue}{t('mins')}
                                                         </span>
                                                     )}
-                                                    <div className="text-xl md:text-[24px] font-bold flex gap-1.5 items-center justify-center w-full mt-0.5">
-                                                        <span className="text-[#C9A96E]">{formatCurrency(svc.priceVND)}</span>
-                                                        <span className="text-gray-500 font-normal text-lg">/</span>
-                                                        <span className="text-emerald-500">{svc.priceUSD} USD</span>
+                                                    <div className="flex flex-col items-center justify-center w-full mt-0.5 leading-tight">
+                                                        <span className="text-base sm:text-lg md:text-xl font-bold text-[#C9A96E] whitespace-nowrap tabular-nums">
+                                                            {formatCurrency(svc.priceVND)} <span className="text-[11px] sm:text-xs font-semibold text-gray-400">VND</span>
+                                                        </span>
+                                                        <span className="text-xs sm:text-sm md:text-base font-bold text-emerald-500 whitespace-nowrap tabular-nums mt-0.5">
+                                                            {svc.priceUSD} USD
+                                                        </span>
                                                     </div>
                                                     {cart[svc.id] > 0 && selectedService.id !== svc.id && (
                                                         <div className="absolute top-2 right-2 w-5 h-5 bg-[#C9A96E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
@@ -499,19 +507,35 @@ export default function MainSheet({ group, cart, cartItems = [], isOpen, lang, o
 
                 {/* FOOTER ACTION - CHỈ HIỆN Ở MODE ADD */}
                 {viewMode === 'ADD' && selectedService && (
-                    <div className="p-5 pt-2 bg-[#0d0d0d] border-t border-gray-700/50">
-                        <div className="flex items-center justify-center gap-8 md:gap-10 mb-5">
-                            <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-transparent text-gray-300 flex items-center justify-center hover:bg-white/5 transition-colors"><Minus size={26} /></button>
-                            <span className="text-3xl md:text-4xl font-black text-white min-w-[44px] md:min-w-[56px] text-center font-mono">{qty}</span>
-                            <button onClick={() => setQty(q => q + 1)} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-transparent text-[#FFE38A] flex items-center justify-center hover:bg-white/5 transition-colors"><Plus size={28} /></button>
+                    <div className="p-3.5 sm:p-5 pt-1.5 sm:pt-2 bg-[#0d0d0d] border-t border-gray-700/50">
+                        <div className="flex items-center justify-center gap-5 sm:gap-8 md:gap-10 mb-3 sm:mb-5">
+                            <button
+                                onClick={() => setQty(q => Math.max(1, q - 1))}
+                                className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-transparent text-gray-300 flex items-center justify-center hover:bg-white/5 transition-colors"
+                                aria-label="Decrease quantity"
+                            >
+                                <Minus className="w-4 h-4 sm:w-6 sm:h-6" strokeWidth={2.5} />
+                            </button>
+                            <span className="text-xl sm:text-3xl md:text-4xl font-black text-white min-w-[32px] sm:min-w-[44px] md:min-w-[56px] text-center font-mono">
+                                {qty}
+                            </span>
+                            <button
+                                onClick={() => setQty(q => q + 1)}
+                                className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-transparent text-[#FFE38A] flex items-center justify-center hover:bg-white/5 transition-colors"
+                                aria-label="Increase quantity"
+                            >
+                                <Plus className="w-4 h-4 sm:w-7 sm:h-7" strokeWidth={2.5} />
+                            </button>
                         </div>
 
-                        <button onClick={handleConfirm} className="add-to-cart-gold-btn w-full py-4 md:py-5 text-black font-black rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 text-xl md:text-2xl uppercase transition-all active:scale-[0.985]">
-                            <span className="tracking-wide">{editingCartItem ? t('update_cart') : t('add_to_cart')}</span>
+                        <button onClick={handleConfirm} className="add-to-cart-gold-btn w-full py-2.5 sm:py-4 md:py-5 text-black font-black rounded-xl sm:rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-3 text-sm sm:text-xl md:text-2xl uppercase transition-all active:scale-[0.985]">
+                            <span className="tracking-wide text-xs sm:text-base md:text-lg">{editingCartItem ? t('update_cart') : t('add_to_cart')}</span>
                             <span className="hidden sm:inline opacity-35 font-normal text-3xl">|</span>
-                            <span className="text-2xl md:text-[34px] font-black tabular-nums">{formatCurrency(selectedService.priceVND * qty)} VND</span>
-                            <span className="hidden sm:inline opacity-35 font-normal text-2xl">/</span>
-                            <span className="text-xl md:text-[30px] font-black text-emerald-800 tabular-nums">{selectedService.priceUSD * qty} USD</span>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 leading-tight">
+                                <span className="text-sm sm:text-2xl md:text-[34px] font-black tabular-nums whitespace-nowrap">{formatCurrency(selectedService.priceVND * qty)} VND</span>
+                                <span className="hidden sm:inline opacity-35 font-normal text-2xl">/</span>
+                                <span className="text-[11px] sm:text-xl md:text-[30px] font-black text-emerald-800 tabular-nums whitespace-nowrap">{selectedService.priceUSD * qty} USD</span>
+                            </div>
                         </button>
                     </div>
                 )}

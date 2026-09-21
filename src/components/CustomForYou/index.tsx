@@ -175,7 +175,7 @@ export default function CustomForYouModal({
                 {/* Content Area - Hidden overflow and flex to fit */}
                 <div className="flex-1 min-h-0 overflow-hidden relative">
                     <div 
-                        className="absolute inset-0 overflow-y-auto px-6 py-2 custom-scrollbar"
+                        className="absolute inset-0 overflow-y-auto px-3 sm:px-6 py-2 custom-scrollbar"
                         onScroll={handleScroll}
                     >
                         <div className="space-y-4 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">

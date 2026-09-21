@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Calendar } from 'lucide-react';
 import FlipTimePicker from './FlipTimePicker';
 
 interface BookingTimePickerProps {
@@ -174,15 +175,19 @@ export default function BookingTimePicker({
             }
             return (
               <button
+                type="button"
                 onClick={() => setShowCalendar(true)}
-                className={`flex flex-col items-center justify-center min-w-[70px] h-16 rounded-2xl transition-all duration-200 border ${
+                className={`flex flex-col items-center justify-center min-w-[72px] sm:min-w-[80px] px-2 h-16 rounded-2xl transition-all duration-200 border cursor-pointer ${
                   isCustomDate
                     ? 'bg-[#c9a96e]/20 border-[#e6c487] text-[#e6c487]'
-                    : 'bg-[#1b1b1d] border-dashed border-[#4d463a]/50 text-[#998f81]'
+                    : 'bg-[#1b1b1d] border-dashed border-[#4d463a]/50 text-[#998f81] hover:border-[#c9a96e]/50 hover:text-[#d0c5b5]'
                 }`}
               >
-                <span className="text-[9px] uppercase tracking-tighter opacity-70">{t.bc_calendar || 'Lịch'}</span>
-                <span className="text-xs font-bold mt-1.5">{displayLabel}</span>
+                <div className="flex items-center gap-1 opacity-80">
+                  <Calendar size={12} className="shrink-0" strokeWidth={2} />
+                  <span className="text-[9px] uppercase tracking-tighter font-semibold">{t.bc_calendar || 'Lịch'}</span>
+                </div>
+                <span className="text-xs font-bold mt-1">{displayLabel}</span>
               </button>
             );
           })()}
@@ -220,7 +225,7 @@ export default function BookingTimePicker({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-[#131315] border border-[#e6c487]/30 rounded-3xl p-5 w-full max-w-sm shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
+              className="responsive-panel bg-[#131315] border border-[#e6c487]/30 rounded-3xl p-5 w-full max-w-sm shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
             >
               {/* Header */}
               <div className="flex justify-between items-center mb-4">
@@ -238,8 +243,9 @@ export default function BookingTimePicker({
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 
-                <h4 className="font-sans not-italic text-lg text-[#e6c487]">
-                  {t.bc_month || 'Tháng '}{currentCalendarMonth + 1}, {currentCalendarYear}
+                <h4 className="font-sans not-italic text-lg text-[#e6c487] flex items-center gap-2">
+                  <Calendar size={18} className="text-[#e6c487]" />
+                  <span>{t.bc_month || 'Tháng '}{currentCalendarMonth + 1}, {currentCalendarYear}</span>
                 </h4>
 
                 <button

@@ -91,70 +91,74 @@ export default function ServiceItem({ service, singleOption, quantity, lang, isB
                     ) : null}
                 </div>
 
-                <div className="relative z-20 flex w-full shrink-0 flex-row flex-wrap items-center justify-between gap-4 sm:w-[172px] md:w-[220px] sm:flex-col sm:items-end sm:justify-center">
-                    {singleOption.timeValue > 0 && (
-                        <div className="rounded-full border border-white/12 bg-black/25 px-4 py-1.5 text-center sm:px-6 sm:py-2">
-                            <span className="text-[18px] font-black tracking-[0.08em] text-[#ffe7a3] sm:text-[24px] md:text-[28px]">
+                <div className="relative z-20 flex w-full shrink-0 flex-row items-center justify-between gap-3 sm:w-[172px] md:w-[220px] sm:flex-col sm:items-end sm:justify-center sm:gap-0">
+                    {singleOption.timeValue > 0 ? (
+                        <div className="rounded-full border border-white/12 bg-black/25 px-3.5 py-1.5 sm:px-6 sm:py-2 text-center shrink-0">
+                            <span className="text-[16px] sm:text-[24px] md:text-[28px] font-black tracking-[0.08em] text-[#ffe7a3]">
                                 {singleOption.timeValue}
                             </span>
-                            <span className="ml-1 text-[12px] font-black uppercase tracking-[0.18em] text-[#ffe7a3] sm:text-[16px]">
+                            <span className="ml-1 text-[11px] sm:text-[16px] font-black uppercase tracking-[0.18em] text-[#ffe7a3]">
                                 {minsText}
                             </span>
                         </div>
+                    ) : (
+                        <div className="hidden sm:block" />
                     )}
 
-                    <div className="text-right">
-                        <div className="text-[21px] font-black leading-tight text-[#d8b76a] tabular-nums drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)] sm:text-[27px] md:text-[31px]">
-                            {formatCurrency(singleOption.priceVND)}
-                            <span className="ml-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#aeb4c0] sm:text-[13px] md:text-[15px]">VND</span>
+                    <div className="ml-auto flex items-center gap-3 sm:gap-0 sm:flex-col sm:items-end">
+                        <div className="text-right">
+                            <div className="text-[20px] sm:text-[27px] md:text-[31px] font-black leading-tight text-[#d8b76a] tabular-nums drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]">
+                                {formatCurrency(singleOption.priceVND)}
+                                <span className="ml-1 text-[10px] sm:text-[13px] md:text-[15px] font-black uppercase tracking-[0.12em] text-[#aeb4c0]">VND</span>
+                            </div>
+                            <div className="mt-1 text-[18px] sm:text-[26px] md:text-[30px] font-black leading-tight text-emerald-500 tabular-nums drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]">
+                                {singleOption.priceUSD}
+                                <span className="ml-1 text-[10px] sm:text-[13px] md:text-[15px] font-black uppercase tracking-[0.12em]">USD</span>
+                            </div>
                         </div>
-                        <div className="mt-1.5 text-[20px] font-black leading-tight text-emerald-500 tabular-nums drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)] sm:text-[26px] md:text-[30px]">
-                            {singleOption.priceUSD}
-                            <span className="ml-1 text-[10px] font-black uppercase tracking-[0.12em] sm:text-[13px] md:text-[15px]">USD</span>
-                        </div>
-                    </div>
 
-                    {isSelected ? (
-                        <div
-                            className="relative z-40 flex items-center rounded-full bg-black/55 p-1.5 shadow-[0_8px_22px_rgba(0,0,0,0.28)] ring-1 ring-white/10"
-                            onClick={(event) => event.stopPropagation()}
-                        >
-                            <button
-                                type="button"
-                                onClick={(event) => {
-                                    stopControlEvent(event);
-                                    onQuickRemove?.();
-                                }}
-                                className="relative z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white/8 text-white/90 transition-colors hover:bg-white/14 sm:h-12 sm:w-12"
-                                aria-label="Decrease quantity"
+                        {isSelected ? (
+                            <div
+                                className="relative z-40 flex items-center rounded-full bg-black/55 p-1.5 shadow-[0_8px_22px_rgba(0,0,0,0.28)] ring-1 ring-white/10 sm:mt-3"
+                                onClick={(event) => event.stopPropagation()}
                             >
-                                <Minus className="h-5 w-5" />
-                            </button>
-                            <span className="min-w-9 text-center text-xl font-black text-white sm:min-w-11 sm:text-2xl">{quantity}</span>
+                                <button
+                                    type="button"
+                                    onClick={(event) => {
+                                        stopControlEvent(event);
+                                        onQuickRemove?.();
+                                    }}
+                                    className="relative z-50 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/8 text-white/90 transition-colors hover:bg-white/14"
+                                    aria-label="Decrease quantity"
+                                >
+                                    <Minus className="h-5 w-5" />
+                                </button>
+                                <span className="min-w-8 sm:min-w-11 text-center text-lg sm:text-2xl font-black text-white">{quantity}</span>
+                                <button
+                                    type="button"
+                                    onClick={(event) => {
+                                        stopControlEvent(event);
+                                        onQuickAdd?.();
+                                    }}
+                                    className="relative z-50 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#f7df74] to-[#bd8622] text-white transition-transform active:scale-95"
+                                    aria-label="Increase quantity"
+                                >
+                                    <Plus className="h-5 w-5" strokeWidth={2.5} />
+                                </button>
+                            </div>
+                        ) : (
                             <button
                                 type="button"
                                 onClick={(event) => {
                                     stopControlEvent(event);
                                     onQuickAdd?.();
                                 }}
-                                className="relative z-50 flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#f7df74] to-[#bd8622] text-white transition-transform active:scale-95 sm:h-12 sm:w-12"
-                                aria-label="Increase quantity"
+                                className="flex h-11 w-11 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-full border border-white/20 bg-black/35 text-[#ffe7a3] transition-colors hover:bg-white/10 shrink-0 sm:mt-3"
                             >
-                                <Plus className="h-5 w-5" strokeWidth={2.5} />
+                                <Plus className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" strokeWidth={2.6} />
                             </button>
-                        </div>
-                    ) : (
-                        <button
-                            type="button"
-                            onClick={(event) => {
-                                stopControlEvent(event);
-                                onQuickAdd?.();
-                            }}
-                            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/35 text-[#ffe7a3] transition-colors hover:bg-white/10 sm:h-14 sm:w-14 md:h-16 md:w-16"
-                        >
-                            <Plus className="h-7 w-7 md:h-8 md:w-8" strokeWidth={2.6} />
-                        </button>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         );

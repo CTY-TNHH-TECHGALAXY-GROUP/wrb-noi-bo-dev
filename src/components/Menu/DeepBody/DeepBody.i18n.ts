@@ -35,9 +35,9 @@ export const DEEP_BODY_I18N = {
   master_deep_body: {
     vi: 'Nghệ Nhân',
     en: 'Artisan',
-    cn: '理疗匠人',
-    jp: 'アルチザン',
-    kr: '아티산',
+    cn: '匠人',
+    jp: '職人',
+    kr: '장인',
   },
   staff_label: {
     vi: 'KTV',

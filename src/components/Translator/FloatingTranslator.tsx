@@ -338,7 +338,7 @@ export default function FloatingTranslator() {
                 <motion.div
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="fixed bottom-6 right-6 z-[999]"
+                    className="fixed bottom-24 sm:bottom-6 right-4 sm:right-6 z-[999]"
                 >
                     <button
                         onClick={() => setIsOpen(true)}
@@ -366,7 +366,7 @@ export default function FloatingTranslator() {
                         }`}
                     >
                         {/* HEADER */}
-                        <div className="p-4 border-b border-white/10 bg-[#1a1a1d] flex items-center justify-between shrink-0">
+                        <div className="p-3 sm:p-4 border-b border-white/10 bg-[#1a1a1d] flex flex-wrap items-center justify-between gap-2 shrink-0">
                             <div className="flex items-center gap-3">
                                 <div className="w-9 h-9 rounded-2xl bg-[#e6c487]/20 border border-[#e6c487]/40 flex items-center justify-center text-[#e6c487]">
                                     <Languages size={20} />
@@ -773,7 +773,7 @@ export default function FloatingTranslator() {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="absolute inset-0 bg-black/80 backdrop-blur-md z-[100] flex flex-col p-4"
+                                    className="responsive-panel absolute inset-0 bg-black/80 backdrop-blur-md z-[100] flex flex-col p-4"
                                 >
                                     <div className="flex items-center justify-between pb-3 border-b border-white/10">
                                         <div className="flex items-center gap-2 text-[#e6c487]">

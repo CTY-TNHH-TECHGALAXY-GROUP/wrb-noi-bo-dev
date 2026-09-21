@@ -267,9 +267,9 @@ const FlipTimePicker = ({ startTime, endTime, value, onChange }: FlipTimePickerP
   return (
     <div className="flex flex-col items-center">
       {/* Picker container */}
-      <div className="flex items-center gap-3 bg-[#1b1b1d]/80 rounded-2xl px-8 py-2 border border-[#4d463a]/30">
+      <div className="grid w-full max-w-sm grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 bg-[#1b1b1d]/80 rounded-2xl px-3 sm:px-6 py-2 border border-[#4d463a]/30">
         {/* Hours column */}
-        <div className="w-24">
+        <div className="min-w-0">
           <WheelColumn
             items={hours}
             value={selectedHour}
@@ -283,7 +283,7 @@ const FlipTimePicker = ({ startTime, endTime, value, onChange }: FlipTimePickerP
         </div>
 
         {/* Minutes column */}
-        <div className="w-24">
+        <div className="min-w-0">
           <WheelColumn
             items={validIntervalMinutes}
             value={selectedMinute}

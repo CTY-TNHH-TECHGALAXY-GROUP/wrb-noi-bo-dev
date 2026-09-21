@@ -204,7 +204,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
             {comingSoon && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setComingSoon(null)}></div>
-                    <div className="bg-[#1a1412] border border-[#d4af37]/30 p-8 rounded-2xl z-10 max-w-sm w-full text-center shadow-2xl animate-in zoom-in-95 duration-200">
+                    <div className="responsive-panel bg-[#1a1412] border border-[#d4af37]/30 p-6 sm:p-8 rounded-2xl z-10 max-w-sm w-full text-center shadow-2xl animate-in zoom-in-95 duration-200">
                         <div className="w-16 h-16 mx-auto mb-4 border-2 border-[#d4af37] rounded-full flex items-center justify-center bg-[#d4af37]/10">
                             <span className="text-2xl">⏳</span>
                         </div>

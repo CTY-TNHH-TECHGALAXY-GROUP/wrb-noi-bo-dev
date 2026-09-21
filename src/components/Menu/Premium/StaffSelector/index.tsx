@@ -418,7 +418,7 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative w-full max-w-sm bg-[#131315] border border-[#e6c487]/30 rounded-[2rem] p-6 shadow-2xl overflow-hidden"
+                    className="responsive-panel relative w-full max-w-sm bg-[#131315] border border-[#e6c487]/30 rounded-[2rem] p-4 sm:p-6 shadow-2xl"
                 >
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#e6c487] to-transparent opacity-50" />
                     

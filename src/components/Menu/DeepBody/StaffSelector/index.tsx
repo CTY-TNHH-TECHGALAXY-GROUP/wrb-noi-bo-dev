@@ -416,6 +416,9 @@ export default function DeepStaffSelector({
             const isSelected = selectedIds.includes(staff.id);
             const unavailable = isUnavailable(staff);
             const statusStyle = STATUS_STYLES[staff.availability] || STATUS_STYLES.AVAILABLE;
+            const cleanStaffName = staff.fullName
+              ? staff.fullName.replace(new RegExp(`^${staff.id}\\s*[-•:]?\\s*`, 'i'), '').trim()
+              : '';
 
             const carouselItems =
               staff.therapyGallery && staff.therapyGallery.length > 0
@@ -487,8 +490,8 @@ export default function DeepStaffSelector({
                     </div>
                   )}
 
-                  {/* ẢNH CHỨNG CHỈ Ở GÓC TRÁI DƯỚI */}
-                  <div className="absolute bottom-32 left-5 sm:left-6 z-20">
+                  {/* ẢNH CHỨNG CHỈ Ở GÓC PHẢI DƯỚI */}
+                  <div className="absolute bottom-32 right-5 sm:right-6 z-20">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -532,16 +535,11 @@ export default function DeepStaffSelector({
 
                   {/* Content Gradient Overlay (Bottom) */}
                   <div className="absolute bottom-0 left-0 w-full p-6 pt-12 bg-gradient-to-t from-[#121214] via-[#121214]/85 to-transparent">
-                    {/* Staff ID & Tagline */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="inline-block bg-[#e6c487]/15 border border-[#e6c487]/40 px-4 py-1.5 rounded-full shadow-sm">
-                        <span className="text-sm tracking-[0.15em] text-[#e6c487] font-bold">
-                          {staff.id}
-                        </span>
-                      </div>
-                      <span className="text-[11px] text-gray-400 font-medium tracking-wider uppercase">
-                        {t.master_deep_body}
-                      </span>
+                    {/* Staff Title, ID & Name (Mẫu: ARTISAN KTV05 Luna - không đóng khung, bỏ cảm giác button) */}
+                    <div className="mb-3.5 min-w-0">
+                      <p className="text-base sm:text-lg font-black tracking-wide text-[#e6c487] drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] truncate">
+                        {t.master_deep_body} {staff.id}{cleanStaffName ? ` ${cleanStaffName}` : ''}
+                      </p>
                     </div>
 
                     {/* Book Now Button */}
@@ -600,9 +598,9 @@ export default function DeepStaffSelector({
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-sm bg-[#131315] border border-[#e6c487]/30 rounded-[2rem] p-6 shadow-2xl text-center z-10"
+              className="responsive-panel relative w-full max-w-sm bg-[#131315] border border-[#e6c487]/30 rounded-[2rem] p-4 sm:p-6 shadow-2xl text-center z-10"
             >
               <h3 className="text-lg font-bold text-[#e6c487] mb-4">
                 {t.arrangement_title}

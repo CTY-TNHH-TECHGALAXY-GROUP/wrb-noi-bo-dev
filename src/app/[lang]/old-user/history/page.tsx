@@ -565,9 +565,9 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                         />
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
+                            animate={{ opacity: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="relative w-full max-w-sm bg-[#1c1c1e] rounded-3xl p-6 shadow-2xl border border-white/10"
+                            className="responsive-panel relative w-full max-w-sm bg-[#1c1c1e] rounded-3xl p-4 sm:p-6 shadow-2xl border border-white/10"
                         >
                             <h3 className="text-xl font-bold text-white text-center mb-2">{(POPUP_I18N[lang] || POPUP_I18N['en']).title}</h3>
                             <p className="text-sm text-gray-400 text-center mb-6">{(POPUP_I18N[lang] || POPUP_I18N['en']).desc}</p>

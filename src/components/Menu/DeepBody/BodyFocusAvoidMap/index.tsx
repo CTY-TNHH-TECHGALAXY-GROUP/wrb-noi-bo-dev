@@ -175,17 +175,17 @@ export default function BodyFocusAvoidMap({
         )}
       </div>
 
-      {/* Main Container: Left Viewer + Right Controls side-by-side on ALL screens (mobile, tablet, desktop) */}
-      <div className="rounded-2xl sm:rounded-3xl border border-[#e6c487]/25 bg-gradient-to-b from-[#141416] to-[#0c0c0e] shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-row items-stretch">
+      {/* Main Container: Left Viewer + Right Controls side-by-side on all screens (mobile & desktop) */}
+      <div className="rounded-2xl sm:rounded-3xl border border-[#e6c487]/25 bg-gradient-to-b from-[#141416] to-[#0d0d0f] shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-row items-stretch min-h-[380px] xs:min-h-[420px] sm:min-h-[460px]">
         
         {/* ── LEFT PANEL: UNIFIED SVG (655x1024) BODY ANATOMY VIEWER (100% LOCKED COORDINATES) ── */}
-        <div className="relative w-[38%] xs:w-[40%] sm:w-[42%] md:w-[45%] shrink-0 bg-[#070708] flex items-center justify-center p-1 sm:p-2.5 border-r border-white/5 overflow-hidden select-none">
+        <div className="relative w-[34%] xs:w-[38%] sm:w-[40%] md:w-[42%] shrink-0 self-stretch bg-[#070708] flex items-center justify-center p-1 sm:p-2.5 border-r border-white/5 overflow-hidden select-none">
           {/* Ambient Glows */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(230,196,135,0.08),transparent_55%)] pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(57,214,123,0.04),transparent_50%)] pointer-events-none" />
 
           {/* SVG ViewBox 655x1024 - Perfectly locks image and coordinates on all devices */}
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="relative w-full h-full flex items-center justify-center py-1">
             <svg
               viewBox="0 0 655 1024"
               className="w-full h-full max-h-full max-w-full block select-none pointer-events-none"
@@ -287,11 +287,11 @@ export default function BodyFocusAvoidMap({
           </div>
         </div>
 
-        {/* ── RIGHT PANEL: AREA CONTROLS (ALIGNED HORIZONTALLY WITH BODY MAP ACROSS ALL SCREENS) ── */}
-        <div className="flex-1 flex flex-col justify-between p-2 sm:p-4 md:p-5 bg-gradient-to-b from-[#121214] to-[#0d0d0f] h-full overflow-hidden">
+        {/* ── RIGHT PANEL: AREA CONTROLS ── */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between p-2 xs:p-3 sm:p-4 md:p-5 bg-gradient-to-b from-[#121214] to-[#0d0d0f]">
           <div className="flex flex-col h-full justify-between">
             {/* Table Header */}
-            <div className="grid grid-cols-[1fr_44px_44px] xs:grid-cols-[1fr_50px_50px] sm:grid-cols-[1fr_64px_64px] md:grid-cols-[1fr_76px_76px] gap-1 sm:gap-2 items-center pb-2 mb-0.5 border-b border-white/10 text-[10px] xs:text-xs sm:text-sm md:text-base font-black uppercase flex-none">
+            <div className="grid grid-cols-[minmax(0,1fr)_34px_34px] xs:grid-cols-[minmax(0,1fr)_40px_40px] sm:grid-cols-[minmax(0,1fr)_48px_48px] gap-1 sm:gap-2 items-center pb-1.5 sm:pb-2 mb-0.5 border-b border-white/10 text-[10px] xs:text-[11px] sm:text-sm md:text-base font-black uppercase flex-none">
               <div className="text-[#e6c487] pl-0.5 font-bold break-words whitespace-normal leading-tight">
                 {t.body_map_col_area}
               </div>
@@ -314,11 +314,11 @@ export default function BodyFocusAvoidMap({
                 return (
                   <div
                     key={key}
-                    className="grid grid-cols-[1fr_44px_44px] xs:grid-cols-[1fr_50px_50px] sm:grid-cols-[1fr_64px_64px] md:grid-cols-[1fr_76px_76px] gap-1 sm:gap-2 items-center py-0.5 sm:py-1 hover:bg-white/[0.03] rounded-lg transition-colors px-0.5 sm:px-1"
+                    className="grid grid-cols-[minmax(0,1fr)_34px_34px] xs:grid-cols-[minmax(0,1fr)_40px_40px] sm:grid-cols-[minmax(0,1fr)_48px_48px] gap-1 sm:gap-2 items-center py-1 sm:py-1.5 hover:bg-white/[0.03] rounded-lg transition-colors px-0.5 sm:px-1"
                   >
                     {/* Area Name */}
                     <div
-                      className={`text-xs xs:text-sm sm:text-base md:text-lg font-bold transition-colors flex items-center gap-1.5 sm:gap-2 truncate ${
+                      className={`text-[11px] xs:text-xs sm:text-base font-bold transition-colors flex items-center gap-1 sm:gap-2 min-w-0 ${
                         isFocus
                           ? 'text-[#39d67b]'
                           : isAvoid
@@ -327,7 +327,7 @@ export default function BodyFocusAvoidMap({
                       }`}
                     >
                       <span
-                        className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full shrink-0 transition-all ${
+                        className={`w-1.5 h-1.5 xs:w-2 xs:h-2 sm:w-2.5 sm:h-2.5 rounded-full shrink-0 transition-all ${
                           isFocus
                             ? 'bg-[#39d67b] shadow-[0_0_6px_#39d67b]'
                             : isAvoid
@@ -335,7 +335,7 @@ export default function BodyFocusAvoidMap({
                             : 'bg-white/25'
                         }`}
                       />
-                      <span className="truncate">{label}</span>
+                      <span className="break-words leading-tight truncate">{label}</span>
                     </div>
 
                     {/* Focus Checkbox Toggle */}
@@ -343,14 +343,14 @@ export default function BodyFocusAvoidMap({
                       type="button"
                       onClick={() => handleToggle(key, 'focus')}
                       aria-label={`Focus ${label}`}
-                      className={`w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 mx-auto rounded-lg sm:rounded-xl flex items-center justify-center transition-all cursor-pointer border ${
+                      className={`w-7 h-7 xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 mx-auto rounded-md xs:rounded-lg sm:rounded-xl flex items-center justify-center transition-all cursor-pointer border ${
                         isFocus
                           ? 'bg-[#39d67b]/20 border-[#39d67b] text-[#39d67b] shadow-[0_0_12px_rgba(57,214,123,0.35)] scale-105'
                           : 'bg-[#18181b] border-white/10 text-transparent hover:border-white/25 active:scale-95'
                       }`}
                     >
                       <Check
-                        size={16}
+                        size={14}
                         strokeWidth={3}
                         className={isFocus ? 'opacity-100' : 'opacity-0'}
                       />
@@ -361,14 +361,14 @@ export default function BodyFocusAvoidMap({
                       type="button"
                       onClick={() => handleToggle(key, 'avoid')}
                       aria-label={`Avoid ${label}`}
-                      className={`w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 mx-auto rounded-lg sm:rounded-xl flex items-center justify-center transition-all cursor-pointer border ${
+                      className={`w-7 h-7 xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 mx-auto rounded-md xs:rounded-lg sm:rounded-xl flex items-center justify-center transition-all cursor-pointer border ${
                         isAvoid
                           ? 'bg-[#ff5b66]/20 border-[#ff5b66] text-[#ff5b66] shadow-[0_0_12px_rgba(255,91,102,0.35)] scale-105'
                           : 'bg-[#18181b] border-white/10 text-transparent hover:border-white/25 active:scale-95'
                       }`}
                     >
                       <Check
-                        size={16}
+                        size={14}
                         strokeWidth={3}
                         className={isAvoid ? 'opacity-100' : 'opacity-0'}
                       />

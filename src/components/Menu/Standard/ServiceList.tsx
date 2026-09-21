@@ -364,14 +364,14 @@ export default function ServiceList({ categories, services, cart, lang, directio
                             </div>
                             <div className="min-w-0 flex-1">
                                 <h3 className="text-3xl font-bold leading-tight text-white sm:text-4xl">{detailName}</h3>
-                                <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                                <div className="mt-3 flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-baseline gap-x-3 gap-y-1">
                                     {detailService.timeValue > 0 && (
-                                        <span className="rounded-full border border-white/12 px-4 py-1.5 text-xl font-black text-[#f3d889]">
+                                        <span className="rounded-full border border-white/12 px-4 py-1.5 text-lg sm:text-xl font-black text-[#f3d889] mb-1 sm:mb-0">
                                             {detailService.timeValue} {cs.mins}
                                         </span>
                                     )}
-                                    <span className="text-3xl font-black text-[#C9A96E]">{formatCurrency(detailService.priceVND)} <span className="text-base text-gray-500">VND</span></span>
-                                    <span className="text-2xl font-bold text-emerald-500">{detailService.priceUSD} USD</span>
+                                    <span className="text-2xl sm:text-3xl font-black text-[#C9A96E]">{formatCurrency(detailService.priceVND)} <span className="text-base text-gray-500">VND</span></span>
+                                    <span className="text-xl sm:text-2xl font-bold text-emerald-500">{detailService.priceUSD} USD</span>
                                 </div>
                             </div>
                         </div>

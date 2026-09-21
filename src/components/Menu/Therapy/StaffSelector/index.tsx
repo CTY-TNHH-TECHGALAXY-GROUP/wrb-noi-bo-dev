@@ -438,7 +438,7 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative w-full max-w-sm bg-[#131315] border border-[#e6c487]/30 rounded-[2rem] p-6 shadow-2xl overflow-hidden"
+                    className="responsive-panel relative w-full max-w-sm bg-[#131315] border border-[#e6c487]/30 rounded-[2rem] p-4 sm:p-6 shadow-2xl"
                 >
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#e6c487] to-transparent opacity-50" />
                     
@@ -486,7 +486,7 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-lg bg-[#131315] border border-[#e6c487]/30 rounded-2xl overflow-hidden shadow-2xl"
+              className="responsive-panel relative w-full max-w-lg bg-[#131315] border border-[#e6c487]/30 rounded-2xl shadow-2xl"
             >
               <div className="flex justify-between items-center px-4 py-3 border-b border-white/10">
                 <h3 className="text-sm font-bold text-[#e6c487] tracking-wider uppercase">Bằng Cấp Kỹ Thuật Viên</h3>
@@ -494,8 +494,8 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
-              <div className="p-4 flex items-center justify-center min-h-[300px]">
-                <img src={certificateUrl} alt="Certificate" className="max-w-full max-h-[70vh] object-contain rounded-lg" />
+              <div className="p-4 flex items-center justify-center min-h-[200px] sm:min-h-[300px]">
+                <img src={certificateUrl} alt="Certificate" className="max-w-full max-h-[60vh] sm:max-h-[70vh] object-contain rounded-lg" />
               </div>
             </motion.div>
           </div>

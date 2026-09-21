@@ -140,14 +140,18 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
                         {t('total_est')} <span className="text-[#C9A96E] font-bold ml-1">• {maxMinutes} {t('mins')}</span>
                     </div>
                 )}
-                <div className="w-full flex flex-wrap items-baseline justify-start md:justify-center gap-1">
-                    <span className="text-[clamp(22px,4.4vw,42px)] font-bold text-white tracking-wide tabular-nums leading-none">{formatCurrency(totalVND)}</span>
-                    <span className="text-[clamp(10px,1.7vw,16px)] text-gray-500 font-bold mb-0.5 ml-0.5">VND</span>
+                <div className="w-full flex flex-col sm:flex-row items-start md:items-center justify-start md:justify-center sm:gap-1">
+                    <div className="flex items-baseline gap-1">
+                        <span className="text-[clamp(20px,4.4vw,42px)] font-bold text-white tracking-wide tabular-nums leading-none">{formatCurrency(totalVND)}</span>
+                        <span className="text-[clamp(10px,1.7vw,16px)] text-gray-500 font-bold mb-0.5">VND</span>
+                    </div>
 
-                    <span className="text-gray-600 mx-1 text-[clamp(12px,2vw,18px)] font-light">/</span>
+                    <span className="hidden sm:inline text-gray-600 mx-1 text-[clamp(12px,2vw,18px)] font-light">/</span>
 
-                    <span className="text-[clamp(18px,3.8vw,36px)] font-bold text-emerald-600 tracking-wide tabular-nums leading-none">{totalUSD}</span>
-                    <span className="text-[clamp(10px,1.7vw,16px)] text-emerald-600 font-bold mb-0.5 ml-0.5">USD</span>
+                    <div className="flex items-baseline gap-1">
+                        <span className="text-[clamp(15px,3.4vw,36px)] font-bold text-emerald-600 tracking-wide tabular-nums leading-none">{totalUSD}</span>
+                        <span className="text-[clamp(10px,1.7vw,16px)] text-emerald-600 font-bold mb-0.5">USD</span>
+                    </div>
                 </div>
             </div>
 

@@ -230,28 +230,13 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
 
     return (
         <motion.div
-            className="fixed inset-0 z-[100] flex flex-col bg-transparent font-sans"
+            className="fixed inset-0 z-[100] flex flex-col justify-between overflow-y-auto overflow-x-hidden bg-transparent font-sans"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
         >
-            {/* Back Button (Fixed at top-left) */}
-            {showBack && (
-                <motion.div
-                    className="absolute top-4 left-4 p-4 md:top-6 md:left-6 cursor-pointer opacity-60 hover:opacity-100 transition-opacity flex items-center z-[110] bg-black/20 rounded-full backdrop-blur-sm"
-                    onClick={onBack}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3 }}
-                >
-                    <ArrowLeft className="text-white w-6 h-6" strokeWidth={2} />
-                </motion.div>
-            )}
-
-            {/* CSS Animation cho Vòng quay */}
+            {/* CSS Animation cho Vòng quay và bố cục chuyển đổi */}
             <style>{`
                 @keyframes wheelSpin {
                     from { transform: rotate(0deg); }
@@ -274,159 +259,139 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                     will-change: transform;
                 }
                 .category-wheel-stage {
-                    --wheel-size: min(94vw, 58vh, 760px);
-                    --wheel-radius: calc(var(--wheel-size) * 0.4);
-                    --node-size: 120px;
-                    --icon-size: 66px;
-                    --center-size: 168px;
-                    --center-icon-size: 106px;
+                    --wheel-size: min(92vw, calc(100dvh - 160px), 520px);
+                    --wheel-radius: calc(var(--wheel-size) * 0.37);
+                    --node-size: clamp(82px, 22vw, 125px);
+                    --icon-size: clamp(46px, 13vw, 70px);
+                    --center-size: clamp(108px, 28vw, 170px);
+                    --center-icon-size: clamp(60px, 16vw, 105px);
                     width: var(--wheel-size);
-                    transform: translateY(-7vh);
-                }
-                .entry-marquee {
-                    bottom: calc(23vh - 2cm);
-                }
-                .entry-history-action {
-                    top: max(18px, env(safe-area-inset-top));
-                    right: 16px;
-                }
-                .entry-best-seller {
-                    top: max(22px, env(safe-area-inset-top));
-                    left: 50%;
-                    width: clamp(154px, 22vw, 250px);
-                    transform: translateX(-50%);
-                }
-                .entry-language-flags {
-                    bottom: max(18px, env(safe-area-inset-bottom));
-                }
-                @media (max-width: 380px) {
-                    .category-wheel-stage {
-                        --wheel-size: min(94vw, 50vh, 360px);
-                        --node-size: 98px;
-                        --icon-size: 52px;
-                        --center-size: 136px;
-                        --center-icon-size: 84px;
-                        transform: translateY(-6vh);
-                    }
-                    .entry-marquee {
-                        bottom: calc(25vh - 2cm);
-                    }
-                    .entry-history-action {
-                        right: 12px;
-                    }
-                    .entry-best-seller {
-                        top: max(16px, env(safe-area-inset-top));
-                        width: clamp(142px, 38vw, 190px);
-                    }
                 }
                 @media (min-width: 640px) {
                     .category-wheel-stage {
-                        --wheel-size: min(90vw, 64vh, 700px);
-                        --node-size: 166px;
-                        --icon-size: 92px;
-                        --center-size: 220px;
-                        --center-icon-size: 144px;
-                        transform: translateY(-8vh);
+                        --wheel-size: min(86vw, calc(100dvh - 160px), 720px);
+                        --wheel-radius: calc(var(--wheel-size) * 0.365);
+                        --node-size: clamp(140px, 18vw, 175px);
+                        --icon-size: clamp(76px, 10vw, 98px);
+                        --center-size: clamp(180px, 23vw, 235px);
+                        --center-icon-size: clamp(114px, 14.5vw, 150px);
                     }
-                    .entry-marquee {
-                        bottom: calc(22vh - 2cm);
-                    }
-                    .entry-history-action {
-                        top: max(24px, env(safe-area-inset-top));
-                        right: 24px;
-                    }
-                    .entry-best-seller {
-                        top: max(24px, env(safe-area-inset-top));
-                        width: clamp(170px, 22vw, 250px);
-                    }
-                    .entry-language-flags {
-                        bottom: max(24px, env(safe-area-inset-bottom));
+                }
+                @media (min-width: 768px) {
+                    .category-wheel-stage {
+                        --wheel-size: min(88vw, calc(100dvh - 160px), 760px);
+                        --wheel-radius: calc(var(--wheel-size) * 0.365);
+                        --node-size: clamp(150px, 19vw, 185px);
+                        --icon-size: clamp(86px, 11vw, 108px);
+                        --center-size: clamp(195px, 24vw, 245px);
+                        --center-icon-size: clamp(124px, 15vw, 160px);
                     }
                 }
                 @media (min-width: 1024px) {
                     .category-wheel-stage {
-                        --wheel-size: min(78vw, 72vh, 840px);
-                        --node-size: 190px;
-                        --icon-size: 108px;
-                        --center-size: 260px;
-                        --center-icon-size: 172px;
-                        transform: translateY(-10vh);
-                    }
-                    .entry-marquee {
-                        bottom: calc(20vh - 2cm);
-                    }
-                    .entry-history-action {
-                        top: max(28px, env(safe-area-inset-top));
-                        right: 32px;
-                    }
-                    .entry-best-seller {
-                        top: max(28px, env(safe-area-inset-top));
-                        width: clamp(190px, 17vw, 270px);
-                    }
-                }
-                @media (min-width: 1280px) {
-                    .category-wheel-stage {
-                        --wheel-size: min(66vw, 74vh, 860px);
-                        --node-size: 202px;
-                        --icon-size: 116px;
-                        --center-size: 286px;
-                        --center-icon-size: 190px;
-                        transform: translateY(-11vh);
+                        --wheel-size: min(76vw, calc(100dvh - 170px), 840px);
+                        --wheel-radius: calc(var(--wheel-size) * 0.375);
+                        --node-size: clamp(170px, 17vw, 205px);
+                        --icon-size: clamp(98px, 10vw, 122px);
+                        --center-size: clamp(225px, 22vw, 270px);
+                        --center-icon-size: clamp(142px, 14vw, 175px);
                     }
                 }
             `}</style>
 
-            {showQuickActions && barberBestSeller && (
-                <motion.button
-                    type="button"
-                    onClick={() => onBestSellerSelect ? onBestSellerSelect(barberBestSeller) : handleSelect('Barber')}
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0, x: '-50%', y: -14 }}
-                    animate={{ opacity: 1, x: '-50%', y: 0 }}
-                    transition={{ duration: 0.35, ease: 'easeOut' }}
-                    className="entry-best-seller absolute z-[105] focus-visible:outline-none"
-                    style={{ filter: 'drop-shadow(0 6px 8px rgba(0,0,0,0.5))' }}
-                >
-                    <motion.div 
-                        className="relative flex items-center justify-center w-full"
-                        animate={{ scale: [1, 1.06, 1], filter: ['brightness(1)', 'brightness(1.15)', 'brightness(1)'] }}
-                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                    >
-                        {/* Left Tail */}
-                        <div className="absolute top-1 -bottom-2 -left-5 w-10 bg-gradient-to-b from-[#dca038] to-[#9a6210] -z-20" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%, 25% 50%, 0 0)' }}></div>
-                        
-                        {/* Right Tail */}
-                        <div className="absolute top-1 -bottom-2 -right-5 w-10 bg-gradient-to-b from-[#dca038] to-[#9a6210] -z-20" style={{ clipPath: 'polygon(0 0, 0 100%, 100% 100%, 75% 50%, 100% 0)' }}></div>
-                        
-                        {/* Left Fold */}
-                        <div className="absolute -bottom-2 left-0 w-3 h-2 bg-[#6a4006] -z-10" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%)' }}></div>
-                        
-                        {/* Right Fold */}
-                        <div className="absolute -bottom-2 right-0 w-3 h-2 bg-[#6a4006] -z-10" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}></div>
+            {/* --- ZONE 1: TOP HEADER (Back, Best Seller, History) --- */}
+            <header className="relative z-[110] flex items-center justify-between w-full px-3 sm:px-6 pt-3 sm:pt-4 min-h-[52px] shrink-0 gap-2">
+                {/* Back Button */}
+                <div className="w-20 sm:w-28 flex items-center justify-start">
+                    {showBack && (
+                        <motion.button
+                            type="button"
+                            className="p-2 sm:p-2.5 cursor-pointer opacity-75 hover:opacity-100 transition-opacity flex items-center bg-black/40 hover:bg-black/60 rounded-full backdrop-blur-sm border border-white/10"
+                            onClick={onBack}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.3 }}
+                            aria-label="Back"
+                        >
+                            <ArrowLeft className="text-white w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2} />
+                        </motion.button>
+                    )}
+                </div>
 
-                        {/* Main Banner */}
-                        <div className="relative w-full bg-gradient-to-b from-[#fce895] to-[#dca038] px-4 py-1.5 sm:py-2 z-10 border-t border-white/50 border-b border-black/10">
-                            <span className="block text-[11px] sm:text-[13px] font-black uppercase tracking-widest text-[#034a2e] text-center">
-                                {bestSeller.label}
+                {/* Center: Best Seller Ribbon Banner */}
+                <div className="flex-1 min-w-0 flex justify-center items-center">
+                    {showQuickActions && barberBestSeller && (
+                        <motion.button
+                            type="button"
+                            onClick={() => onBestSellerSelect ? onBestSellerSelect(barberBestSeller) : handleSelect('Barber')}
+                            whileTap={{ scale: 0.95 }}
+                            initial={{ opacity: 0, y: -14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.35, ease: 'easeOut' }}
+                            className="relative w-full max-w-[150px] xs:max-w-[180px] sm:max-w-[220px] focus-visible:outline-none cursor-pointer"
+                            style={{ filter: 'drop-shadow(0 6px 8px rgba(0,0,0,0.5))' }}
+                        >
+                            <motion.div
+                                className="relative flex items-center justify-center w-full"
+                                animate={{ scale: [1, 1.06, 1], filter: ['brightness(1)', 'brightness(1.15)', 'brightness(1)'] }}
+                                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                            >
+                                {/* Left Tail */}
+                                <div className="absolute top-1 -bottom-2 -left-4 sm:-left-5 w-8 sm:w-10 bg-gradient-to-b from-[#dca038] to-[#9a6210] -z-20" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%, 25% 50%, 0 0)' }}></div>
+
+                                {/* Right Tail */}
+                                <div className="absolute top-1 -bottom-2 -right-4 sm:-right-5 w-8 sm:w-10 bg-gradient-to-b from-[#dca038] to-[#9a6210] -z-20" style={{ clipPath: 'polygon(0 0, 0 100%, 100% 100%, 75% 50%, 100% 0)' }}></div>
+
+                                {/* Left Fold */}
+                                <div className="absolute -bottom-2 left-0 w-3 h-2 bg-[#6a4006] -z-10" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%)' }}></div>
+
+                                {/* Right Fold */}
+                                <div className="absolute -bottom-2 right-0 w-3 h-2 bg-[#6a4006] -z-10" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}></div>
+
+                                {/* Main Banner */}
+                                <div className="relative w-full bg-gradient-to-b from-[#fce895] to-[#dca038] px-3 sm:px-4 py-1.5 sm:py-2 z-10 border-t border-white/50 border-b border-black/10">
+                                    <span className="block text-[11px] sm:text-[13px] font-black uppercase tracking-widest text-[#034a2e] text-center truncate">
+                                        {bestSeller.label}
+                                    </span>
+                                </div>
+
+                                {/* Sparkle */}
+                                <div className="absolute -bottom-[8px] left-1/2 -translate-x-1/2 w-16 sm:w-20 h-[1.5px] bg-gradient-to-r from-transparent via-[#ffebb5] to-transparent z-20 pointer-events-none"></div>
+                                <div className="absolute -bottom-[10px] left-1/2 -translate-x-1/2 w-[5px] h-[5px] bg-white rounded-full shadow-[0_0_10px_3px_rgba(255,235,181,0.9)] z-20 animate-pulse pointer-events-none"></div>
+                            </motion.div>
+                        </motion.button>
+                    )}
+                </div>
+
+                {/* Right: History Action (Clean text + icon link, no button frame) */}
+                <div className="w-20 sm:w-28 flex items-center justify-end">
+                    {showQuickActions && (
+                        <motion.button
+                            type="button"
+                            onClick={handleHistory}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="group flex items-center gap-1.5 sm:gap-2 px-1 py-1 cursor-pointer focus-visible:outline-none transition-colors"
+                        >
+                            <History size={16} className="sm:w-[18px] sm:h-[18px] text-[#FFE38A]/80 group-hover:text-[#FFE38A] transition-colors shrink-0" strokeWidth={2} />
+                            <span className="text-xs sm:text-sm font-semibold tracking-wide text-[#FFE38A]/80 group-hover:text-[#FFE38A] transition-colors whitespace-nowrap">
+                                {quickText.history}
                             </span>
-                        </div>
-                        
-                        {/* Sparkle */}
-                        <div className="absolute -bottom-[8px] left-1/2 -translate-x-1/2 w-20 h-[1.5px] bg-gradient-to-r from-transparent via-[#ffebb5] to-transparent z-20"></div>
-                        <div className="absolute -bottom-[10px] left-1/2 -translate-x-1/2 w-[5px] h-[5px] bg-[#fff] rounded-full shadow-[0_0_10px_3px_rgba(255,235,181,0.9)] z-20 animate-pulse"></div>
-                    </motion.div>
-                </motion.button>
-            )}
+                        </motion.button>
+                    )}
+                </div>
+            </header>
 
-            {/* Circular Area */}
+            {/* --- ZONE 2: CIRCULAR WHEEL (Intact On All Screens) --- */}
             <motion.div
-                className="flex-1 w-full h-full flex flex-col items-center justify-center pb-12 md:pb-24 wheel-container relative"
+                className="category-wheel-container flex-1 w-full flex flex-col items-center justify-center py-2 relative min-h-0 overflow-visible"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
             >
-                {/* Vùng chứa Vòng quay (Căn giữa) */}
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -437,11 +402,8 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                     <div className="wheel-ring absolute inset-0 rounded-full origin-center">
                         {wheelCategories.map((cat, index) => {
                             const name = cat.names[lang as keyof typeof cat.names] || cat.names['en'];
-                            // Xóa bỏ offset 90 độ, để Nút số 1 luôn nằm ở đỉnh (12h)
-                            // Khi có 7 danh mục (số lẻ), việc nằm ở đỉnh sẽ giúp vòng tròn đối xứng hoàn hảo 2 bên trái/phải, không bị cảm giác "nghiêng"
                             const angle = index * (360 / wheelCategories.length);
                             
-                            // Thu nhỏ tỷ lệ chung của vòng quay theo yêu cầu
                             return (
                                 <div 
                                     key={cat.id}
@@ -450,13 +412,9 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                                         transform: `rotate(${angle}deg) translateY(calc(-1 * var(--wheel-radius)))`
                                     }}
                                 >
-                                    {/* Bù trừ góc nghiêng ban đầu để Nút luôn thẳng đứng */}
                                     <div className="absolute left-0 top-0 w-0 h-0" style={{ transform: `rotate(-${angle}deg)` }}>
-                                        {/* Wrapper quay ngược (bảo toàn tâm) chống lại trục quay của Ring */}
                                         <div className="wheel-node absolute left-0 top-0 w-0 h-0">
-                                            {/* Wrapper Căn giữa tuyệt đối Nút vào tâm */}
                                             <div className="absolute left-0 top-0 -translate-x-1/2 -translate-y-1/2">
-                                                {/* Component Nút */}
                                                 <motion.button
                                                     variants={cardVariants}
                                                     onClick={() => handleSelect(cat.id)}
@@ -464,31 +422,30 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                                                     whileTap={{ scale: 0.95 }}
                                                     style={{ 
                                                         width: 'var(--node-size)',
-                                                        height: 'var(--node-size)',
+                                                        minHeight: 'var(--node-size)',
                                                     }}
-                                                    className="flex flex-col items-center justify-center gap-1 md:gap-2 px-1 py-2 transition-colors relative group"
+                                                    className="flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-2 px-1 py-1 sm:py-1.5 transition-colors relative group overflow-visible"
                                                 >
-            
-                                            <div 
-                                                style={{ 
-                                                    width: 'var(--icon-size)',
-                                                    height: 'var(--icon-size)'
-                                                }}
-                                                className="flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110"
-                                            >
-                                                <span
-                                                    className="gold-mask-icon h-full w-full opacity-90 transition-all duration-300 group-hover:opacity-100"
-                                                    style={{ '--icon-url': `url("${cat.image}")` } as React.CSSProperties}
-                                                    aria-label={name}
-                                                />
+                                                    <div
+                                                        style={{
+                                                            width: 'var(--icon-size)',
+                                                            height: 'var(--icon-size)'
+                                                        }}
+                                                        className="shrink-0 flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110"
+                                                    >
+                                                        <span
+                                                            className="gold-mask-icon h-full w-full opacity-90 transition-all duration-300 group-hover:opacity-100"
+                                                            style={{ '--icon-url': `url("${cat.image}")` } as React.CSSProperties}
+                                                            aria-label={name}
+                                                        />
+                                                    </div>
+                                                    <span
+                                                        className="shrink-0 font-bold tracking-wide text-center leading-tight relative z-10 w-full bg-gradient-to-b from-[#FFE38A] via-[#E3A51F] to-[#9A5A07] bg-clip-text text-transparent drop-shadow-[0_2px_5px_rgba(116,50,4,0.88)] group-hover:brightness-125 transition-all duration-300 px-0.5 text-[13px] xs:text-sm sm:text-lg md:text-2xl lg:text-[26px] xl:text-[28px] whitespace-normal break-words"
+                                                    >
+                                                        {name}
+                                                    </span>
+                                                </motion.button>
                                             </div>
-                                            <span 
-                                                className="font-semibold tracking-wide text-center leading-tight relative z-10 w-full bg-gradient-to-b from-[#FFE38A] via-[#E3A51F] to-[#9A5A07] bg-clip-text text-transparent drop-shadow-[0_2px_5px_rgba(116,50,4,0.88)] group-hover:brightness-125 transition-all duration-300 px-1 text-sm sm:text-lg md:text-2xl lg:text-[28px]"
-                                            >
-                                                {name}
-                                            </span>
-                                        </motion.button>
-                                        </div>
                                         </div>
                                     </div>
                                 </div>
@@ -502,14 +459,14 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                             onClick={() => handleSelect(designJourneyCategory.id)}
                             whileHover={{ scale: 1.06 }}
                             whileTap={{ scale: 0.96 }}
-                            className="absolute left-1/2 top-1/2 z-30 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center p-3 text-center transition-transform"
+                            className="absolute left-1/2 top-1/2 z-30 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center p-2 sm:p-3 text-center transition-transform cursor-pointer overflow-visible"
                             style={{
                                 width: 'var(--center-size)',
                                 height: 'var(--center-size)',
                             }}
                         >
                             <span
-                                className="mb-1 flex items-center justify-center"
+                                className="mb-1 shrink-0 flex items-center justify-center"
                                 style={{
                                     width: 'var(--center-icon-size)',
                                     height: 'var(--center-icon-size)',
@@ -521,7 +478,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                                     className="h-full w-full object-contain drop-shadow-[0_10px_26px_rgba(255,227,138,0.28)]"
                                 />
                             </span>
-                            <span className="max-w-[90%] text-2xl font-black leading-tight text-[#FFE38A] drop-shadow-[0_2px_6px_rgba(116,50,4,0.85)] sm:text-3xl md:text-4xl lg:text-[46px]">
+                            <span className="max-w-[95%] shrink-0 text-sm xs:text-base sm:text-2xl md:text-3xl lg:text-4xl xl:text-[44px] font-black leading-tight text-[#FFE38A] drop-shadow-[0_2px_6px_rgba(116,50,4,0.85)]">
                                 {designJourneyCategory.names[lang as keyof typeof designJourneyCategory.names] || designJourneyCategory.names.en}
                             </span>
                         </motion.button>
@@ -530,61 +487,44 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
             </motion.div>
 
             {/* --- MARQUEE (RANDOM STAFF & ROOM) --- */}
-            <div className="entry-marquee absolute left-0 right-0 overflow-hidden z-[100] opacity-90 py-1.5 md:py-2 pointer-events-none">
+            <div className="w-full overflow-hidden opacity-85 py-1 pointer-events-none shrink-0 my-0.5">
                 <div className="animate-scroll flex w-max">
                     {[...Array(10)].map((_, i) => (
-                        <span key={i} className="text-sm sm:text-base md:text-lg font-bold text-[#FFE38A] uppercase tracking-[0.15em] whitespace-nowrap px-6 md:px-12">
+                        <span key={i} className="text-xs sm:text-sm md:text-base font-bold text-[#FFE38A] uppercase tracking-[0.15em] whitespace-nowrap px-6 md:px-12">
                             {marquee}
                         </span>
                     ))}
                 </div>
             </div>
 
-            {showQuickActions && (
-                <div className="entry-history-action absolute z-[110]">
-                    <div className="flex justify-end">
-                        <motion.button
+            {/* --- ZONE 3: LANGUAGE SELECTOR (FLAGS) --- */}
+            <footer className="w-full shrink-0 pb-[max(12px,env(safe-area-inset-bottom))] pt-1 px-3 z-[110] flex justify-center">
+                <div className="grid grid-cols-5 gap-1.5 xs:gap-2 sm:gap-3 max-w-[340px] sm:max-w-md w-full justify-items-center items-center">
+                    {languages.map((l) => (
+                        <button
+                            key={l.id}
                             type="button"
-                            onClick={handleHistory}
-                            whileTap={{ scale: 0.97 }}
-                            className="group relative overflow-hidden rounded-full border border-white/10 bg-[#12100d]/45 px-3.5 py-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.34)] backdrop-blur-xl transition-all hover:border-white/20 hover:bg-[#20170e]/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 sm:px-4 sm:py-3 md:px-5"
+                            onClick={() => changeLanguage(l.id)}
+                            aria-label={l.name}
+                            className={`pointer-events-auto aspect-square w-full max-w-[44px] xs:max-w-[48px] sm:max-w-[56px] rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
+                                lang === l.id
+                                    ? 'border-white/90 scale-105 shadow-[0_0_12px_rgba(255,255,255,0.25)]'
+                                    : 'border-white/20 opacity-60 hover:opacity-100 hover:scale-105'
+                            }`}
                         >
-                            <span className="absolute inset-0 bg-gradient-to-r from-[#E3A51F]/10 via-transparent to-[#FFE38A]/5 opacity-80" />
-                            <span className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[#FFE38A]/60 to-transparent" />
-                            <span className="relative z-10 flex items-center justify-center gap-2.5">
-                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E3A51F]/15 text-[#FFE38A] ring-1 ring-white/10 sm:h-9 sm:w-9 md:h-10 md:w-10">
-                                    <History size={17} className="sm:w-[18px] sm:h-[18px] md:w-5 md:h-5" />
-                                </span>
-                                <span className="text-[13px] font-semibold leading-tight text-[#FFE38A] sm:text-sm md:text-base">{quickText.history}</span>
-                            </span>
-                        </motion.button>
-                    </div>
+                            <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
+                        </button>
+                    ))}
                 </div>
-            )}
+            </footer>
 
-            {/* --- LANGUAGE SELECTOR (FLAGS) --- */}
-            <div className="entry-language-flags absolute left-0 right-0 flex justify-center items-center gap-3 sm:gap-4 md:gap-5 z-[110] pointer-events-none">
-                {languages.map((l) => (
-                    <button
-                        key={l.id}
-                        onClick={() => changeLanguage(l.id)}
-                        className={`pointer-events-auto w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full overflow-hidden border-[3px] flex items-center justify-center transition-all ${
-                            lang === l.id 
-                                ? 'border-white/80 scale-110 shadow-[0_0_18px_rgba(255,255,255,0.18)]'
-                                : 'border-white/20 opacity-60 hover:opacity-100 hover:scale-105'
-                        }`}
-                    >
-                        <img src={l.flag} alt={l.name} className="w-full h-full object-cover" />
-                    </button>
-                ))}
-            </div>
-
+            {/* History Popup */}
             {showHistoryPopup && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 px-5 backdrop-blur-md">
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 px-4 backdrop-blur-md">
                     <motion.div
                         initial={{ opacity: 0, y: 20, scale: 0.96 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        className="relative w-full max-w-[400px] rounded-[32px] border border-white/10 bg-[#0f1218] p-7 text-center shadow-2xl"
+                        className="responsive-panel relative w-full max-w-[400px] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-[32px] border border-white/10 bg-[#0f1218] p-5 sm:p-7 text-center shadow-2xl"
                     >
                         <button
                             type="button"
