@@ -33,8 +33,8 @@ export const DEEP_BODY_I18N = {
     kr: '메뉴',
   },
   master_deep_body: {
-    vi: 'Nghệ Nhân',
-    en: 'Artisan',
+    vi: 'NGHỆ NHÂN',
+    en: 'ARTISAN',
     cn: '匠人',
     jp: '職人',
     kr: '장인',

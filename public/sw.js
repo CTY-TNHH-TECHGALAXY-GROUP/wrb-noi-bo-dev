@@ -1,4 +1,4 @@
-// Service Worker for Ngan Ha Spa PWA
+// Service Worker for ORIA HOME PWA
 // Provides basic caching for offline support
 
 const CACHE_NAME = 'ngan-ha-spa-v2';

@@ -27,13 +27,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Oria Spa",
-  description: "Booking System for Oria Spa",
+  title: "ORIA HOME",
+  description: "Booking System for ORIA HOME",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Oria Spa",
+    title: "ORIA HOME",
   },
   icons: {
     icon: "/Image/oria-spa-icon.png",

@@ -1,7 +1,7 @@
 {
-  "name": "Oria Spa",
-  "short_name": "Oria Spa",
-  "description": "Booking System for Oria Spa",
+  "name": "ORIA HOME",
+  "short_name": "ORIA HOME",
+  "description": "Booking System for ORIA HOME",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",

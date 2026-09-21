@@ -538,7 +538,7 @@ export default function DeepStaffSelector({
                     {/* Staff Title, ID & Name (Mẫu: ARTISAN KTV05 Luna - không đóng khung, bỏ cảm giác button) */}
                     <div className="mb-3.5 min-w-0">
                       <p className="text-base sm:text-lg font-black tracking-wide text-[#e6c487] drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] truncate">
-                        {t.master_deep_body} {staff.id}{cleanStaffName ? ` ${cleanStaffName}` : ''}
+                        <span className="uppercase">{t.master_deep_body}</span> {staff.id}{cleanStaffName ? ` ${cleanStaffName}` : ''}
                       </p>
                     </div>
 

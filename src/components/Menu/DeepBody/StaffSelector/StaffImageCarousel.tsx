@@ -269,12 +269,14 @@ export default function StaffImageCarousel({
         ))}
       </div>
 
-      {/* Therapy Label (No icon, no frame) */}
+      {/* Therapy Label (Soft blur background, no button frame/border) */}
       {badgeLabel && (
         <div className="absolute top-16 left-5 sm:left-6 z-20 pointer-events-none select-none">
-          <span className="text-xs sm:text-sm font-black tracking-[0.15em] uppercase text-[#e6c487] drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
-            {badgeLabel}
-          </span>
+          <div className="px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md inline-flex items-center">
+            <span className="text-xs sm:text-sm font-black tracking-[0.15em] uppercase text-[#e6c487] drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
+              {badgeLabel}
+            </span>
+          </div>
         </div>
       )}
 
