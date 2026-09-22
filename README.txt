@@ -41,7 +41,7 @@ Tạo file `.env.local` tại thư mục gốc và điền thông tin kết nố
 DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
 DIRECT_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
 NEXT_PUBLIC_SUPABASE_URL=https://[PROJECT-REF].supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
 
 # --- FIREBASE CONFIGURATION (Nếu còn giữ Auth/Storage) ---
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key

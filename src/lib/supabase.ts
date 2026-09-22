@@ -11,7 +11,7 @@ export const createClient = () => {
     if (browserClient) return browserClient;
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
     browserClient = createBrowserClient(supabaseUrl, supabaseAnonKey)
     return browserClient;
 }
@@ -29,7 +29,7 @@ const createSafeClient = (): SupabaseClient | null => {
         return createClient() as SupabaseClient;
     }
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 
     if (!supabaseUrl || !supabaseAnonKey) {
         console.warn('⚠️ [Supabase] Missing env vars — returning no-op client (build-time)')

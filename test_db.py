@@ -12,7 +12,7 @@ with open('.env.local') as f:
             env_vars[key] = val.strip('\"\'')
 
 url = env_vars.get('NEXT_PUBLIC_SUPABASE_URL')
-key = env_vars.get('NEXT_PUBLIC_SUPABASE_ANON_KEY')
+key = env_vars.get('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY')
 
 if not url or not key:
     print('Missing credentials')

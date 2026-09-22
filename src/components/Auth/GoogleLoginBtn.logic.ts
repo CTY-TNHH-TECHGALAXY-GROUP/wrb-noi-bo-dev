@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase';
 import { useAuthStore } from '@/lib/authStore.logic';
 
 export const hasSupabaseEnv = () => Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 );
 
 // Helper function to get standard supabase client on client sides

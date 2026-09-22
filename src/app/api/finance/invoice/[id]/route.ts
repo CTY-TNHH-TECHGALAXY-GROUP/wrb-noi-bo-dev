@@ -12,7 +12,7 @@ export async function GET(
     try {
         const { id: bookingId } = await params;
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+        const supabaseServiceKey = process.env.SUPABASE_SECRET_KEY || '';
         
         console.log('[API Invoice] supabaseServiceKey length:', supabaseServiceKey.length);
         
