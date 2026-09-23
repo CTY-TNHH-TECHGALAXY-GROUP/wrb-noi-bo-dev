@@ -7,7 +7,7 @@ import StaffSelector from './StaffSelector';
 import BookingConfig from './BookingConfig';
 import VipCartStep from './VipCartStep';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
-import { type VipPricingTable } from '@/lib/vipPricingEngine';
+import { getTherapyServiceId, type VipPricingTable } from '@/lib/vipPricingEngine';
 import { SKILL_MAP, type VipLang } from '@/lib/vipSkills.constants';
 import { getSkillName } from '@/lib/vipStaffUtils';
 import { useMenuData } from '@/components/Menu/MenuContext';
@@ -104,6 +104,7 @@ const TherapyMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
         customerNotes?: string;
     }) => {
         const displayName = 'Therapy Service';
+        const serviceId = getTherapyServiceId(data.totalDuration);
 
         // Xử lý thông tin BodyMap thành chuỗi
         const focusStr = data.bodyParts.focus.length > 0 ? `Tập trung: ${data.bodyParts.focus.join(', ')}` : '';
@@ -122,6 +123,7 @@ const TherapyMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                 const staffInfo = selectedStaffInfoList.find(s => s.id === staffId);
                 const individualDisplayName = `${displayName} - KTV ${staffId}`;
                 addVipToCart({
+                    serviceId,
                     staffIds: [staffId],
                     staffInfoList: [staffInfo!],
                     skillIds: [],
@@ -133,6 +135,7 @@ const TherapyMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
             });
         } else {
             addVipToCart({
+                serviceId,
                 staffIds: selectedStaffIds,
                 staffInfoList: selectedStaffInfoList,
                 skillIds: [],

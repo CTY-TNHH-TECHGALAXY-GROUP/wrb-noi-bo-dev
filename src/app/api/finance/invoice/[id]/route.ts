@@ -82,6 +82,9 @@ export async function GET(
                 enrichedItems = enrichedItems.map(i => {
                     const sId = String(i.serviceId || '').trim().toLowerCase();
                     const svc = svcMap.get(sId);
+                    const customName = typeof i.options?.displayName === 'string' && i.options?.vipDuration != null
+                        ? i.options.displayName.trim()
+                        : '';
                     
                     const getName = () => {
                         const n = svc?.nameVN || svc?.nameEN || svc?.name;
@@ -91,13 +94,13 @@ export async function GET(
 
                     return {
                         ...i,
-                        serviceName: getName(),
-                        serviceNameEN: svc?.nameEN || '',
-                        serviceNameCN: svc?.nameCN || '',
-                        serviceNameJP: svc?.nameJP || '',
-                        serviceNameKR: svc?.nameKR || '',
+                        serviceName: customName || getName(),
+                        serviceNameEN: customName || svc?.nameEN || '',
+                        serviceNameCN: customName || svc?.nameCN || '',
+                        serviceNameJP: customName || svc?.nameJP || '',
+                        serviceNameKR: customName || svc?.nameKR || '',
                         originalPrice: svc?.priceVND || i.price,
-                        duration: i.duration ?? svc?.duration ?? 60
+                        duration: i.options?.vipDuration ?? i.duration ?? svc?.duration ?? 60
                     };
                 });
             }

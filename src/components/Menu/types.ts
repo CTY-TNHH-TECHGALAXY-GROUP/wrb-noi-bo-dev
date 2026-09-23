@@ -96,7 +96,10 @@ export interface CartItem extends Service {
 
   // === VIP Fields (only present when itemType = 'vip') ===
   itemType?: 'standard' | 'vip';        // default = 'standard'
+  serviceId?: string;                   // Database Services.id for VIP items
   vipStaffId?: string;                   // KTV ID assigned to this item
+  vipGroupId?: string;                   // Same package across its KTV items
+  vipGroupSize?: number;
   vipStaffName?: string;                 // KTV display name
   vipStaffAvatar?: string | null;        // KTV avatar URL
   vipSkillIds?: string[];                // Selected skill IDs

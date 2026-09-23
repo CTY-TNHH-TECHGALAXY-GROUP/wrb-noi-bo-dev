@@ -172,9 +172,7 @@ const VipEditModal = ({ item, isOpen, onClose, onSave, lang }: VipEditModalProps
     const [selectedDuration, setSelectedDuration] = useState<VipDuration | null>(null);
     const [notes, setNotes]                       = useState('');
 
-    // Number of KTV: count VIP items with the same set of staffIds sharing this item group
-    // Simplified: use item.vipStaffId; for multi-KTV, caller should handle price=0 items
-    const numStaff = 1; // price is only on the first item, so we always calc as 1 for edit
+    const numStaff = item?.vipGroupSize || 1;
 
     // --- Load data when modal opens ---
     useEffect(() => {
@@ -283,15 +281,19 @@ const VipEditModal = ({ item, isOpen, onClose, onSave, lang }: VipEditModalProps
     );
 
     const availableDurations = useMemo(
-        () => getAvailableDurations(minDuration),
-        [minDuration]
+        () => getAvailableDurations(minDuration).filter(duration =>
+            !item?.serviceId?.startsWith('NHT') ||
+            (duration <= 180 && (item.vipSkillIds?.length ? duration >= 70 : true))
+        ),
+        [minDuration, item]
     );
 
     // Auto-clamp duration if below minDuration
     const effectiveDuration = useMemo((): VipDuration | null => {
         if (!selectedDuration) return null;
-        return selectedDuration >= minDuration ? selectedDuration : minDuration;
-    }, [selectedDuration, minDuration]);
+        const duration = selectedDuration >= minDuration ? selectedDuration : minDuration;
+        return availableDurations.includes(duration) ? duration : (availableDurations[0] ?? null);
+    }, [selectedDuration, minDuration, availableDurations]);
 
     // --- Derived: realtime price ---
     const realtimePrice = useMemo(() => {

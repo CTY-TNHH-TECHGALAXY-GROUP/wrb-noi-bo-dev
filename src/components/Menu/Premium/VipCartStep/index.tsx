@@ -167,7 +167,7 @@ const groupVipItems = (cart: CartItem[]): VipBookingGroup[] => {
     for (const item of vipItems) {
         const name     = item.vipDisplayName || (item.options as any)?.displayName || 'VIP';
         const duration = item.vipDuration    || (item.options as any)?.vipDuration  || item.timeValue || 0;
-        const key = `${name}||${duration}`;
+        const key = item.vipGroupId || `${name}||${duration}`;
         if (!groupMap.has(key)) groupMap.set(key, []);
         groupMap.get(key)!.push(item);
     }

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { generateAccessToken } from '@/lib/token';
 import { handleStandardItems } from '../orders/handleStandardItems';
-import { handleVipItems } from '../orders/handleVipItems';
+import { handleVipItems, validateVipItems } from '../orders/handleVipItems';
 
 const DAY_CUTOFF_HOUR = 8; // Reset day at 8:00 AM
 
@@ -99,6 +99,11 @@ export async function POST(request: Request) {
         // 2. Separate items
         const standardItems = items.filter((i: any) => i.itemType !== 'vip');
         const vipItems = items.filter((i: any) => i.itemType === 'vip');
+        try {
+            validateVipItems(vipItems);
+        } catch (error) {
+            return NextResponse.json({ success: false, error: String(error) }, { status: 400 });
+        }
         const hasStandard = standardItems.length > 0;
         const hasVip = vipItems.length > 0;
 

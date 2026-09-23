@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
-import { calculateMinDuration, lookupPrice, getVipServiceId, type VipPricingTable } from '@/lib/vipPricingEngine';
+import { calculateMinDuration, lookupPrice, resolveVipServiceId, type VipPricingTable } from '@/lib/vipPricingEngine';
 import { generateAccessToken } from '@/lib/token';
 
 export const dynamic = 'force-dynamic';
@@ -91,6 +91,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'At least one staff must be selected' }, { status: 400 });
     if (!duration || duration < 60)
       return NextResponse.json({ error: 'Duration is required (min 60 mins)' }, { status: 400 });
+
+    let vipServiceId: string;
+    try {
+      vipServiceId = resolveVipServiceId(body.serviceId || 'NHP0001', duration, selectedStaffIds.length);
+    } catch (error) {
+      return NextResponse.json({ error: String(error) }, { status: 400 });
+    }
 
     const supabase = getSupabaseAdmin();
     if (!supabase)
@@ -316,8 +323,7 @@ export async function POST(request: NextRequest) {
     const SKILL_MAP = Object.fromEntries(ALL_VIP_SKILLS.map((s: any) => [s.id, s]));
 
     const isDeepBody =
-      skills.some((id: string) => id in DEEP_BODY_SKILL_MAP) ||
-      (body.serviceId && typeof body.serviceId === 'string' && body.serviceId.startsWith('NHT'));
+      vipServiceId.startsWith('NHT') && skills.some((id: string) => id in DEEP_BODY_SKILL_MAP);
 
     let displayName = '';
     let adminSkills: string[] = skills;
@@ -333,14 +339,12 @@ export async function POST(request: NextRequest) {
         return name;
       });
       const uniqueSkillNames = [...new Set(skillNames)];
-      displayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
+      displayName = uniqueSkillNames.length > 0
+        ? uniqueSkillNames.join(' + ')
+        : (vipServiceId.startsWith('NHT') ? 'Điều trị Therapy' : 'Gói VIP');
     }
 
     const itemsToInsert: any[] = [];
-    const vipServiceId =
-      (body.serviceId && (body.serviceId.startsWith('NHT') || body.serviceId.startsWith('NHP')))
-        ? body.serviceId
-        : getVipServiceId(selectedStaffIds.length, duration);
     
     selectedStaffIds.forEach((ktvId: string, index: number) => {
       itemsToInsert.push({

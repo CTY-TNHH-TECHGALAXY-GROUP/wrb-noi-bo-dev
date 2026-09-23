@@ -9,7 +9,7 @@ import StaffSelector from './StaffSelector';
 import BookingConfig from './BookingConfig';
 import VipCartStep from './VipCartStep';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
-import { type VipPricingTable } from '@/lib/vipPricingEngine';
+import { getVipServiceId, type VipPricingTable } from '@/lib/vipPricingEngine';
 import { SKILL_MAP, type VipLang } from '@/lib/vipSkills.constants';
 import { getSkillName } from '@/lib/vipStaffUtils';
 import { useMenuData } from '@/components/Menu/MenuContext';
@@ -252,6 +252,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                 const staffInfo = selectedStaffInfoList.find(s => s.id === staffId);
                 const individualDisplayName = `${displayName} - KTV ${staffId}`;
                 addVipToCart({
+                    serviceId: getVipServiceId(1, data.totalDuration),
                     staffIds: [staffId],
                     staffInfoList: [staffInfo!],
                     skillIds: allSkillIds,
@@ -263,6 +264,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
             });
         } else {
             addVipToCart({
+                serviceId: getVipServiceId(selectedStaffIds.length, data.totalDuration),
                 staffIds: selectedStaffIds,
                 staffInfoList: selectedStaffInfoList,
                 skillIds: allSkillIds,

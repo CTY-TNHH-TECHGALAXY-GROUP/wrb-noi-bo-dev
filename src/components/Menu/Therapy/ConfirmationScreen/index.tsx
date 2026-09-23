@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
+import { getTherapyServiceId } from '@/lib/vipPricingEngine';
 
 // =============================================
 // ✅ Confirmation Screen – VIP Booking
@@ -256,6 +257,7 @@ const ConfirmationScreen = ({
           selectedStaffIds,
           selectedSkills: allSelectedSkills,   // ← NEW: pass skills to server
           duration: totalDuration,
+          serviceId: getTherapyServiceId(totalDuration),
           timeSlot,
           appointmentDate: appointmentDate || null,
           totalPrice,

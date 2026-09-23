@@ -45,6 +45,35 @@ export const getVipServiceId = (numKtvs: number, duration: number): string => {
   return map[closest];
 };
 
+const THERAPY_SERVICE_IDS: Record<number, string> = {
+  60: 'NHT0001', 70: 'NHT0002', 90: 'NHT0003',
+  120: 'NHT0004', 150: 'NHT0005', 180: 'NHT0006',
+};
+
+export const getTherapyServiceId = (duration: number): string => {
+  const id = THERAPY_SERVICE_IDS[duration];
+  if (!id) throw new Error(`Không có mã dịch vụ Therapy cho ${duration} phút`);
+  return id;
+};
+
+export const resolveVipServiceId = (
+  requestedId: string,
+  duration: number,
+  numKtvs: number,
+  displayName = ''
+): string => {
+  if (!VIP_DURATION_TIERS.includes(duration as VipDuration)) {
+    throw new Error(`Thời lượng dịch vụ không hợp lệ: ${duration}`);
+  }
+  if (requestedId.startsWith('NHT') || (requestedId === 'NHS0800' && /^Therapy Service/.test(displayName))) {
+    return getTherapyServiceId(duration);
+  }
+  if (requestedId.startsWith('NHP') || requestedId === 'NHS0800') {
+    return getVipServiceId(numKtvs, duration);
+  }
+  throw new Error(`Mã dịch vụ VIP/Trị liệu không hợp lệ: ${requestedId}`);
+};
+
 // --- Engine Output ---
 export interface VipPricingResult {
   leCount: number;

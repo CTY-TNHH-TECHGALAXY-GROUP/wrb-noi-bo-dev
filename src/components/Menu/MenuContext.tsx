@@ -13,6 +13,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { Service, ServiceOptions, CartItem, Category } from '@/components/Menu/types';
 import { getServices } from '@/components/Menu/getServices';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
+import { resolveVipServiceId } from '@/lib/vipPricingEngine';
 
 export interface CustomerInfoContext {
     name: string;
@@ -41,7 +42,7 @@ interface MenuContextType {
 
     // --- VIP Cart Logic ---
     addVipToCart: (params: {
-        serviceId?: string;
+        serviceId: string;
         staffIds: string[];
         staffInfoList: VipStaffInfo[];
         skillIds: string[];
@@ -161,7 +162,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
 
     // --- VIP CART FUNCTION ---
     const addVipToCart = (params: {
-        serviceId?: string;
+        serviceId: string;
         staffIds: string[];
         staffInfoList: VipStaffInfo[];
         skillIds: string[];
@@ -174,7 +175,8 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
         avoid?: string[];
         note?: string;
     }) => {
-        const targetId = params.serviceId || 'NHS0800';
+        const targetId = params.serviceId;
+        const vipGroupId = crypto.randomUUID();
         const newItems: CartItem[] = params.staffIds.map((staffId, index) => {
             const staffInfo = params.staffInfoList.find(s => s.id === staffId);
             return {
@@ -193,6 +195,8 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
                 // VIP-specific fields
                 itemType: 'vip' as const,
                 serviceId: targetId,
+                vipGroupId,
+                vipGroupSize: params.staffIds.length,
                 vipStaffId: staffId,
                 vipStaffName: staffInfo?.fullName || staffId,
                 vipStaffAvatar: staffInfo?.avatarUrl || null,
@@ -206,6 +210,8 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
                 // Add to options so it gets saved to Supabase JSONB
                 options: {
                     serviceId: targetId,
+                    vipGroupId,
+                    vipGroupSize: params.staffIds.length,
                     displayName: params.displayName,
                     vipDuration: params.duration,
                     vipStaffId: staffId,
@@ -229,36 +235,50 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
         vipCustomerNotes?: string;
         priceVND?: number;
     }) => {
-        setCart(prev => prev.map(item => {
-            if (item.cartId !== cartId) return item;
-            const newSkillIds  = updates.vipSkillIds  ?? item.vipSkillIds;
-            const newDuration  = updates.vipDuration  ?? item.vipDuration;
-            const newName      = updates.vipDisplayName ?? item.vipDisplayName;
-            const newNotes     = updates.vipCustomerNotes ?? item.vipCustomerNotes;
-            const newPrice     = updates.priceVND ?? item.priceVND;
-            return {
-                ...item,
-                priceVND: newPrice,
-                timeValue: newDuration ?? item.timeValue,
-                vipSkillIds: newSkillIds,
-                vipDisplayName: newName,
-                vipDuration: newDuration,
-                vipCustomerNotes: newNotes,
-                names: newName ? { en: newName, vi: newName } : item.names,
-                options: {
-                    ...item.options,
-                    displayName: newName,
+        setCart(prev => {
+            const target = prev.find(item => item.cartId === cartId);
+            if (!target) return prev;
+            const groupItems = target.vipGroupId
+                ? prev.filter(item => item.vipGroupId === target.vipGroupId)
+                : prev.filter(item => item.itemType === 'vip' &&
+                    item.vipDisplayName === target.vipDisplayName && item.vipDuration === target.vipDuration);
+            const newDuration = updates.vipDuration ?? target.vipDuration ?? target.timeValue;
+            const newServiceId = resolveVipServiceId(
+                target.serviceId || target.id, newDuration, groupItems.length, target.vipDisplayName
+            );
+            return prev.map(item => {
+                if (!groupItems.includes(item)) return item;
+                const newSkillIds = updates.vipSkillIds ?? item.vipSkillIds;
+                const newName = updates.vipDisplayName ?? item.vipDisplayName;
+                const newNotes = updates.vipCustomerNotes ?? item.vipCustomerNotes;
+                const newPrice = item.cartId === cartId ? (updates.priceVND ?? item.priceVND) : item.priceVND;
+                return {
+                    ...item,
+                    id: newServiceId,
+                    serviceId: newServiceId,
+                    priceVND: newPrice,
+                    timeValue: newDuration,
+                    vipSkillIds: newSkillIds,
+                    vipDisplayName: newName,
                     vipDuration: newDuration,
-                    selectedSkills: newSkillIds,
-                    notes: {
-                        tag0: item.options?.notes?.tag0 ?? false,
-                        tag1: item.options?.notes?.tag1 ?? false,
-                        privateRoom: item.options?.notes?.privateRoom ?? false,
-                        content: newNotes || '',
-                    },
-                } as typeof item.options,
-            } as CartItem;
-        }));
+                    vipCustomerNotes: newNotes,
+                    names: newName ? { en: newName, vi: newName } : item.names,
+                    options: {
+                        ...item.options,
+                        serviceId: newServiceId,
+                        displayName: newName,
+                        vipDuration: newDuration,
+                        selectedSkills: newSkillIds,
+                        notes: {
+                            tag0: item.options?.notes?.tag0 ?? false,
+                            tag1: item.options?.notes?.tag1 ?? false,
+                            privateRoom: item.options?.notes?.privateRoom ?? false,
+                            content: newNotes || '',
+                        },
+                    } as typeof item.options,
+                } as CartItem;
+            });
+        });
     };
 
     // [NEW] Xóa toàn bộ VIP group (item chính + item phụ giá 0)
@@ -269,6 +289,9 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
             if (!target || target.itemType !== 'vip') {
                 // Fallback: xóa đơn lẻ
                 return prev.filter(i => i.cartId !== groupId);
+            }
+            if (target.vipGroupId) {
+                return prev.filter(item => item.vipGroupId !== target.vipGroupId);
             }
             // Xóa tất cả VIP items có cùng (vipDisplayName + vipDuration) — signature của 1 booking
             const groupName     = target.vipDisplayName || (target.options as any)?.displayName;

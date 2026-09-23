@@ -217,7 +217,7 @@ const BookingConfig = ({ lang, isBookingFlow, selectedStaffIds, selectedStaffInf
 
   // Available durations (>= minDuration)
   const availableDurations = useMemo(() =>
-    getAvailableDurations(minDuration), [minDuration]
+    getAvailableDurations(minDuration).filter(duration => duration <= 180), [minDuration]
   );
 
   // Auto-adjust selectedDuration if below minDuration

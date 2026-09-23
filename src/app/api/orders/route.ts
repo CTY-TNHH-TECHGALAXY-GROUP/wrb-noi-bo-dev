@@ -3,7 +3,7 @@ import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import crypto from 'node:crypto';
 import { generateAccessToken } from '@/lib/token';
 import { handleStandardItems } from './handleStandardItems';
-import { handleVipItems } from './handleVipItems';
+import { handleVipItems, validateVipItems } from './handleVipItems';
 import { ALL_VIP_SKILLS, type VipLang } from '@/lib/vipSkills.constants';
 import { getSkillName } from '@/lib/vipStaffUtils';
 import { DEEP_BODY_SKILL_MAP, formatDeepBodyAdminName } from '@/lib/deepBody.constants';
@@ -74,6 +74,11 @@ export async function POST(request: Request) {
         // 2. Separate items by type
         const standardItems = items.filter((i: any) => i.itemType !== 'vip');
         const vipItems = items.filter((i: any) => i.itemType === 'vip');
+        try {
+            validateVipItems(vipItems);
+        } catch (error) {
+            return NextResponse.json({ success: false, error: String(error) }, { status: 400 });
+        }
         const hasStandard = standardItems.length > 0;
         const hasVip = vipItems.length > 0;
 
@@ -217,10 +222,9 @@ export async function POST(request: Request) {
                     const ktv = item.vipStaffId ? ` | KTV: ${item.vipStaffId}` : '';
                     // Dịch lại tiếng Việt cho thông báo để nhân viên dễ hiểu
                     const skillIds: string[] = item.vipSkillIds || [];
+                    const serviceId = String(item.serviceId || item.options?.serviceId || item.id || '');
                     const isDeepBody =
-                        skillIds.some(id => id in DEEP_BODY_SKILL_MAP) ||
-                        (typeof item.serviceId === 'string' && item.serviceId.startsWith('NHT')) ||
-                        (typeof item.id === 'string' && item.id.startsWith('NHT')) ||
+                        (serviceId.startsWith('NHT') && skillIds.some(id => id in DEEP_BODY_SKILL_MAP)) ||
                         (typeof item.vipDisplayName === 'string' && (
                             item.vipDisplayName.toLowerCase().includes('deep body') ||
                             item.vipDisplayName.toLowerCase().includes('body chuyên sâu') ||
@@ -238,7 +242,11 @@ export async function POST(request: Request) {
                             return name;
                         });
                         const uniqueSkillNames = [...new Set(skillNames)];
-                        vnDisplayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
+                        vnDisplayName = uniqueSkillNames.length > 0
+                            ? uniqueSkillNames.join(' + ')
+                            : (serviceId.startsWith('NHT') || /^Therapy Service/.test(item.vipDisplayName || '')
+                                ? 'Điều trị Therapy'
+                                : (item.vipDisplayName || 'Gói VIP'));
                     }
                     
                     notifMessage += `- ${vnDisplayName} (${item.vipDuration ?? 60}p)${ktv}\n`;

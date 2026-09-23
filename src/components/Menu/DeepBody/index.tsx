@@ -167,7 +167,7 @@ export default function DeepBodyMenu({
       totalDuration: number;
       totalPrice: number;
       totalPriceUSD?: number;
-      serviceId?: string;
+      serviceId: string;
       customerNotes?: string;
       focus?: string[];
       avoid?: string[];

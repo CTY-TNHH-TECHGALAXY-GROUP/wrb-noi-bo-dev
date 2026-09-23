@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { ALL_VIP_SKILLS } from '@/lib/vipSkills.constants';
-import { getVipServiceId } from '@/lib/vipPricingEngine';
+import { resolveVipServiceId } from '@/lib/vipPricingEngine';
 import { DEEP_BODY_SKILL_MAP, formatDeepBodyAdminName } from '@/lib/deepBody.constants';
 import { translateText } from '@/lib/translationService';
 
@@ -46,6 +46,17 @@ const AREA_TO_VN: Record<string, string> = {
     FOOT: 'Bàn chân',
 };
 
+export function validateVipItems(vipItems: any[]): void {
+    for (const item of vipItems) {
+        resolveVipServiceId(
+            String(item.serviceId || item.options?.serviceId || item.id || ''),
+            item.vipDuration ?? item.timeValue ?? 60,
+            1,
+            item.vipDisplayName || item.options?.displayName || ''
+        );
+    }
+}
+
 // Helper parsing areas from notes string if array is not provided
 function parseAreasFromText(text: string, prefixRegex: RegExp): string[] {
     const match = text.match(prefixRegex);
@@ -70,15 +81,14 @@ export async function handleVipItems(
     // Helper determine display name for VIP / Deep Body items
     const getVipItemName = (item: any): { displayName: string; adminSkills: string[]; isDeepBody: boolean } => {
         const skillIds: string[] = item.vipSkillIds || [];
+        const serviceId = String(item.serviceId || item.options?.serviceId || item.id || '');
+        const deepBodyName = typeof item.vipDisplayName === 'string' && (
+            item.vipDisplayName.toLowerCase().includes('deep body') ||
+            item.vipDisplayName.toLowerCase().includes('body chuyên sâu') ||
+            item.vipDisplayName.toLowerCase().includes('trị liệu chuyên sâu')
+        );
         const isDeepBody =
-            skillIds.some(id => id in DEEP_BODY_SKILL_MAP) ||
-            (typeof item.serviceId === 'string' && item.serviceId.startsWith('NHT')) ||
-            (typeof item.id === 'string' && item.id.startsWith('NHT')) ||
-            (typeof item.vipDisplayName === 'string' && (
-                item.vipDisplayName.toLowerCase().includes('deep body') ||
-                item.vipDisplayName.toLowerCase().includes('body chuyên sâu') ||
-                item.vipDisplayName.toLowerCase().includes('trị liệu chuyên sâu')
-            ));
+            deepBodyName || (serviceId.startsWith('NHT') && skillIds.some(id => id in DEEP_BODY_SKILL_MAP));
 
         if (isDeepBody) {
             const adminName = formatDeepBodyAdminName(skillIds);
@@ -96,7 +106,11 @@ export async function handleVipItems(
             return name;
         });
         const uniqueSkillNames = [...new Set(skillNames)];
-        const displayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
+        const displayName = uniqueSkillNames.length > 0
+            ? uniqueSkillNames.join(' + ')
+            : (serviceId.startsWith('NHT') || /^Therapy Service/.test(item.vipDisplayName || '')
+                ? 'Điều trị Therapy'
+                : (item.vipDisplayName || item.options?.displayName || 'Gói VIP'));
         return {
             displayName,
             adminSkills: skillIds,
@@ -104,12 +118,11 @@ export async function handleVipItems(
         };
     };
 
-    // Group items by displayName and duration to determine numKtvs (Tứ thủ = 2, Single = 1)
+    // Each addVipToCart call is one package, even if another package has the same name/duration.
     const groupMap = new Map<string, number>();
     for (const item of vipItems) {
-        const { displayName } = getVipItemName(item);
         const duration = item.vipDuration ?? item.timeValue ?? 60;
-        const key = `${displayName}||${duration}`;
+        const key = item.vipGroupId || item.options?.vipGroupId || `${item.vipDisplayName || item.options?.displayName}||${duration}`;
         groupMap.set(key, (groupMap.get(key) || 0) + 1);
     }
 
@@ -117,14 +130,12 @@ export async function handleVipItems(
         const { displayName, adminSkills, isDeepBody } = getVipItemName(item);
         const duration = item.vipDuration ?? item.timeValue ?? 60;
         
-        const key = `${displayName}||${duration}`;
+        const key = item.vipGroupId || item.options?.vipGroupId || `${item.vipDisplayName || item.options?.displayName}||${duration}`;
         const numKtvs = groupMap.get(key) || 1;
-        const targetServiceId =
-            item.serviceId ||
-            item.options?.serviceId ||
-            (item.id && (item.id.startsWith('NHT') || item.id.startsWith('NHP'))
-                ? item.id
-                : getVipServiceId(numKtvs, duration));
+        const requestedId = String(item.serviceId || item.options?.serviceId || item.id || '');
+        const targetServiceId = resolveVipServiceId(
+            requestedId, duration, numKtvs, item.vipDisplayName || item.options?.displayName || ''
+        );
 
         const isNht = isDeepBody || targetServiceId.startsWith('NHT');
 
@@ -225,6 +236,9 @@ export async function handleVipItems(
             selectedSkills: adminSkills,
             customerNotes: finalCustomerNotes,
         };
+        if (item.vipGroupId || item.options?.vipGroupId) {
+            optionsPayload.vipGroupId = item.vipGroupId || item.options.vipGroupId;
+        }
 
         // For NHT (Deep Body), follow exact existing structure from NHS/NHP:
         // top-level keys: focus, avoid, note
@@ -255,4 +269,3 @@ export async function handleVipItems(
         throw error;
     }
 }
-
