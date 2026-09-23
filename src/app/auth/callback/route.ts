@@ -24,7 +24,7 @@ export async function GET(request: Request) {
                     window.onload = function() {
                         const supabaseClient = supabase.createClient(
                             "${process.env.NEXT_PUBLIC_SUPABASE_URL}",
-                            "${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}"
+                            "${process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}"
                         );
                         
                         // Lấy session từ Hash URL Fragment

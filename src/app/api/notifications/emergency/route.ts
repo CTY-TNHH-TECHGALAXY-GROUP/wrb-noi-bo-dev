@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
         const supabaseAdmin = getSupabaseAdmin();
         if (!supabaseAdmin) {
-            console.error('[Emergency API] supabaseAdmin is null — SUPABASE_SERVICE_ROLE_KEY missing?');
+            console.error('[Emergency API] supabaseAdmin is null — SUPABASE_SECRET_KEY missing?');
             return NextResponse.json({ error: 'Database client not initialized' }, { status: 500 });
         }
 

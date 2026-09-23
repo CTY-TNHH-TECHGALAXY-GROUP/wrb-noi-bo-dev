@@ -2,7 +2,7 @@ require('dotenv').config({ path: '.env.local' });
 const fs = require('fs');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 const rawTags = `
 "body"
@@ -116,8 +116,7 @@ const parsedTags = tagRows.map(line => {
 async function main() {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/Services?select=id,nameVN&order=id.asc`, {
         headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`
+            'apikey': SUPABASE_KEY
         }
     });
     

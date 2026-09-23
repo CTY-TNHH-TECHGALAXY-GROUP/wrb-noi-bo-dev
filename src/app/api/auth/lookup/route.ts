@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 /**
  * GET /api/auth/lookup?phone=0901234567
@@ -23,6 +18,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Phone or email is required' },
         { status: 400 }
+      );
+    }
+
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: 'Database client not initialized' },
+        { status: 503 }
       );
     }
 
