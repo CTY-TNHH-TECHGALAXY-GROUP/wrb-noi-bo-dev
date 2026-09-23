@@ -16,12 +16,13 @@ import { useAuthStore } from "@/lib/authStore.logic";
 import { useGoogleLogin } from "@/components/Auth/GoogleLoginBtn.logic";
 
 import { useMenuData } from "@/components/Menu/MenuContext";
+import { rememberCustomerVisit, startGuestVisit } from '@/lib/customerVisit';
 
 export const useCustomerTypeLogic = (lang: string) => {
   const router = useRouter();
   const { user } = useAuthStore();
   const { handleLogout } = useGoogleLogin(lang);
-  const { clearCart, updateCustomerInfo } = useMenuData();
+  const { clearCart, updateCustomerInfo, resetCustomerInfo } = useMenuData();
 
   // --- 1. CÁC STATE QUẢN LÝ ---
   const [isExiting, setIsExiting] = useState(false); // Animation chuyển trang
@@ -64,6 +65,8 @@ export const useCustomerTypeLogic = (lang: string) => {
   const onSelectWalkIn = () => {
     setShowPopup(false);
     clearCart();
+    startGuestVisit();
+    resetCustomerInfo();
     setIsExiting(true);
 
     setTimeout(() => {
@@ -74,6 +77,8 @@ export const useCustomerTypeLogic = (lang: string) => {
   const onSelectAdvance = () => {
     setShowPopup(false);
     clearCart();
+    startGuestVisit();
+    resetCustomerInfo();
     setIsExiting(true);
 
     setTimeout(() => {
@@ -84,6 +89,8 @@ export const useCustomerTypeLogic = (lang: string) => {
   const onSelectContactedFirst = () => {
     setShowPopup(false);
     clearCart();
+    startGuestVisit();
+    resetCustomerInfo();
     setIsExiting(true);
 
     setTimeout(() => {
@@ -115,21 +122,7 @@ export const useCustomerTypeLogic = (lang: string) => {
     setIsLoading(false);
 
     if (result.exists && result.customer) {
-      // Lưu cả email và phone vào localStorage để trang lịch sử sử dụng
-      if (result.customer.email) {
-        localStorage.setItem('currentUserEmail', result.customer.email);
-      } else {
-        localStorage.removeItem('currentUserEmail');
-      }
-
-      if (result.customer.phone) {
-        localStorage.setItem('currentUserPhone', result.customer.phone);
-      } else {
-        localStorage.removeItem('currentUserPhone');
-      }
-
-      // Save full info for Auto-fill
-      localStorage.setItem('currentUserInfo', JSON.stringify(result.customer));
+      rememberCustomerVisit(trimmedValue, result.customer.name);
 
       setIsExiting(true);
       setTimeout(() => {
@@ -147,7 +140,9 @@ export const useCustomerTypeLogic = (lang: string) => {
   const onRegisterNewCustomer = () => {
     setShowPopup(false);
     clearCart();
-    updateCustomerInfo('email', failedEmail);
+    rememberCustomerVisit(failedEmail);
+    resetCustomerInfo();
+    updateCustomerInfo(failedEmail.includes('@') ? 'email' : 'phone', failedEmail);
     setIsExiting(true);
 
     setTimeout(() => {

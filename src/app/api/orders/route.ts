@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
-import crypto from 'node:crypto';
 import { generateAccessToken } from '@/lib/token';
 import { handleStandardItems } from './handleStandardItems';
 import { handleVipItems, validateVipItems } from './handleVipItems';
 import { ALL_VIP_SKILLS, type VipLang } from '@/lib/vipSkills.constants';
 import { getSkillName } from '@/lib/vipStaffUtils';
 import { DEEP_BODY_SKILL_MAP, formatDeepBodyAdminName } from '@/lib/deepBody.constants';
+import { realContact, literalLike, bookingIdsForPhone, saveBookingCustomer, removeFailedBookingCustomer, removeFailedBooking } from '@/lib/bookingCustomer';
 
 const SKILL_MAP = Object.fromEntries(ALL_VIP_SKILLS.map(s => [s.id, s]));
 
@@ -18,6 +18,7 @@ export async function POST(request: Request) {
         if (!supabaseAdmin) throw new Error("Supabase Admin client not initialized");
         const body = await request.json();
         const { customer, items, paymentMethod, amountPaid, totalVND, lang, vatInvoice, preBookingId } = body;
+        if (!customer || !Array.isArray(items)) return NextResponse.json({ success: false, error: 'Invalid order' }, { status: 400 });
 
         // Normalize language code to prevent mismatch (e.g. 'VN' → 'vi', 'zh' → 'cn', 'ko' → 'kr')
         const VALID_LANGS = ['vi', 'en', 'kr', 'jp', 'cn'];
@@ -94,75 +95,9 @@ export async function POST(request: Request) {
         const vnTimeStr = new Date().toISOString();
 
         // 2.5 Generate or find Customer ID
-        let customerId = customer.id;
-
-        if (!customerId && (customer.email || customer.phone)) {
-            let query = supabaseAdmin.from('Customers').select('id');
-
-            if (customer.email && customer.phone) {
-                query = query.or(`email.eq.${customer.email},phone.eq.${customer.phone}`);
-            } else if (customer.email) {
-                query = query.eq('email', customer.email);
-            } else if (customer.phone) {
-                query = query.eq('phone', customer.phone);
-            }
-
-            const { data: existingCustomer } = await query.limit(1).maybeSingle();
-            if (existingCustomer) {
-                customerId = existingCustomer.id;
-            }
-        }
-
-        if (!customerId) {
-            customerId = `CUS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-        }
-
-        const fallbackId = Date.now().toString();
-        // Normalize gender: 'Male' → 'male', 'Female' → 'female', 'Nam' → 'male', 'Nữ' → 'female'
-        const normalizeGender = (g: string | undefined | null): string | null => {
-            if (!g) return null;
-            const lower = g.toLowerCase().trim();
-            if (lower === 'male' || lower === 'nam') return 'male';
-            if (lower === 'female' || lower === 'nữ' || lower === 'nu') return 'female';
-            return null;
-        };
-        const normalizedGender = normalizeGender(customer.gender);
-
-        const customerData: Record<string, any> = {
-            id: customerId,
-            fullName: customer.name || "Guest",
-            phone: customer.phone?.trim() || `GUEST-${fallbackId}`,
-            email: customer.email?.trim() || `guest-${fallbackId}@no-email.com`,
-            ...(normalizedGender && { gender: normalizedGender }),
-            createdAt: vnTimeStr,
-            updatedAt: vnTimeStr
-        };
-
-        // Add VAT invoice info if provided
-        console.log('[API Order] vatInvoice received:', JSON.stringify(vatInvoice));
-        if (vatInvoice && vatInvoice.taxCode) {
-            customerData.taxCode = vatInvoice.taxCode;
-            customerData.companyName = vatInvoice.companyName || null;
-            customerData.companyAddress = vatInvoice.companyAddress || null;
-            customerData.companyEmail = vatInvoice.companyEmail || null;
-            customerData.companyPhone = vatInvoice.companyPhone || null;
-            console.log('[API Order] VAT data added to customerData:', {
-                taxCode: customerData.taxCode,
-                companyName: customerData.companyName,
-                companyAddress: customerData.companyAddress,
-                companyEmail: customerData.companyEmail,
-                companyPhone: customerData.companyPhone
-            });
-        }
-
-        console.log('[API Order] Final customerData keys:', Object.keys(customerData));
-        const { error: customerError } = await supabaseAdmin
-            .from('Customers')
-            .upsert(customerData, { onConflict: 'id', ignoreDuplicates: false });
-
-        if (customerError) {
-            console.error("⚠️ [API Order] Lỗi lưu thông tin khách hàng:", customerError);
-        }
+        const savedCustomer = await saveBookingCustomer(supabaseAdmin, customer, customId, vnTimeStr, vatInvoice);
+        const { customerId } = savedCustomer;
+        const customerData = { fullName: customer.name || 'Guest', phone: savedCustomer.phone || `GUEST-${customId}` };
 
         // 3. Create Booking (1 booking for all items)
         const accessToken = generateAccessToken();
@@ -172,8 +107,8 @@ export async function POST(request: Request) {
                 id: customId,
                 customerId: customerId,
                 customerName: customer.name || "Guest",
-                customerPhone: customer.phone || "",
-                customerEmail: customer.email || "",
+                customerPhone: savedCustomer.phone,
+                customerEmail: savedCustomer.email,
                 totalAmount: totalVND,
                 paymentMethod: paymentMethod,
                 createdAt: vnTimeStr,
@@ -187,7 +122,24 @@ export async function POST(request: Request) {
             .select()
             .single();
 
-        if (bookingError) throw bookingError;
+        if (bookingError) {
+            if (savedCustomer.created) await removeFailedBookingCustomer(supabaseAdmin, customerId);
+            throw bookingError;
+        }
+
+        // 4. Delegate to handlers (separated for isolation)
+        let standardInsertedCount = 0;
+        try {
+            if (hasStandard) {
+                standardInsertedCount = await handleStandardItems(supabaseAdmin, customId, standardItems, 0);
+            }
+            if (hasVip) {
+                await handleVipItems(supabaseAdmin, customId, vipItems, standardInsertedCount, normalizedLang);
+            }
+        } catch (error) {
+            await removeFailedBooking(supabaseAdmin, customId, customerId, savedCustomer.created);
+            throw error;
+        }
 
         // 3.5 Update PreBookings if applicable
         if (preBookingId) {
@@ -195,19 +147,7 @@ export async function POST(request: Request) {
                 .from('PreBookings')
                 .update({ status: 'CONVERTED' })
                 .eq('id', preBookingId);
-            
-            if (preBookingError) {
-                console.error("⚠️ [API Order] Lỗi cập nhật PreBookings:", preBookingError);
-            }
-        }
-
-        // 4. Delegate to handlers (separated for isolation)
-        let standardInsertedCount = 0;
-        if (hasStandard) {
-            standardInsertedCount = await handleStandardItems(supabaseAdmin, customId, standardItems, 0);
-        }
-        if (hasVip) {
-            await handleVipItems(supabaseAdmin, customId, vipItems, standardInsertedCount, normalizedLang);
+            if (preBookingError) console.error("⚠️ [API Order] Lỗi cập nhật PreBookings:", preBookingError);
         }
 
         // 5. Build and Send Notification
@@ -299,7 +239,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, billNum, bookingId: customId, accessToken });
     } catch (error: any) {
         console.error("❌ API Order Error:", error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        const status = error.code === '23505' || error.message === 'Email and phone belong to different customers' ? 409 : 500;
+        return NextResponse.json({ success: false, error: error.message }, { status });
     }
 }
 
@@ -308,8 +249,7 @@ export async function GET(request: Request) {
         const supabaseAdmin = getSupabaseAdmin();
         if (!supabaseAdmin) throw new Error("Supabase Admin client not initialized");
         const { searchParams } = new URL(request.url);
-        const email = searchParams.get('email');
-        const phone = searchParams.get('phone');
+        const { email, phone } = realContact({ email: searchParams.get('email'), phone: searchParams.get('phone') });
 
         if (!email && !phone) {
             return NextResponse.json({ success: false, error: 'Email or phone required' }, { status: 400 });
@@ -345,11 +285,13 @@ export async function GET(request: Request) {
             `);
 
         if (email && phone) {
-            query = query.or(`customerEmail.eq.${email},customerPhone.eq.${phone}`);
+            return NextResponse.json({ success: false, error: 'Use one contact per history lookup' }, { status: 400 });
         } else if (email) {
-            query = query.eq('customerEmail', email);
+            query = query.ilike('customerEmail', literalLike(email));
         } else if (phone) {
-            query = query.eq('customerPhone', phone);
+            const ids = await bookingIdsForPhone(supabaseAdmin, phone);
+            if (!ids.length) return NextResponse.json({ success: true, orders: [] });
+            query = query.in('id', ids);
         }
 
         const { data: bookings, error } = await query

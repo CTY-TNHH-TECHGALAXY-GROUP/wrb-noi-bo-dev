@@ -20,6 +20,7 @@ import BookingTermsModal from '@/components/Booking/BookingTermsModal';
 import BookingConfirmModal from '@/components/Booking/BookingConfirmModal';
 import { getBookingT } from '@/components/Booking/BookingCheckout.i18n';
 import CheckoutLanguageDropdown from '@/components/Checkout/CheckoutLanguageDropdown';
+import { clearTabletCustomerVisit, shouldAutofillAuth } from '@/lib/customerVisit';
 
 // 🔧 UI CONFIGURATION
 const PAGE_CONFIG = {
@@ -79,7 +80,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
     }, [cart, router]);
 
     useEffect(() => {
-        if (isAuthUser && user) {
+        if (isAuthUser && user && shouldAutofillAuth(user)) {
             const authName = user.user_metadata?.full_name || user.user_metadata?.name || '';
             if (!customerInfo.name && authName) updateCustomerInfo('name', authName);
             if (!customerInfo.email && user.email) updateCustomerInfo('email', user.email);
@@ -93,7 +94,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
         let autoEmail = '';
         let autoPhone = '';
 
-        if (isAuthUser && user) {
+        if (isAuthUser && user && shouldAutofillAuth(user)) {
             autoName = user.user_metadata?.full_name || user.user_metadata?.name || '';
             autoEmail = user.email || '';
             autoPhone = user.phone || '';
@@ -231,6 +232,8 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
         }
 
         const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Failed to submit booking');
+        clearTabletCustomerVisit();
         // clearCart(); -> moved to BookingConfirmModal on close to prevent early redirect
         // resetCustomerInfo(); -> moved to BookingConfirmModal on close to preserve customerInfo in success UI
         return data.bookingId;

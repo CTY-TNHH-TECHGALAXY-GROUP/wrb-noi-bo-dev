@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+import { realContact, findVisitorByContact } from '@/lib/bookingCustomer';
 
 /**
  * GET /api/auth/lookup?phone=0901234567
@@ -11,10 +12,9 @@ import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const phone = searchParams.get('phone')?.trim();
-    const email = searchParams.get('email')?.trim().toLowerCase();
+    const { phone, email } = realContact({ phone: searchParams.get('phone'), email: searchParams.get('email') });
 
-    if (!phone && !email) {
+    if ((!phone && !email) || (phone && email)) {
       return NextResponse.json(
         { success: false, error: 'Phone or email is required' },
         { status: 400 }
@@ -29,55 +29,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let query = supabase
-      .from('Customers')
-      .select('id, fullName, phone, email');
-
-    if (phone) {
-      // Normalize phone: remove spaces, dashes
-      const normalizedPhone = phone.replace(/[\s\-()]/g, '');
-      query = query.eq('phone', normalizedPhone);
-    } else if (email) {
-      query = query.ilike('email', email);
-    }
-
-    const { data, error } = await query.maybeSingle();
-
-    if (error) {
-      console.error('Customer lookup error:', error);
-      return NextResponse.json(
-        { success: false, error: 'Database error' },
-        { status: 500 }
-      );
-    }
-
-    if (!data) {
+    const customer = await findVisitorByContact(supabase, phone, email);
+    if (!customer) {
       return NextResponse.json({ success: false, error: 'Customer not found' });
     }
 
-    // FETCH LATEST LANG FROM BOOKINGS
-    const { data: bookingData, error: bookingError } = await supabase
-      .from('Bookings')
-      .select('customerLang')
-      .eq('customerId', data.id)
-      .order('bookingDate', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (bookingError) {
-        console.error('Fetch customerLang error:', bookingError);
-    }
-
-    return NextResponse.json({
-      success: true,
-      customer: {
-        id: data.id,
-        fullName: data.fullName,
-        phone: data.phone,
-        email: data.email,
-        lang: bookingData?.customerLang || null
-      },
-    });
+    return NextResponse.json({ success: true, customer });
   } catch (err: any) {
     console.error('Lookup error:', err);
     return NextResponse.json(

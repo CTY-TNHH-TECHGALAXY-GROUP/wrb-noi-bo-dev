@@ -54,6 +54,7 @@ export default function BookingConfirmModal({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [showInvoice, setShowInvoice] = useState(true);
+    const [submitError, setSubmitError] = useState('');
     const t = getBookingT(lang);
 
     if (!isOpen) return null;
@@ -63,12 +64,14 @@ export default function BookingConfirmModal({
 
     const handleConfirm = async () => {
         setIsSubmitting(true);
+        setSubmitError('');
         try {
             await onConfirm();
             setSuccess(true);
             setIsSubmitting(false);
         } catch (error) {
             console.error("Submit error", error);
+            setSubmitError(error instanceof Error ? error.message : 'Failed to submit booking');
             setIsSubmitting(false);
         }
     };
@@ -293,6 +296,7 @@ export default function BookingConfirmModal({
                 </div>
 
                 {/* Footer */}
+                {submitError && <p role="alert" className="px-6 text-red-400">{submitError}</p>}
                 <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-[#1c1c1e] border-t border-white/10 flex gap-3 shrink-0">
                     <button
                         onClick={onClose}

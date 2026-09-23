@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { GoogleLoginBtn } from './GoogleLoginBtn';
 import { Phone, Mail, ArrowRight, AlertCircle, Loader2, UserCheck } from 'lucide-react';
+import { rememberCustomerVisit } from '@/lib/customerVisit';
 
 // i18n
 const t: Record<string, Record<string, string>> = {
@@ -76,24 +77,7 @@ export const LoginGate = ({ lang, onSuccess }: LoginGateProps) => {
   
   const handleCreateNewUser = () => {
     const trimmed = input.trim();
-    const paramKey = isEmail(trimmed) ? 'email' : 'phone';
-    
-    localStorage.removeItem('currentUserEmail');
-    localStorage.removeItem('currentUserPhone');
-    localStorage.removeItem('currentUserInfo');
-    
-    if (paramKey === 'email') {
-        localStorage.setItem('currentUserEmail', trimmed);
-    } else {
-        localStorage.setItem('currentUserPhone', trimmed);
-    }
-    
-    localStorage.setItem('currentUserInfo', JSON.stringify({
-        fullName: '',
-        phone: paramKey === 'phone' ? trimmed : '',
-        email: paramKey === 'email' ? trimmed : '',
-        isNewCustomer: true
-    }));
+    rememberCustomerVisit(trimmed);
     
     // Redirect to standard menu
     router.push(`/${lang}/standard/menu`);
@@ -112,21 +96,11 @@ export const LoginGate = ({ lang, onSuccess }: LoginGateProps) => {
       const data = await res.json();
 
       if (data.success && data.customer) {
-        // Helper: detect fake system-generated emails
-        const isFakeEmail = (e: string) => /^guest-\d+@no-email\.com$/i.test(e);
-        const cleanEmail = data.customer.email && !isFakeEmail(data.customer.email) ? data.customer.email : '';
-
-        // Save to localStorage for history page
-        if (cleanEmail) localStorage.setItem('currentUserEmail', cleanEmail);
-        if (data.customer.phone) localStorage.setItem('currentUserPhone', data.customer.phone);
-        localStorage.setItem('currentUserInfo', JSON.stringify({
-          ...data.customer,
-          email: cleanEmail, // Override with cleaned email
-        }));
+        rememberCustomerVisit(trimmed, data.customer.fullName);
 
         onSuccess({
-          email: cleanEmail,
-          phone: data.customer.phone,
+          email: paramKey === 'email' ? trimmed : '',
+          phone: paramKey === 'phone' ? trimmed : '',
           fullName: data.customer.fullName,
         });
       } else {

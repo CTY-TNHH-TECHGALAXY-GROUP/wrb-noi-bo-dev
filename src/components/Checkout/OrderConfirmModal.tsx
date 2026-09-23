@@ -152,12 +152,12 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     };
 
     const handleConfirm = async () => {
-        setSuccess(true); // Switch to success UI immediately
         setIsSubmitting(true);
         try {
             const returnedId = await onConfirm({});
-            if (returnedId) setBookingId(returnedId);
-            // SUCCESS is already true
+            if (!returnedId) throw new Error('Booking response has no ID');
+            setBookingId(returnedId);
+            setSuccess(true);
         } catch (error) {
             console.error("Submit error", error);
             setAlertState({
@@ -166,7 +166,6 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                 type: 'error'
             });
             setIsSubmitting(false);
-            setSuccess(false); // Revert if error
         }
     };
     if (success) {

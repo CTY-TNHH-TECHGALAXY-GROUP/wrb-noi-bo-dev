@@ -81,21 +81,21 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
 
     // Check if user has auth info in localStorage
     const checkAuth = useCallback(() => {
-        const email = localStorage.getItem('currentUserEmail');
-        const phone = localStorage.getItem('currentUserPhone');
-        return !!(email || phone);
+        return !!localStorage.getItem('currentUserLookup');
     }, []);
 
     // Fetch orders using email and/or phone
     const fetchOrders = useCallback(async () => {
         setLoading(true);
         try {
-            const email = localStorage.getItem('currentUserEmail');
-            const phone = localStorage.getItem('currentUserPhone');
+            const lookup = localStorage.getItem('currentUserLookup') || '';
+            const split = lookup.indexOf(':');
+            const type = lookup.slice(0, split);
+            const value = lookup.slice(split + 1);
 
             const queryParams = new URLSearchParams();
-            if (email) queryParams.set('email', email);
-            if (phone) queryParams.set('phone', phone);
+            if (type !== 'email' && type !== 'phone') throw new Error('Missing history contact');
+            queryParams.set(type, value);
 
             const res = await fetch(`/api/orders?${queryParams.toString()}`);
             const data = await res.json();

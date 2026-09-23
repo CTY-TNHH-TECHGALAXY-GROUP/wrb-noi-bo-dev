@@ -8,6 +8,7 @@ import { checkUserEmail } from '@/services/user';
 import { useAuthStore } from '@/lib/authStore.logic';
 import { GoogleLoginBtn } from '@/components/Auth/GoogleLoginBtn';
 import { useMenuData } from '@/components/Menu/MenuContext';
+import { rememberCustomerVisit } from '@/lib/customerVisit';
 
 // 🔧 UI CONFIGURATION
 // Cấu hình thời gian và hiệu ứng chuyển cảnh của màn hình Chọn Danh Mục
@@ -157,7 +158,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
     const [failedInput, setFailedInput] = useState('');
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
     const { user } = useAuthStore();
-    const { services, clearCart, updateCustomerInfo } = useMenuData();
+    const { services, clearCart, updateCustomerInfo, resetCustomerInfo } = useMenuData();
     const bestSeller = bestSellerText[lang] || bestSellerText.en;
     const barberBestSeller = useMemo(() => {
         const activeBarberServices = services.filter((svc) => svc.ACTIVE !== false && svc.cat === 'Barber');
@@ -192,19 +193,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
         setIsHistoryLoading(false);
 
         if (result.exists && result.customer) {
-            if (result.customer.email) {
-                localStorage.setItem('currentUserEmail', result.customer.email);
-            } else {
-                localStorage.removeItem('currentUserEmail');
-            }
-
-            if (result.customer.phone) {
-                localStorage.setItem('currentUserPhone', result.customer.phone);
-            } else {
-                localStorage.removeItem('currentUserPhone');
-            }
-
-            localStorage.setItem('currentUserInfo', JSON.stringify(result.customer));
+            rememberCustomerVisit(trimmedValue, result.customer.name);
             router.push(`/${lang}/old-user/history`);
         } else {
             setFailedInput(trimmedValue);
@@ -224,7 +213,9 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
     const handleRegisterNewCustomer = () => {
         setShowHistoryPopup(false);
         clearCart();
-        updateCustomerInfo('email', failedInput);
+        rememberCustomerVisit(failedInput);
+        resetCustomerInfo();
+        updateCustomerInfo(failedInput.includes('@') ? 'email' : 'phone', failedInput);
         router.replace(`/${lang}/standard/menu`);
     };
 

@@ -308,6 +308,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
 
     // --- CUSTOMER FUNCTIONS ---
     const updateCustomerInfo = (field: string, value: string) => {
+        if (field === 'phone' && /^GUEST-/i.test(value.trim())) value = '';
         setCustomerInfoContext(prev => ({ ...prev, [field]: value }));
     };
 

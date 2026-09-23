@@ -17,6 +17,7 @@ import { ServiceOptions, CartItem } from '@/components/Menu/types';
 import { type VatInvoiceData } from '@/components/Checkout/VatInvoiceSection';
 import { getDictionary } from '@/lib/dictionaries';
 import CheckoutLanguageDropdown from '@/components/Checkout/CheckoutLanguageDropdown';
+import { clearTabletCustomerVisit, shouldAutofillAuth } from '@/lib/customerVisit';
 
 export default function CheckoutPage({ params }: { params: Promise<{ lang: string; menuType: string }> }) {
     const router = useRouter();
@@ -81,7 +82,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         let autoEmail = '';
         let autoPhone = '';
 
-        if (isAuthUser && user) {
+        if (isAuthUser && user && shouldAutofillAuth(user)) {
             autoName = user.user_metadata?.full_name || user.user_metadata?.name || '';
             autoEmail = user.email || '';
             autoPhone = user.phone || '';
@@ -218,6 +219,8 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         }
 
         const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Failed to submit');
+        clearTabletCustomerVisit();
         resetCustomerInfo();
         return data.accessToken || data.bookingId;
     };

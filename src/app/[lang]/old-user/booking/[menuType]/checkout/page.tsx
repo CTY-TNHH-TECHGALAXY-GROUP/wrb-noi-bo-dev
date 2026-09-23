@@ -18,6 +18,7 @@ import { getDictionary } from '@/lib/dictionaries';
 import BookingTimePicker from '@/components/Booking/BookingTimePicker';
 import BookingTermsModal from '@/components/Booking/BookingTermsModal';
 import BookingConfirmModal from '@/components/Booking/BookingConfirmModal';
+import { clearTabletCustomerVisit, shouldAutofillAuth } from '@/lib/customerVisit';
 import { getBookingT } from '@/components/Booking/BookingCheckout.i18n';
 import CheckoutLanguageDropdown from '@/components/Checkout/CheckoutLanguageDropdown';
 
@@ -83,7 +84,7 @@ export default function OldUserBookingCheckoutPage({ params }: { params: Promise
         let autoEmail = '';
         let autoPhone = '';
 
-        if (isAuthUser && user) {
+        if (isAuthUser && user && shouldAutofillAuth(user)) {
             autoName = user.user_metadata?.full_name || user.user_metadata?.name || '';
             autoEmail = user.email || '';
             autoPhone = user.phone || '';
@@ -216,6 +217,8 @@ export default function OldUserBookingCheckoutPage({ params }: { params: Promise
         }
 
         const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Failed to submit booking');
+        clearTabletCustomerVisit();
         // clearCart(); -> moved to BookingConfirmModal on close to prevent early redirect
         // resetCustomerInfo(); -> moved to BookingConfirmModal on close to preserve customerInfo in success UI
         return data.bookingId;

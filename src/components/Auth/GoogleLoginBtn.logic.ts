@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase';
 import { useAuthStore } from '@/lib/authStore.logic';
+import { clearCustomerVisit } from '@/lib/customerVisit';
 
 export const hasSupabaseEnv = () => Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
@@ -13,7 +14,7 @@ export function getSupabaseClient() {
 }
 
 export const useGoogleLogin = (lang: string = 'en', onError?: (msg: string) => void, nextPath?: string) => {
-    const { setUser, logout } = useAuthStore();
+    const { logout } = useAuthStore();
     const supabase = getSupabaseClient();
 
     const handleLogin = async () => {
@@ -23,7 +24,8 @@ export const useGoogleLogin = (lang: string = 'en', onError?: (msg: string) => v
         }
 
         try {
-            const { data, error } = await supabase.auth.signInWithOAuth({
+            clearCustomerVisit();
+            const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     // Update: Trỏ về Next.js Route Handler để xử lý cấp Session bằng Cokies (SSR)
@@ -33,8 +35,8 @@ export const useGoogleLogin = (lang: string = 'en', onError?: (msg: string) => v
             });
             if (error) throw error;
             // Note: Data will be empty due to redirect, state will be set upon reload/callback.
-        } catch (err: any) {
-            console.error('Error logging in with Google:', err.message);
+        } catch (err) {
+            console.error('Error logging in with Google:', err);
             if (onError) onError('Đăng nhập thất bại. Vui lòng thử lại!');
         }
     };
@@ -42,6 +44,7 @@ export const useGoogleLogin = (lang: string = 'en', onError?: (msg: string) => v
     const handleLogout = async () => {
         if (!supabase) {
             logout();
+            clearCustomerVisit();
             return;
         }
 
@@ -49,8 +52,9 @@ export const useGoogleLogin = (lang: string = 'en', onError?: (msg: string) => v
             const { error } = await supabase.auth.signOut();
             if (error) throw error;
             logout();
-        } catch (err: any) {
-            console.error('Error logging out:', err.message);
+            clearCustomerVisit();
+        } catch (err) {
+            console.error('Error logging out:', err);
         }
     };
 

@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { generateAccessToken } from '@/lib/token';
 import { handleStandardItems } from '../orders/handleStandardItems';
 import { handleVipItems, validateVipItems } from '../orders/handleVipItems';
+import { saveBookingCustomer, removeFailedBookingCustomer, removeFailedBooking } from '@/lib/bookingCustomer';
 
 const DAY_CUTOFF_HOUR = 8; // Reset day at 8:00 AM
 
@@ -22,6 +23,7 @@ export async function POST(request: Request) {
             timeSlot, 
             bookingSource 
         } = body;
+        if (!customer || !Array.isArray(items)) return NextResponse.json({ success: false, error: 'Invalid booking' }, { status: 400 });
 
         // Normalize language
         const VALID_LANGS = ['vi', 'en', 'kr', 'jp', 'cn'];
@@ -117,57 +119,8 @@ export async function POST(request: Request) {
         const vnTimeStr = new Date().toISOString();
 
         // 3. Generate or find Customer ID
-        let customerId = customer.id;
-
-        if (!customerId && (customer.email || customer.phone)) {
-            let query = supabaseAdmin.from('Customers').select('id');
-
-            if (customer.email && customer.phone) {
-                query = query.or(`email.eq.${customer.email},phone.eq.${customer.phone}`);
-            } else if (customer.email) {
-                query = query.eq('email', customer.email);
-            } else if (customer.phone) {
-                query = query.eq('phone', customer.phone);
-            }
-
-            const { data: existingCustomer } = await query.limit(1).maybeSingle();
-            if (existingCustomer) {
-                customerId = existingCustomer.id;
-            }
-        }
-
-        if (!customerId) {
-            customerId = `CUS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-        }
-
-        const fallbackId = Date.now().toString();
-        // Normalize gender: 'Male' → 'male', 'Female' → 'female', 'Nam' → 'male', 'Nữ' → 'female'
-        const normalizeGender = (g: string | undefined | null): string | null => {
-            if (!g) return null;
-            const lower = g.toLowerCase().trim();
-            if (lower === 'male' || lower === 'nam') return 'male';
-            if (lower === 'female' || lower === 'nữ' || lower === 'nu') return 'female';
-            return null;
-        };
-        const normalizedGender = normalizeGender(customer.gender);
-
-        const customerData: Record<string, any> = {
-            id: customerId,
-            fullName: customer.name || "Guest",
-            phone: customer.phone?.trim() || `GUEST-${fallbackId}`,
-            email: customer.email?.trim() || `guest-${fallbackId}@no-email.com`,
-            ...(normalizedGender && { gender: normalizedGender }),
-            createdAt: vnTimeStr,
-            updatedAt: vnTimeStr
-        };
-
-        const { error: customerError } = await supabaseAdmin
-            .from('Customers')
-            .upsert(customerData, { onConflict: 'id', ignoreDuplicates: false });
-
-        if (customerError) {
-            console.error("⚠️ [API Booking] Lỗi lưu thông tin khách hàng:", customerError);
-        }
+        const savedCustomer = await saveBookingCustomer(supabaseAdmin, customer, customId, vnTimeStr);
+        const { customerId } = savedCustomer;
 
         // 4. Create notes object
         const notesObj = {
@@ -186,8 +139,8 @@ export async function POST(request: Request) {
                 id: customId,
                 customerId: customerId,
                 customerName: customer.name || "Guest",
-                customerPhone: customer.phone || "",
-                customerEmail: customer.email || "",
+                customerPhone: savedCustomer.phone,
+                customerEmail: savedCustomer.email,
                 totalAmount: totalVND,
                 paymentMethod: paymentMethod,
                 createdAt: vnTimeStr,
@@ -204,15 +157,23 @@ export async function POST(request: Request) {
             .select()
             .single();
 
-        if (bookingError) throw bookingError;
+        if (bookingError) {
+            if (savedCustomer.created) await removeFailedBookingCustomer(supabaseAdmin, customerId);
+            throw bookingError;
+        }
 
         // 6. Delegate to handlers
         let standardInsertedCount = 0;
-        if (hasStandard) {
-            standardInsertedCount = await handleStandardItems(supabaseAdmin, customId, standardItems, 0);
-        }
-        if (hasVip) {
-            await handleVipItems(supabaseAdmin, customId, vipItems, standardInsertedCount);
+        try {
+            if (hasStandard) {
+                standardInsertedCount = await handleStandardItems(supabaseAdmin, customId, standardItems, 0);
+            }
+            if (hasVip) {
+                await handleVipItems(supabaseAdmin, customId, vipItems, standardInsertedCount);
+            }
+        } catch (error) {
+            await removeFailedBooking(supabaseAdmin, customId, customerId, savedCustomer.created);
+            throw error;
         }
 
         // 7. Notification
@@ -238,6 +199,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, billNum, bookingId: customId, accessToken });
     } catch (error: any) {
         console.error("❌ API Booking Error:", error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        const status = error.code === '23505' || error.message === 'Email and phone belong to different customers' ? 409 : 500;
+        return NextResponse.json({ success: false, error: error.message }, { status });
     }
 }
