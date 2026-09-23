@@ -116,8 +116,7 @@ const parsedTags = tagRows.map(line => {
 async function main() {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/Services?select=id,nameVN&order=id.asc`, {
         headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`
+            'apikey': SUPABASE_KEY
         }
     });
     

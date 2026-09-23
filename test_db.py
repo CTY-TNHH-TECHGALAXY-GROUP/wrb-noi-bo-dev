@@ -19,8 +19,7 @@ if not url or not key:
     exit(1)
 
 req = Request(f'{url}/rest/v1/Services?select=id,nameVN,idx&order=idx.asc', headers={
-    'apikey': key,
-    'Authorization': f'Bearer {key}'
+    'apikey': key
 })
 
 try:
