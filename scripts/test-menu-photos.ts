@@ -3,6 +3,7 @@ import {
   normalizePhotoList,
   resolveMenuPhotos,
   resolveTherapyGalleryForStaff,
+  linkedTherapyImages,
 } from '../src/lib/menuPhotos.helper';
 
 let passedCount = 0;
@@ -19,6 +20,27 @@ function it(name: string, fn: () => void) {
 }
 
 console.log('🧪 Running Test Suite: Menu Photos Helper (NHP & NHT Production Logic)...\n');
+
+it('Info modal uses only the selected therapy links of selected staff', () => {
+  const staff = [
+    { therapyGallery: [
+      { url: 'https://cdn.example.com/coconut-1.jpg', kind: 'therapy' as const, therapyId: 'coconutOil' as const },
+      { url: 'https://cdn.example.com/stone.jpg', kind: 'therapy' as const, therapyId: 'hotStone' as const },
+      { url: 'https://cdn.example.com/mix.jpg', kind: 'mix' as const },
+      { url: 'https://cdn.example.com/avatar.jpg', kind: 'legacy' as const },
+    ] },
+    { therapyGallery: [
+      { url: 'https://cdn.example.com/coconut-2.jpg', kind: 'therapy' as const, therapyId: 'coconutOil' as const },
+    ] },
+  ];
+  assert.deepEqual(linkedTherapyImages(staff, 'coconutOil'), [
+    'https://cdn.example.com/coconut-1.jpg',
+    'https://cdn.example.com/coconut-2.jpg',
+  ]);
+  assert.deepEqual(linkedTherapyImages(staff, 'hotStone'), ['https://cdn.example.com/stone.jpg']);
+  assert.deepEqual(linkedTherapyImages(staff, 'mixofourtherapies'), ['https://cdn.example.com/mix.jpg']);
+  assert.deepEqual(linkedTherapyImages(staff, 'shiatsu'), []);
+});
 
 // ─── NHP / VIP MENU TESTS ───────────────────────────────────────────────────
 

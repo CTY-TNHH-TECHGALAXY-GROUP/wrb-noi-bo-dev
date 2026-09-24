@@ -15,6 +15,7 @@ import {
   getDeepBodyMinDuration,
 } from '@/lib/deepBody.constants';
 import { useMenuData } from '@/components/Menu/MenuContext';
+import { linkedTherapyImages } from '@/lib/menuPhotos.helper';
 import { getDeepBodyT } from '../DeepBody.i18n';
 import TechniqueGalleryModal from '../TechniqueGalleryModal';
 import BodyFocusAvoidMap from '../BodyFocusAvoidMap';
@@ -660,8 +661,10 @@ export default function DeepBookingConfig({
 
       {/* Technique Modal Preview */}
       <TechniqueGalleryModal
+        key={activeTechniqueForModal?.id}
         isOpen={!!activeTechniqueForModal}
         technique={activeTechniqueForModal}
+        images={activeTechniqueForModal ? linkedTherapyImages(selectedStaffInfoList, activeTechniqueForModal.id) : []}
         lang={lang}
         onClose={() => setActiveTechniqueForModal(null)}
       />

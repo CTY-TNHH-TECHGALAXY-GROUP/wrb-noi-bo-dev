@@ -112,6 +112,19 @@ export type TherapyGalleryConfig = {
   staff: Record<string, TherapyGalleryItem[]>;
 };
 
+export function linkedTherapyImages(
+  staff: { therapyGallery?: TherapyGalleryParsedItem[] }[],
+  techniqueId: string
+): string[] {
+  return [...new Set(staff.flatMap((person) =>
+    (person.therapyGallery ?? [])
+      .filter((item) => techniqueId === 'mixofourtherapies'
+        ? item.kind === 'mix'
+        : item.kind === 'therapy' && item.therapyId === techniqueId)
+      .map((item) => item.url)
+  ))];
+}
+
 export function normalizeTherapyGallery(
   value: unknown
 ): TherapyGalleryParsedItem[] {

@@ -9,6 +9,7 @@ import { getDeepBodyT } from './DeepBody.i18n';
 interface TechniqueGalleryModalProps {
   isOpen: boolean;
   technique: DeepBodyTechnique | null;
+  images: string[];
   lang: string;
   onClose: () => void;
 }
@@ -16,6 +17,7 @@ interface TechniqueGalleryModalProps {
 export default function TechniqueGalleryModal({
   isOpen,
   technique,
+  images,
   lang,
   onClose,
 }: TechniqueGalleryModalProps) {
@@ -25,7 +27,7 @@ export default function TechniqueGalleryModal({
 
   if (!isOpen || !technique) return null;
 
-  const images = [technique.thumbnail, ...technique.techniqueGallery];
+  const activeImage = images[activeImageIndex] ?? images[0];
 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -80,18 +82,8 @@ export default function TechniqueGalleryModal({
           <div className="py-4 space-y-4 pr-1">
             {/* Image Slider */}
             <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black/60 border border-white/10 shadow-lg group">
-              <img
-                src={images[activeImageIndex]}
-                alt={technique.name[safeLang]}
-                className="w-full h-full object-cover transition-all duration-300"
-                onError={(e) => {
-                  // Fallback to elegant gradient if photo not yet present
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
-
-              {/* Fallback Display if image not loaded */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#1c1c1f] to-[#0f0f11] -z-10">
+              {/* Fallback when this therapist has no linked image for the technique */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#1c1c1f] to-[#0f0f11]">
                 <Sparkles size={36} className="text-[#e6c487] mb-2 opacity-80" />
                 <h4 className="text-base font-bold text-[#e6c487]">
                   {technique.name[safeLang]}
@@ -100,6 +92,13 @@ export default function TechniqueGalleryModal({
                   {technique.shortDesc[safeLang]}
                 </p>
               </div>
+              {activeImage && <img
+                key={activeImage}
+                src={activeImage}
+                alt={technique.name[safeLang]}
+                className="relative w-full h-full object-cover transition-all duration-300"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />}
 
               {/* Navigation Arrows (if > 1 image) */}
               {images.length > 1 && (
