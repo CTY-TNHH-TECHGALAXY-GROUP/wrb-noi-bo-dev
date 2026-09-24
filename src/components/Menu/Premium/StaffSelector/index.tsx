@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { type VipStaffInfo, getStaffVipSkills, groupSkillsByType } from '@/lib/vipStaffUtils';
 import { getT, tpl } from '../Premium.i18n';
 import StaffImageCarousel from '../../DeepBody/StaffSelector/StaffImageCarousel';
-import { resolveMenuPhotos } from '@/lib/menuPhotos.helper';
 
 // =============================================
 // 🧑 Staff Selector – REAL DATA (Pha 3)
@@ -304,8 +303,7 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
                   <StaffImageCarousel
                     imageFit="cover"
                     images={(() => {
-                      const { primary, photos } = resolveMenuPhotos({ staff, menu: 'nhp' });
-                      return photos.length > 0 ? photos : (primary ? [primary] : []);
+                      return staff.galleryUrls?.length ? staff.galleryUrls : (staff.avatarUrl ? [staff.avatarUrl] : []);
                     })()}
                     staffId={staff.id}
                     staffName={staff.fullName}

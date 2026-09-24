@@ -4,7 +4,19 @@ export type MenuPhotoStaff = {
   avatar_url?: unknown;
   avatarUrl?: unknown;
   photoUrl?: unknown;
+  skills?: Record<string, unknown> | null;
 };
+
+export function vipGalleryPhotos(gallery: unknown, skills: Record<string, unknown> | null | undefined): string[] {
+  if (!Array.isArray(gallery) || !skills) return [];
+  return gallery.flatMap((item) => {
+    if (!item || typeof item !== 'object' || item.kind !== 'vip' || typeof item.url !== 'string' || typeof item.skillId !== 'string') return [];
+    const value = skills[item.skillId];
+    return value === true || (typeof value === 'string' && value !== '' && value !== 'none')
+      ? [item.url.trim()].filter(Boolean)
+      : [];
+  });
+}
 
 export function normalizePhotoList(value: unknown): string[] {
   if (!value) return [];
@@ -55,16 +67,17 @@ export function resolveMenuPhotos({
   const sourcePhotos = config.length > 0 ? config : gallery;
 
   if (menu === 'nhp') {
+    const vipPhotos = vipGalleryPhotos(staff?.gallery_urls ?? staff?.galleryUrls, staff?.skills);
     if (avatar) {
-      const rest = sourcePhotos.filter((url) => url !== avatar);
+      const rest = vipPhotos.filter((url) => url !== avatar);
       return {
         primary: avatar,
         photos: [avatar, ...rest],
       };
     }
     return {
-      primary: sourcePhotos[0] ?? null,
-      photos: sourcePhotos,
+      primary: vipPhotos[0] ?? null,
+      photos: vipPhotos,
     };
   }
 

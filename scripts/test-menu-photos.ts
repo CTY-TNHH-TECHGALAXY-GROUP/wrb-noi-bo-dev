@@ -68,25 +68,29 @@ it('normalizePhotoList extracts url from metadata objects {url, kind, therapyId}
   ]);
 });
 
-// 2. NHP: avatar + gallery → [avatar, ...gallery]
-it('NHP: avatar + gallery displays avatar first, then gallery', () => {
+// 2. NHP only receives photos tagged to an enabled VIP skill.
+it('NHP: T027 dual-menu gallery never includes NHT photos or unticked VIP skills', () => {
   const res = resolveMenuPhotos({
     staff: {
       avatar_url: 'https://cdn.example.com/avatar.jpg',
-      gallery_urls: ['https://cdn.example.com/photo1.jpg', 'https://cdn.example.com/photo2.jpg'],
+      skills: { shampoo: true, facial: false },
+      gallery_urls: [
+        { url: 'https://cdn.example.com/nht.jpg', kind: 'therapy', therapyId: 'hotStone' },
+        { url: 'https://cdn.example.com/nhp-shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+        { url: 'https://cdn.example.com/nhp-facial.jpg', kind: 'vip', skillId: 'facial' },
+      ],
     },
     menu: 'nhp',
   });
   assert.equal(res.primary, 'https://cdn.example.com/avatar.jpg');
   assert.deepEqual(res.photos, [
     'https://cdn.example.com/avatar.jpg',
-    'https://cdn.example.com/photo1.jpg',
-    'https://cdn.example.com/photo2.jpg',
+    'https://cdn.example.com/nhp-shampoo.jpg',
   ]);
 });
 
-// 3. NHP: avatar + config → [avatar, ...config]
-it('NHP: avatar + config displays avatar first, then config override', () => {
+// 3. Old untagged photos do not leak across menus.
+it('NHP: untagged gallery and config do not appear as VIP skill photos', () => {
   const res = resolveMenuPhotos({
     staff: {
       avatar_url: 'https://cdn.example.com/avatar.jpg',
@@ -96,22 +100,19 @@ it('NHP: avatar + config displays avatar first, then config override', () => {
     menu: 'nhp',
   });
   assert.equal(res.primary, 'https://cdn.example.com/avatar.jpg');
-  assert.deepEqual(res.photos, [
-    'https://cdn.example.com/avatar.jpg',
-    'https://cdn.example.com/cfg1.jpg',
-    'https://cdn.example.com/cfg2.jpg',
-  ]);
+  assert.deepEqual(res.photos, ['https://cdn.example.com/avatar.jpg']);
 });
 
-// 4. NHP: config/gallery contains avatar → avatar appears only once (deduplicated)
-it('NHP: config/gallery containing avatar is deduplicated (avatar appears once at start)', () => {
+// 4. A VIP photo identical to the avatar appears only once.
+it('NHP: tagged VIP photo matching avatar is deduplicated', () => {
   const res = resolveMenuPhotos({
     staff: {
       avatar_url: 'https://cdn.example.com/avatar.jpg',
+      skills: { shampoo: true },
       gallery_urls: [
-        'https://cdn.example.com/p1.jpg',
-        'https://cdn.example.com/avatar.jpg',
-        'https://cdn.example.com/p2.jpg',
+        { url: 'https://cdn.example.com/p1.jpg', kind: 'vip', skillId: 'shampoo' },
+        { url: 'https://cdn.example.com/avatar.jpg', kind: 'vip', skillId: 'shampoo' },
+        { url: 'https://cdn.example.com/p2.jpg', kind: 'vip', skillId: 'shampoo' },
       ],
     },
     menu: 'nhp',
@@ -122,6 +123,17 @@ it('NHP: config/gallery containing avatar is deduplicated (avatar appears once a
     'https://cdn.example.com/p1.jpg',
     'https://cdn.example.com/p2.jpg',
   ]);
+});
+
+it('NHT: T027 dual-menu gallery ignores VIP skill photos', () => {
+  const gallery = resolveTherapyGalleryForStaff({
+    staffId: 'T027',
+    galleryUrls: [
+      { url: 'https://cdn.example.com/nht.jpg', kind: 'therapy', therapyId: 'hotStone' },
+      { url: 'https://cdn.example.com/nhp.jpg', kind: 'vip', skillId: 'shampoo' },
+    ],
+  });
+  assert.deepEqual(gallery.map((item) => item.url), ['https://cdn.example.com/nht.jpg']);
 });
 
 // ─── NHT / DEEP BODY TESTS (resolveTherapyGalleryForStaff) ───────────────────

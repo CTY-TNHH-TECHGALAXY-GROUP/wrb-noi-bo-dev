@@ -150,23 +150,6 @@ export async function GET(_req: NextRequest) {
       });
     }
 
-    // ─── Step 3.6: Fetch dynamic photos config from SystemConfigs (Admin Điều Phối gắn link) ─
-    let configPhotosMap: Record<string, string[]> = {};
-    try {
-      const { data: configPhotosData } = await supabase
-        .from('SystemConfigs')
-        .select('value')
-        .eq('key', 'nhp_therapist_photos')
-        .maybeSingle();
-
-      if (configPhotosData?.value) {
-        const raw = configPhotosData.value;
-        configPhotosMap = typeof raw === 'string' ? JSON.parse(raw) : raw;
-      }
-    } catch (e) {
-      console.warn('[vip-available] Note: nhp_therapist_photos config fetch error:', e);
-    }
-
     // ─── Step 5: Merge into VipStaffInfo[] ──────────────────────────────────
     const result: VipStaffInfo[] = staffList.map((s) => {
       const tq = turnQueueMap.get(s.id);
@@ -272,7 +255,6 @@ export async function GET(_req: NextRequest) {
 
       const { primary, photos } = resolveMenuPhotos({
         staff: s,
-        configPhotos: configPhotosMap[s.id],
         menu: 'nhp',
       });
 
