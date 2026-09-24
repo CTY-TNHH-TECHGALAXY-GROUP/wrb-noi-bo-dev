@@ -262,40 +262,40 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                 .category-wheel-stage {
                     --wheel-size: min(92vw, calc(100dvh - 160px), 520px);
                     --wheel-radius: calc(var(--wheel-size) * 0.37);
-                    --node-size: clamp(82px, 22vw, 125px);
-                    --icon-size: clamp(46px, 13vw, 70px);
-                    --center-size: clamp(108px, 28vw, 170px);
-                    --center-icon-size: clamp(60px, 16vw, 105px);
+                    --node-size: clamp(92px, 24vw, 135px);
+                    --icon-size: clamp(56px, 15.5vw, 80px);
+                    --center-size: clamp(120px, 30vw, 185px);
+                    --center-icon-size: clamp(72px, 19vw, 120px);
                     width: var(--wheel-size);
                 }
                 @media (min-width: 640px) {
                     .category-wheel-stage {
                         --wheel-size: min(86vw, calc(100dvh - 160px), 720px);
                         --wheel-radius: calc(var(--wheel-size) * 0.365);
-                        --node-size: clamp(140px, 18vw, 175px);
-                        --icon-size: clamp(76px, 10vw, 98px);
-                        --center-size: clamp(180px, 23vw, 235px);
-                        --center-icon-size: clamp(114px, 14.5vw, 150px);
+                        --node-size: clamp(152px, 19.5vw, 190px);
+                        --icon-size: clamp(88px, 11.5vw, 110px);
+                        --center-size: clamp(195px, 24.5vw, 250px);
+                        --center-icon-size: clamp(126px, 16vw, 165px);
                     }
                 }
                 @media (min-width: 768px) {
                     .category-wheel-stage {
                         --wheel-size: min(88vw, calc(100dvh - 160px), 760px);
                         --wheel-radius: calc(var(--wheel-size) * 0.365);
-                        --node-size: clamp(150px, 19vw, 185px);
-                        --icon-size: clamp(86px, 11vw, 108px);
-                        --center-size: clamp(195px, 24vw, 245px);
-                        --center-icon-size: clamp(124px, 15vw, 160px);
+                        --node-size: clamp(165px, 20.5vw, 200px);
+                        --icon-size: clamp(98px, 12.5vw, 120px);
+                        --center-size: clamp(210px, 25.5vw, 260px);
+                        --center-icon-size: clamp(138px, 16.5vw, 175px);
                     }
                 }
                 @media (min-width: 1024px) {
                     .category-wheel-stage {
                         --wheel-size: min(76vw, calc(100dvh - 170px), 840px);
                         --wheel-radius: calc(var(--wheel-size) * 0.375);
-                        --node-size: clamp(170px, 17vw, 205px);
-                        --icon-size: clamp(98px, 10vw, 122px);
-                        --center-size: clamp(225px, 22vw, 270px);
-                        --center-icon-size: clamp(142px, 14vw, 175px);
+                        --node-size: clamp(185px, 18.5vw, 220px);
+                        --icon-size: clamp(110px, 11.5vw, 135px);
+                        --center-size: clamp(240px, 23.5vw, 285px);
+                        --center-icon-size: clamp(156px, 15.5vw, 190px);
                     }
                 }
             `}</style>
