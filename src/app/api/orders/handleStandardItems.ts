@@ -1,4 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
+import { isStrengthAvailable } from '@/lib/strengthConfig';
 
 // =============================================
 // 🛒 Standard Items Handler
@@ -23,6 +24,22 @@ const toVietnamese = (text: string | null | undefined): string => {
     return text.charAt(0).toUpperCase() + text.slice(1);
 };
 
+export async function validateStandardStrengths(supabase: SupabaseClient, items: any[]) {
+    const selected = items.filter(item => item?.options?.strength !== undefined && item.options.strength !== null && item.options.strength !== '');
+    if (selected.length === 0) return null;
+    const ids = [...new Set(selected.map(item => String(item.id || '')))];
+    const { data, error } = await supabase.from('Services').select('id, showStrength, strengthConfig').in('id', ids);
+    if (error) return { status: 503, error: 'Không kiểm tra được lực đấm của dịch vụ. Vui lòng thử lại.' };
+    const services = new Map((data || []).map(service => [service.id, service]));
+    for (const item of selected) {
+        const service = services.get(String(item.id || ''));
+        if (!service || !isStrengthAvailable(service.showStrength, service.strengthConfig, item.options.strength)) {
+            return { status: 409, error: 'Lực đấm đã chọn không còn khả dụng. Vui lòng chọn lại.' };
+        }
+    }
+    return null;
+}
+
 export async function handleStandardItems(
     supabase: SupabaseClient,
     bookingId: string,
@@ -31,7 +48,7 @@ export async function handleStandardItems(
 ): Promise<number> {
     const processedItems = items.map((item: any) => {
         const opts = item.options || {};
-        const strengthVN = toVietnamese(opts.strength || 'Medium');
+        const strengthVN = opts.strength ? toVietnamese(opts.strength) : undefined;
         const therapistVN = toVietnamese(opts.therapist || 'Random');
         const focusVN = (opts.bodyParts?.focus || []).map((f: string) => toVietnamese(f));
         const avoidVN = (opts.bodyParts?.avoid || []).map((a: string) => toVietnamese(a));

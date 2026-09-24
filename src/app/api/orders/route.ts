@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { generateAccessToken } from '@/lib/token';
-import { handleStandardItems } from './handleStandardItems';
+import { handleStandardItems, validateStandardStrengths } from './handleStandardItems';
 import { handleVipItems, validateVipItems } from './handleVipItems';
 import { ALL_VIP_SKILLS, type VipLang } from '@/lib/vipSkills.constants';
 import { getSkillName } from '@/lib/vipStaffUtils';
@@ -75,6 +75,8 @@ export async function POST(request: Request) {
         // 2. Separate items by type
         const standardItems = items.filter((i: any) => i.itemType !== 'vip');
         const vipItems = items.filter((i: any) => i.itemType === 'vip');
+        const strengthError = await validateStandardStrengths(supabaseAdmin, standardItems);
+        if (strengthError) return NextResponse.json({ success: false, error: strengthError.error }, { status: strengthError.status });
         try {
             validateVipItems(vipItems);
         } catch (error) {

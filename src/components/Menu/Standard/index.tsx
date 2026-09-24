@@ -602,6 +602,7 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
                                 FOCUS_POSITION: sheet.data.FOCUS_POSITION as any,
                                 TAGS: sheet.data.TAGS as any,
                                 SHOW_STRENGTH: sheet.data.SHOW_STRENGTH,
+                                STRENGTH_CONFIG: sheet.data.STRENGTH_CONFIG,
                                 HINT: sheet.data.HINT as Record<string, string>,
                                 PRICE_VN: sheet.data.priceVND,
                                 PRICE_USD: sheet.data.priceUSD,

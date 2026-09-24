@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { generateAccessToken } from '@/lib/token';
-import { handleStandardItems } from '../orders/handleStandardItems';
+import { handleStandardItems, validateStandardStrengths } from '../orders/handleStandardItems';
 import { handleVipItems, validateVipItems } from '../orders/handleVipItems';
 import { saveBookingCustomer, removeFailedBookingCustomer, removeFailedBooking } from '@/lib/bookingCustomer';
 
@@ -101,6 +101,8 @@ export async function POST(request: Request) {
         // 2. Separate items
         const standardItems = items.filter((i: any) => i.itemType !== 'vip');
         const vipItems = items.filter((i: any) => i.itemType === 'vip');
+        const strengthError = await validateStandardStrengths(supabaseAdmin, standardItems);
+        if (strengthError) return NextResponse.json({ success: false, error: strengthError.error }, { status: strengthError.status });
         try {
             validateVipItems(vipItems);
         } catch (error) {

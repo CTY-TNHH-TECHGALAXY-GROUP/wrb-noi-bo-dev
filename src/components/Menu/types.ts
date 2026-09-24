@@ -53,6 +53,7 @@ export interface Service {
   SHOW_NOTES?: boolean;           // Show/hide Notes section in Custom modal
   SHOW_GENDER?: boolean;
   SHOW_STRENGTH?: boolean;
+  STRENGTH_CONFIG?: { light: boolean; medium: boolean; strong: boolean } | null;
   SHOW_FOCUS?: boolean;
   SHOW_PREFERENCES?: boolean;     // Show/hide Preferences (Strength + Therapist Gender)
 

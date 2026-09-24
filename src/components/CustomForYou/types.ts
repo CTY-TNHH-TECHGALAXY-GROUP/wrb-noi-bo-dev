@@ -18,6 +18,7 @@ export interface ServiceData {
     SHOW_PREFERENCES?: boolean;     // Legacy
     SHOW_GENDER?: boolean;
     SHOW_STRENGTH?: boolean;
+    STRENGTH_CONFIG?: { light: boolean; medium: boolean; strong: boolean } | null;
     SHOW_FOCUS?: boolean;
 }
 

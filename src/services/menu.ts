@@ -82,7 +82,8 @@ export const getMenuData = async (): Promise<Service[]> => {
                 SHOW_CUSTOM_FOR_YOU: item.showCustomForYou !== false, // Default true
                 SHOW_NOTES: item.showNotes !== false,                 // Default true
                 SHOW_GENDER: item.showGender !== false, // Default true
-                SHOW_STRENGTH: item.showStrength !== false, // Default true
+                SHOW_STRENGTH: item.showStrength === true,
+                STRENGTH_CONFIG: item.strengthConfig,
                 SHOW_FOCUS: item.showFocus !== false, // Default true
                 SHOW_PREFERENCES: item.showPreferences !== false,     // Default true
 
@@ -99,5 +100,3 @@ export const getMenuData = async (): Promise<Service[]> => {
         return [];
     }
 };
-
-

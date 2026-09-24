@@ -315,6 +315,7 @@ export default function OldUserBookingCheckoutPage({ params }: { params: Promise
                         FOCUS_POSITION: selectedCartItem.FOCUS_POSITION as any,
                         TAGS: selectedCartItem.TAGS as any,
                         SHOW_STRENGTH: selectedCartItem.SHOW_STRENGTH,
+                        STRENGTH_CONFIG: selectedCartItem.STRENGTH_CONFIG,
                         SHOW_GENDER: selectedCartItem.SHOW_GENDER,
                         SHOW_FOCUS: selectedCartItem.SHOW_FOCUS,
                         SHOW_NOTES: selectedCartItem.SHOW_NOTES,

@@ -2,10 +2,12 @@ import React from 'react';
 import { User, Activity } from 'lucide-react';
 import { LanguageCode } from './types';
 import { getText } from './utils';
+import type { StrengthLevel } from '@/lib/strengthConfig';
 
 interface PreferencesProps {
     lang: LanguageCode;
     showStrength: boolean;
+    allowedStrengths: StrengthLevel[];
     showGender: boolean;
     values: {
         strength?: 'light' | 'medium' | 'strong';
@@ -14,7 +16,7 @@ interface PreferencesProps {
     onChange: (key: string, value: any) => void;
 }
 
-const Preferences: React.FC<PreferencesProps> = ({ lang, showStrength, showGender, values, onChange }) => {
+const Preferences: React.FC<PreferencesProps> = ({ lang, showStrength, allowedStrengths, showGender, values, onChange }) => {
     const strengthOptions = [
         { value: 'light', label: { en: 'Light', vi: 'Nhẹ', jp: '弱い', kr: '약하게', cn: '轻' } },
         { value: 'medium', label: { en: 'Medium', vi: 'Vừa', jp: '普通', kr: '보통', cn: '中' } },
@@ -37,7 +39,7 @@ const Preferences: React.FC<PreferencesProps> = ({ lang, showStrength, showGende
                         {getText({ en: 'Strength', vi: 'Lực tay', jp: '強さ', kr: '강도', cn: '力度' }, lang)}
                     </h4>
                     <div className="flex gap-3 md:gap-4">
-                        {strengthOptions.map((opt) => {
+                        {strengthOptions.filter(opt => allowedStrengths.includes(opt.value as StrengthLevel)).map((opt) => {
                             let activeClass = '';
                             if (values.strength === opt.value) {
                                 activeClass = 'bg-[#1c1c1e] border-white/15 text-[#C9A96E] shadow-sm';

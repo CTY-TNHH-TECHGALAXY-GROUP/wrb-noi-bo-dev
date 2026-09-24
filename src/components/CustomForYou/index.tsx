@@ -6,6 +6,7 @@ import { getDictionary } from "@/lib/dictionaries"; // Import getDictionary
 import BodyMap from "./BodyMap";
 import NoteSection from "./NoteSection";
 import Preferences from "./Preferences";
+import { allowedStrengths } from '@/lib/strengthConfig';
 
 interface CustomForYouModalProps {
     isOpen: boolean;
@@ -33,12 +34,15 @@ export default function CustomForYouModal({
         ...serviceData,
         HIDDEN_FOCUS_PARTS: serviceData.HIDDEN_FOCUS_PARTS || []
     }), [serviceData]);
+    const strengthLevels = allowedStrengths(serviceData.STRENGTH_CONFIG);
+    const showStrength = !!serviceData.SHOW_STRENGTH && strengthLevels.length > 0;
+    const defaultStrength = showStrength ? (strengthLevels.includes('medium') ? 'medium' : strengthLevels[0]) : undefined;
 
     // Default State
     const [prefs, setPrefs] = useState<CustomPreferences>({
         bodyParts: { focus: [], avoid: [] },
         notes: { tag0: false, tag1: false, privateRoom: false, content: "" },
-        strength: serviceData.SHOW_STRENGTH ? 'medium' : undefined,
+        strength: defaultStrength,
         therapist: 'random'
     });
 
@@ -75,7 +79,8 @@ export default function CustomForYouModal({
                         privateRoom: initialData.notes?.privateRoom || false,
                         content: initialData.notes?.content || ""
                     },
-                    strength: initialData.strength || (serviceData.SHOW_STRENGTH ? 'medium' : undefined),
+                    strength: showStrength && initialData.strength && strengthLevels.includes(initialData.strength)
+                        ? initialData.strength : defaultStrength,
                     therapist: initialData.therapist || 'random'
                 });
             } else {
@@ -83,7 +88,7 @@ export default function CustomForYouModal({
                 setPrefs({
                     bodyParts: { focus: [], avoid: [] },
                     notes: { tag0: false, tag1: false, privateRoom: false, content: "" },
-                    strength: serviceData.SHOW_STRENGTH ? 'medium' : undefined,
+                    strength: defaultStrength,
                     therapist: 'random'
                 });
             }
@@ -141,7 +146,7 @@ export default function CustomForYouModal({
 
     // Task E3: Check visibility flags (default true for backward compatibility)
     const showNotes = serviceData.SHOW_NOTES !== false;
-    const showPreferences = serviceData.SHOW_PREFERENCES !== false && (!!serviceData.SHOW_STRENGTH || serviceData.SHOW_GENDER !== false);
+    const showPreferences = serviceData.SHOW_PREFERENCES !== false && (showStrength || serviceData.SHOW_GENDER !== false);
     const showGender = serviceData.SHOW_GENDER !== false;
     const showFocus = serviceData.SHOW_FOCUS !== false;
 
@@ -184,7 +189,8 @@ export default function CustomForYouModal({
                             {showPreferences && (
                                 <Preferences
                                     lang={lang}
-                                    showStrength={!!serviceData.SHOW_STRENGTH}
+                                    showStrength={showStrength}
+                                    allowedStrengths={strengthLevels}
                                     showGender={showGender}
                                     values={{ strength: prefs.strength, therapist: prefs.therapist }}
                                     onChange={handlePrefChange}
