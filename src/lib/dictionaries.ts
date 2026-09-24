@@ -169,7 +169,9 @@ const dictionaries = {
             resume_journey_btn: "Resume Journey",
             note_label: "Note",
             loading_visits: "Loading visits...",
-            no_visits: "No visits found."
+            no_visits: "No visits found.",
+            load_error: "Unable to load history. Please try again.",
+            retry: "Try again"
         },
         vat_invoice: {
             checkbox_label: "Do you need a VAT invoice?",
@@ -349,7 +351,9 @@ const dictionaries = {
             resume_journey_btn: "Quay lại lộ trình",
             note_label: "Lưu ý",
             loading_visits: "Đang tải lịch sử...",
-            no_visits: "Không tìm thấy chuyến ghé thăm nào."
+            no_visits: "Không tìm thấy chuyến ghé thăm nào.",
+            load_error: "Chưa thể tải lịch sử. Vui lòng thử lại.",
+            retry: "Thử lại"
         },
         vat_invoice: {
             checkbox_label: "Bạn có cần xuất hoá đơn VAT không ?",
@@ -529,7 +533,9 @@ const dictionaries = {
             resume_journey_btn: "진행 상황 보기",
             note_label: "메모",
             loading_visits: "방문 기록 로딩 중...",
-            no_visits: "방문 기록이 없습니다."
+            no_visits: "방문 기록이 없습니다.",
+            load_error: "방문 기록을 불러올 수 없습니다. 다시 시도해 주세요.",
+            retry: "다시 시도"
         },
         vat_invoice: {
             checkbox_label: "세금계산서가 필요하십니까?",
@@ -709,7 +715,9 @@ const dictionaries = {
             resume_journey_btn: "返回行程",
             note_label: "备注",
             loading_visits: "正在加载访问记录...",
-            no_visits: "未找到访问记录。"
+            no_visits: "未找到访问记录。",
+            load_error: "暂时无法加载历史记录，请重试。",
+            retry: "重试"
         },
         vat_invoice: {
             checkbox_label: "您需要开具发票吗？",
@@ -889,7 +897,9 @@ const dictionaries = {
             resume_journey_btn: "現在の状況に戻る",
             note_label: "メモ",
             loading_visits: "履歴を読み込み中...",
-            no_visits: "訪問履歴が見つかりません。"
+            no_visits: "訪問履歴が見つかりません。",
+            load_error: "現在履歴を読み込めません。もう一度お試しください。",
+            retry: "再試行"
         },
         vat_invoice: {
             checkbox_label: "領収書は必要ですか？",

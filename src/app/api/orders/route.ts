@@ -239,7 +239,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, billNum, bookingId: customId, accessToken });
     } catch (error: any) {
         console.error("❌ API Order Error:", error);
-        const status = error.code === '23505' || error.message === 'Email and phone belong to different customers' ? 409 : 500;
+        const status = error.code === '23505' ? 409 : 500;
         return NextResponse.json({ success: false, error: error.message }, { status });
     }
 }

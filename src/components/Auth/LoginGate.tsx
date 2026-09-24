@@ -19,6 +19,7 @@ const t: Record<string, Record<string, string>> = {
     inputPlaceholder: 'Số điện thoại hoặc Email',
     confirmBtn: 'Xác nhận',
     notFound: 'Chưa có lịch sử tại Ngân Hà. Hãy trải nghiệm dịch vụ đầu tiên!',
+    lookupError: 'Chưa thể tra cứu lúc này. Bạn vẫn có thể tạo đơn với thông tin này.',
     checking: 'Đang kiểm tra...',
   },
   en: {
@@ -28,6 +29,7 @@ const t: Record<string, Record<string, string>> = {
     inputPlaceholder: 'Phone number or Email',
     confirmBtn: 'Confirm',
     notFound: 'No history found at Ngân Hà. Try our services for the first time!',
+    lookupError: 'Unable to check right now. You can still place an order with this information.',
     checking: 'Checking...',
   },
   jp: {
@@ -37,6 +39,7 @@ const t: Record<string, Record<string, string>> = {
     inputPlaceholder: '電話番号またはメール',
     confirmBtn: '確認',
     notFound: 'Ngân Hàでの履歴がありません。初めてのサービスをお試しください！',
+    lookupError: '現在履歴を確認できません。この情報で注文は可能です。',
     checking: '確認中...',
   },
   kr: {
@@ -46,6 +49,7 @@ const t: Record<string, Record<string, string>> = {
     inputPlaceholder: '전화번호 또는 이메일',
     confirmBtn: '확인',
     notFound: 'Ngân Hà에서 이용 기록이 없습니다. 첫 서비스를 경험해 보세요!',
+    lookupError: '지금은 내역을 조회할 수 없습니다. 이 정보로 주문은 가능합니다.',
     checking: '확인 중...',
   },
   cn: {
@@ -55,6 +59,7 @@ const t: Record<string, Record<string, string>> = {
     inputPlaceholder: '电话号码或邮箱',
     confirmBtn: '确认',
     notFound: '在Ngân Hà暂无记录。来体验我们的首次服务吧！',
+    lookupError: '暂时无法查询历史记录。您仍可使用此信息下单。',
     checking: '检查中...',
   },
 };
@@ -104,11 +109,11 @@ export const LoginGate = ({ lang, onSuccess }: LoginGateProps) => {
           fullName: data.customer.fullName,
         });
       } else {
-        setError(texts.notFound);
+        setError(res.ok ? texts.notFound : texts.lookupError);
       }
     } catch (err) {
       console.error('LoginGate error:', err);
-      setError(texts.notFound);
+      setError(texts.lookupError);
     } finally {
       setLoading(false);
     }

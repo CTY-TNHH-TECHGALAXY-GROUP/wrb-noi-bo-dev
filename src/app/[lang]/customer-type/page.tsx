@@ -310,8 +310,8 @@ export default function CustomerTypePage() {
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-white mb-1">{t('error_not_found')}</h3>
-                <p className="text-sm text-gray-400">{t('error_desc')}</p>
+                <h3 className="text-xl font-bold text-white mb-1">{popupStep === 'error' ? t('lookup_error') : t('error_not_found')}</h3>
+                {popupStep === 'not_found' && <p className="text-sm text-gray-400">{t('error_desc')}</p>}
                 {failedEmail && (
                   <div className="mt-3 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg">
                     <p className="text-red-400 font-medium text-sm text-center break-all">{failedEmail}</p>
@@ -324,7 +324,7 @@ export default function CustomerTypePage() {
                   {t('btn_retry')}
                 </button>
                 <button onClick={onRegisterNewCustomer} className="w-full bg-[#EAB308] hover:bg-[#d9a507] text-black font-bold py-3.5 rounded-xl uppercase tracking-wide shadow-md transition-colors">
-                    {t('btn_register_new')}
+                    {t(popupStep === 'not_found' ? 'btn_register_new' : 'btn_continue_order')}
                   </button>
               </div>
             </div>

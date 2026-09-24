@@ -27,7 +27,7 @@ export const useCustomerTypeLogic = (lang: string) => {
   // --- 1. CÁC STATE QUẢN LÝ ---
   const [isExiting, setIsExiting] = useState(false); // Animation chuyển trang
   const [showPopup, setShowPopup] = useState(false); // Bật/Tắt Popup
-  const [popupStep, setPopupStep] = useState<'input' | 'error'>('input'); // Bước của popup
+  const [popupStep, setPopupStep] = useState<'input' | 'not_found' | 'error'>('input'); // Bước của popup
   const [isLoading, setIsLoading] = useState(false);
   const [failedEmail, setFailedEmail] = useState(""); // Loading khi gọi Firebase
   const [showSplash, setShowSplash] = useState(true); // Trạng thái hiển thị Splash Screen
@@ -132,7 +132,7 @@ export const useCustomerTypeLogic = (lang: string) => {
       }, 500);
     } else {
       setFailedEmail(trimmedValue);
-      setPopupStep('error');
+      setPopupStep(result.status === 'error' ? 'error' : 'not_found');
     }
   };
 

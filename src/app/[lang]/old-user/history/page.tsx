@@ -68,6 +68,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
     const [dict, setDict] = useState<any>(null);
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [historyError, setHistoryError] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeTab, setActiveTab] = useState<'all' | 'unrated'>('all');
     const [actionContext, setActionContext] = useState<{ action: 'rebook' | 'modify' | 'new', order?: any } | null>(null);
@@ -87,6 +88,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
     // Fetch orders using email and/or phone
     const fetchOrders = useCallback(async () => {
         setLoading(true);
+        setHistoryError(false);
         try {
             const lookup = localStorage.getItem('currentUserLookup') || '';
             const split = lookup.indexOf(':');
@@ -102,9 +104,11 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
             if (data.success) {
                 setOrders(data.orders);
             } else {
+                setHistoryError(true);
                 console.error("Failed to fetch orders:", data.error);
             }
         } catch (err) {
+            setHistoryError(true);
             console.error("Fetch error:", err);
         } finally {
             setLoading(false);
@@ -363,6 +367,11 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                     <div className="flex flex-col items-center justify-center pt-20 text-gray-500 gap-2">
                         <Loader2 className="animate-spin" size={32} />
                         <span className="text-sm">{dict.history.loading_visits}</span>
+                    </div>
+                ) : historyError ? (
+                    <div role="alert" className="flex flex-col items-center gap-4 pt-20 text-center text-gray-300">
+                        <span>{dict.history.load_error}</span>
+                        <button type="button" onClick={fetchOrders} className="rounded-xl bg-[#D4AF37] px-6 py-3 font-bold text-black">{dict.history.retry}</button>
                     </div>
                 ) : orders.length === 0 ? (
                     <div className="text-center pt-20 text-gray-500 italic">

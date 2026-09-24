@@ -2,6 +2,7 @@
 
 export interface CheckUserResult {
     exists: boolean;
+    status: 'found' | 'not_found' | 'error';
     customer: {
         name: string;
         phone: string;
@@ -22,6 +23,7 @@ export const checkUserEmail = async (inputValue: string): Promise<CheckUserResul
         if (data.success && data.customer) {
             return {
                 exists: true,
+                status: 'found',
                 customer: {
                     name: data.customer.fullName || "",
                     phone: data.customer.phone || "",
@@ -31,9 +33,9 @@ export const checkUserEmail = async (inputValue: string): Promise<CheckUserResul
             };
         }
 
-        return { exists: false, customer: null };
+        return { exists: false, status: res.ok ? 'not_found' : 'error', customer: null };
     } catch (error) {
         console.error("❌ [API] Lỗi check user:", error);
-        return { exists: false, customer: null };
+        return { exists: false, status: 'error', customer: null };
     }
 };

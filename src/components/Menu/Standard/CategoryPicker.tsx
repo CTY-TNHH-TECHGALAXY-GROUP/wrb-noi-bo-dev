@@ -76,7 +76,7 @@ const bestSellerText: Record<string, { label: string }> = {
     cn: { label: '热卖' },
 };
 
-const quickActionText: Record<string, { history: string; findHistory: string; desc: string; placeholder: string; search: string; cancel: string; notFound: string; notFoundDesc: string; retry: string; register: string; orManual: string }> = {
+const quickActionText: Record<string, { history: string; findHistory: string; desc: string; placeholder: string; search: string; cancel: string; notFound: string; notFoundDesc: string; lookupError: string; retry: string; register: string; continueOrder: string; orManual: string }> = {
     en: {
         history: 'History',
         findHistory: 'Find History',
@@ -86,8 +86,10 @@ const quickActionText: Record<string, { history: string; findHistory: string; de
         cancel: 'Cancel',
         notFound: 'Not Found',
         notFoundDesc: 'This phone number or email has not been used before.',
+        lookupError: 'Unable to check right now. Please try again.',
         retry: 'Try Another Phone/Email',
         register: 'Register New Customer',
+        continueOrder: 'Use this info for a new order',
         orManual: 'or enter manually',
     },
     vi: {
@@ -99,8 +101,10 @@ const quickActionText: Record<string, { history: string; findHistory: string; de
         cancel: 'Hủy',
         notFound: 'Không tìm thấy',
         notFoundDesc: 'Số điện thoại hoặc email này chưa từng sử dụng dịch vụ.',
+        lookupError: 'Chưa thể tra cứu lúc này. Vui lòng thử lại.',
         retry: 'Thử số/email khác',
         register: 'Đăng ký khách mới',
+        continueOrder: 'Dùng thông tin này tạo đơn',
         orManual: 'hoặc nhập thủ công',
     },
     jp: {
@@ -112,8 +116,10 @@ const quickActionText: Record<string, { history: string; findHistory: string; de
         cancel: 'キャンセル',
         notFound: '見つかりません',
         notFoundDesc: 'この電話番号またはメールアドレスは登録されていません。',
+        lookupError: '現在確認できません。もう一度お試しください。',
         retry: '別の電話番号/メールを試す',
         register: '新規登録',
+        continueOrder: 'この情報で新しい注文を作成',
         orManual: 'または手動入力',
     },
     kr: {
@@ -125,8 +131,10 @@ const quickActionText: Record<string, { history: string; findHistory: string; de
         cancel: '취소',
         notFound: '찾을 수 없음',
         notFoundDesc: '이 전화번호 또는 이메일은 사용된 적이 없습니다.',
+        lookupError: '지금은 조회할 수 없습니다. 다시 시도해 주세요.',
         retry: '다른 전화번호/이메일 시도',
         register: '신규 고객 등록',
+        continueOrder: '이 정보로 새 주문 만들기',
         orManual: '또는 직접 입력',
     },
     cn: {
@@ -138,8 +146,10 @@ const quickActionText: Record<string, { history: string; findHistory: string; de
         cancel: '取消',
         notFound: '未找到',
         notFoundDesc: '此电话号码或电子邮件尚未使用过。',
+        lookupError: '暂时无法查询，请重试。',
         retry: '尝试其他电话/邮箱',
         register: '注册新客户',
+        continueOrder: '使用此信息创建新订单',
         orManual: '或手动输入',
     },
 };
@@ -153,7 +163,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
     const router = useRouter();
     const pathname = usePathname();
     const [showHistoryPopup, setShowHistoryPopup] = useState(false);
-    const [historyStep, setHistoryStep] = useState<'input' | 'error'>('input');
+    const [historyStep, setHistoryStep] = useState<'input' | 'not_found' | 'error'>('input');
     const [historyInput, setHistoryInput] = useState('');
     const [failedInput, setFailedInput] = useState('');
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
@@ -197,7 +207,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
             router.push(`/${lang}/old-user/history`);
         } else {
             setFailedInput(trimmedValue);
-            setHistoryStep('error');
+            setHistoryStep(result.status === 'error' ? 'error' : 'not_found');
         }
     };
 
@@ -571,8 +581,8 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                                 <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10 text-red-400">
                                     <X size={42} />
                                 </div>
-                                <h3 className="mb-2 text-2xl font-bold text-white">{quickText.notFound}</h3>
-                                <p className="mb-6 text-sm text-gray-400">{quickText.notFoundDesc}</p>
+                                <h3 className="mb-2 text-2xl font-bold text-white">{historyStep === 'error' ? quickText.lookupError : quickText.notFound}</h3>
+                                {historyStep === 'not_found' && <p className="mb-6 text-sm text-gray-400">{quickText.notFoundDesc}</p>}
                                 <div className="flex w-full flex-col gap-3">
                                     <button
                                         type="button"
@@ -586,7 +596,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
                                         onClick={handleRegisterNewCustomer}
                                         className="w-full rounded-2xl bg-gradient-to-r from-[#E3A51F] to-[#FFE38A] py-3 font-black text-black transition-transform active:scale-95"
                                     >
-                                        {quickText.register}
+                                        {historyStep === 'not_found' ? quickText.register : quickText.continueOrder}
                                     </button>
                                 </div>
                             </div>

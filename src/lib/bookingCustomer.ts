@@ -20,22 +20,15 @@ export function realContact(customer: CustomerInput | null | undefined) {
 
 export async function saveBookingCustomer(db: Admin, customer: CustomerInput | null | undefined, bookingId: string, createdAt: string, vatInvoice?: InvoiceInput | null) {
     const { phone, email } = realContact(customer);
-    const find = async (field: 'phone' | 'email', value: string) => {
-        if (!value) return null;
-        let data;
-        if (field === 'phone') data = await rowsForPhone(db, 'Customers', 'phone', 'id,phone', value);
-        else {
-            const result = await db.from('Customers').select('id').ilike('email', literalLike(value)).limit(2);
-            if (result.error) throw result.error;
-            data = result.data;
-        }
-        if (data.length > 1) throw new Error(`Multiple customers have the same ${field}`);
-        return data[0]?.id || null;
-    };
-    const [emailId, phoneId] = await Promise.all([find('email', email), find('phone', phone)]);
-    if (emailId && phoneId && emailId !== phoneId) throw new Error('Email and phone belong to different customers');
-    const existingId = emailId || phoneId;
-    if (existingId) return { customerId: existingId, created: false, phone, email };
+    // A lookup failure cannot turn valid contact details into a rejected order.
+    const [emailMatches, phoneMatches] = await Promise.all([
+        email ? Promise.resolve(db.from('Customers').select('id,email,createdAt').ilike('email', literalLike(email)).order('createdAt', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).limit(1)).then(({ data, error }) => error ? [] : data || []).catch(() => []) : Promise.resolve([]),
+        phone ? rowsForPhone(db, 'Customers', 'phone', 'id,phone,email,createdAt', phone).catch(() => []) : Promise.resolve([]),
+    ]);
+    const matchingBoth = email ? phoneMatches.filter(row => String(row.email || '').trim().toLowerCase() === email) : [];
+    const candidates = matchingBoth.length ? matchingBoth : [...emailMatches, ...phoneMatches];
+    candidates.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')) || String(b.id).localeCompare(String(a.id)));
+    if (candidates[0]) return { customerId: String(candidates[0].id), created: false, phone, email };
 
     const customerId = `CUS-${crypto.randomBytes(12).toString('base64url')}`;
     const gender = typeof customer?.gender === 'string' ? customer.gender.trim().toLowerCase() : '';
@@ -94,9 +87,9 @@ export async function findVisitorByContact(db: Admin, phone: string, email: stri
         : await (phone ? bookingQuery.in('id', ids) : bookingQuery.ilike('customerEmail', literalLike(email)))
             .order('bookingDate', { ascending: false }).limit(1).maybeSingle();
     if (bookingError) throw bookingError;
-    if (!customer && !booking) return null;
+    if (!matches.length && !booking) return null;
     return {
-        fullName: booking?.customerName || customer?.fullName || '',
+        fullName: matches.length > 1 ? '' : booking?.customerName || customer?.fullName || '',
         phone,
         email,
         lang: booking?.customerLang || null,

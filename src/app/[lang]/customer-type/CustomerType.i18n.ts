@@ -8,7 +8,7 @@
 /**
  * Type định nghĩa các key có thể dịch
  */
-export type TranslationKey = 'wc_title' | 'subtitle_journey' | 'badge_recommended' | 'desc_old_title' | 'btn_continue_journey' | 'label_new_visit' | 'btn_walkin_title' | 'btn_walkin_desc' | 'btn_booking_title' | 'btn_booking_desc' | 'btn_advance_title' | 'btn_advance_desc' | 'btn_history_title' | 'btn_history_desc' | 'btn_old_title' | 'btn_back' | 'find_history' | 'desc_enter_email' | 'input_placeholder' | 'search' | 'cancel' | 'error_not_found' | 'error_desc' | 'btn_retry' | 'btn_register_new' | 'btn_logout' | 'or_manual';
+export type TranslationKey = 'wc_title' | 'subtitle_journey' | 'badge_recommended' | 'desc_old_title' | 'btn_continue_journey' | 'label_new_visit' | 'btn_walkin_title' | 'btn_walkin_desc' | 'btn_booking_title' | 'btn_booking_desc' | 'btn_advance_title' | 'btn_advance_desc' | 'btn_history_title' | 'btn_history_desc' | 'btn_old_title' | 'btn_back' | 'find_history' | 'desc_enter_email' | 'input_placeholder' | 'search' | 'cancel' | 'error_not_found' | 'error_desc' | 'lookup_error' | 'btn_retry' | 'btn_register_new' | 'btn_continue_order' | 'btn_logout' | 'or_manual';
 
 /**
  * Object chứa tất cả bản dịch theo ngôn ngữ
@@ -40,8 +40,10 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     cancel: 'Cancel',
     error_not_found: 'Not Found',
     error_desc: 'This phone number or email has not been used before.',
+    lookup_error: 'Unable to check right now. Please try again.',
     btn_retry: 'Try Another Phone/Email',
     btn_register_new: 'Register New Customer',
+    btn_continue_order: 'Use this info for a new order',
     btn_logout: 'Switch Account / Logout',
     or_manual: 'or enter manually'
   },
@@ -70,8 +72,10 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     cancel: 'Hủy',
     error_not_found: 'Không Tìm Thấy',
     error_desc: 'Số điện thoại hoặc email này chưa từng sử dụng dịch vụ.',
+    lookup_error: 'Chưa thể tra cứu lúc này. Vui lòng thử lại.',
     btn_retry: 'Thử Số Điện Thoại / Email Khác',
     btn_register_new: 'Đăng Ký Khách Mới',
+    btn_continue_order: 'Dùng Thông Tin Này Tạo Đơn',
     btn_logout: 'Đổi Tài Khoản / Đăng Xuất',
     or_manual: 'hoặc nhập số điện thoại/email'
   },
@@ -100,8 +104,10 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     cancel: 'キャンセル',
     error_not_found: '見つかりません',
     error_desc: 'この電話番号またはメールアドレスは登録されていません。',
+    lookup_error: '現在確認できません。もう一度お試しください。',
     btn_retry: '別の電話番号/メールを試す',
     btn_register_new: '新規登録',
+    btn_continue_order: 'この情報で新しい注文を作成',
     btn_logout: 'アカウント切り替え / ログアウト',
     or_manual: 'または電話番号/メール入力'
   },
@@ -130,8 +136,10 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     cancel: '취소',
     error_not_found: '찾을 수 없음',
     error_desc: '이 전화번호 또는 이메일은 사용된 적이 없습니다.',
+    lookup_error: '지금은 조회할 수 없습니다. 다시 시도해 주세요.',
     btn_retry: '다른 전화번호/이메일 시도',
     btn_register_new: '신규 고객 등록',
+    btn_continue_order: '이 정보로 새 주문 만들기',
     btn_logout: '계정 전환 / 로그아웃',
     or_manual: '또는 전화번호/이메일 입력'
   },
@@ -160,8 +168,10 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     cancel: '取消',
     error_not_found: '未找到',
     error_desc: '此电话号码或电子邮件尚未使用过。',
+    lookup_error: '暂时无法查询，请重试。',
     btn_retry: '尝试其他电话/邮箱',
     btn_register_new: '注册新客户',
+    btn_continue_order: '使用此信息创建新订单',
     btn_logout: '切换账号 / 退出',
     or_manual: '或输入电话/邮箱'
   }

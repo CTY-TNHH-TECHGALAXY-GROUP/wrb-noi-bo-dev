@@ -7,6 +7,7 @@ import { rememberCustomerVisit, startGuestVisit, shouldAutofillAuth } from '../s
 const customers: any[] = [];
 const bookings: any[] = [];
 const items: any[] = [];
+let failCustomerLookup = false;
 const db: any = {
     from(table: string) {
         const rows = table === 'Customers' ? customers : table === 'Bookings' ? bookings : items;
@@ -14,16 +15,27 @@ const db: any = {
             select: () => {
                 let filtered = rows;
                 let count = rows.length;
+                const ordering: { field: string; ascending: boolean }[] = [];
                 const query = {
                     eq: (field: string, value: string) => { filtered = filtered.filter(row => row[field] === value); return query; },
                     ilike: (field: string, value: string) => { const literal = value.replace(/\\([\\%_])/g, '$1').toLowerCase(); filtered = filtered.filter(row => String(row[field] || '').toLowerCase() === literal); return query; },
                     like: (field: string, value: string) => { const pattern = new RegExp('^' + value.split('%').join('.*') + '$'); filtered = filtered.filter(row => pattern.test(String(row[field] || ''))); return query; },
                     in: (field: string, values: string[]) => { filtered = filtered.filter(row => values.includes(row[field])); return query; },
-                    order: () => query,
+                    order: (field: string, options?: { ascending?: boolean }) => {
+                        ordering.push({ field, ascending: options?.ascending !== false });
+                        filtered = [...filtered].sort((a, b) => {
+                            for (const item of ordering) {
+                                const result = String(a[item.field] || '').localeCompare(String(b[item.field] || '')) * (item.ascending ? 1 : -1);
+                                if (result) return result;
+                            }
+                            return 0;
+                        });
+                        return query;
+                    },
                     limit: (n: number) => { count = n; return query; },
-                    range: async (start: number, end: number) => ({ data: filtered.slice(start, end + 1), error: null }),
+                    range: async (start: number, end: number) => ({ data: filtered.slice(start, end + 1), error: table === 'Customers' && failCustomerLookup ? { message: 'lookup failed' } : null }),
                     maybeSingle: async () => ({ data: filtered[0] || null, error: null }),
-                    then: (resolve: (value: any) => void) => resolve({ data: filtered.slice(0, count), error: null }),
+                    then: (resolve: (value: any) => void) => resolve({ data: filtered.slice(0, count), error: table === 'Customers' && failCustomerLookup ? { message: 'lookup failed' } : null }),
                 };
                 return query;
             },
@@ -44,6 +56,7 @@ const db: any = {
 
 async function main() {
     assert.deepEqual(realContact({ phone: 'GUEST-BK-1', email: 'guest-BK-1@no-email.com' }), { phone: '', email: '' });
+    assert.deepEqual(realContact({ phone: 'GUEST-BK-1', email: 'Hsiu@Example.com' }), { phone: '', email: 'hsiu@example.com' });
     assert.equal(literalLike('a_b%\\'), 'a\\_b\\%\\\\');
     const [first, second] = await Promise.all([
         saveBookingCustomer(db, { name: 'Hsiu', email: 'hsiu@example.com', id: 'old-id' }, 'BK-1', 'now'),
@@ -58,9 +71,27 @@ async function main() {
     customers.push({ id: 'formatted-customer', fullName: 'Formatted', phone: '090 888-7777', email: 'FORMAT@example.com' });
     assert.equal((await saveBookingCustomer(db, { phone: '0908887777' }, 'BK-FORMAT', 'now')).customerId, 'formatted-customer');
     assert.equal((await saveBookingCustomer(db, { email: 'format@example.com' }, 'BK-CASE', 'now')).customerId, 'formatted-customer');
-    customers.push({ id: 'phone-owner', fullName: 'Phone owner', phone: '0901234567', email: 'phone@example.com' });
-    await assert.rejects(saveBookingCustomer(db, { email: 'hsiu@example.com', phone: '0901234567' }, 'BK-4', 'now'), /different customers/);
-    assert.equal(customers.length, 4);
+    customers.push({ id: 'phone-owner', fullName: 'Phone owner', phone: '0901234567', email: 'phone@example.com', createdAt: 'zz' });
+    const conflicting = await saveBookingCustomer(db, { email: 'hsiu@example.com', phone: '0901234567' }, 'BK-4', 'now');
+    assert.equal(conflicting.created, false);
+    assert.equal(conflicting.customerId, 'phone-owner');
+    customers.push({ id: 'duplicate-email', fullName: 'Another', phone: '0909998888', email: 'hsiu@example.com', createdAt: 'zz' });
+    const ambiguous = await saveBookingCustomer(db, { name: 'Returning', email: 'hsiu@example.com' }, 'BK-AMBIGUOUS', 'now');
+    assert.equal(ambiguous.created, false);
+    assert.equal(ambiguous.customerId, 'duplicate-email');
+    assert.equal(customers.find(c => c.id === ambiguous.customerId).fullName, 'Another');
+    customers.push({ id: 'newest-email', fullName: 'Newest', phone: '0900001111', email: 'hsiu@example.com', createdAt: 'zzz' });
+    assert.equal((await saveBookingCustomer(db, { email: 'hsiu@example.com' }, 'BK-NEWEST', 'now')).customerId, 'newest-email');
+    assert.equal((await saveBookingCustomer(db, { email: 'hsiu@example.com', phone: '0909998888' }, 'BK-MATCH', 'now')).customerId, 'duplicate-email');
+    assert.equal((await saveBookingCustomer(db, { email: 'hsiu@example.com', phone: 'GUEST-BK-1' }, 'BK-FAKE-PHONE', 'now')).customerId, 'newest-email');
+    assert.deepEqual(await findVisitorByContact(db, '', 'hsiu@example.com'), {
+        fullName: '', phone: '', email: 'hsiu@example.com', lang: null,
+    });
+    failCustomerLookup = true;
+    const lookupFailed = await saveBookingCustomer(db, { email: 'hsiu@example.com' }, 'BK-LOOKUP-FAIL', 'now');
+    failCustomerLookup = false;
+    assert.equal(lookupFailed.created, true);
+    assert.equal(customers.find(c => c.id === lookupFailed.customerId).phone, 'GUEST-BK-LOOKUP-FAIL');
 
     const sameId = await Promise.allSettled([
         saveBookingCustomer(db, { email: 'collision-a@example.com' }, 'BK-COLLISION', 'now'),
