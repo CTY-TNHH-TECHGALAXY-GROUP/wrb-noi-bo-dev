@@ -289,16 +289,16 @@ export default function BodyFocusAvoidMap({
 
         {/* ── RIGHT PANEL: AREA CONTROLS ── */}
         <div className="flex-1 min-w-0 flex flex-col justify-between p-2 xs:p-3 sm:p-4 md:p-5 bg-gradient-to-b from-[#121214] to-[#0d0d0f]">
-          <div className="flex flex-col h-full justify-between">
+          <div className="flex flex-col h-full justify-between max-w-sm w-full mx-auto sm:mx-0">
             {/* Table Header */}
-            <div className="grid grid-cols-[minmax(0,1fr)_34px_34px] xs:grid-cols-[minmax(0,1fr)_40px_40px] sm:grid-cols-[minmax(0,1fr)_48px_48px] gap-1 sm:gap-2 items-center pb-1.5 sm:pb-2 mb-0.5 border-b border-white/10 text-[10px] xs:text-[11px] sm:text-sm md:text-base font-black uppercase flex-none">
-              <div className="text-[#e6c487] pl-0.5 font-bold break-words whitespace-normal leading-tight">
+            <div className="grid grid-cols-[1fr_56px_56px] xs:grid-cols-[1fr_62px_62px] sm:grid-cols-[1fr_70px_70px] gap-1.5 sm:gap-2 items-center pb-1.5 sm:pb-2 mb-0.5 border-b border-white/10 text-[10px] xs:text-[11px] sm:text-xs md:text-sm font-black uppercase flex-none">
+              <div className="text-[#e6c487] pl-0.5 font-bold whitespace-nowrap leading-tight">
                 {t.body_map_col_area}
               </div>
-              <div className="text-[#39d67b] text-center font-bold break-words whitespace-normal leading-tight px-0.5">
+              <div className="text-[#39d67b] text-center font-bold whitespace-nowrap leading-tight px-1">
                 {t.body_map_col_focus}
               </div>
-              <div className="text-[#ff5b66] text-center font-bold break-words whitespace-normal leading-tight px-0.5">
+              <div className="text-[#ff5b66] text-center font-bold whitespace-nowrap leading-tight px-1">
                 {t.body_map_col_avoid}
               </div>
             </div>
@@ -314,7 +314,7 @@ export default function BodyFocusAvoidMap({
                 return (
                   <div
                     key={key}
-                    className="grid grid-cols-[minmax(0,1fr)_34px_34px] xs:grid-cols-[minmax(0,1fr)_40px_40px] sm:grid-cols-[minmax(0,1fr)_48px_48px] gap-1 sm:gap-2 items-center py-1 sm:py-1.5 hover:bg-white/[0.03] rounded-lg transition-colors px-0.5 sm:px-1"
+                    className="grid grid-cols-[1fr_56px_56px] xs:grid-cols-[1fr_62px_62px] sm:grid-cols-[1fr_70px_70px] gap-1.5 sm:gap-2 items-center py-1 sm:py-1.5 hover:bg-white/[0.03] rounded-lg transition-colors px-0.5 sm:px-1"
                   >
                     {/* Area Name */}
                     <div

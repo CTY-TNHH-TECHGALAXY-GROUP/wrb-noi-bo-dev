@@ -47,16 +47,25 @@ export default function MixTechniquePopover({
   }, [isOpen, staff]);
 
   const [selectedIds, setSelectedIds] = useState<DeepBodyBaseTechniqueId[]>(() => {
-    if (initialSelected.length >= 2) return initialSelected;
-    const available = DEEP_BODY_BASE_TECHNIQUE_IDS.filter((id) =>
-      staffHasDeepBodyTechnique(staff?.skills, id)
-    );
-    if (initialSelected.length === 1 && available.includes(initialSelected[0])) {
-      const peer = available.find((id) => id !== initialSelected[0]);
-      return peer ? [initialSelected[0], peer] : available.slice(0, 2);
+    if (initialSelected && initialSelected.length > 0) {
+      return initialSelected.filter((id) =>
+        staffHasDeepBodyTechnique(staff?.skills, id)
+      );
     }
-    return available.slice(0, 2);
+    return [];
   });
+
+  useEffect(() => {
+    if (initialSelected && initialSelected.length > 0) {
+      setSelectedIds(
+        initialSelected.filter((id) =>
+          staffHasDeepBodyTechnique(staff?.skills, id)
+        )
+      );
+    } else {
+      setSelectedIds([]);
+    }
+  }, [initialSelected, staff]);
 
   if (!isOpen || !staff) return null;
 
@@ -74,7 +83,7 @@ export default function MixTechniquePopover({
     });
   };
 
-  const isApplyDisabled = selectedIds.length < 2 || selectedIds.length > 4;
+  const isApplyDisabled = selectedIds.length < 1 || selectedIds.length > 4;
 
   const handleApply = () => {
     if (isApplyDisabled) return;
@@ -162,11 +171,17 @@ export default function MixTechniquePopover({
             })}
           </div>
 
-          {/* Validation Warning if < 2 */}
-          {selectedIds.length < 2 && (
+          {/* Validation Notice */}
+          {selectedIds.length === 0 && (
             <div role="status" className="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs mb-3">
               <AlertCircle size={14} className="shrink-0" />
               <span>{t.mix_min_warning}</span>
+            </div>
+          )}
+          {selectedIds.length === 1 && (
+            <div role="status" className="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs mb-3">
+              <AlertCircle size={14} className="shrink-0" />
+              <span>{t.mix_single_hint}</span>
             </div>
           )}
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Check, Info, ShieldCheck, Plus, ArrowRight, ChevronDown } from 'lucide-react';
+import { Clock, Check, Info, ShieldCheck, Plus, ArrowRight, ChevronDown, AlertCircle, Pencil } from 'lucide-react';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 import type { VipPricingTable } from '@/lib/vipPricingEngine';
 import {
@@ -224,6 +224,7 @@ export default function DeepBookingConfig({
   }, [services]);
 
   const minDuration = getDeepBodyMinDuration(selectedTechniqueIds.length);
+  const isMixMode = selectedTechniqueIds.length >= 2;
 
   const availableServices = useMemo(() => {
     return deepBodyServices.filter((s) => s.timeValue >= minDuration);
@@ -251,7 +252,22 @@ export default function DeepBookingConfig({
   const currentUsdPrice = isFourHands ? Math.round(currentService.priceUSD * 1.5) : currentService.priceUSD;
 
   const handleToggleTechnique = (techId: DeepBodyBaseTechniqueId) => {
-    setSelectedTechniqueIds([techId]);
+    if (isMixMode) {
+      // Khi đang ở chế độ Mix: bấm vào 1 therapy đơn sẽ chuyển về chọn therapy đơn đó
+      setSelectedTechniqueIds([techId]);
+    } else {
+      // Khi đang ở chế độ đơn:
+      if (selectedTechniqueIds.length === 0) {
+        setSelectedTechniqueIds([techId]);
+        return;
+      }
+      if (selectedTechniqueIds.includes(techId)) {
+        // Đang chọn liệu pháp này rồi thì giữ nguyên
+        return;
+      }
+      // Chọn thêm liệu pháp thứ 2 sẽ tự động gộp thành Mix
+      setSelectedTechniqueIds((prev) => [...prev, techId]);
+    }
   };
 
   const handleOpenMixPopover = () => {
@@ -399,55 +415,56 @@ export default function DeepBookingConfig({
         {/* Techniques List (1 card per row, large prominent typography matching Standard style) */}
         <div className="flex flex-col gap-3 sm:gap-3.5 mt-4">
           {baseMethods.map((tech) => {
+            // Khi ở chế độ Mix, các thẻ liệu pháp đơn KHÔNG được hiện select (chỉ thẻ Mix hiện select)
             const isSelected =
-              selectedTechniqueIds.length === 1 &&
-              selectedTechniqueIds[0] === (tech.id as DeepBodyBaseTechniqueId);
+              !isMixMode &&
+              selectedTechniqueIds.includes(tech.id as DeepBodyBaseTechniqueId);
 
-            return (
-              <div
-                key={tech.id}
-                onClick={() => {
-                  handleToggleTechnique(tech.id as DeepBodyBaseTechniqueId);
-                }}
-                className={`group relative p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-4 ${
-                  isSelected
-                    ? 'bg-gradient-to-r from-[#1f1d19] via-[#1a1916] to-[#161513] border-[#e6c487] shadow-[0_4px_25px_rgba(230,196,135,0.18)] ring-1 ring-[#e6c487]/30'
-                    : 'bg-[#151517] border-white/8 hover:border-white/20 hover:bg-[#18181b]'
-                }`}
-              >
-                {/* Left content: Title & Info Icon */}
-                <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                  <h4 className="text-2xl sm:text-3xl md:text-[32px] font-black leading-tight tracking-wide text-white group-hover:text-[#e6c487] transition-colors truncate">
-                    {tech.name[safeLang] || tech.name.en}
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveTechniqueForModal(tech);
-                    }}
-                    className="w-7 h-7 rounded-full bg-white/5 hover:bg-[#e6c487]/20 flex items-center justify-center text-gray-400 hover:text-[#e6c487] transition-colors shrink-0"
-                    aria-label="Chi tiết kỹ thuật"
-                  >
-                    <Info size={16} />
-                  </button>
-                </div>
+              return (
+                <div
+                  key={tech.id}
+                  onClick={() => {
+                    handleToggleTechnique(tech.id as DeepBodyBaseTechniqueId);
+                  }}
+                  className={`group relative p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-4 ${
+                    isSelected
+                      ? 'bg-gradient-to-r from-[#1f1d19] via-[#1a1916] to-[#161513] border-[#e6c487] shadow-[0_4px_25px_rgba(230,196,135,0.18)] ring-1 ring-[#e6c487]/30'
+                      : 'bg-[#151517] border-white/8 hover:border-white/20 hover:bg-[#18181b]'
+                  }`}
+                >
+                  {/* Left content: Title & Info Icon */}
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    <h4 className="text-2xl sm:text-3xl md:text-[32px] font-black leading-tight tracking-wide text-white group-hover:text-[#e6c487] transition-colors truncate">
+                      {tech.name[safeLang] || tech.name.en}
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveTechniqueForModal(tech);
+                      }}
+                      className="w-7 h-7 rounded-full bg-white/5 hover:bg-[#e6c487]/20 flex items-center justify-center text-gray-400 hover:text-[#e6c487] transition-colors shrink-0"
+                      aria-label="Chi tiết kỹ thuật"
+                    >
+                      <Info size={16} />
+                    </button>
+                  </div>
 
-                {/* Right: Radio/Check Selection Button */}
-                <div className="flex items-center justify-end shrink-0 pl-2 sm:pl-4">
-                  <div
-                    className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all ${
-                      isSelected
-                        ? 'bg-[#e6c487] text-[#1c1c1e] shadow-[0_0_12px_rgba(230,196,135,0.4)] scale-105'
-                        : 'border-2 border-white/25 group-hover:border-white/40'
-                    }`}
-                  >
-                    {isSelected && <Check size={20} strokeWidth={3.5} />}
+                  {/* Right: Radio/Check Selection Button */}
+                  <div className="flex items-center justify-end shrink-0 pl-2 sm:pl-4">
+                    <div
+                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all ${
+                        isSelected
+                          ? 'bg-[#e6c487] text-[#1c1c1e] shadow-[0_0_12px_rgba(230,196,135,0.4)] scale-105'
+                          : 'border-2 border-white/25 group-hover:border-white/40'
+                      }`}
+                    >
+                      {isSelected && <Check size={20} strokeWidth={3.5} />}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
 
           {/* Mix Card */}
           {mixMethod && (
@@ -455,13 +472,13 @@ export default function DeepBookingConfig({
               key={mixMethod.id}
               onClick={handleOpenMixPopover}
               className={`group relative p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-4 ${
-                selectedTechniqueIds.length >= 2
+                isMixMode
                   ? 'bg-gradient-to-r from-[#1f1d19] via-[#1a1916] to-[#161513] border-[#e6c487] shadow-[0_4px_25px_rgba(230,196,135,0.18)] ring-1 ring-[#e6c487]/30'
                   : 'bg-[#151517] border-white/8 hover:border-white/20 hover:bg-[#18181b]'
               }`}
             >
               <div className="flex flex-col min-w-0 flex-1">
-                <div className="flex items-center gap-3.5">
+                <div className="flex items-center gap-3">
                   <h4 className="text-2xl sm:text-3xl md:text-[32px] font-black leading-tight tracking-wide text-white group-hover:text-[#e6c487] transition-colors truncate">
                     Mix
                   </h4>
@@ -476,15 +493,45 @@ export default function DeepBookingConfig({
                   >
                     <Info size={16} />
                   </button>
+
+                  {/* Icon Cây Bút Chỉnh Sửa ở ngay chỗ Mix khi đã chọn Mix */}
+                  {isMixMode && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenMixPopover();
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#e6c487]/20 hover:bg-[#e6c487]/35 text-[#e6c487] border border-[#e6c487]/50 shadow-sm transition-all active:scale-95 cursor-pointer ml-1"
+                      aria-label="Chỉnh sửa liệu pháp kết hợp"
+                      title="Chỉnh sửa liệu pháp kết hợp"
+                    >
+                      <Pencil size={14} className="text-[#e6c487]" />
+                      <span className="text-xs font-bold uppercase tracking-wider">
+                        {t.edit || 'Sửa'}
+                      </span>
+                    </button>
+                  )}
                 </div>
-                {selectedTechniqueIds.length >= 2 && (
-                  <p className="text-xs sm:text-sm text-[#e6c487]/90 mt-1 font-semibold truncate">
-                    {t.selected_methods_count.replace('{count}', String(selectedTechniqueIds.length))}: {
-                      baseMethods
-                        .filter((m) => selectedTechniqueIds.includes(m.id as DeepBodyBaseTechniqueId))
-                        .map((m) => m.name[safeLang] || m.name.en)
-                        .join(' + ')
-                    }
+                {isMixMode ? (
+                  <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                    <span className="text-xs sm:text-sm text-[#e6c487] font-semibold">
+                      {t.selected_methods_count.replace('{count}', String(selectedTechniqueIds.length))}:
+                    </span>
+                    {baseMethods
+                      .filter((m) => selectedTechniqueIds.includes(m.id as DeepBodyBaseTechniqueId))
+                      .map((m) => (
+                        <span
+                          key={m.id}
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#e6c487]/20 text-[#e6c487] text-xs font-bold border border-[#e6c487]/40 shadow-sm"
+                        >
+                          {m.name[safeLang] || m.name.en}
+                        </span>
+                      ))}
+                  </div>
+                ) : (
+                  <p className="text-xs sm:text-sm text-gray-400 mt-1">
+                    {t.mix_card_hint || 'Kết hợp từ 2 đến 4 phương pháp trị liệu'}
                   </p>
                 )}
               </div>
@@ -492,14 +539,29 @@ export default function DeepBookingConfig({
               <div className="flex items-center justify-end shrink-0 pl-2 sm:pl-4">
                 <div
                   className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all ${
-                    selectedTechniqueIds.length >= 2
+                    isMixMode
                       ? 'bg-[#e6c487] text-[#1c1c1e] shadow-[0_0_12px_rgba(230,196,135,0.4)] scale-105'
                       : 'border-2 border-white/25 group-hover:border-white/40'
                   }`}
                 >
-                  {selectedTechniqueIds.length >= 2 && <Check size={20} strokeWidth={3.5} />}
+                  {isMixMode && <Check size={20} strokeWidth={3.5} />}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Cờ thông báo khi đổi duration ở DƯỚI KHUNG MIX LUÔN, không nằm ở dưới duration */}
+          {selectedDuration < minDuration && (
+            <div
+              role="status"
+              className="mt-3 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs sm:text-sm font-semibold shadow-lg backdrop-blur-sm animate-in fade-in"
+            >
+              <AlertCircle size={18} className="shrink-0 text-amber-400" />
+              <span>
+                {t.duration_auto_adjusted
+                  .replace('{count}', String(selectedTechniqueIds.length))
+                  .replace('{min}', String(minDuration))}
+              </span>
             </div>
           )}
         </div>
