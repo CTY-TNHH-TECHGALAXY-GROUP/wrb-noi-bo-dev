@@ -47,7 +47,7 @@ export const DEEP_BODY_I18N = {
     kr: '테라피스트',
   },
   step_staff: {
-    vi: 'CHỌN NGHỆ NHÂN TRỊ LIỆU',
+    vi: 'CHỌN NGHỆ NHÂN',
     en: 'CHOOSE ARTISAN THERAPIST',
     cn: '选择理疗匠人',
     jp: '担当アルチザンを選択',
@@ -63,7 +63,7 @@ export const DEEP_BODY_I18N = {
 
   // Staff Step
   ss_title: {
-    vi: 'Nghệ Nhân Trị Liệu Thân Thể',
+    vi: 'Nghệ nhân body chuyên sâu',
     en: 'Artisan Body Therapists',
     cn: '身体理疗匠人阵容',
     jp: '熟練ボディアルチザン',
@@ -225,7 +225,7 @@ export const DEEP_BODY_I18N = {
 
   // Config Step (Combined on 1 page)
   select_technique_title: {
-    vi: '2. Chọn Phương Pháp Trị Liệu Sâu',
+    vi: '2. Chọn Phương Pháp Chuyên Sâu',
     en: '2. Choose Your Therapy Method',
     cn: '2. 选择深层身体理疗技术',
     jp: '2. 深層手技メソッドの選択',
@@ -239,7 +239,7 @@ export const DEEP_BODY_I18N = {
     kr: '2가지 이상의 테라피를 선택하여 조합할 수 있습니다',
   },
   mix_card_hint: {
-    vi: 'Kết hợp từ 2 đến 4 phương pháp trị liệu',
+    vi: 'Kết hợp từ 2 đến 4 phương pháp chuyên sâu',
     en: 'Combine 2 to 4 therapeutic methods',
     cn: '自选组合2至4种理疗手法',
     jp: '2〜4種類の手技を組み合わせ',
@@ -421,7 +421,7 @@ export const DEEP_BODY_I18N = {
     kr: '맞춤 복합 테라피 선택 (Mix)',
   },
   mix_popover_desc: {
-    vi: 'Chọn từ 2 đến 4 phương pháp trị liệu cho liệu trình kết hợp:',
+    vi: 'Chọn từ 2 đến 4 phương pháp cho liệu trình kết hợp:',
     en: 'Select 2 to 4 therapeutic methods for your combined session:',
     cn: '请选择2至4种理疗手法组成您的专属疗程：',
     jp: '複合セッション用に2〜4種類の手技をお選びください：',
@@ -449,7 +449,7 @@ export const DEEP_BODY_I18N = {
     kr: '믹스 테라피는 2~4가지 기법을 선택해야 합니다',
   },
   staff_second_unsupported_warning: {
-    vi: 'KTV thứ hai không hỗ trợ phương pháp trị liệu đã chọn',
+    vi: 'KTV thứ hai không hỗ trợ phương pháp đã chọn',
     en: 'The second therapist does not support the selected treatment',
     cn: '第二位理疗师不支持已选的理疗项目',
     jp: '2人目のセラピストは選択された手技に対応していません',

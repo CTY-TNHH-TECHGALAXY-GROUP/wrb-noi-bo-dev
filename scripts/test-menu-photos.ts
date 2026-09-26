@@ -3,8 +3,10 @@ import {
   normalizePhotoList,
   resolveMenuPhotos,
   resolveTherapyGalleryForStaff,
+  resolveVipGalleryForStaff,
   linkedTherapyImages,
 } from '../src/lib/menuPhotos.helper';
+import { getVipSkillBadgeLabel } from '../src/lib/vipSkills.constants';
 
 let passedCount = 0;
 
@@ -378,6 +380,92 @@ it('formatDeepBodyAdminName: formats single, multiple, and mix therapies for Adm
     formatDeepBodyAdminName(['coconutOil', 'thaiTherapy', 'shiatsu', 'hotStone']),
     '4 liệu trình (Ấn huyệt, Thái, Dầu & Đá Nóng)'
   );
+});
+
+// ─── VIP GALLERY & SKILL BADGE TESTS (MENU NHP) ───────────────────────────────
+
+// 22. resolveVipGalleryForStaff: preserves skill tags and drops unticked/untagged photos for Menu NHP
+it('resolveVipGalleryForStaff: preserves skill tags and drops unticked/untagged photos for Menu NHP', () => {
+  const staff = {
+    avatarUrl: 'https://cdn.example.com/avatar.jpg',
+    skills: {
+      thaiBody: true,
+      shampoo: 'expert',
+      facialCare: false,
+      earCombo: null,
+      oilBody: 'none',
+    },
+    galleryUrls: [
+      // Tagged VIP photo for an active boolean skill
+      { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+      // Tagged VIP photo for an active string skill ('expert')
+      { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+      // Tagged VIP photo for an inactive boolean skill (false) -> must be dropped
+      { url: 'https://cdn.example.com/facial.jpg', kind: 'vip', skillId: 'facialCare' },
+      // Tagged VIP photo for null skill -> must be dropped
+      { url: 'https://cdn.example.com/ear.jpg', kind: 'vip', skillId: 'earCombo' },
+      // Tagged VIP photo for 'none' skill -> must be dropped
+      { url: 'https://cdn.example.com/oil.jpg', kind: 'vip', skillId: 'oilBody' },
+      // NHT therapy photo -> must be dropped in Menu NHP
+      { url: 'https://cdn.example.com/nht-therapy.jpg', kind: 'therapy', therapyId: 'coconutOil' },
+      // Untagged plain string -> must be dropped in Menu NHP
+      'https://cdn.example.com/plain.jpg',
+      // Duplicate URL -> must be deduplicated
+      { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+    ],
+  };
+
+  const result = resolveVipGalleryForStaff(staff);
+
+  // Avatar prepended as kind: 'avatar', followed by active VIP skill photos
+  assert.deepEqual(result, [
+    { url: 'https://cdn.example.com/avatar.jpg', kind: 'avatar' },
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+    { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+  ]);
+
+  // Case where avatar matches a tagged VIP photo: should not duplicate, matching item is first
+  const staffMatchingAvatar = {
+    avatarUrl: 'https://cdn.example.com/thai.jpg',
+    skills: { thaiBody: true, shampoo: true },
+    galleryUrls: [
+      { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+      { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+    ],
+  };
+  const resultMatching = resolveVipGalleryForStaff(staffMatchingAvatar);
+  assert.deepEqual(resultMatching, [
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+    { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+  ]);
+});
+
+// 23. getVipSkillBadgeLabel: resolves localized badge labels for VIP skills and aliases
+it('getVipSkillBadgeLabel: resolves localized badge labels for VIP skills and aliases', () => {
+  // Direct match - Vietnamese default
+  assert.equal(getVipSkillBadgeLabel('thaiBody'), 'Massage Thái');
+  assert.equal(getVipSkillBadgeLabel('shampoo'), 'Gội đầu thư giãn');
+
+  // Direct match - Multi-language
+  assert.equal(getVipSkillBadgeLabel('thaiBody', 'en'), 'Thai Body');
+  assert.equal(getVipSkillBadgeLabel('thaiBody', 'cn'), '泰式按摩');
+  assert.equal(getVipSkillBadgeLabel('thaiBody', 'jp'), 'タイ式ボディ');
+  assert.equal(getVipSkillBadgeLabel('thaiBody', 'kr'), '타이 바디');
+
+  // Case-insensitivity
+  assert.equal(getVipSkillBadgeLabel('ThaiBody', 'vi'), 'Massage Thái');
+  assert.equal(getVipSkillBadgeLabel('SHAMPOO', 'en'), 'Hair Wash');
+
+  // Aliases
+  assert.equal(getVipSkillBadgeLabel('coconutOil', 'vi'), 'Massage Tinh Dầu');
+  assert.equal(getVipSkillBadgeLabel('hotStone', 'vi'), 'Massage Đá Nóng');
+  assert.equal(getVipSkillBadgeLabel('thaiTherapy', 'en'), 'Thai Body');
+  assert.equal(getVipSkillBadgeLabel('oilFoot', 'vi'), 'Chân');
+  assert.equal(getVipSkillBadgeLabel('earClean', 'vi'), 'Lấy ráy tai');
+
+  // Unknown / Empty
+  assert.equal(getVipSkillBadgeLabel(''), null);
+  assert.equal(getVipSkillBadgeLabel('unknownSkillIdXYZ'), null);
 });
 
 console.log(`\n🎉 ALL ${passedCount} MENU PHOTOS TEST CASES PASSED SUCCESSFULLY!\n`);

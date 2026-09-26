@@ -12,7 +12,7 @@ import {
   type VipSkill,
   type VipLang,
 } from './vipSkills.constants';
-import type { TherapyGalleryParsedItem } from './menuPhotos.helper';
+import type { TherapyGalleryParsedItem, VipGalleryParsedItem } from './menuPhotos.helper';
 
 // --- Staff skills shape from DB ---
 export type StaffSkills = Record<string, boolean | string>;
@@ -159,4 +159,48 @@ export interface VipStaffInfo {
   certificateUrl?: string | null; // Therapy Menu
   galleryUrls?: string[]; // Multiple photos / gallery images for KTV
   therapyGallery?: TherapyGalleryParsedItem[];
+  vipGallery?: VipGalleryParsedItem[];
+  certificateDescription?: string | Record<string, string> | null;
+  professionalDescription?: string | null;
 }
+
+/**
+ * Resolve the staff member's professional description from DB.
+ * If not present or blank in DB, returns null (do not show hardcoded fallback).
+ */
+export const resolveStaffDescription = (
+  staff: VipStaffInfo | null | undefined,
+  lang: string = 'vi'
+): string | null => {
+  if (!staff) return null;
+
+  const raw =
+    staff.certificateDescription ??
+    staff.professionalDescription ??
+    (staff as { description?: unknown }).description ??
+    null;
+
+  if (!raw) return null;
+
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (!trimmed || trimmed === '0' || trimmed === '0 năm' || trimmed === 'null' || trimmed === 'undefined') {
+      return null;
+    }
+    return trimmed;
+  }
+
+  if (typeof raw === 'object' && raw !== null) {
+    const record = raw as Record<string, unknown>;
+    const val = record[lang] ?? record['vi'] ?? record['en'] ?? Object.values(record)[0];
+    if (typeof val === 'string') {
+      const trimmed = val.trim();
+      if (!trimmed || trimmed === '0' || trimmed === '0 năm' || trimmed === 'null' || trimmed === 'undefined') {
+        return null;
+      }
+      return trimmed;
+    }
+  }
+
+  return null;
+};

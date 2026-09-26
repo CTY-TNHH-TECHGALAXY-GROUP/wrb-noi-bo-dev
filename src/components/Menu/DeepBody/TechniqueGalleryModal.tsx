@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, ChevronLeft, ChevronRight, Activity } from 'lucide-react';
-import { DeepBodyTechnique, DeepBodyLang } from '@/lib/deepBody.constants';
+import { X, Sparkles, ChevronLeft, ChevronRight, Activity, Maximize2 } from 'lucide-react';
+import { DeepBodyTechnique, DeepBodyLang, resolveTechniqueDbDescription } from '@/lib/deepBody.constants';
 import { getDeepBodyT } from './DeepBody.i18n';
+import { useMenuData } from '@/components/Menu/MenuContext';
+import ImageLightboxModal from './ImageLightboxModal';
 
 interface TechniqueGalleryModalProps {
   isOpen: boolean;
@@ -12,6 +14,7 @@ interface TechniqueGalleryModalProps {
   images: string[];
   lang: string;
   onClose: () => void;
+  dbDescription?: string | null;
 }
 
 export default function TechniqueGalleryModal({
@@ -20,12 +23,28 @@ export default function TechniqueGalleryModal({
   images,
   lang,
   onClose,
+  dbDescription,
 }: TechniqueGalleryModalProps) {
   const safeLang = (['vi', 'en', 'cn', 'jp', 'kr'].includes(lang) ? lang : 'en') as DeepBodyLang;
   const t = getDeepBodyT(lang);
+  const { services } = useMenuData();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   if (!isOpen || !technique) return null;
+
+  // Resolve description dynamically from DB services (or prop override)
+  // If not present in DB, returns null (hidden, no hardcoded fallback)
+  const methodDesc =
+    dbDescription ??
+    (technique.dbDescription
+      ? typeof technique.dbDescription === 'string'
+        ? technique.dbDescription
+        : (technique.dbDescription as Record<string, string>)[safeLang] ||
+          (technique.dbDescription as Record<string, string>)['vi'] ||
+          (technique.dbDescription as Record<string, string>)['en']
+      : null) ??
+    resolveTechniqueDbDescription(technique.id, services, safeLang);
 
   const activeImage = images[activeImageIndex] ?? images[0];
 
@@ -81,24 +100,47 @@ export default function TechniqueGalleryModal({
           {/* Scrollable Content */}
           <div className="py-4 space-y-4 pr-1">
             {/* Image Slider */}
-            <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black/60 border border-white/10 shadow-lg group">
+            <div
+              onClick={() => activeImage && setIsLightboxOpen(true)}
+              className={`relative w-full aspect-video rounded-2xl overflow-hidden bg-black/60 border border-white/10 shadow-lg group ${activeImage ? 'cursor-zoom-in' : ''}`}
+            >
               {/* Fallback when this therapist has no linked image for the technique */}
               <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#1c1c1f] to-[#0f0f11]">
                 <Sparkles size={36} className="text-[#e6c487] mb-2 opacity-80" />
                 <h4 className="text-base font-bold text-[#e6c487]">
                   {technique.name[safeLang]}
                 </h4>
-                <p className="text-xs text-gray-400 max-w-sm mt-1">
-                  {technique.shortDesc[safeLang]}
-                </p>
+                {methodDesc && (
+                  <p className="text-xs text-gray-400 max-w-sm mt-1">
+                    {methodDesc}
+                  </p>
+                )}
               </div>
-              {activeImage && <img
-                key={activeImage}
-                src={activeImage}
-                alt={technique.name[safeLang]}
-                className="relative w-full h-full object-cover transition-all duration-300"
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-              />}
+              {activeImage && (
+                <>
+                  <img
+                    key={activeImage}
+                    src={activeImage}
+                    alt={technique.name[safeLang]}
+                    className="relative w-full h-full object-cover transition-all duration-300"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                  {/* Expand Fullscreen Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsLightboxOpen(true);
+                    }}
+                    className="absolute top-3 right-3 z-10 px-2 py-1 rounded-lg bg-black/65 hover:bg-black/90 backdrop-blur-md text-[#e6c487] border border-[#e6c487]/40 hover:border-[#e6c487] flex items-center gap-1 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+                    title="Xem ảnh đầy đủ"
+                    aria-label="Xem ảnh đầy đủ"
+                  >
+                    <Maximize2 size={12} />
+                    <span className="text-[10px]">Full</span>
+                  </button>
+                </>
+              )}
 
               {/* Navigation Arrows (if > 1 image) */}
               {images.length > 1 && (
@@ -132,41 +174,41 @@ export default function TechniqueGalleryModal({
               )}
             </div>
 
-            {/* Detailed Description */}
-            <div className="bg-[#1b1b1e] p-4 rounded-2xl border border-white/5 space-y-2">
-              <h4 className="text-xs font-bold text-[#e6c487] uppercase tracking-wider">
-                {t.clinical_overview_title}
-              </h4>
-              <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                {technique.fullDesc[safeLang] || technique.fullDesc.en}
-              </p>
-            </div>
-
-            {/* Recommended For */}
-            <div className="bg-[#e6c487]/10 p-4 rounded-2xl border border-[#e6c487]/20 flex items-start gap-3">
-              <span className="text-[#e6c487] text-lg">💡</span>
-              <div>
-                <span className="text-[11px] font-bold text-[#e6c487] uppercase tracking-wider block mb-0.5">
-                  {t.recommended_label}
-                </span>
-                <p className="text-xs sm:text-sm text-gray-200">
-                  {technique.recommendedFor[safeLang] || technique.recommendedFor.en}
+            {/* Detailed Description from DB (Hidden if DB does not have description) */}
+            {methodDesc && (
+              <div className="bg-[#1b1b1e] p-4 rounded-2xl border border-white/5 space-y-2">
+                <h4 className="text-xs font-bold text-[#e6c487] uppercase tracking-wider">
+                  {t.clinical_overview_title}
+                </h4>
+                <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                  {methodDesc}
                 </p>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Footer */}
           <div className="pt-3 border-t border-white/10">
             <button
               onClick={onClose}
-              className="w-full py-3.5 rounded-xl bg-[#e6c487] hover:bg-[#d4b070] text-black text-xs font-bold uppercase tracking-wider transition-all active:scale-95 shadow-md"
+              className="w-full py-3.5 rounded-xl bg-[#e6c487] hover:bg-[#d4b070] text-black text-xs font-bold uppercase tracking-wider transition-all active:scale-95 shadow-md cursor-pointer"
             >
               {t.close}
             </button>
           </div>
         </motion.div>
       </div>
+
+      {/* Full-screen Image Lightbox Popover */}
+      <ImageLightboxModal
+        isOpen={isLightboxOpen}
+        images={images.filter(Boolean)}
+        initialIndex={activeImageIndex}
+        title={technique.name[safeLang] || technique.name.en}
+        subtitle={methodDesc || undefined}
+        onClose={() => setIsLightboxOpen(false)}
+        onIndexChange={setActiveImageIndex}
+      />
     </AnimatePresence>
   );
 }

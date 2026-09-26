@@ -20,6 +20,7 @@ import { getDeepBodyT } from '../DeepBody.i18n';
 import TechniqueGalleryModal from '../TechniqueGalleryModal';
 import BodyFocusAvoidMap from '../BodyFocusAvoidMap';
 import MixTechniquePopover from '../StaffSelector/MixTechniquePopover';
+import ImageLightboxModal from '../ImageLightboxModal';
 
 const DEEP_BODY_DURATION_LIST = [70, 90, 120, 150, 180] as const;
 
@@ -117,6 +118,7 @@ export default function DeepBookingConfig({
   const [isMixPopoverOpen, setIsMixPopoverOpen] = useState(false);
   const [customerNotes, setCustomerNotes] = useState('');
   const [activeTechniqueForModal, setActiveTechniqueForModal] = useState<DeepBodyTechnique | null>(null);
+  const [isAvatarLightboxOpen, setIsAvatarLightboxOpen] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(true);
 
   // Helper smooth scroll xuống tiếp theo
@@ -363,7 +365,9 @@ export default function DeepBookingConfig({
             <img
               src={primaryStaff?.avatarUrl || primaryStaff?.galleryUrls?.[0]}
               alt={primaryStaff.fullName}
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover border border-[#e6c487]/50 shadow-md shrink-0"
+              onClick={() => setIsAvatarLightboxOpen(true)}
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover border border-[#e6c487]/50 shadow-md shrink-0 cursor-zoom-in hover:scale-105 active:scale-95 transition-all"
+              title="Xem ảnh chuyên viên"
             />
           ) : (
             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-[#e6c487]/20 flex items-center justify-center font-bold text-[#e6c487] text-lg sm:text-xl shrink-0">
@@ -373,7 +377,7 @@ export default function DeepBookingConfig({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-base sm:text-lg md:text-xl uppercase font-black text-[#e6c487] tracking-wider truncate">
-                {primaryStaff?.id} • {primaryStaff?.fullName}
+                {t.master_deep_body} {primaryStaff?.id}
               </span>
               <ShieldCheck size={18} className="text-emerald-400 shrink-0" />
             </div>
@@ -531,7 +535,7 @@ export default function DeepBookingConfig({
                   </div>
                 ) : (
                   <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                    {t.mix_card_hint || 'Kết hợp từ 2 đến 4 phương pháp trị liệu'}
+                    {t.mix_card_hint || 'Kết hợp từ 2 đến 4 phương pháp chuyên sâu'}
                   </p>
                 )}
               </div>
@@ -741,6 +745,23 @@ export default function DeepBookingConfig({
           initialSelected={selectedTechniqueIds}
           onApply={handleApplyMix}
           onCancel={() => setIsMixPopoverOpen(false)}
+        />
+      )}
+
+      {/* Primary Staff Avatar Lightbox */}
+      {primaryStaff && (
+        <ImageLightboxModal
+          isOpen={isAvatarLightboxOpen}
+          images={
+            primaryStaff.galleryUrls && primaryStaff.galleryUrls.length > 0
+              ? primaryStaff.galleryUrls
+              : primaryStaff.avatarUrl
+              ? [primaryStaff.avatarUrl]
+              : []
+          }
+          initialIndex={0}
+          title={`${t.master_deep_body} ${primaryStaff.id}`}
+          onClose={() => setIsAvatarLightboxOpen(false)}
         />
       )}
     </motion.div>

@@ -15,6 +15,9 @@ import { type VipEditSaveData } from '@/components/Checkout/VipEditModal';
 interface DeepBodyMenuProps {
   lang: string;
   isBookingFlow?: boolean;
+  initialStaff?: VipStaffInfo[] | null;
+  initialStep?: MenuStep;
+  initialTechniqueIds?: DeepBodyBaseTechniqueId[];
   onBack: () => void;
   onCheckout: () => void;
   onSwitchToStandard?: () => void;
@@ -25,6 +28,9 @@ type MenuStep = 'STAFF' | 'BOOKING_CONFIG';
 export default function DeepBodyMenu({
   lang,
   isBookingFlow,
+  initialStaff,
+  initialStep,
+  initialTechniqueIds,
   onBack,
   onCheckout,
   onSwitchToStandard,
@@ -50,6 +56,8 @@ export default function DeepBodyMenu({
 
   // Persisted state ONLY across language switch; otherwise always start at 'STAFF' (màn hình chung tất cả KTV)
   const [step, setStep] = useState<MenuStep>(() => {
+    if (initialStep) return initialStep;
+    if (initialStaff && initialStaff.length > 0) return 'BOOKING_CONFIG';
     if (typeof window !== 'undefined' && isLangSwitching) {
       const saved = sessionStorage.getItem('deep_body_current_step') as MenuStep | null;
       if (saved === 'BOOKING_CONFIG' || saved === 'STAFF') return saved;
@@ -61,6 +69,7 @@ export default function DeepBodyMenu({
   const [dynamicMethods, setDynamicMethods] = useState<DeepBodyTechnique[] | undefined>(undefined);
 
   const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>(() => {
+    if (initialStaff && initialStaff.length > 0) return initialStaff.map((s) => s.id);
     if (typeof window !== 'undefined' && isLangSwitching) {
       try {
         const saved = sessionStorage.getItem('deep_body_selected_staff_ids');
@@ -70,6 +79,7 @@ export default function DeepBodyMenu({
     return [];
   });
   const [selectedStaffInfoList, setSelectedStaffInfoList] = useState<VipStaffInfo[]>(() => {
+    if (initialStaff && initialStaff.length > 0) return initialStaff;
     if (typeof window !== 'undefined' && isLangSwitching) {
       try {
         const saved = sessionStorage.getItem('deep_body_selected_staff_info');
@@ -86,6 +96,7 @@ export default function DeepBodyMenu({
     return null;
   });
   const [selectedTechniqueIds, setSelectedTechniqueIds] = useState<DeepBodyBaseTechniqueId[]>(() => {
+    if (initialTechniqueIds && initialTechniqueIds.length > 0) return initialTechniqueIds;
     if (typeof window !== 'undefined' && isLangSwitching) {
       try {
         const saved = sessionStorage.getItem('deep_body_selected_technique_ids');
@@ -100,7 +111,7 @@ export default function DeepBodyMenu({
     if (typeof window !== 'undefined') {
       if (sessionStorage.getItem('is_vip_lang_switching') === 'true') {
         sessionStorage.removeItem('is_vip_lang_switching');
-      } else {
+      } else if (!initialStaff || initialStaff.length === 0) {
         sessionStorage.removeItem('deep_body_current_step');
         sessionStorage.removeItem('deep_body_selected_staff_ids');
         sessionStorage.removeItem('deep_body_selected_staff_info');
@@ -108,7 +119,7 @@ export default function DeepBodyMenu({
         sessionStorage.removeItem('deep_body_selected_technique_ids');
       }
     }
-  }, []);
+  }, [initialStaff]);
 
   // Auto scroll to top whenever step changes (ensures entering section 1 from the top on all cards)
   useEffect(() => {

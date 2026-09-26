@@ -285,6 +285,22 @@ export async function GET(_req: NextRequest) {
         avatarUrl: s.avatar_url,
       });
 
+      // Extract professional/certificate description from DB if present
+      const featureFlags = (s.feature_flags && typeof s.feature_flags === 'object') ? (s.feature_flags as Record<string, unknown>) : null;
+      const certDesc =
+        featureFlags?.certificate_description ??
+        featureFlags?.professional_description ??
+        featureFlags?.description ??
+        featureFlags?.bio ??
+        (s as { certificate_description?: unknown }).certificate_description ??
+        (s as { description?: unknown }).description ??
+        null;
+
+      const certificateDescription =
+        typeof certDesc === 'string' && certDesc.trim().length > 0
+          ? certDesc.trim()
+          : (certDesc && typeof certDesc === 'object' ? (certDesc as Record<string, string>) : null);
+
       return {
         id: s.id,
         fullName: s.full_name,
@@ -305,6 +321,7 @@ export async function GET(_req: NextRequest) {
         travelTimeMins,
         availableFrom: formatTimeVn(s.available_from),
         certificateUrl: (s as { certificate_url?: string | null }).certificate_url ?? null,
+        certificateDescription,
       };
     });
 

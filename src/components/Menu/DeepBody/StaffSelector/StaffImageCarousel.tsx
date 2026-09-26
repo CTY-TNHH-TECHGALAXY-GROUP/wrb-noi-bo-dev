@@ -1,11 +1,14 @@
 'use client';
 
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import ImageLightboxModal from '../ImageLightboxModal';
 import {
   type TherapyGalleryParsedItem,
+  type VipGalleryParsedItem,
   sortTherapyGalleryItems,
 } from '@/lib/menuPhotos.helper';
+import { getVipSkillBadgeLabel } from '@/lib/vipSkills.constants';
 
 const THERAPY_BADGE_LABELS: Record<string, Record<string, string>> = {
   coconutOil: {
@@ -45,14 +48,21 @@ const THERAPY_BADGE_LABELS: Record<string, Record<string, string>> = {
   },
 };
 
+export type StaffCarouselParsedItem =
+  | TherapyGalleryParsedItem
+  | VipGalleryParsedItem
+  | { url: string; kind?: string; [key: string]: unknown };
+
 export interface StaffImageCarouselProps {
-  items?: Array<TherapyGalleryParsedItem | string>;
+  items?: Array<StaffCarouselParsedItem | string>;
   images?: string[];
   staffId: string;
   staffName: string;
   lang?: string;
   imageFit?: 'contain' | 'cover';
-  onActiveItemChange?: (item: TherapyGalleryParsedItem | null) => void;
+  initialIndex?: number;
+  autoSelectPreferred?: boolean;
+  onActiveItemChange?: (item: StaffCarouselParsedItem | null) => void;
 }
 
 export default function StaffImageCarousel({
@@ -61,25 +71,37 @@ export default function StaffImageCarousel({
   staffId,
   staffName,
   lang = 'vi',
-  imageFit = 'contain',
+  imageFit = 'cover',
+  initialIndex = 0,
+  autoSelectPreferred = false,
   onActiveItemChange,
 }: StaffImageCarouselProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  const normalizedItems = useMemo<TherapyGalleryParsedItem[]>(() => {
+  const normalizedItems = useMemo<StaffCarouselParsedItem[]>(() => {
     const rawList = items ?? images ?? [];
-    const mapped = rawList.map((it) =>
+    const mapped: StaffCarouselParsedItem[] = rawList.map((it) =>
       typeof it === 'string' ? { url: it, kind: 'legacy' as const } : it
     );
-    return sortTherapyGalleryItems(mapped);
+    const hasTherapy = mapped.some((it) => it.kind === 'therapy' || it.kind === 'mix');
+    if (hasTherapy) {
+      return sortTherapyGalleryItems(mapped as TherapyGalleryParsedItem[]);
+    }
+    return mapped;
   }, [items, images]);
 
   const preferredIndex = useMemo(() => {
+    if (!autoSelectPreferred) {
+      return Math.min(initialIndex, Math.max(0, normalizedItems.length - 1));
+    }
     const taggedIndex = normalizedItems.findIndex(
       (item) => item.kind === 'therapy' || item.kind === 'mix'
     );
-    return taggedIndex >= 0 ? taggedIndex : 0;
-  }, [normalizedItems]);
+    return taggedIndex >= 0
+      ? taggedIndex
+      : Math.min(initialIndex, Math.max(0, normalizedItems.length - 1));
+  }, [normalizedItems, autoSelectPreferred, initialIndex]);
 
   const total = normalizedItems.length;
   const validIndex = total > 0 ? Math.min(currentIndex, total - 1) : 0;
@@ -189,6 +211,16 @@ export default function StaffImageCarousel({
     }
   };
 
+  const handleImageClick = (e: React.MouseEvent, index: number) => {
+    if (Date.now() < suppressClickUntilRef.current) {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    selectIndex(index);
+    setIsLightboxOpen(true);
+  };
+
   // If no images
   if (total === 0) {
     return (
@@ -200,16 +232,19 @@ export default function StaffImageCarousel({
 
   const activeItem = normalizedItems[validIndex];
   let badgeLabel: string | null = null;
-  if (activeItem?.kind === 'therapy') {
+  if (activeItem?.kind === 'therapy' && 'therapyId' in activeItem && typeof activeItem.therapyId === 'string') {
+    const therapyId = activeItem.therapyId;
     badgeLabel =
-      THERAPY_BADGE_LABELS[activeItem.therapyId]?.[lang] ||
-      THERAPY_BADGE_LABELS[activeItem.therapyId]?.en ||
+      THERAPY_BADGE_LABELS[therapyId]?.[lang] ||
+      THERAPY_BADGE_LABELS[therapyId]?.en ||
       null;
   } else if (activeItem?.kind === 'mix') {
     badgeLabel =
       THERAPY_BADGE_LABELS.mix?.[lang] ||
       THERAPY_BADGE_LABELS.mix?.en ||
       null;
+  } else if (activeItem?.kind === 'vip' && 'skillId' in activeItem && typeof activeItem.skillId === 'string') {
+    badgeLabel = getVipSkillBadgeLabel(activeItem.skillId, lang);
   }
 
   return (
@@ -234,7 +269,8 @@ export default function StaffImageCarousel({
         {normalizedItems.map((item, idx) => (
           <div
             key={idx}
-            className={`w-full h-full shrink-0 relative flex items-center justify-center overflow-hidden ${
+            onClick={(e) => handleImageClick(e, idx)}
+            className={`w-full h-full shrink-0 relative flex items-center justify-center overflow-hidden cursor-zoom-in ${
               imageFit === 'cover' ? 'bg-[#1b1b1d]' : 'bg-[#131315]'
             }`}
           >
@@ -242,7 +278,7 @@ export default function StaffImageCarousel({
               <img
                 src={item.url}
                 alt={`${staffName} - ${idx + 1}`}
-                className="w-full h-full object-cover object-top pointer-events-none transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-full object-cover object-[center_20%] pointer-events-none transition-transform duration-700 group-hover:scale-105"
                 loading={idx === 0 ? 'eager' : 'lazy'}
                 draggable={false}
               />
@@ -253,7 +289,7 @@ export default function StaffImageCarousel({
                   src={item.url}
                   alt=""
                   aria-hidden="true"
-                  className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-25 pointer-events-none"
+                  className="absolute inset-0 w-full h-full object-cover blur-3xl scale-150 opacity-60 pointer-events-none"
                 />
                 {/* Full uncropped image */}
                 <img
@@ -279,6 +315,25 @@ export default function StaffImageCarousel({
           </div>
         </div>
       )}
+
+      {/* Expand Fullscreen Button */}
+      <button
+        type="button"
+        onPointerDown={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsLightboxOpen(true);
+        }}
+        className="absolute top-16 right-5 sm:right-6 z-20 px-2.5 py-1 rounded-lg bg-black/50 hover:bg-black/80 backdrop-blur-md border border-[#e6c487]/40 hover:border-[#e6c487] text-[#e6c487] inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider shadow-lg transition-all active:scale-95 cursor-pointer"
+        title="Xem ảnh đầy đủ"
+        aria-label="Xem ảnh đầy đủ"
+      >
+        <Maximize2 size={13} />
+        <span className="text-[11px] font-bold">Full</span>
+      </button>
 
       {/* Multiple Photos Controls (only rendered when > 1 photo) */}
       {total > 1 && (
@@ -345,6 +400,17 @@ export default function StaffImageCarousel({
           </button>
         </>
       )}
+
+      {/* Full-screen Image Lightbox Popover */}
+      <ImageLightboxModal
+        isOpen={isLightboxOpen}
+        images={normalizedItems.map((it) => it.url)}
+        initialIndex={validIndex}
+        title={`${staffId} • ${staffName}`}
+        badgeLabel={badgeLabel}
+        onClose={() => setIsLightboxOpen(false)}
+        onIndexChange={(newIdx) => selectIndex(newIdx)}
+      />
     </div>
   );
 }

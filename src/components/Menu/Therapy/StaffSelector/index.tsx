@@ -206,7 +206,7 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col px-6 pt-2 pb-8"
+      className="flex flex-col px-4 sm:px-6 pt-2 pb-8 max-w-md mx-auto w-full"
     >
       {/* Section Header */}
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
@@ -246,9 +246,9 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
 
       {/* Loading skeleton */}
       {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 gap-6 lg:gap-8 w-full">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="rounded-[2rem] overflow-hidden bg-[#1b1b1d] h-[450px] md:h-[500px] animate-pulse" />
+            <div key={i} className="rounded-[2rem] overflow-hidden bg-[#1b1b1d] h-[420px] sm:h-[460px] md:h-[480px] animate-pulse" />
           ))}
         </div>
       )}
@@ -275,9 +275,9 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
         </motion.div>
       )}
 
-      {/* Therapist Gallery */}
+      {/* Therapist Gallery (1 card 1 hàng) */}
       {!isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 gap-6 lg:gap-8 w-full">
           {sortedStaff.map((staff, idx) => {
             const isSelected = selectedIds.includes(staff.id);
             const unavailable = isUnavailable(staff);
@@ -296,12 +296,12 @@ const StaffSelector = ({ lang, preferredCategoryId, cartHasItems, onConfirmSelec
                 `}
               >
                 {/* Image Container */}
-                <div className="relative h-[450px] md:h-[500px] w-full overflow-hidden bg-[#1b1b1d]">
+                <div className="relative h-[420px] sm:h-[460px] md:h-[480px] w-full overflow-hidden bg-[#1b1b1d]">
                   {staff.avatarUrl ? (
                     <img
                       src={staff.avatarUrl}
                       alt={staff.fullName}
-                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover object-[center_20%] transition-transform duration-700 group-hover:scale-105"
                     />
                   ) : (
                     /* Fallback avatar */

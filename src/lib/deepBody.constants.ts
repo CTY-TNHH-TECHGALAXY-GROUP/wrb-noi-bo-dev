@@ -9,14 +9,15 @@ export type DeepBodyLang = 'vi' | 'en' | 'cn' | 'jp' | 'kr';
 export interface DeepBodyTechnique {
   id: string;
   name: Record<DeepBodyLang, string>;
-  shortDesc: Record<DeepBodyLang, string>;
-  fullDesc: Record<DeepBodyLang, string>;
-  badge: Record<DeepBodyLang, string>;
+  shortDesc?: Record<DeepBodyLang, string>;
+  fullDesc?: Record<DeepBodyLang, string>;
+  badge?: Record<DeepBodyLang, string>;
   thumbnail: string;
   techniqueGallery: string[];
   intensity: 1 | 2 | 3 | 4 | 5; // Độ sâu tác động (1-5)
-  recommendedFor: Record<DeepBodyLang, string>;
+  recommendedFor?: Record<DeepBodyLang, string>;
   contraindications?: Record<DeepBodyLang, string>;
+  dbDescription?: string | Record<string, string> | null;
 }
 
 export const DEEP_BODY_TECHNIQUES: DeepBodyTechnique[] = [
@@ -349,4 +350,78 @@ export const formatDeepBodyAdminName = (techniqueIds: string[]): string => {
     ? `Body chuyên sâu: ${uniqueNames.join(' + ')}`
     : 'Body chuyên sâu';
 };
+
+/**
+ * Helper to normalize string for comparison
+ */
+function normalizeDescText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
+}
+
+/**
+ * Resolve technique/method description from Database Services.
+ * If not present or merely duplicates the service name, returns null (hidden, no hardcoded fallback).
+ */
+export function resolveTechniqueDbDescription(
+  techniqueId: string,
+  services: Array<{
+    id: string;
+    names?: Record<string, string | undefined>;
+    descriptions?: Record<string, string | undefined>;
+  }> | undefined,
+  lang: string = 'vi'
+): string | null {
+  if (!services || services.length === 0 || !techniqueId) return null;
+
+  const TECHNIQUE_SERVICE_MAP: Record<string, string[]> = {
+    coconutOil: ['NHS0013', 'NHS0009', 'NHS0008'],
+    thaiTherapy: ['NHS0031'],
+    shiatsu: ['NHS0021', 'NHS0016'],
+    hotStone: ['NHS0025'],
+    mixofourtherapies: ['NHT0002', 'NHT0003', 'NHT0004', 'NHT0005', 'NHT0006', 'NHT0001'],
+  };
+
+  const targetIds = TECHNIQUE_SERVICE_MAP[techniqueId] || [];
+
+  let matched = services.find((s) => targetIds.includes(s.id));
+
+  if (!matched) {
+    const idLower = techniqueId.toLowerCase();
+    if (idLower.includes('coconut') || idLower.includes('oil')) {
+      matched = services.find((s) => s.names?.vi?.toLowerCase().includes('dừa') || s.names?.en?.toLowerCase().includes('coconut'));
+    } else if (idLower.includes('thai')) {
+      matched = services.find((s) => s.names?.vi?.toLowerCase() === 'thái' || s.names?.en?.toLowerCase() === 'thai');
+    } else if (idLower.includes('shiatsu')) {
+      matched = services.find((s) => s.names?.vi?.toLowerCase().includes('huyệt') || s.names?.en?.toLowerCase().includes('shiatsu'));
+    } else if (idLower.includes('stone')) {
+      matched = services.find((s) => s.names?.vi?.toLowerCase().includes('đá nóng') || s.names?.en?.toLowerCase().includes('hot stone'));
+    } else if (idLower.includes('mix')) {
+      matched = services.find((s) => s.id.startsWith('NHT'));
+    }
+  }
+
+  if (!matched || !matched.descriptions) return null;
+
+  const descObj = matched.descriptions;
+  const rawDesc = descObj[lang] || descObj['vi'] || descObj['en'] || descObj['vn'] || '';
+  if (typeof rawDesc !== 'string') return null;
+
+  const trimmed = rawDesc.trim();
+  if (!trimmed || trimmed === '0' || trimmed === 'null' || trimmed === 'undefined') {
+    return null;
+  }
+
+  // If description simply repeats the title or name, treat as no description
+  const nameVal = matched.names?.[lang] || matched.names?.['vi'] || matched.names?.['en'] || '';
+  if (nameVal && normalizeDescText(trimmed) === normalizeDescText(nameVal)) {
+    return null;
+  }
+
+  return trimmed;
+}
 

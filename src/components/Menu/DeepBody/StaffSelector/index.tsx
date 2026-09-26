@@ -362,7 +362,7 @@ export default function DeepStaffSelector({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col px-4 sm:px-6 pt-2 pb-12"
+      className="flex flex-col px-4 sm:px-6 pt-2 pb-12 max-w-md mx-auto w-full"
     >
       {/* Title Header */}
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
@@ -395,9 +395,9 @@ export default function DeepStaffSelector({
 
       {/* Loading */}
       {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 w-full">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="rounded-[2rem] bg-[#1b1b1d] h-[460px] animate-pulse border border-white/5" />
+            <div key={i} className="rounded-[2rem] bg-[#1b1b1d] h-[420px] sm:h-[460px] md:h-[480px] animate-pulse border border-white/5" />
           ))}
         </div>
       )}
@@ -409,9 +409,9 @@ export default function DeepStaffSelector({
         </div>
       )}
 
-      {/* Staff Grid */}
+      {/* Staff Grid (1 card 1 hàng) */}
       {!isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 gap-6 lg:gap-8 w-full">
           {sortedStaff.map((staff, idx) => {
             const isSelected = selectedIds.includes(staff.id);
             const unavailable = isUnavailable(staff);
@@ -441,34 +441,39 @@ export default function DeepStaffSelector({
                 } ${unavailable ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}`}
               >
                 {/* Image Container */}
-                <div className="relative h-[470px] md:h-[510px] w-full overflow-hidden bg-[#1b1b1d]">
+                <div className="relative h-[420px] sm:h-[460px] md:h-[480px] w-full overflow-hidden bg-[#1b1b1d]">
                   {/* Image Carousel (Lướt ảnh qua lại) */}
                   <StaffImageCarousel
-                    imageFit="contain"
+                    imageFit="cover"
                     items={carouselItems}
                     staffId={staff.id}
-                    staffName={staff.fullName}
+                    staffName={`${t.master_deep_body} ${staff.id}`}
                     lang={lang}
+                    autoSelectPreferred={true}
                     onActiveItemChange={(item) => {
+                      const therapyItem =
+                        item && (item.kind === 'therapy' || item.kind === 'mix' || item.kind === 'legacy')
+                          ? (item as TherapyGalleryParsedItem)
+                          : null;
                       setActiveGalleryByStaff((current) => {
                         const previous = current[staff.id] ?? null;
                         const previousTherapyId =
                           previous?.kind === 'therapy' ? previous.therapyId : undefined;
                         const nextTherapyId =
-                          item?.kind === 'therapy' ? item.therapyId : undefined;
+                          therapyItem?.kind === 'therapy' ? therapyItem.therapyId : undefined;
 
                         if (
-                          previous?.url === item?.url &&
-                          previous?.kind === item?.kind &&
+                          previous?.url === therapyItem?.url &&
+                          previous?.kind === therapyItem?.kind &&
                           previousTherapyId === nextTherapyId
                         ) {
                           return current;
                         }
 
-                        const next = { ...current, [staff.id]: item };
+                        const next = { ...current, [staff.id]: therapyItem };
 
-                        if (item?.kind === 'therapy' && selectedIds.includes(staff.id)) {
-                          setSelectedTechniqueIds([item.therapyId]);
+                        if (therapyItem?.kind === 'therapy' && selectedIds.includes(staff.id)) {
+                          setSelectedTechniqueIds([therapyItem.therapyId]);
                         }
 
                         return next;
@@ -491,18 +496,18 @@ export default function DeepStaffSelector({
                   )}
 
                   {/* ẢNH CHỨNG CHỈ Ở GÓC PHẢI DƯỚI */}
-                  <div className="absolute bottom-32 right-5 sm:right-6 z-20">
+                  <div className="absolute bottom-28 sm:bottom-32 right-4 sm:right-6 z-20">
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedStaffForCert(staff);
                       }}
-                      className="w-28 sm:w-32 rounded-xl overflow-hidden bg-black/85 hover:bg-black/95 backdrop-blur-md border border-[#e6c487]/50 hover:border-[#e6c487] text-[#e6c487] shadow-[0_8px_25px_rgba(0,0,0,0.7)] hover:scale-105 active:scale-95 transition-all group/cert flex flex-col text-left cursor-pointer"
+                      className="w-26 sm:w-28 rounded-xl overflow-hidden bg-black/85 hover:bg-black/95 backdrop-blur-md border border-[#e6c487]/50 hover:border-[#e6c487] text-[#e6c487] shadow-[0_8px_25px_rgba(0,0,0,0.7)] hover:scale-105 active:scale-95 transition-all group/cert flex flex-col text-left cursor-pointer"
                       title={t.certificate_view}
                     >
                       {/* Mini Certificate Image / Preview */}
-                      <div className="w-full h-16 sm:h-20 relative overflow-hidden bg-[#18181b] flex items-center justify-center">
+                      <div className="w-full h-15 sm:h-18 relative overflow-hidden bg-[#18181b] flex items-center justify-center">
                         {staff.certificateUrl ? (
                           <img
                             src={staff.certificateUrl}
@@ -534,11 +539,11 @@ export default function DeepStaffSelector({
                   </div>
 
                   {/* Content Gradient Overlay (Bottom) */}
-                  <div className="absolute bottom-0 left-0 w-full p-6 pt-12 bg-gradient-to-t from-[#121214] via-[#121214]/85 to-transparent">
+                  <div className="absolute bottom-0 left-0 w-full p-5 sm:p-6 pt-10 bg-gradient-to-t from-[#121214] via-[#121214]/85 to-transparent">
                     {/* Staff Title, ID & Name (Mẫu: ARTISAN KTV05 Luna - không đóng khung, bỏ cảm giác button) */}
                     <div className="mb-3.5 min-w-0">
                       <p className="text-base sm:text-lg font-black tracking-wide text-[#e6c487] drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] truncate">
-                        <span className="uppercase">{t.master_deep_body}</span> {staff.id}{cleanStaffName ? ` ${cleanStaffName}` : ''}
+                        <span className="uppercase">{t.master_deep_body}</span> {staff.id}
                       </p>
                     </div>
 

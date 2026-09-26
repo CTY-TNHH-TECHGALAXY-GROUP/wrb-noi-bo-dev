@@ -17,6 +17,7 @@ import { getT } from './Premium.i18n';
 import { type VipEditSaveData } from '@/components/Checkout/VipEditModal';
 import DeepBodyMenu from '@/components/Menu/DeepBody';
 import { getDeepBodyT } from '@/components/Menu/DeepBody/DeepBody.i18n';
+import { type DeepBodyBaseTechniqueId } from '@/lib/deepBody.constants';
 
 // =============================================
 // 👑 Premium Menu – VIP Booking Flow
@@ -119,6 +120,8 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
     });
 
     const [deepBodyKey, setDeepBodyKey] = useState(0);
+    const [deepBodyInitialStaff, setDeepBodyInitialStaff] = useState<VipStaffInfo[] | null>(null);
+    const [deepBodyInitialTechniques, setDeepBodyInitialTechniques] = useState<DeepBodyBaseTechniqueId[]>([]);
 
     const switchVipTab = (newTab: VipTab) => {
         setActiveVipTab(newTab);
@@ -129,10 +132,32 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                 sessionStorage.removeItem('deep_body_selected_staff_ids');
                 sessionStorage.removeItem('deep_body_selected_staff_info');
                 sessionStorage.removeItem('deep_body_grouping_mode');
+                sessionStorage.removeItem('deep_body_selected_technique_ids');
+                setDeepBodyInitialStaff(null);
+                setDeepBodyInitialTechniques([]);
                 setDeepBodyKey(k => k + 1);
             }
             const url = new URL(window.location.href);
             url.searchParams.set('tab', newTab === 'DEEP_BODY_TREATMENT' ? 'deep_body' : 'journey');
+            window.history.replaceState({}, '', url.toString());
+        }
+    };
+
+    const handleSelectDeepBodyStaffFromBridge = (staff: VipStaffInfo, techniqueId?: DeepBodyBaseTechniqueId) => {
+        setDeepBodyInitialStaff([staff]);
+        setDeepBodyInitialTechniques(techniqueId ? [techniqueId] : []);
+        setDeepBodyKey(k => k + 1);
+        setActiveVipTab('DEEP_BODY_TREATMENT');
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem('vip_active_tab', 'DEEP_BODY_TREATMENT');
+            sessionStorage.setItem('deep_body_current_step', 'BOOKING_CONFIG');
+            sessionStorage.setItem('deep_body_selected_staff_ids', JSON.stringify([staff.id]));
+            sessionStorage.setItem('deep_body_selected_staff_info', JSON.stringify([staff]));
+            if (techniqueId) {
+                sessionStorage.setItem('deep_body_selected_technique_ids', JSON.stringify([techniqueId]));
+            }
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', 'deep_body');
             window.history.replaceState({}, '', url.toString());
         }
     };
@@ -416,7 +441,6 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                                 : 'text-gray-400 hover:text-gray-200'
                         }`}
                     >
-                        <span>✨</span>
                         <span className="min-w-0 break-words leading-snug">{deepT.tab_design_journey}</span>
                     </button>
 
@@ -442,6 +466,9 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                         key={`deep-body-${deepBodyKey}`}
                         lang={lang}
                         isBookingFlow={isBookingFlow}
+                        initialStaff={deepBodyInitialStaff}
+                        initialStep={deepBodyInitialStaff ? 'BOOKING_CONFIG' : undefined}
+                        initialTechniqueIds={deepBodyInitialTechniques}
                         onBack={onBack}
                         onCheckout={onCheckout}
                         onSwitchToStandard={onSwitchToStandard}
@@ -464,6 +491,7 @@ const PremiumMenu = ({ lang, isBookingFlow, onBack, onCheckout, onSwitchToStanda
                                     <StaffSelector
                                         lang={lang}
                                         cartHasItems={vipGroupCount > 0}
+                                        onSelectDeepBodyStaff={handleSelectDeepBodyStaffFromBridge}
                                         onConfirmSelection={(ids, staffInfoList, mode) => {
                                             setSelectedStaffIds(ids);
                                             setSelectedStaffInfoList(staffInfoList);

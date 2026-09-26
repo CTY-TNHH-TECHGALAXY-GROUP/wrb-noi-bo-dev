@@ -100,6 +100,72 @@ import {
   type DeepBodyBaseTechniqueId,
 } from './deepBody.constants';
 
+export type VipGalleryParsedItem =
+  | {
+      url: string;
+      kind: 'vip';
+      skillId: string;
+    }
+  | {
+      url: string;
+      kind: 'avatar';
+    }
+  | {
+      url: string;
+      kind: 'legacy';
+    };
+
+export function resolveVipGalleryForStaff({
+  avatarUrl,
+  galleryUrls,
+  skills,
+}: {
+  avatarUrl?: unknown;
+  galleryUrls?: unknown;
+  skills?: Record<string, unknown> | null;
+}): VipGalleryParsedItem[] {
+  const rawAvatar = typeof avatarUrl === 'string' && avatarUrl.trim() ? avatarUrl.trim() : null;
+  const rawGallery = Array.isArray(galleryUrls) ? galleryUrls : [];
+
+  const validVipItems: VipGalleryParsedItem[] = [];
+  const seenUrls = new Set<string>();
+
+  for (const item of rawGallery) {
+    if (!item || typeof item !== 'object') continue;
+    if (item.kind !== 'vip' || typeof item.url !== 'string' || typeof item.skillId !== 'string') continue;
+    const url = item.url.trim();
+    if (!url || seenUrls.has(url)) continue;
+
+    const skillVal = skills ? skills[item.skillId] : null;
+    const isSkillActive =
+      skillVal === true ||
+      (typeof skillVal === 'string' && skillVal !== '' && skillVal !== 'none');
+    if (!isSkillActive) continue;
+
+    seenUrls.add(url);
+    validVipItems.push({
+      url,
+      kind: 'vip',
+      skillId: item.skillId,
+    });
+  }
+
+  // Prepend avatar if not already matching a tagged VIP photo
+  if (rawAvatar) {
+    if (!seenUrls.has(rawAvatar)) {
+      return [{ url: rawAvatar, kind: 'avatar' }, ...validVipItems];
+    }
+    // If rawAvatar matches a tagged VIP photo, ensure that matching item is first
+    const matchingIdx = validVipItems.findIndex((it) => it.url === rawAvatar);
+    if (matchingIdx > 0) {
+      const matchingItem = validVipItems.splice(matchingIdx, 1)[0];
+      validVipItems.unshift(matchingItem);
+    }
+  }
+
+  return validVipItems;
+}
+
 export type TherapyGalleryItem =
   | {
       url: string;

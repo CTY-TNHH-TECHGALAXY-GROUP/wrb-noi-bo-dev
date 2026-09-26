@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Award, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { X, Award, ShieldCheck, CheckCircle2, Maximize2 } from 'lucide-react';
 import { getDeepBodyT } from './DeepBody.i18n';
-import { type VipStaffInfo } from '@/lib/vipStaffUtils';
+import { type VipStaffInfo, resolveStaffDescription } from '@/lib/vipStaffUtils';
+import ImageLightboxModal from './ImageLightboxModal';
 
 interface CertificateModalProps {
   isOpen: boolean;
@@ -20,8 +21,11 @@ export default function CertificateModal({
   onClose,
 }: CertificateModalProps) {
   const t = getDeepBodyT(lang);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   if (!isOpen || !staff) return null;
+
+  const staffDesc = resolveStaffDescription(staff, lang);
 
   return (
     <AnimatePresence>
@@ -54,7 +58,7 @@ export default function CertificateModal({
               </div>
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#e6c487]/80 block">
-                  {staff.id} • {staff.fullName}
+                  {t.master_deep_body} {staff.id}
                 </span>
                 <h3 className="text-base sm:text-lg font-bold text-white leading-tight">
                   {t.certificate_modal_title}
@@ -72,13 +76,32 @@ export default function CertificateModal({
 
           {/* Body / Certificate Image Container */}
           <div className="py-5 flex-1 flex flex-col items-center">
-            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-[#e6c487]/30 bg-[#1a1a1d] shadow-inner flex items-center justify-center group">
+            <div
+              onClick={() => staff.certificateUrl && setIsLightboxOpen(true)}
+              className={`relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-[#e6c487]/30 bg-[#1a1a1d] shadow-inner flex items-center justify-center group ${staff.certificateUrl ? 'cursor-zoom-in' : ''}`}
+            >
               {staff.certificateUrl ? (
-                <img
-                  src={staff.certificateUrl}
-                  alt={`Certificate of ${staff.fullName}`}
-                  className="w-full h-full object-contain p-2"
-                />
+                <>
+                  <img
+                    src={staff.certificateUrl}
+                    alt={`Certificate of ${staff.fullName}`}
+                    className="w-full h-full object-contain p-2"
+                  />
+                  {/* Expand Fullscreen Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsLightboxOpen(true);
+                    }}
+                    className="absolute top-3 right-3 z-10 px-2 py-1 rounded-lg bg-black/65 hover:bg-black/90 backdrop-blur-md text-[#e6c487] border border-[#e6c487]/40 hover:border-[#e6c487] flex items-center gap-1 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+                    title="Xem ảnh đầy đủ"
+                    aria-label="Xem ảnh đầy đủ"
+                  >
+                    <Maximize2 size={12} />
+                    <span className="text-[10px]">Full</span>
+                  </button>
+                </>
               ) : (
                 /* Elegant Fallback Certificate Mockup */
                 <div className="w-full h-full p-6 flex flex-col items-center justify-between text-center bg-gradient-to-b from-[#1c1c1f] to-[#121214]">
@@ -87,16 +110,18 @@ export default function CertificateModal({
                     <span>ORIA SPA CLINICAL BODYWORK</span>
                   </div>
 
-                  <div className="space-y-1.5 my-auto">
+                  <div className="space-y-2 my-auto">
                     <p className="text-[11px] text-gray-400 uppercase tracking-widest">
                       {t.certificate_fallback_title}
                     </p>
                     <h4 className="text-xl font-serif text-[#e6c487] font-bold">
-                      {staff.fullName} ({staff.id})
+                      {t.master_deep_body} {staff.id}
                     </h4>
-                    <p className="text-xs text-gray-300 max-w-[280px] leading-relaxed mx-auto">
-                      {t.certificate_fallback_desc}
-                    </p>
+                    {staffDesc ? (
+                      <p className="text-xs text-gray-300 max-w-[280px] leading-relaxed mx-auto">
+                        {staffDesc}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div className="flex items-center justify-center w-full pt-3 border-t border-white/10 text-[10px] text-gray-500">
@@ -105,6 +130,15 @@ export default function CertificateModal({
                 </div>
               )}
             </div>
+
+            {/* Professional Description from DB if present with certificate image */}
+            {staff.certificateUrl && staffDesc && (
+              <div className="w-full mt-3 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-[#e6c487]/20 text-center">
+                <p className="text-xs text-gray-300 leading-relaxed mx-auto">
+                  {staffDesc}
+                </p>
+              </div>
+            )}
 
             {/* Verification Badge */}
             <div className="w-full mt-4 p-3 rounded-xl bg-[#e6c487]/10 border border-[#e6c487]/20 flex items-center justify-center gap-2 text-[#e6c487] text-xs font-semibold">
@@ -116,12 +150,23 @@ export default function CertificateModal({
           {/* Footer */}
           <button
             onClick={onClose}
-            className="w-full py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition-all active:scale-95"
+            className="w-full py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition-all active:scale-95 cursor-pointer"
           >
             {t.close}
           </button>
         </motion.div>
       </div>
+
+      {/* Full-screen Certificate Lightbox Popover */}
+      {staff.certificateUrl && (
+        <ImageLightboxModal
+          isOpen={isLightboxOpen}
+          images={[staff.certificateUrl]}
+          initialIndex={0}
+          title={`${t.certificate_modal_title} • ${t.master_deep_body} ${staff.id}`}
+          onClose={() => setIsLightboxOpen(false)}
+        />
+      )}
     </AnimatePresence>
   );
 }

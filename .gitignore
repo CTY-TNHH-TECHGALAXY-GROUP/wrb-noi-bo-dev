@@ -42,3 +42,4 @@ yarn-error.log*
 next-env.d.ts
 .gitnexus
 test_cache.ts
+/scratch/

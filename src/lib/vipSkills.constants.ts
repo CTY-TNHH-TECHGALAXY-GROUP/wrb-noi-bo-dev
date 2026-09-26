@@ -151,3 +151,46 @@ export type VipDuration = (typeof VIP_DURATION_TIERS)[number];
 
 /** Supported languages */
 export type VipLang = 'vi' | 'en' | 'cn' | 'jp' | 'kr';
+
+/**
+ * Resolves localized badge label for a VIP skillId (for photo tags on Menu NHP)
+ */
+export function getVipSkillBadgeLabel(skillId: string, lang: string = 'vi'): string | null {
+  if (!skillId) return null;
+  const safeLang = (['vi', 'en', 'cn', 'jp', 'kr'].includes(lang) ? lang : 'vi') as VipLang;
+
+  // Direct match
+  if (SKILL_MAP[skillId]) {
+    return SKILL_MAP[skillId].name[safeLang] || SKILL_MAP[skillId].name.vi;
+  }
+
+  // Case-insensitive match in SKILL_MAP
+  const lower = skillId.toLowerCase();
+  for (const [key, skill] of Object.entries(SKILL_MAP)) {
+    if (key.toLowerCase() === lower) {
+      return skill.name[safeLang] || skill.name.vi;
+    }
+  }
+
+  // Alias mappings
+  const ALIASES: Record<string, string> = {
+    oilfoot: 'foot',
+    hotstonefoot: 'foot',
+    acupressurefoot: 'foot',
+    footmassage: 'foot',
+    thaitherapy: 'thaiBody',
+    shiatsu: 'shiatsuBody',
+    hotstone: 'hotStoneBody',
+    coconutoil: 'oilBody',
+    earclean: 'earCombo',
+    hairwash: 'shampoo',
+    nailcut: 'nailCombo',
+  };
+
+  const mappedKey = ALIASES[lower];
+  if (mappedKey && SKILL_MAP[mappedKey]) {
+    return SKILL_MAP[mappedKey].name[safeLang] || SKILL_MAP[mappedKey].name.vi;
+  }
+
+  return null;
+}
