@@ -93,6 +93,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
         let autoName = '';
         let autoEmail = '';
         let autoPhone = '';
+        let autoGender = '';
 
         if (isAuthUser && user && shouldAutofillAuth(user)) {
             autoName = user.user_metadata?.full_name || user.user_metadata?.name || '';
@@ -108,6 +109,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
                     if (!autoName && (parsed.fullName || parsed.name)) autoName = parsed.fullName || parsed.name;
                     if (!autoEmail && parsed.email) autoEmail = parsed.email;
                     if (!autoPhone && parsed.phone) autoPhone = parsed.phone;
+                    if (!autoGender && parsed.gender) autoGender = parsed.gender;
                 } else {
                     const storedEmail = localStorage.getItem('currentUserEmail');
                     const storedPhone = localStorage.getItem('currentUserPhone');
@@ -129,6 +131,10 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
         if (!customerInfo.name && autoName) updateCustomerInfo('name', autoName);
         if (!customerInfo.email && autoEmail) updateCustomerInfo('email', autoEmail);
         if (!customerInfo.phone && autoPhone) updateCustomerInfo('phone', autoPhone);
+        if (autoGender) {
+            const norm = ['female', 'nữ', 'nu'].includes(autoGender.toLowerCase()) ? 'Female' : 'Male';
+            updateCustomerInfo('gender', norm);
+        }
         
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthUser, user]);

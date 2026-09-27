@@ -101,11 +101,15 @@ export const LoginGate = ({ lang, onSuccess }: LoginGateProps) => {
       const data = await res.json();
 
       if (data.success && data.customer) {
-        rememberCustomerVisit(trimmed, data.customer.fullName);
+        rememberCustomerVisit(trimmed, data.customer.fullName, {
+          phone: data.customer.phone,
+          email: data.customer.email,
+          gender: data.customer.gender,
+        });
 
         onSuccess({
-          email: paramKey === 'email' ? trimmed : '',
-          phone: paramKey === 'phone' ? trimmed : '',
+          email: data.customer.email || (paramKey === 'email' ? trimmed : ''),
+          phone: data.customer.phone || (paramKey === 'phone' ? trimmed : ''),
           fullName: data.customer.fullName,
         });
       } else {

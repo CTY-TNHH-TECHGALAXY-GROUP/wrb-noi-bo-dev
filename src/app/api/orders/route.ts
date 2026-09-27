@@ -263,6 +263,9 @@ export async function GET(request: Request) {
             .select(`
                 id,
                 billCode,
+                customerName,
+                customerPhone,
+                customerEmail,
                 totalAmount,
                 bookingDate,
                 createdAt,
@@ -390,6 +393,9 @@ export async function GET(request: Request) {
 
             return {
                 id: b.id,
+                customerName: b.customerName || null,
+                customerPhone: b.customerPhone || null,
+                customerEmail: b.customerEmail || null,
                 date: formattedDate,
                 timeBooking: b.timeBooking || null,
                 total: b.totalAmount,

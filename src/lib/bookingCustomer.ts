@@ -71,27 +71,43 @@ export async function removeFailedBooking(db: Admin, bookingId: string, customer
 export async function findVisitorByContact(db: Admin, phone: string, email: string) {
     const field = phone ? 'phone' : 'email';
     const value = phone || email;
-    let matches;
-    if (phone) matches = await rowsForPhone(db, 'Customers', 'phone', 'id,phone,fullName', phone);
+    let matches: Record<string, unknown>[] = [];
+    if (phone) matches = await rowsForPhone(db, 'Customers', 'phone', 'id,phone,email,fullName,gender', phone);
     else {
-        const result = await db.from('Customers').select('fullName').ilike(field, literalLike(value)).limit(2);
+        const result = await db.from('Customers').select('id,phone,email,fullName,gender').ilike(field, literalLike(value)).limit(2);
         if (result.error) throw result.error;
-        matches = result.data;
+        matches = (result.data || []) as Record<string, unknown>[];
     }
     const customer = matches.length === 1 ? matches[0] : null;
     // Existing customerId links may belong to another person; match the booking contact itself.
     const ids = phone ? await bookingIdsForPhone(db, phone) : [];
-    const bookingQuery = db.from('Bookings').select('customerName, customerLang');
+    const bookingQuery = db.from('Bookings').select('customerName, customerLang, customerPhone, customerEmail');
     const { data: booking, error: bookingError } = phone && !ids.length
         ? { data: null, error: null }
         : await (phone ? bookingQuery.in('id', ids) : bookingQuery.ilike('customerEmail', literalLike(email)))
             .order('bookingDate', { ascending: false }).limit(1).maybeSingle();
     if (bookingError) throw bookingError;
     if (!matches.length && !booking) return null;
+
+    const rawCustPhone = typeof customer?.phone === 'string' ? customer.phone : '';
+    const rawCustEmail = typeof customer?.email === 'string' ? customer.email : '';
+    const rawBookPhone = typeof booking?.customerPhone === 'string' ? booking.customerPhone : '';
+    const rawBookEmail = typeof booking?.customerEmail === 'string' ? booking.customerEmail : '';
+
+    const realCustPhone = realContact({ phone: rawCustPhone }).phone;
+    const realCustEmail = realContact({ email: rawCustEmail }).email;
+    const realBookPhone = realContact({ phone: rawBookPhone }).phone;
+    const realBookEmail = realContact({ email: rawBookEmail }).email;
+
+    const resolvedPhone = phone || realCustPhone || realBookPhone || '';
+    const resolvedEmail = email || realCustEmail || realBookEmail || '';
+    const resolvedGender = typeof customer?.gender === 'string' ? customer.gender : null;
+
     return {
-        fullName: matches.length > 1 ? '' : booking?.customerName || customer?.fullName || '',
-        phone,
-        email,
+        fullName: matches.length > 1 ? '' : booking?.customerName || (customer?.fullName as string) || '',
+        phone: resolvedPhone,
+        email: resolvedEmail,
+        gender: resolvedGender,
         lang: booking?.customerLang || null,
     };
 }

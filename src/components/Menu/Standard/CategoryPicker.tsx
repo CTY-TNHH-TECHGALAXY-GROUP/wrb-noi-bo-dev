@@ -203,7 +203,18 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
         setIsHistoryLoading(false);
 
         if (result.exists && result.customer) {
-            rememberCustomerVisit(trimmedValue, result.customer.name);
+            rememberCustomerVisit(trimmedValue, result.customer.name, {
+                phone: result.customer.phone,
+                email: result.customer.email,
+                gender: result.customer.gender,
+            });
+            updateCustomerInfo('name', result.customer.name);
+            if (result.customer.email) updateCustomerInfo('email', result.customer.email);
+            if (result.customer.phone) updateCustomerInfo('phone', result.customer.phone);
+            if (result.customer.gender) {
+                const normGender = ['female', 'nữ', 'nu'].includes(result.customer.gender.toLowerCase()) ? 'Female' : 'Male';
+                updateCustomerInfo('gender', normGender);
+            }
             router.push(`/${lang}/old-user/history`);
         } else {
             setFailedInput(trimmedValue);

@@ -4,16 +4,31 @@ export function clearCustomerVisit() {
     }
 }
 
-export function rememberCustomerVisit(input: string, name = '') {
+export function rememberCustomerVisit(
+    input: string,
+    name = '',
+    extra?: { phone?: string; email?: string; gender?: string | null }
+) {
     clearCustomerVisit();
     const type = input.includes('@') ? 'email' : 'phone';
     const value = type === 'email' ? input.trim().toLowerCase() : input.trim().replace(/[\s\-()]/g, '');
     localStorage.setItem('currentUserLookup', `${type}:${value}`);
-    localStorage.setItem(type === 'email' ? 'currentUserEmail' : 'currentUserPhone', value);
+
+    const finalEmail = (extra?.email || (type === 'email' ? value : '')).trim().toLowerCase();
+    const finalPhone = (extra?.phone || (type === 'phone' ? value : '')).trim();
+    const finalName = name || '';
+    const finalGender = extra?.gender || '';
+
+    if (finalEmail) localStorage.setItem('currentUserEmail', finalEmail);
+    if (finalPhone) localStorage.setItem('currentUserPhone', finalPhone);
+    if (finalName) localStorage.setItem('currentUserName', finalName);
+
     localStorage.setItem('currentUserInfo', JSON.stringify({
-        fullName: name,
-        email: type === 'email' ? value : '',
-        phone: type === 'phone' ? value : '',
+        fullName: finalName,
+        name: finalName,
+        email: finalEmail,
+        phone: finalPhone,
+        gender: finalGender,
     }));
 }
 

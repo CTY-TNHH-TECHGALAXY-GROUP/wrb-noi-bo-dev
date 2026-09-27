@@ -24,34 +24,44 @@ const HISTORY_CONFIG = {
 
 const POPUP_I18N: Record<string, any> = {
     vi: {
-        title: "Chọn Hình Thức Rebook",
-        desc: "Bạn đang thực hiện đặt lại đơn này để làm tại tiệm hay đặt trước online?",
+        title: "Chọn Hình Thức Đặt Đơn Mới",
+        desc: "Bạn muốn thực hiện dịch vụ tại tiệm ngay hay đặt lịch hẹn trước?",
         walkin: "Tại Tiệm",
-        booking: "Booking"
+        booking: "Booking",
+        rebook_title: "Chọn Hình Thức Rebook",
+        rebook_desc: "Bạn đang thực hiện đặt lại đơn này để làm tại tiệm hay đặt trước online?"
     },
     en: {
-        title: "Select Rebook Method",
-        desc: "Are you rebooking this order for a Walk-in or Advance Booking?",
+        title: "Select Booking Method",
+        desc: "Would you like to experience services at the spa now or book in advance?",
         walkin: "Walk-in",
-        booking: "Booking"
+        booking: "Booking",
+        rebook_title: "Select Rebook Method",
+        rebook_desc: "Are you rebooking this order for a Walk-in or Advance Booking?"
     },
     cn: {
-        title: "选择重新预订方式",
-        desc: "您是作为到店订单还是提前预约来重新预订此订单？",
+        title: "选择预订方式",
+        desc: "您是作为到店订单还是提前预约？",
         walkin: "到店下单",
-        booking: "预约"
+        booking: "预约",
+        rebook_title: "选择重新预订方式",
+        rebook_desc: "您是作为到店订单还是提前预约来重新预订此订单？"
     },
     jp: {
-        title: "再予約方法の選択",
-        desc: "この注文をご来店として再予約しますか、それとも事前予約として再予約しますか？",
+        title: "予約方法の選択",
+        desc: "ご来店として予約しますか、それとも事前予約として予約しますか？",
         walkin: "ご来店",
-        booking: "予約"
+        booking: "予約",
+        rebook_title: "再予約方法の選択",
+        rebook_desc: "この注文をご来店として再予約しますか、それとも事前予約として再予約しますか？"
     },
     kr: {
-        title: "재예약 방법 선택",
-        desc: "이 주문을 현장 주문으로 재예약하시겠습니까, 아니면 사전 예약으로 하시겠습니까?",
+        title: "예약 방법 선택",
+        desc: "현장 주문으로 진행하시겠습니까, 아니면 사전 예약으로 하시겠습니까?",
         walkin: "현장 주문",
-        booking: "예약"
+        booking: "예약",
+        rebook_title: "재예약 방법 선택",
+        rebook_desc: "이 주문을 현장 주문으로 재예약하시겠습니까, 아니면 사전 예약으로 하시겠습니까?"
     }
 };
 
@@ -103,6 +113,25 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
             const data = await res.json();
             if (data.success) {
                 setOrders(data.orders);
+                if (data.orders && data.orders.length > 0) {
+                    const first = data.orders[0];
+                    if (first.customerName || first.customerPhone || first.customerEmail) {
+                        try {
+                            const stored = localStorage.getItem('currentUserInfo');
+                            const parsed = stored ? JSON.parse(stored) : {};
+                            let updated = false;
+                            if (!parsed.fullName && first.customerName) { parsed.fullName = first.customerName; updated = true; }
+                            if (!parsed.phone && first.customerPhone && !/^GUEST-/i.test(first.customerPhone)) { parsed.phone = first.customerPhone; updated = true; }
+                            if (!parsed.email && first.customerEmail && !/^guest-/i.test(first.customerEmail)) { parsed.email = first.customerEmail; updated = true; }
+                            if (updated) {
+                                localStorage.setItem('currentUserInfo', JSON.stringify(parsed));
+                                if (parsed.phone) localStorage.setItem('currentUserPhone', parsed.phone);
+                                if (parsed.email) localStorage.setItem('currentUserEmail', parsed.email);
+                                if (parsed.fullName) localStorage.setItem('currentUserName', parsed.fullName);
+                            }
+                        } catch (e) {}
+                    }
+                }
             } else {
                 setHistoryError(true);
                 console.error("Failed to fetch orders:", data.error);
@@ -295,6 +324,8 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
         setTimeout(() => {
             if (action === 'new') {
                 clearCart();
+                sessionStorage.removeItem('standard_menu_mode');
+                sessionStorage.removeItem('standard_menu_category');
                 if (source === 'walk-in') {
                     router.push(`/${lang}/standard/menu`);
                 } else {
@@ -578,8 +609,16 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="responsive-panel relative w-full max-w-sm bg-[#1c1c1e] rounded-3xl p-4 sm:p-6 shadow-2xl border border-white/10"
                         >
-                            <h3 className="text-xl font-bold text-white text-center mb-2">{(POPUP_I18N[lang] || POPUP_I18N['en']).title}</h3>
-                            <p className="text-sm text-gray-400 text-center mb-6">{(POPUP_I18N[lang] || POPUP_I18N['en']).desc}</p>
+                            <h3 className="text-xl font-bold text-white text-center mb-2">
+                                {actionContext?.action === 'rebook'
+                                    ? ((POPUP_I18N[lang] || POPUP_I18N['en']).rebook_title || (POPUP_I18N[lang] || POPUP_I18N['en']).title)
+                                    : (POPUP_I18N[lang] || POPUP_I18N['en']).title}
+                            </h3>
+                            <p className="text-sm text-gray-400 text-center mb-6">
+                                {actionContext?.action === 'rebook'
+                                    ? ((POPUP_I18N[lang] || POPUP_I18N['en']).rebook_desc || (POPUP_I18N[lang] || POPUP_I18N['en']).desc)
+                                    : (POPUP_I18N[lang] || POPUP_I18N['en']).desc}
+                            </p>
                             
                             <div className="grid grid-cols-2 gap-4">
                                 <button

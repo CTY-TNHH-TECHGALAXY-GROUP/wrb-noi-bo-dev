@@ -5,8 +5,10 @@ export interface CheckUserResult {
     status: 'found' | 'not_found' | 'error';
     customer: {
         name: string;
+        fullName?: string;
         phone: string;
         email: string;
+        gender?: string | null;
         lang?: string | null;
     } | null;
 }
@@ -26,8 +28,10 @@ export const checkUserEmail = async (inputValue: string): Promise<CheckUserResul
                 status: 'found',
                 customer: {
                     name: data.customer.fullName || "",
-                    phone: data.customer.phone || "",
+                    fullName: data.customer.fullName || "",
+                    phone: data.customer.phone || (isEmail ? "" : trimmed),
                     email: data.customer.email || (isEmail ? trimmed : ""),
+                    gender: data.customer.gender || null,
                     lang: data.customer.lang || null
                 }
             };

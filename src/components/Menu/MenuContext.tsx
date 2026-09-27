@@ -110,6 +110,21 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         fetchData();
+        if (typeof window !== 'undefined') {
+            try {
+                const storedInfo = localStorage.getItem('currentUserInfo');
+                if (storedInfo) {
+                    const parsed = JSON.parse(storedInfo);
+                    setCustomerInfoContext(prev => ({
+                        ...prev,
+                        name: parsed.fullName || parsed.name || prev.name,
+                        email: parsed.email || prev.email,
+                        phone: parsed.phone || prev.phone,
+                        gender: (parsed.gender && ['female', 'nữ', 'nu'].includes(parsed.gender.toLowerCase())) ? 'Female' : (parsed.gender ? 'Male' : prev.gender),
+                    }));
+                }
+            } catch (e) {}
+        }
     }, []);
 
     // --- CART FUNCTIONS ---
@@ -309,7 +324,22 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
     // --- CUSTOMER FUNCTIONS ---
     const updateCustomerInfo = (field: string, value: string) => {
         if (field === 'phone' && /^GUEST-/i.test(value.trim())) value = '';
-        setCustomerInfoContext(prev => ({ ...prev, [field]: value }));
+        setCustomerInfoContext(prev => {
+            const next = { ...prev, [field]: value };
+            if (typeof window !== 'undefined') {
+                try {
+                    const storedInfo = localStorage.getItem('currentUserInfo');
+                    const parsed = storedInfo ? JSON.parse(storedInfo) : {};
+                    parsed[field === 'name' ? 'fullName' : field] = value;
+                    if (field === 'name') parsed.name = value;
+                    localStorage.setItem('currentUserInfo', JSON.stringify(parsed));
+                    if (field === 'phone') localStorage.setItem('currentUserPhone', value);
+                    if (field === 'email') localStorage.setItem('currentUserEmail', value);
+                    if (field === 'name') localStorage.setItem('currentUserName', value);
+                } catch (e) {}
+            }
+            return next;
+        });
     };
 
     const resetCustomerInfo = () => {
