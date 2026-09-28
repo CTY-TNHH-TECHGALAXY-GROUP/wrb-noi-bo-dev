@@ -152,6 +152,15 @@ export type VipDuration = (typeof VIP_DURATION_TIERS)[number];
 /** Supported languages */
 export type VipLang = 'vi' | 'en' | 'cn' | 'jp' | 'kr';
 
+/** Localized badge labels for privilege ('Đặc Quyền') */
+export const PRIVILEGE_BADGE_LABELS: Record<string, string> = {
+  vi: 'Đặc Quyền',
+  en: 'Privilege',
+  cn: '特权',
+  jp: '特権',
+  kr: '특권',
+};
+
 /**
  * Resolves localized badge label for a VIP skillId (for photo tags on Menu NHP)
  */
@@ -159,13 +168,17 @@ export function getVipSkillBadgeLabel(skillId: string, lang: string = 'vi'): str
   if (!skillId) return null;
   const safeLang = (['vi', 'en', 'cn', 'jp', 'kr'].includes(lang) ? lang : 'vi') as VipLang;
 
+  const lower = skillId.toLowerCase();
+  if (['privilege', 'dacquyen', 'dac_quyen', 'dac-quyen'].includes(lower)) {
+    return PRIVILEGE_BADGE_LABELS[safeLang] || PRIVILEGE_BADGE_LABELS.vi;
+  }
+
   // Direct match
   if (SKILL_MAP[skillId]) {
     return SKILL_MAP[skillId].name[safeLang] || SKILL_MAP[skillId].name.vi;
   }
 
   // Case-insensitive match in SKILL_MAP
-  const lower = skillId.toLowerCase();
   for (const [key, skill] of Object.entries(SKILL_MAP)) {
     if (key.toLowerCase() === lower) {
       return skill.name[safeLang] || skill.name.vi;

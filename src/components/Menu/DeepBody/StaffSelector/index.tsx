@@ -423,9 +423,7 @@ export default function DeepStaffSelector({
             const carouselItems =
               staff.therapyGallery && staff.therapyGallery.length > 0
                 ? staff.therapyGallery
-                : staff.avatarUrl
-                ? [staff.avatarUrl]
-                : [];
+                : (staff.avatarUrl ? [{ url: staff.avatarUrl, kind: 'legacy' as const }] : []);
 
             return (
               <motion.div
@@ -446,6 +444,7 @@ export default function DeepStaffSelector({
                   <StaffImageCarousel
                     imageFit="cover"
                     items={carouselItems}
+                    images={staff.galleryUrls?.length ? staff.galleryUrls : (staff.avatarUrl ? [staff.avatarUrl] : [])}
                     staffId={staff.id}
                     staffName={`${t.master_deep_body} ${staff.id}`}
                     lang={lang}

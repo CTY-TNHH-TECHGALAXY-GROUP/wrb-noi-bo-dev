@@ -172,7 +172,7 @@ export default function ImageLightboxModal({
             {/* Title & Badge */}
             <div className="flex items-center gap-3 min-w-0 pr-4">
               {badgeLabel && (
-                <span className="px-3 py-1 rounded-full bg-[#e6c487]/20 border border-[#e6c487]/50 text-[#e6c487] text-xs font-bold uppercase tracking-wider shrink-0 shadow-sm">
+                <span className="px-2.5 py-1 rounded-md bg-black/50 backdrop-blur-md border border-white/15 text-white/90 text-xs font-medium tracking-wide shrink-0">
                   {badgeLabel}
                 </span>
               )}

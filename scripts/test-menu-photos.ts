@@ -70,29 +70,44 @@ it('normalizePhotoList extracts url from metadata objects {url, kind, therapyId}
   ]);
 });
 
-// 2. NHP only receives photos tagged to an enabled VIP skill.
-it('NHP: T027 dual-menu gallery never includes NHT photos or unticked VIP skills', () => {
-  const res = resolveMenuPhotos({
-    staff: {
-      avatar_url: 'https://cdn.example.com/avatar.jpg',
-      skills: { shampoo: true, facial: false },
-      gallery_urls: [
-        { url: 'https://cdn.example.com/nht.jpg', kind: 'therapy', therapyId: 'hotStone' },
-        { url: 'https://cdn.example.com/nhp-shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
-        { url: 'https://cdn.example.com/nhp-facial.jpg', kind: 'vip', skillId: 'facial' },
-      ],
-    },
+// 2. NHP only receives photos tagged to an enabled VIP skill (honors showAvatar toggle).
+it('NHP: T027 dual-menu gallery never includes NHT photos or unticked VIP skills, honors showAvatar toggle', () => {
+  const staff = {
+    avatar_url: 'https://cdn.example.com/avatar.jpg',
+    skills: { shampoo: true, facial: false },
+    gallery_urls: [
+      { url: 'https://cdn.example.com/nht.jpg', kind: 'therapy', therapyId: 'hotStone' },
+      { url: 'https://cdn.example.com/nhp-shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+      { url: 'https://cdn.example.com/nhp-facial.jpg', kind: 'vip', skillId: 'facial' },
+    ],
+  };
+
+  // When showAvatar: false (OFF) -> Avatar is hidden
+  const resOff = resolveMenuPhotos({
+    staff,
     menu: 'nhp',
+    showAvatar: false,
   });
-  assert.equal(res.primary, 'https://cdn.example.com/avatar.jpg');
-  assert.deepEqual(res.photos, [
+  assert.equal(resOff.primary, 'https://cdn.example.com/nhp-shampoo.jpg');
+  assert.deepEqual(resOff.photos, [
+    'https://cdn.example.com/nhp-shampoo.jpg',
+  ]);
+
+  // When showAvatar: true (ON) -> Avatar is primary and prepended
+  const resOn = resolveMenuPhotos({
+    staff,
+    menu: 'nhp',
+    showAvatar: true,
+  });
+  assert.equal(resOn.primary, 'https://cdn.example.com/avatar.jpg');
+  assert.deepEqual(resOn.photos, [
     'https://cdn.example.com/avatar.jpg',
     'https://cdn.example.com/nhp-shampoo.jpg',
   ]);
 });
 
-// 3. Old untagged photos do not leak across menus.
-it('NHP: untagged gallery and config do not appear as VIP skill photos', () => {
+// 3. Old untagged photos and avatar do not leak into NHP.
+it('NHP: untagged gallery, config, and avatar do not appear as VIP skill photos', () => {
   const res = resolveMenuPhotos({
     staff: {
       avatar_url: 'https://cdn.example.com/avatar.jpg',
@@ -100,27 +115,45 @@ it('NHP: untagged gallery and config do not appear as VIP skill photos', () => {
     },
     configPhotos: ['https://cdn.example.com/cfg1.jpg', 'https://cdn.example.com/cfg2.jpg'],
     menu: 'nhp',
+    showAvatar: false,
   });
-  assert.equal(res.primary, 'https://cdn.example.com/avatar.jpg');
-  assert.deepEqual(res.photos, ['https://cdn.example.com/avatar.jpg']);
+  assert.equal(res.primary, null);
+  assert.deepEqual(res.photos, []);
 });
 
-// 4. A VIP photo identical to the avatar appears only once.
-it('NHP: tagged VIP photo matching avatar is deduplicated', () => {
-  const res = resolveMenuPhotos({
-    staff: {
-      avatar_url: 'https://cdn.example.com/avatar.jpg',
-      skills: { shampoo: true },
-      gallery_urls: [
-        { url: 'https://cdn.example.com/p1.jpg', kind: 'vip', skillId: 'shampoo' },
-        { url: 'https://cdn.example.com/avatar.jpg', kind: 'vip', skillId: 'shampoo' },
-        { url: 'https://cdn.example.com/p2.jpg', kind: 'vip', skillId: 'shampoo' },
-      ],
-    },
+// 4. Tagged VIP photos appear in order, honors showAvatar toggle.
+it('NHP: tagged VIP photos appear in order, honors showAvatar toggle', () => {
+  const staff = {
+    avatar_url: 'https://cdn.example.com/avatar.jpg',
+    skills: { shampoo: true },
+    gallery_urls: [
+      { url: 'https://cdn.example.com/p1.jpg', kind: 'vip', skillId: 'shampoo' },
+      { url: 'https://cdn.example.com/avatar.jpg', kind: 'vip', skillId: 'shampoo' },
+      { url: 'https://cdn.example.com/p2.jpg', kind: 'vip', skillId: 'shampoo' },
+    ],
+  };
+
+  // When showAvatar: false (OFF)
+  const resOff = resolveMenuPhotos({
+    staff,
     menu: 'nhp',
+    showAvatar: false,
   });
-  assert.equal(res.primary, 'https://cdn.example.com/avatar.jpg');
-  assert.deepEqual(res.photos, [
+  assert.equal(resOff.primary, 'https://cdn.example.com/p1.jpg');
+  assert.deepEqual(resOff.photos, [
+    'https://cdn.example.com/p1.jpg',
+    'https://cdn.example.com/avatar.jpg',
+    'https://cdn.example.com/p2.jpg',
+  ]);
+
+  // When showAvatar: true (ON) -> avatar is prepended (deduplicated)
+  const resOn = resolveMenuPhotos({
+    staff,
+    menu: 'nhp',
+    showAvatar: true,
+  });
+  assert.equal(resOn.primary, 'https://cdn.example.com/avatar.jpg');
+  assert.deepEqual(resOn.photos, [
     'https://cdn.example.com/avatar.jpg',
     'https://cdn.example.com/p1.jpg',
     'https://cdn.example.com/p2.jpg',
@@ -243,16 +276,27 @@ it('NHT: when no config exists, resolves directly from Staff.gallery_urls', () =
   ]);
 });
 
-// 10. No gallery → avatar fallback
-it('NHT: when neither config nor gallery exists, falls back to avatarUrl', () => {
-  const gallery = resolveTherapyGalleryForStaff({
+// 10. No gallery → avatar fallback is governed by showAvatar toggle
+it('NHT: when neither config nor gallery exists, avatarUrl fallback is governed by showAvatar toggle', () => {
+  // When showAvatar: false (OFF) -> returns empty array (no avatar fallback)
+  const galleryOff = resolveTherapyGalleryForStaff({
     staffId: 'KTV01',
     galleryUrls: [],
     avatarUrl: 'https://cdn.example.com/avatar.jpg',
+    showAvatar: false,
   });
+  assert.deepEqual(galleryOff, []);
 
-  assert.deepEqual(gallery.map((i) => i.url), ['https://cdn.example.com/avatar.jpg']);
-  assert.equal(gallery[0].kind, 'legacy');
+  // When showAvatar: true (ON) -> falls back to avatar
+  const galleryOn = resolveTherapyGalleryForStaff({
+    staffId: 'KTV01',
+    galleryUrls: [],
+    avatarUrl: 'https://cdn.example.com/avatar.jpg',
+    showAvatar: true,
+  });
+  assert.deepEqual(galleryOn, [
+    { url: 'https://cdn.example.com/avatar.jpg', kind: 'legacy' },
+  ]);
 });
 
 // 11. galleryUrls always equals therapyGallery.map(item => item.url)
@@ -415,16 +459,22 @@ it('resolveVipGalleryForStaff: preserves skill tags and drops unticked/untagged 
     ],
   };
 
-  const result = resolveVipGalleryForStaff(staff);
+  // Case 1: showAvatar: false (OFF) -> only active VIP skill photos appear, avatar is excluded
+  const resultOff = resolveVipGalleryForStaff({ ...staff, showAvatar: false });
+  assert.deepEqual(resultOff, [
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+    { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+  ]);
 
-  // Avatar prepended as kind: 'avatar', followed by active VIP skill photos
-  assert.deepEqual(result, [
+  // Case 2: showAvatar: true (ON) -> Avatar is prepended at the front
+  const resultOn = resolveVipGalleryForStaff({ ...staff, showAvatar: true });
+  assert.deepEqual(resultOn, [
     { url: 'https://cdn.example.com/avatar.jpg', kind: 'avatar' },
     { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
     { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
   ]);
 
-  // Case where avatar matches a tagged VIP photo: should not duplicate, matching item is first
+  // Case 3: Where avatar URL matches one of the VIP skills:
   const staffMatchingAvatar = {
     avatarUrl: 'https://cdn.example.com/thai.jpg',
     skills: { thaiBody: true, shampoo: true },
@@ -433,8 +483,13 @@ it('resolveVipGalleryForStaff: preserves skill tags and drops unticked/untagged 
       { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
     ],
   };
-  const resultMatching = resolveVipGalleryForStaff(staffMatchingAvatar);
-  assert.deepEqual(resultMatching, [
+  const resultMatchingOff = resolveVipGalleryForStaff({ ...staffMatchingAvatar, showAvatar: false });
+  assert.deepEqual(resultMatchingOff, [
+    { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+  ]);
+  const resultMatchingOn = resolveVipGalleryForStaff({ ...staffMatchingAvatar, showAvatar: true });
+  assert.deepEqual(resultMatchingOn, [
     { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
     { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
   ]);
@@ -466,6 +521,171 @@ it('getVipSkillBadgeLabel: resolves localized badge labels for VIP skills and al
   // Unknown / Empty
   assert.equal(getVipSkillBadgeLabel(''), null);
   assert.equal(getVipSkillBadgeLabel('unknownSkillIdXYZ'), null);
+});
+
+// 24. resolveVipGalleryForStaff: correctly places privilege ('Đặc Quyền') after avatar when ON, and first when OFF
+it("resolveVipGalleryForStaff: correctly places privilege ('Đặc Quyền') after avatar when ON, and first when OFF", () => {
+  // Case A: Staff with avatar, privilege photo in galleryUrls, and skills
+  const staffWithPrivilegeGallery = {
+    avatarUrl: 'https://cdn.example.com/avatar.jpg',
+    skills: { thaiBody: true, shampoo: true },
+    galleryUrls: [
+      { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+      { url: 'https://cdn.example.com/privilege.jpg', kind: 'privilege' },
+      { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+    ],
+  };
+
+  // When showAvatar: false (OFF) -> [Privilege] -> [Skills] (Avatar is not shown)
+  const resA_Off = resolveVipGalleryForStaff({ ...staffWithPrivilegeGallery, showAvatar: false });
+  assert.deepEqual(resA_Off, [
+    { url: 'https://cdn.example.com/privilege.jpg', kind: 'privilege' },
+    { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+  ]);
+
+  // When showAvatar: true (ON) -> [Avatar] -> [Privilege] -> [Skills]
+  const resA_On = resolveVipGalleryForStaff({ ...staffWithPrivilegeGallery, showAvatar: true });
+  assert.deepEqual(resA_On, [
+    { url: 'https://cdn.example.com/avatar.jpg', kind: 'avatar' },
+    { url: 'https://cdn.example.com/privilege.jpg', kind: 'privilege' },
+    { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+  ]);
+
+  // Case B: Staff with explicit privilegeUrl parameter
+  const staffWithPrivilegeParam = {
+    avatarUrl: 'https://cdn.example.com/avatar.jpg',
+    privilegeUrl: 'https://cdn.example.com/privilege-param.jpg',
+    skills: { thaiBody: true },
+    galleryUrls: [
+      { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+    ],
+  };
+  const resB_Off = resolveVipGalleryForStaff({ ...staffWithPrivilegeParam, showAvatar: false });
+  assert.deepEqual(resB_Off, [
+    { url: 'https://cdn.example.com/privilege-param.jpg', kind: 'privilege' },
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+  ]);
+  const resB_On = resolveVipGalleryForStaff({ ...staffWithPrivilegeParam, showAvatar: true });
+  assert.deepEqual(resB_On, [
+    { url: 'https://cdn.example.com/avatar.jpg', kind: 'avatar' },
+    { url: 'https://cdn.example.com/privilege-param.jpg', kind: 'privilege' },
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+  ]);
+
+  // Case C: Tagged with skillId: 'privilege' or 'dacQuyen' in galleryUrls
+  const staffWithPrivilegeSkillTag = {
+    avatarUrl: 'https://cdn.example.com/avatar.jpg',
+    skills: { thaiBody: true },
+    galleryUrls: [
+      { url: 'https://cdn.example.com/dac-quyen.jpg', kind: 'vip', skillId: 'dacQuyen' },
+      { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+    ],
+  };
+  const resC_Off = resolveVipGalleryForStaff({ ...staffWithPrivilegeSkillTag, showAvatar: false });
+  assert.deepEqual(resC_Off, [
+    { url: 'https://cdn.example.com/dac-quyen.jpg', kind: 'privilege' },
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+  ]);
+  const resC_On = resolveVipGalleryForStaff({ ...staffWithPrivilegeSkillTag, showAvatar: true });
+  assert.deepEqual(resC_On, [
+    { url: 'https://cdn.example.com/avatar.jpg', kind: 'avatar' },
+    { url: 'https://cdn.example.com/dac-quyen.jpg', kind: 'privilege' },
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+  ]);
+
+  // Case D: No avatar provided -> [Privilege] -> [Skills] regardless of showAvatar
+  const staffNoAvatar = {
+    skills: { thaiBody: true },
+    galleryUrls: [
+      { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+      { url: 'https://cdn.example.com/privilege.jpg', kind: 'privilege' },
+    ],
+  };
+  const resD = resolveVipGalleryForStaff(staffNoAvatar);
+  assert.deepEqual(resD, [
+    { url: 'https://cdn.example.com/privilege.jpg', kind: 'privilege' },
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+  ]);
+});
+
+// 25. getVipSkillBadgeLabel: resolves localized badge labels for privilege across languages
+it('getVipSkillBadgeLabel: resolves localized badge labels for privilege across languages', () => {
+  assert.equal(getVipSkillBadgeLabel('privilege', 'vi'), 'Đặc Quyền');
+  assert.equal(getVipSkillBadgeLabel('privilege', 'en'), 'Privilege');
+  assert.equal(getVipSkillBadgeLabel('privilege', 'cn'), '特权');
+  assert.equal(getVipSkillBadgeLabel('privilege', 'jp'), '特権');
+  assert.equal(getVipSkillBadgeLabel('privilege', 'kr'), '특권');
+
+  // Case-insensitivity and Vietnamese aliases
+  assert.equal(getVipSkillBadgeLabel('Privilege'), 'Đặc Quyền');
+  assert.equal(getVipSkillBadgeLabel('dacquyen'), 'Đặc Quyền');
+  assert.equal(getVipSkillBadgeLabel('dac_quyen'), 'Đặc Quyền');
+});
+
+// 26. resolveMenuPhotos: NHP returns privilege photos before VIP skills, honors showAvatar toggle
+it('resolveMenuPhotos: NHP returns privilege photos before VIP skills, honors showAvatar toggle', () => {
+  const staff = {
+    avatar_url: 'https://cdn.example.com/avatar.jpg',
+    skills: { shampoo: true },
+    gallery_urls: [
+      { url: 'https://cdn.example.com/shampoo.jpg', kind: 'vip', skillId: 'shampoo' },
+      { url: 'https://cdn.example.com/privilege.jpg', kind: 'privilege' },
+    ],
+  };
+
+  // When showAvatar: false (OFF)
+  const resOff = resolveMenuPhotos({
+    staff,
+    menu: 'nhp',
+    showAvatar: false,
+  });
+  assert.equal(resOff.primary, 'https://cdn.example.com/privilege.jpg');
+  assert.deepEqual(resOff.photos, [
+    'https://cdn.example.com/privilege.jpg',
+    'https://cdn.example.com/shampoo.jpg',
+  ]);
+
+  // When showAvatar: true (ON) -> Avatar -> Privilege -> Skills
+  const resOn = resolveMenuPhotos({
+    staff,
+    menu: 'nhp',
+    showAvatar: true,
+  });
+  assert.equal(resOn.primary, 'https://cdn.example.com/avatar.jpg');
+  assert.deepEqual(resOn.photos, [
+    'https://cdn.example.com/avatar.jpg',
+    'https://cdn.example.com/privilege.jpg',
+    'https://cdn.example.com/shampoo.jpg',
+  ]);
+});
+
+// 27. resolveVipGalleryForStaff & normalizeTherapyGallery: excludes photos with hidden: true
+it('resolveVipGalleryForStaff & normalizeTherapyGallery: excludes photos with hidden: true', () => {
+  const staff = {
+    skills: { thaiBody: true, shampoo: true },
+    galleryUrls: [
+      { url: 'https://cdn.example.com/privilege-hidden.jpg', kind: 'privilege', hidden: true },
+      { url: 'https://cdn.example.com/privilege-visible.jpg', kind: 'privilege' },
+      { url: 'https://cdn.example.com/shampoo-hidden.jpg', kind: 'vip', skillId: 'shampoo', hidden: true },
+      { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+    ],
+  };
+
+  const vipRes = resolveVipGalleryForStaff(staff);
+  assert.deepEqual(vipRes, [
+    { url: 'https://cdn.example.com/privilege-visible.jpg', kind: 'privilege' },
+    { url: 'https://cdn.example.com/thai.jpg', kind: 'vip', skillId: 'thaiBody' },
+  ]);
+
+  const therapyRes = normalizeTherapyGallery([
+    { url: 'https://cdn.example.com/hotStone-hidden.jpg', kind: 'therapy', therapyId: 'hotStone', hidden: true },
+    { url: 'https://cdn.example.com/thaiTherapy.jpg', kind: 'therapy', therapyId: 'thaiTherapy' },
+  ]);
+  assert.deepEqual(therapyRes, [
+    { url: 'https://cdn.example.com/thaiTherapy.jpg', kind: 'therapy', therapyId: 'thaiTherapy' },
+  ]);
 });
 
 console.log(`\n🎉 ALL ${passedCount} MENU PHOTOS TEST CASES PASSED SUCCESSFULLY!\n`);

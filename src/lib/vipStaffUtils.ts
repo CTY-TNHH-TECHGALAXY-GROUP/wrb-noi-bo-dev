@@ -160,6 +160,8 @@ export interface VipStaffInfo {
   galleryUrls?: string[]; // Multiple photos / gallery images for KTV
   therapyGallery?: TherapyGalleryParsedItem[];
   vipGallery?: VipGalleryParsedItem[];
+  privilegeUrl?: string | null;
+  showAvatar?: boolean;
   certificateDescription?: string | Record<string, string> | null;
   professionalDescription?: string | null;
 }

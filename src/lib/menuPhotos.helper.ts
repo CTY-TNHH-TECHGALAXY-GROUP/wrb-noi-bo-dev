@@ -7,15 +7,47 @@ export type MenuPhotoStaff = {
   skills?: Record<string, unknown> | null;
 };
 
-export function vipGalleryPhotos(gallery: unknown, skills: Record<string, unknown> | null | undefined): string[] {
-  if (!Array.isArray(gallery) || !skills) return [];
-  return gallery.flatMap((item) => {
-    if (!item || typeof item !== 'object' || item.kind !== 'vip' || typeof item.url !== 'string' || typeof item.skillId !== 'string') return [];
-    const value = skills[item.skillId];
-    return value === true || (typeof value === 'string' && value !== '' && value !== 'none')
-      ? [item.url.trim()].filter(Boolean)
-      : [];
-  });
+export function vipGalleryPhotos(
+  gallery: unknown,
+  skills: Record<string, unknown> | null | undefined,
+  privilegeUrl?: string | null
+): string[] {
+  const privilegeUrls: string[] = [];
+  const vipSkillUrls: string[] = [];
+
+  const rawPrivilege = typeof privilegeUrl === 'string' && privilegeUrl.trim() ? privilegeUrl.trim() : null;
+  if (rawPrivilege) {
+    privilegeUrls.push(rawPrivilege);
+  }
+
+  if (Array.isArray(gallery)) {
+    for (const item of gallery) {
+      if (!item || typeof item !== 'object' || typeof item.url !== 'string') continue;
+      if ((item as any).hidden === true) continue;
+      const url = item.url.trim();
+      if (!url) continue;
+
+      const isPrivilegeKind = item.kind === 'privilege';
+      const isPrivilegeSkill =
+        item.kind === 'vip' &&
+        typeof item.skillId === 'string' &&
+        ['privilege', 'dacquyen', 'dac_quyen', 'dac-quyen'].includes(item.skillId.toLowerCase());
+
+      if (isPrivilegeKind || isPrivilegeSkill) {
+        if (!privilegeUrls.includes(url)) privilegeUrls.push(url);
+        continue;
+      }
+
+      if (item.kind !== 'vip' || typeof item.skillId !== 'string' || !skills) continue;
+      const value = skills[item.skillId];
+      const isSkillActive = value === true || (typeof value === 'string' && value !== '' && value !== 'none');
+      if (isSkillActive && !vipSkillUrls.includes(url)) {
+        vipSkillUrls.push(url);
+      }
+    }
+  }
+
+  return [...privilegeUrls, ...vipSkillUrls];
 }
 
 export function normalizePhotoList(value: unknown): string[] {
@@ -51,10 +83,12 @@ export function resolveMenuPhotos({
   staff,
   configPhotos,
   menu,
+  showAvatar = true,
 }: {
   staff?: MenuPhotoStaff | null;
   configPhotos?: unknown;
   menu: 'nhp' | 'nht';
+  showAvatar?: boolean;
 }): {
   primary: string | null;
   photos: string[];
@@ -67,8 +101,17 @@ export function resolveMenuPhotos({
   const sourcePhotos = config.length > 0 ? config : gallery;
 
   if (menu === 'nhp') {
-    const vipPhotos = vipGalleryPhotos(staff?.gallery_urls ?? staff?.galleryUrls, staff?.skills);
-    if (avatar) {
+    const featureFlags = (staff && typeof (staff as any).feature_flags === 'object') ? (staff as any).feature_flags : ((staff && typeof (staff as any).featureFlags === 'object') ? (staff as any).featureFlags : null);
+    const directPrivilege =
+      (typeof (staff as any)?.privilegeUrl === 'string' && (staff as any).privilegeUrl.trim()) ||
+      (typeof (staff as any)?.privilege_url === 'string' && (staff as any).privilege_url.trim()) ||
+      (typeof featureFlags?.privilege_url === 'string' && featureFlags.privilege_url.trim()) ||
+      (typeof featureFlags?.privilegeUrl === 'string' && featureFlags.privilegeUrl.trim()) ||
+      (typeof featureFlags?.privilege_photo === 'string' && featureFlags.privilege_photo.trim()) ||
+      null;
+
+    const vipPhotos = vipGalleryPhotos(staff?.gallery_urls ?? staff?.galleryUrls, staff?.skills, directPrivilege);
+    if (showAvatar && avatar) {
       const rest = vipPhotos.filter((url) => url !== avatar);
       return {
         primary: avatar,
@@ -76,22 +119,29 @@ export function resolveMenuPhotos({
       };
     }
     return {
-      primary: vipPhotos[0] ?? null,
+      primary: vipPhotos[0] ?? (showAvatar ? avatar : null),
       photos: vipPhotos,
     };
   }
 
-  // menu === 'nht': gallery/config trước, chỉ fallback avatar khi gallery/config rỗng
+  // menu === 'nht'
   if (sourcePhotos.length > 0) {
     return {
-      primary: avatar ?? (sourcePhotos[0] ?? null),
+      primary: (showAvatar ? avatar : null) ?? (sourcePhotos[0] ?? null),
       photos: sourcePhotos,
     };
   }
 
+  if (showAvatar && avatar) {
+    return {
+      primary: avatar,
+      photos: [avatar],
+    };
+  }
+
   return {
-    primary: avatar,
-    photos: avatar ? [avatar] : [],
+    primary: null,
+    photos: [],
   };
 }
 
@@ -108,6 +158,11 @@ export type VipGalleryParsedItem =
     }
   | {
       url: string;
+      kind: 'privilege';
+      privilegeId?: string;
+    }
+  | {
+      url: string;
       kind: 'avatar';
     }
   | {
@@ -119,23 +174,58 @@ export function resolveVipGalleryForStaff({
   avatarUrl,
   galleryUrls,
   skills,
+  privilegeUrl,
+  showAvatar = true,
 }: {
   avatarUrl?: unknown;
   galleryUrls?: unknown;
   skills?: Record<string, unknown> | null;
+  privilegeUrl?: unknown;
+  showAvatar?: boolean;
 }): VipGalleryParsedItem[] {
   const rawAvatar = typeof avatarUrl === 'string' && avatarUrl.trim() ? avatarUrl.trim() : null;
+  const rawPrivilege = typeof privilegeUrl === 'string' && privilegeUrl.trim() ? privilegeUrl.trim() : null;
   const rawGallery = Array.isArray(galleryUrls) ? galleryUrls : [];
 
+  const privilegeItems: VipGalleryParsedItem[] = [];
   const validVipItems: VipGalleryParsedItem[] = [];
   const seenUrls = new Set<string>();
 
+  // If explicit privilegeUrl is provided, seed it into privilegeItems
+  if (rawPrivilege) {
+    seenUrls.add(rawPrivilege);
+    privilegeItems.push({
+      url: rawPrivilege,
+      kind: 'privilege',
+    });
+  }
+
   for (const item of rawGallery) {
     if (!item || typeof item !== 'object') continue;
-    if (item.kind !== 'vip' || typeof item.url !== 'string' || typeof item.skillId !== 'string') continue;
-    const url = item.url.trim();
+    if (item.kind === 'avatar' && !showAvatar) continue;
+    if ((item as any).hidden === true) continue;
+    const url = typeof item.url === 'string' ? item.url.trim() : '';
     if (!url || seenUrls.has(url)) continue;
 
+    // Check if privilege ("Đặc quyền")
+    const isPrivilegeKind = item.kind === 'privilege';
+    const isPrivilegeSkill =
+      item.kind === 'vip' &&
+      typeof item.skillId === 'string' &&
+      ['privilege', 'dacquyen', 'dac_quyen', 'dac-quyen'].includes(item.skillId.toLowerCase());
+
+    if (isPrivilegeKind || isPrivilegeSkill) {
+      seenUrls.add(url);
+      privilegeItems.push({
+        url,
+        kind: 'privilege',
+        ...(typeof item.privilegeId === 'string' ? { privilegeId: item.privilegeId } : {}),
+      });
+      continue;
+    }
+
+    // Check if VIP skill photo
+    if (item.kind !== 'vip' || typeof item.skillId !== 'string') continue;
     const skillVal = skills ? skills[item.skillId] : null;
     const isSkillActive =
       skillVal === true ||
@@ -150,20 +240,26 @@ export function resolveVipGalleryForStaff({
     });
   }
 
-  // Prepend avatar if not already matching a tagged VIP photo
-  if (rawAvatar) {
-    if (!seenUrls.has(rawAvatar)) {
-      return [{ url: rawAvatar, kind: 'avatar' }, ...validVipItems];
+  // When showAvatar is ON (true) and avatar is provided:
+  // Order is strictly: [Avatar] -> [Privilege] -> [Skills]
+  if (showAvatar && rawAvatar) {
+    const privMatchIdx = privilegeItems.findIndex((it) => it.url === rawAvatar);
+    if (privMatchIdx >= 0) {
+      const matchingPrivItem = privilegeItems.splice(privMatchIdx, 1)[0];
+      return [matchingPrivItem, ...privilegeItems, ...validVipItems];
     }
-    // If rawAvatar matches a tagged VIP photo, ensure that matching item is first
-    const matchingIdx = validVipItems.findIndex((it) => it.url === rawAvatar);
-    if (matchingIdx > 0) {
-      const matchingItem = validVipItems.splice(matchingIdx, 1)[0];
-      validVipItems.unshift(matchingItem);
+
+    const vipMatchIdx = validVipItems.findIndex((it) => it.url === rawAvatar);
+    if (vipMatchIdx >= 0) {
+      const matchingVipItem = validVipItems.splice(vipMatchIdx, 1)[0];
+      return [matchingVipItem, ...privilegeItems, ...validVipItems];
     }
+
+    return [{ url: rawAvatar, kind: 'avatar' }, ...privilegeItems, ...validVipItems];
   }
 
-  return validVipItems;
+  // When showAvatar is OFF (false): strictly [Privilege] -> [Skills]
+  return [...privilegeItems, ...validVipItems];
 }
 
 export type TherapyGalleryItem =
@@ -243,7 +339,16 @@ export function normalizeTherapyGallery(
       const url = typeof obj.url === 'string' ? obj.url.trim() : '';
       if (!url) continue;
 
-      if (obj.kind === 'therapy') {
+      if (obj.kind === 'avatar') continue;
+      if (obj.hidden === true) continue;
+
+      if (obj.kind === 'privilege') {
+        result.push({
+          url,
+          kind: 'privilege',
+          ...(typeof obj.privilegeId === 'string' ? { privilegeId: obj.privilegeId } : {}),
+        } as any);
+      } else if (obj.kind === 'therapy') {
         if (
           typeof obj.therapyId === 'string' &&
           (DEEP_BODY_BASE_TECHNIQUE_IDS as readonly string[]).includes(obj.therapyId)
@@ -307,12 +412,14 @@ export function resolveTherapyGalleryForStaff({
   legacyConfig,
   galleryUrls,
   avatarUrl,
+  showAvatar = true,
 }: {
   staffId: string;
   nhtConfig?: unknown;
   legacyConfig?: unknown;
   galleryUrls?: unknown;
   avatarUrl?: string | null;
+  showAvatar?: boolean;
 }): TherapyGalleryParsedItem[] {
   // 1. nht_therapist_photos version 2
   if (nhtConfig && typeof nhtConfig === 'object') {
@@ -344,8 +451,8 @@ export function resolveTherapyGalleryForStaff({
     if (parsed.length > 0) return sortTherapyGalleryItems(parsed);
   }
 
-  // 5. Avatar fallback
-  if (typeof avatarUrl === 'string' && avatarUrl.trim()) {
+  // 5. Avatar fallback (chỉ dùng khi showAvatar = true / ON)
+  if (showAvatar && typeof avatarUrl === 'string' && avatarUrl.trim()) {
     return [{ url: avatarUrl.trim(), kind: 'legacy' }];
   }
 

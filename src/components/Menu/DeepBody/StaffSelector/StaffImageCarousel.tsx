@@ -8,7 +8,7 @@ import {
   type VipGalleryParsedItem,
   sortTherapyGalleryItems,
 } from '@/lib/menuPhotos.helper';
-import { getVipSkillBadgeLabel } from '@/lib/vipSkills.constants';
+import { getVipSkillBadgeLabel, PRIVILEGE_BADGE_LABELS } from '@/lib/vipSkills.constants';
 
 const THERAPY_BADGE_LABELS: Record<string, Record<string, string>> = {
   coconutOil: {
@@ -243,6 +243,8 @@ export default function StaffImageCarousel({
       THERAPY_BADGE_LABELS.mix?.[lang] ||
       THERAPY_BADGE_LABELS.mix?.en ||
       null;
+  } else if (activeItem?.kind === 'privilege') {
+    badgeLabel = PRIVILEGE_BADGE_LABELS[lang] || PRIVILEGE_BADGE_LABELS.vi;
   } else if (activeItem?.kind === 'vip' && 'skillId' in activeItem && typeof activeItem.skillId === 'string') {
     badgeLabel = getVipSkillBadgeLabel(activeItem.skillId, lang);
   }
@@ -305,11 +307,11 @@ export default function StaffImageCarousel({
         ))}
       </div>
 
-      {/* Therapy Label (Soft blur background, no button frame/border) */}
+      {/* Therapy / VIP / Privilege Label */}
       {badgeLabel && (
         <div className="absolute top-16 left-5 sm:left-6 z-20 pointer-events-none select-none">
-          <div className="px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md inline-flex items-center">
-            <span className="text-xs sm:text-sm font-black tracking-[0.15em] uppercase text-[#e6c487] drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
+          <div className="px-2.5 py-1 rounded-md bg-black/40 backdrop-blur-md inline-flex items-center border border-white/10">
+            <span className="text-[11px] sm:text-xs font-medium tracking-wide text-white/90">
               {badgeLabel}
             </span>
           </div>

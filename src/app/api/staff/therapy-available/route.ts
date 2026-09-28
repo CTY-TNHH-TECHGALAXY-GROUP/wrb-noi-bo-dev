@@ -119,18 +119,29 @@ export async function GET(_req: NextRequest) {
       console.error('[vip-available] KTVShifts query error:', shiftError);
     }
 
-    // ─── Step 3.6: Fetch dynamic photos config from SystemConfigs (Admin Điều Phối gắn link) ─
+    // ─── Step 3.6: Fetch dynamic photos config & avatar toggle from SystemConfigs & Query ─
+    const paramVal = _req.nextUrl.searchParams.get('showAvatar');
+    let queryShowAvatar: boolean | null = null;
+    if (paramVal !== null) {
+      const lower = paramVal.trim().toLowerCase();
+      queryShowAvatar = lower === 'true' || lower === '1' || lower === 'on';
+    }
+
     let nhtPhotosMap: Record<string, unknown> = {};
     let legacyPhotosMap: Record<string, unknown> = {};
+    let configShowAvatar: boolean | null = null;
     try {
       const { data: configPhotosData } = await supabase
         .from('SystemConfigs')
         .select('key, value')
-        .in('key', ['nht_therapist_photos', 'deep_body_therapist_photos']);
+        .in('key', ['nht_therapist_photos', 'deep_body_therapist_photos', 'menu_therapy_show_avatar', 'menu_show_avatar']);
 
       if (configPhotosData && configPhotosData.length > 0) {
         const nhtCfg = configPhotosData.find((c: { key: string }) => c.key === 'nht_therapist_photos');
         const legacyCfg = configPhotosData.find((c: { key: string }) => c.key === 'deep_body_therapist_photos');
+        const therapyAvatarCfg = configPhotosData.find((c: { key: string }) => c.key === 'menu_therapy_show_avatar');
+        const generalAvatarCfg = configPhotosData.find((c: { key: string }) => c.key === 'menu_show_avatar');
+        const targetAvatarCfg = therapyAvatarCfg ?? generalAvatarCfg;
 
         if (nhtCfg?.value) {
           nhtPhotosMap = typeof nhtCfg.value === 'string' ? JSON.parse(nhtCfg.value) : nhtCfg.value;
@@ -138,10 +149,16 @@ export async function GET(_req: NextRequest) {
         if (legacyCfg?.value) {
           legacyPhotosMap = typeof legacyCfg.value === 'string' ? JSON.parse(legacyCfg.value) : legacyCfg.value;
         }
+        if (targetAvatarCfg && targetAvatarCfg.value !== undefined && targetAvatarCfg.value !== null) {
+          const v = targetAvatarCfg.value;
+          configShowAvatar = v === true || v === 'true' || v === 1 || v === '1' || v === 'on';
+        }
       }
     } catch (e) {
       console.warn('[therapy-available] Note: nht_therapist_photos config fetch error:', e);
     }
+
+    const globalShowAvatar = queryShowAvatar !== null ? queryShowAvatar : (configShowAvatar !== null ? configShowAvatar : true);
 
     // ─── Step 4: Build lookup maps ───────────────────────────────────────────
     const turnQueueMap = new Map<
@@ -277,14 +294,6 @@ export async function GET(_req: NextRequest) {
         }
       }
 
-      const therapyGallery = resolveTherapyGalleryForStaff({
-        staffId: s.id,
-        nhtConfig: nhtPhotosMap,
-        legacyConfig: legacyPhotosMap,
-        galleryUrls: s.gallery_urls,
-        avatarUrl: s.avatar_url,
-      });
-
       // Extract professional/certificate description from DB if present
       const featureFlags = (s.feature_flags && typeof s.feature_flags === 'object') ? (s.feature_flags as Record<string, unknown>) : null;
       const certDesc =
@@ -301,12 +310,26 @@ export async function GET(_req: NextRequest) {
           ? certDesc.trim()
           : (certDesc && typeof certDesc === 'object' ? (certDesc as Record<string, string>) : null);
 
+      const staffShowAvatar = typeof featureFlags?.show_avatar === 'boolean'
+        ? featureFlags.show_avatar
+        : globalShowAvatar;
+
+      const therapyGallery = resolveTherapyGalleryForStaff({
+        staffId: s.id,
+        nhtConfig: nhtPhotosMap,
+        legacyConfig: legacyPhotosMap,
+        galleryUrls: s.gallery_urls,
+        avatarUrl: s.avatar_url,
+        showAvatar: staffShowAvatar,
+      });
+
       return {
         id: s.id,
         fullName: s.full_name,
-        avatarUrl: s.avatar_url ?? therapyGallery[0]?.url ?? null,
+        avatarUrl: staffShowAvatar ? (s.avatar_url ?? therapyGallery[0]?.url ?? null) : (therapyGallery[0]?.url ?? null),
         galleryUrls: therapyGallery.map((item) => item.url),
         therapyGallery,
+        showAvatar: staffShowAvatar,
         gender: s.gender ?? null,
         skills: s.skills ?? {},
         height: s.height ?? null,

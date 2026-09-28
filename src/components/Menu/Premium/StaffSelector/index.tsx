@@ -390,7 +390,7 @@ const StaffSelector = ({
               >
                 {/* Image Container */}
                 <div className="relative h-[420px] sm:h-[460px] md:h-[480px] w-full overflow-hidden bg-[#1b1b1d]">
-                  {/* Image Carousel (Avatar trước, sau đó là Gallery với Tag Skill) */}
+                  {/* Image Carousel (Đặc quyền trước, sau đó là Gallery với Tag Skill - Hỗ trợ bật/tắt Avatar) */}
                   <StaffImageCarousel
                     imageFit="cover"
                     items={
@@ -400,6 +400,8 @@ const StaffSelector = ({
                             avatarUrl: staff.avatarUrl,
                             galleryUrls: (staff as any).gallery_urls ?? staff.galleryUrls,
                             skills: staff.skills,
+                            privilegeUrl: staff.privilegeUrl ?? (staff as any).privilege_url,
+                            showAvatar: staff.showAvatar ?? Boolean(staff.avatarUrl),
                           })
                     }
                     images={staff.galleryUrls?.length ? staff.galleryUrls : (staff.avatarUrl ? [staff.avatarUrl] : [])}
@@ -498,9 +500,7 @@ const StaffSelector = ({
               const carouselItems =
                 staff.therapyGallery && staff.therapyGallery.length > 0
                   ? staff.therapyGallery
-                  : staff.avatarUrl
-                  ? [staff.avatarUrl]
-                  : [];
+                  : (staff.avatarUrl ? [{ url: staff.avatarUrl, kind: 'legacy' as const }] : []);
 
               const handleBridgeCardClick = () => {
                 if (unavailable) return;
@@ -525,6 +525,7 @@ const StaffSelector = ({
                     <StaffImageCarousel
                       imageFit="cover"
                       items={carouselItems}
+                      images={staff.galleryUrls?.length ? staff.galleryUrls : (staff.avatarUrl ? [staff.avatarUrl] : [])}
                       staffId={staff.id}
                       staffName={`${BRIDGE_I18N.artisanLabel[safeLang] || BRIDGE_I18N.artisanLabel.vi} ${staff.id}`}
                       lang={lang}

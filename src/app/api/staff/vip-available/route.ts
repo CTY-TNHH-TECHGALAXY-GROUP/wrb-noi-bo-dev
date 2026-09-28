@@ -119,6 +119,35 @@ export async function GET(_req: NextRequest) {
       console.error('[vip-available] KTVShifts query error:', shiftError);
     }
 
+    // ─── Step 3.6: Fetch Avatar ON/OFF Toggle Config from Query & SystemConfigs ─
+    const paramVal = _req.nextUrl.searchParams.get('showAvatar');
+    let queryShowAvatar: boolean | null = null;
+    if (paramVal !== null) {
+      const lower = paramVal.trim().toLowerCase();
+      queryShowAvatar = lower === 'true' || lower === '1' || lower === 'on';
+    }
+
+    let configShowAvatar: boolean | null = null;
+    try {
+      const { data: configRows } = await supabase
+        .from('SystemConfigs')
+        .select('key, value')
+        .in('key', ['menu_vip_show_avatar', 'menu_show_avatar']);
+      if (configRows && configRows.length > 0) {
+        const vipRow = configRows.find((r: { key: string }) => r.key === 'menu_vip_show_avatar');
+        const generalRow = configRows.find((r: { key: string }) => r.key === 'menu_show_avatar');
+        const target = vipRow ?? generalRow;
+        if (target && target.value !== undefined && target.value !== null) {
+          const v = target.value;
+          configShowAvatar = v === true || v === 'true' || v === 1 || v === '1' || v === 'on';
+        }
+      }
+    } catch (e) {
+      console.warn('[vip-available] Note: show_avatar config fetch error:', e);
+    }
+
+    const globalShowAvatar = queryShowAvatar !== null ? queryShowAvatar : (configShowAvatar !== null ? configShowAvatar : true);
+
     // ─── Step 4: Build lookup maps ───────────────────────────────────────────
     const turnQueueMap = new Map<
       string,
@@ -253,17 +282,6 @@ export async function GET(_req: NextRequest) {
         }
       }
 
-      const { primary, photos } = resolveMenuPhotos({
-        staff: s,
-        menu: 'nhp',
-      });
-
-      const vipGallery = resolveVipGalleryForStaff({
-        avatarUrl: primary ?? s.avatar_url ?? null,
-        galleryUrls: s.gallery_urls,
-        skills: s.skills,
-      });
-
       // Extract professional/certificate description from DB if present
       const featureFlags = (s.feature_flags && typeof s.feature_flags === 'object') ? (s.feature_flags as Record<string, unknown>) : null;
       const certDesc =
@@ -280,12 +298,38 @@ export async function GET(_req: NextRequest) {
           ? certDesc.trim()
           : (certDesc && typeof certDesc === 'object' ? (certDesc as Record<string, string>) : null);
 
+      const privilegeUrl =
+        (typeof featureFlags?.privilege_url === 'string' && featureFlags.privilege_url.trim()) ||
+        (typeof featureFlags?.privilege_photo === 'string' && featureFlags.privilege_photo.trim()) ||
+        (typeof (s as { privilege_url?: unknown }).privilege_url === 'string' && ((s as { privilege_url?: string }).privilege_url ?? '').trim()) ||
+        null;
+
+      const staffShowAvatar = typeof featureFlags?.show_avatar === 'boolean'
+        ? featureFlags.show_avatar
+        : globalShowAvatar;
+
+      const { primary, photos } = resolveMenuPhotos({
+        staff: s,
+        menu: 'nhp',
+        showAvatar: staffShowAvatar,
+      });
+
+      const vipGallery = resolveVipGalleryForStaff({
+        avatarUrl: staffShowAvatar ? (primary ?? s.avatar_url ?? null) : null,
+        galleryUrls: s.gallery_urls,
+        skills: s.skills,
+        privilegeUrl,
+        showAvatar: staffShowAvatar,
+      });
+
       return {
         id: s.id,
         fullName: s.full_name,
-        avatarUrl: primary ?? s.avatar_url ?? null,
+        avatarUrl: staffShowAvatar ? (primary ?? s.avatar_url ?? null) : null,
         galleryUrls: photos,
         vipGallery,
+        privilegeUrl,
+        showAvatar: staffShowAvatar,
         gender: s.gender ?? null,
         skills: s.skills ?? {},
         height: s.height ?? null,
