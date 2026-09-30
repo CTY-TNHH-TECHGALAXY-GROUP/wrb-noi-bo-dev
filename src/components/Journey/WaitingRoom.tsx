@@ -3,6 +3,7 @@
 import React from 'react';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 import { translations } from '@/components/Journey/Journey.i18n';
+import { useWaitingRoomImage, DEFAULT_WAITING_ROOM_HERO_IMAGE } from '@/lib/useWaitingRoomImage';
 
 // 🔧 UI CONFIGURATION
 const SHORT_CODE_REGEX = /^.*?-(\d{3})-.*$/; // "11NDK-020-17032026" → "020"
@@ -14,10 +15,13 @@ interface WaitingRoomProps {
     roomName?: string | null;
     bedId?: string | null;
     currentStep?: number; // Task C2b: Index of current active step (0-based)
+    heroImageUrl?: string;
 }
 
-export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName, bedId, currentStep = 0 }: WaitingRoomProps) {
+export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName, bedId, currentStep = 0, heroImageUrl: propHeroImage }: WaitingRoomProps) {
     const t = translations[lang] || translations['en'];
+    const configuredHeroImage = useWaitingRoomImage();
+    const activeHeroImage = propHeroImage || configuredHeroImage || DEFAULT_WAITING_ROOM_HERO_IMAGE;
 
     // Rút gọn mã đơn: "11NDK-020-17032026" → "020"
     const shortOrderCode = orderId.replace(SHORT_CODE_REGEX, '$1') || orderId;
@@ -35,9 +39,14 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
             {/* Hero Card: Mã đơn rút gọn */}
             <div className="relative w-full aspect-[4/3] md:aspect-[16/9] md:max-w-2xl md:mx-auto bg-[#1c1c1e] rounded-3xl overflow-hidden shadow-sm mb-6 border border-white/5">
                 <img
-                    src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1000&auto=format&fit=crop"
+                    src={activeHeroImage}
                     alt="Spa Relax"
                     className="object-cover w-full h-full opacity-60"
+                    onError={(e) => {
+                        if (e.currentTarget.src !== DEFAULT_WAITING_ROOM_HERO_IMAGE) {
+                            e.currentTarget.src = DEFAULT_WAITING_ROOM_HERO_IMAGE;
+                        }
+                    }}
                 />
                 <div className="absolute top-4 left-4 right-4 bg-black/60 backdrop-blur-md rounded-2xl py-4 flex flex-col items-center justify-center shadow-md border border-[#C9A96E]/20">
                     <span className="text-[#C9A96E] font-bold text-xs uppercase tracking-wider">
