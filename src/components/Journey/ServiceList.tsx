@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 import TipModal from '@/components/Journey/TipModal';
-import { TIMER_CONFIG_COMPACT, RATING_OPTIONS, getRatingLabel } from './Journey.constants';
+import { TIMER_CONFIG_COMPACT } from './Journey.constants';
+import { useRatingScale } from '@/lib/useRatingScale';
+import { ratingLabelFor, maxRatingForViolations, isTopRating, type RatingScale } from '@/lib/ratingScale';
 import { useServiceTimer, groupItemsByTech, groupItemsByService, useViolations, GroupedService, useRemindersCustomer } from './Journey.logic';
 import AlertModal from '@/components/Shared/AlertModal';
 import { translations } from './Journey.i18n';
@@ -26,7 +28,7 @@ interface ServiceListProps {
     isActionLoading?: boolean;
     actionSuccess?: string | null;
     addServiceNote?: string | null;
-    onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
+    onItemRated: (itemId: string, rating: number, feedback: string, ratingScale?: number) => Promise<void>;
     isPaused?: boolean;
     onViewChange?: (view: 'TIMER' | 'CHECK_BELONGINGS' | 'RATING') => void;
     onAllRated?: () => void;
@@ -252,6 +254,59 @@ const CheckBelongingsView = ({ lang = 'vi', onConfirm }: { lang?: string; onConf
     );
 };
 
+// 🔧 UI CONFIGURATION — rating star row (static classes so Tailwind emits them)
+const GRID_COLS: Record<number, string> = { 4: 'grid-cols-4', 5: 'grid-cols-5' };
+const STAR_SIZE = { main: { 4: 'w-11 h-11', 5: 'w-10 h-10' }, compact: { 4: 'w-8 h-8', 5: 'w-7 h-7' } } as const;
+// Creamy gold: cream highlight → warm gold → Oria brass (#C9A96E).
+const STAR_GRADIENT = [['0%', '#FFF6DC'], ['45%', '#F3D892'], ['100%', '#C9A96E']] as const;
+const STAR_PATH = 'M12 2.6c.3 0 .6.2.7.5l2.3 4.8 5.2.7c.6.1.9.9.4 1.3l-3.8 3.6.9 5.2c.1.6-.6 1.1-1.1.8L12 17l-4.6 2.5c-.5.3-1.2-.2-1.1-.8l.9-5.2-3.8-3.6c-.5-.4-.2-1.2.4-1.3l5.2-.7 2.3-4.8c.1-.3.4-.5.7-.5z';
+
+type StarOption = { value: number; label: string };
+
+/**
+ * One horizontal row: star n = level n, its meaning written under it.
+ * Tapping star n submits n (lights stars 1..n); levels above `maxAllowed` are dimmed.
+ */
+const StarRow = ({ scale, options, selected, maxAllowed, disabled, onPick, compact = false }: {
+    scale: RatingScale; options: StarOption[]; selected: number | null; maxAllowed: number;
+    disabled?: boolean; onPick: (value: number) => void; compact?: boolean;
+}) => {
+    const [hover, setHover] = useState<number | null>(null);
+    const gradientId = `oria-star-${React.useId().replace(/:/g, '')}`;
+    const lit = hover ?? selected ?? 0;
+    return (
+        <div className={`grid ${GRID_COLS[scale]} gap-1`} role="radiogroup">
+            <svg width="0" height="0" className="absolute" aria-hidden="true">
+                <defs>
+                    <linearGradient id={gradientId} x1="0" y1="0" x2="0.4" y2="1">
+                        {STAR_GRADIENT.map(([offset, color]) => <stop key={offset} offset={offset} stopColor={color} />)}
+                    </linearGradient>
+                </defs>
+            </svg>
+            {options.map(opt => {
+                const off = !!disabled || opt.value > maxAllowed;
+                const on = opt.value <= lit;
+                return (
+                    <button key={opt.value} type="button" role="radio" aria-checked={selected === opt.value}
+                        aria-label={`${opt.value}/${scale} · ${opt.label}`} disabled={off}
+                        onPointerEnter={() => { if (!off) setHover(opt.value); }}
+                        onPointerLeave={() => setHover(null)}
+                        onClick={(e) => { e.stopPropagation(); if (!off) onPick(opt.value); }}
+                        className={`flex flex-col items-center gap-1.5 py-1.5 min-h-[64px] rounded-xl transition-transform duration-150 ${off ? 'opacity-30 cursor-not-allowed' : 'active:scale-90'}`}>
+                        <svg viewBox="0 0 24 24" className={`${STAR_SIZE[compact ? 'compact' : 'main'][scale]} transition-all duration-200 ${on ? 'drop-shadow-[0_0_8px_rgba(243,216,146,0.45)] scale-105' : ''}`}>
+                            <path d={STAR_PATH} fill={on ? `url(#${gradientId})` : 'rgba(255,255,255,0.05)'}
+                                stroke={on ? '#F6E2AE' : 'rgba(201,169,110,0.35)'} strokeWidth={1.2} strokeLinejoin="round" />
+                        </svg>
+                        <span className={`${compact ? 'text-[9px]' : 'text-[10px] sm:text-[11px]'} font-bold leading-tight tracking-tight text-center break-keep [overflow-wrap:normal] transition-colors ${on ? 'text-[#EBD9AE]' : 'text-gray-500'}`}>
+                            {opt.label}
+                        </span>
+                    </button>
+                );
+            })}
+        </div>
+    );
+};
+
 // -------------------------------------------------------------------------------
 // VIEW 3: Combined Rating - All staff in 1 page (supports both global & per-service)
 // -------------------------------------------------------------------------------
@@ -259,9 +314,12 @@ const CombinedRatingView = ({
     items, lang = 'vi', bookingId, onItemRated, onAllRated,
 }: {
     items: ServiceItem[]; lang?: string; bookingId: string;
-    onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
+    onItemRated: (itemId: string, rating: number, feedback: string, ratingScale?: number) => Promise<void>;
     onAllRated?: () => void;
 }) => {
+    // Scale + labels from admin settings; tiles stay hidden until loaded so nobody rates on the wrong scale.
+    const { scale, labels, loaded: scaleLoaded } = useRatingScale();
+    const levels = Array.from({ length: scale }, (_, i) => i + 1);
     const [submitted, setSubmitted] = useState<Set<string>>(new Set());
     const [commonRating, setCommonRating] = useState<number | null>(null);
     const [submitting, setSubmitting] = useState<boolean>(false);
@@ -282,12 +340,7 @@ const CombinedRatingView = ({
         }
     }, [hasAnyRating]);
 
-    const getMaxRating = (violationCount: number): number => {
-        if (violationCount >= 3) return 1;
-        if (violationCount >= 2) return 2;
-        if (violationCount >= 1) return 3;
-        return 4;
-    };
+    const getMaxRating = (violationCount: number): number => maxRatingForViolations(violationCount, scale);
     const maxAllowedRating = getMaxRating(savedViolations.length);
 
     const storageKey = `spa_wrb_violations_${bookingId || 'default'}`;
@@ -325,7 +378,7 @@ const CombinedRatingView = ({
 
         setCommonRating(rating);
 
-        if (rating === 4) {
+        if (isTopRating(rating, scale)) {
             setShowTipFor(true);
             return;
         }
@@ -335,7 +388,7 @@ const CombinedRatingView = ({
             const newSubmitted = new Set(submitted);
             for (const item of items) {
                 if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
-                    await onItemRated(item.id, rating, '');
+                    await onItemRated(item.id, rating, '', scale);
                     newSubmitted.add(item.id);
                 }
             }
@@ -360,7 +413,7 @@ const CombinedRatingView = ({
             let first = true;
             for (const item of items) {
                 if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
-                    await onItemRated(item.id, 4, first ? `tip:${tipAmount}` : '');
+                    await onItemRated(item.id, scale, first ? `tip:${tipAmount}` : '', scale);
                     newSubmitted.add(item.id);
                     first = false;
                 }
@@ -378,7 +431,9 @@ const CombinedRatingView = ({
         finally { setSubmitting(false); }
     };
 
-    const ratedOpt = RATING_OPTIONS.find(r => r.value === commonRating || (!hasAnyRating && items.some(i => i.itemRating === r.value)));
+    const ratedValue = commonRating ?? items.find(i => (i.itemRating ?? 0) > 0)?.itemRating ?? null;
+    const ratedOpt = ratedValue ? { value: ratedValue } : null;
+    const levelOptions = levels.map(value => ({ value, label: ratingLabelFor(value, scale, labels, lang || 'vi') }));
 
     return (
         <div className="flex flex-col w-full py-4 animate-in fade-in slide-in-from-bottom-5 duration-500">
@@ -462,7 +517,7 @@ const CombinedRatingView = ({
                         </div>
                         {isAllRated && !hasAnyRating && ratedOpt && (
                             <div className="flex items-center gap-1.5 bg-[#C9A96E]/20 text-[#C9A96E] px-3 py-1.5 rounded-full border border-[#C9A96E]/30">
-                                <span className="text-xl leading-none">{ratedOpt?.emoji || '⭐'}</span>
+                                <span className="text-sm font-black leading-none">{ratedOpt.value}★</span>
                                 <span className="text-xs font-black">{t.ratedSent}</span>
                             </div>
                         )}
@@ -490,39 +545,14 @@ const CombinedRatingView = ({
                                         {t.yourExperience}
                                     </p>
                                 </div>
-                                <div className="grid grid-cols-4 gap-2">
-                                {RATING_OPTIONS.map((opt) => {
-                                    const isDisabled = opt.value > maxAllowedRating;
-                                    const isSel = commonRating === opt.value;
-                                    let bgClass = "bg-[#1c1c1e] border-white/5 hover:border-white/10";
-                                    if (isSel) {
-                                        if (opt.value === 4) bgClass = "bg-green-900/40 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]";
-                                        else if (opt.value === 3) bgClass = "bg-blue-900/40 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]";
-                                        else if (opt.value === 2) bgClass = "bg-[#C9A96E]/20 border-[#C9A96E] shadow-[0_0_10px_rgba(201,169,110,0.2)]";
-                                        else bgClass = "bg-red-900/40 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
-                                    }
-
-                                    return (
-                                        <button key={opt.value}
-                                            disabled={isDisabled || submitting}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                if (isDisabled || submitting) return;
-                                                handleAutoSubmitAll(opt.value);
-                                            }}
-                                            className={`flex flex-col items-center p-2.5 rounded-2xl border-2 transition-all ${
-                                                isDisabled || submitting
-                                                    ? 'opacity-40 grayscale cursor-not-allowed bg-[#0d0d0d] border-transparent'
-                                                    : `active:scale-95 ${bgClass}`
-                                            }`}>
-                                            <span className="text-3xl mb-1">{opt.emoji}</span>
-                                            <span className={`text-xs font-bold leading-tight text-center ${isSel ? 'text-white' : 'text-gray-500'}`}>
-                                                {getRatingLabel(lang || 'vi', opt.value)}
-                                            </span>
-                                        </button>
-                                    );
-                                })}
+                                {!scaleLoaded ? (
+                                <div className="grid grid-cols-5 gap-1" aria-busy="true">
+                                    {Array.from({ length: 5 }, (_, i) => <div key={i} className="h-16 rounded-xl bg-[#1c1c1e] animate-pulse" />)}
                                 </div>
+                                ) : (
+                                <StarRow scale={scale} options={levelOptions} selected={commonRating} maxAllowed={maxAllowedRating}
+                                    disabled={submitting} onPick={handleAutoSubmitAll} />
+                                )}
                             </div>
                             
                             {/* Submitting indicator */}
@@ -544,7 +574,7 @@ const CombinedRatingView = ({
                     {groups.map((g: any, i: number) => {
                         const isGroupRated = g.items.every((item: any) => (item.itemRating !== null && item.itemRating !== undefined) || submitted.has(item.id));
                         const isExpanded = expandedGroups.has(i) || (!isGroupRated && groups.findIndex((gr: any) => !gr.items.every((it: any) => (it.itemRating !== null && it.itemRating !== undefined) || submitted.has(it.id))) === i);
-                        const groupOpt = RATING_OPTIONS.find(r => r.value === g.items[0]?.itemRating);
+                        const groupValue = g.items[0]?.itemRating ?? 0;
 
                         return (
                             <div key={i} className={`bg-[#1c1c1e] rounded-3xl border transition-all overflow-hidden ${
@@ -571,9 +601,9 @@ const CombinedRatingView = ({
                                             KTV: {g.technicians.join(', ')}
                                         </p>
                                     </div>
-                                    {isGroupRated && groupOpt && (
-                                        <div className="flex items-center justify-center w-8 h-8 bg-black/20 rounded-full">
-                                            <span className="text-lg leading-none">{groupOpt.emoji}</span>
+                                    {isGroupRated && groupValue > 0 && (
+                                        <div className="flex items-center justify-center h-8 px-2 bg-black/20 rounded-full">
+                                            <span className="text-xs font-black leading-none text-[#C9A96E]">{groupValue}★</span>
                                         </div>
                                     )}
                                     {!isGroupRated && (
@@ -584,51 +614,28 @@ const CombinedRatingView = ({
                                 {/* Expanded Area */}
                                 {!isGroupRated && isExpanded && (
                                     <div className="px-4 pb-4 border-t border-white/5 pt-3 bg-[#0d0d0d]/50">
-                                        <div className="grid grid-cols-4 gap-2">
-                                            {RATING_OPTIONS.map((opt) => {
-                                                const isDisabled = opt.value > maxAllowedRating;
-                                                const isSel = g.items.some((item: any) => item.itemRating === opt.value);
-                                                let bgClass = "bg-[#1c1c1e] border-white/5";
-                                                if (isSel) bgClass = "bg-[#C9A96E]/20 border-[#C9A96E]";
-
-                                                return (
-                                                    <button key={opt.value}
-                                                        disabled={isDisabled || submitting}
-                                                        onClick={async () => {
-                                                            if (isDisabled || submitting) return;
-                                                            setSubmitting(true);
-                                                            try {
-                                                                const newSubmitted = new Set(submitted);
-                                                                for (const item of g.items) {
-                                                                    if (!newSubmitted.has(item.id)) {
-                                                                        await onItemRated(item.id, opt.value, '');
-                                                                        newSubmitted.add(item.id);
-                                                                    }
-                                                                }
-                                                                setSubmitted(newSubmitted);
-                                                                
-                                                                const nextExpanded = new Set(expandedGroups);
-                                                                nextExpanded.delete(i);
-                                                                setExpandedGroups(nextExpanded);
-                                                            } catch (err) {
-                                                                console.error(err);
-                                                            } finally {
-                                                                setSubmitting(false);
-                                                            }
-                                                        }}
-                                                        className={`flex flex-col items-center p-2 rounded-xl border-2 transition-all ${
-                                                            isDisabled || submitting
-                                                                ? 'opacity-40 grayscale cursor-not-allowed bg-[#0d0d0d] border-transparent'
-                                                                : `active:scale-95 ${bgClass}`
-                                                        }`}>
-                                                        <span className="text-2xl mb-1">{opt.emoji}</span>
-                                                        <span className={`text-[10px] font-bold leading-tight text-center ${isSel ? 'text-white' : 'text-gray-500'}`}>
-                                                            {getRatingLabel(lang || 'vi', opt.value)}
-                                                        </span>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
+                                        <StarRow scale={scale} options={levelOptions} compact maxAllowed={maxAllowedRating} disabled={submitting}
+                                            selected={g.items.find((item: any) => (item.itemRating ?? 0) > 0)?.itemRating ?? null}
+                                            onPick={async (value) => {
+                                                setSubmitting(true);
+                                                try {
+                                                    const newSubmitted = new Set(submitted);
+                                                    for (const item of g.items) {
+                                                        if (!newSubmitted.has(item.id)) {
+                                                            await onItemRated(item.id, value, '', scale);
+                                                            newSubmitted.add(item.id);
+                                                        }
+                                                    }
+                                                    setSubmitted(newSubmitted);
+                                                    const nextExpanded = new Set(expandedGroups);
+                                                    nextExpanded.delete(i);
+                                                    setExpandedGroups(nextExpanded);
+                                                } catch (err) {
+                                                    console.error(err);
+                                                } finally {
+                                                    setSubmitting(false);
+                                                }
+                                            }} />
                                     </div>
                                 )}
                             </div>
@@ -646,7 +653,7 @@ const CombinedRatingView = ({
                             const newSubmitted = new Set(submitted);
                             for (const item of items) {
                                 if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
-                                    await onItemRated(item.id, 0, 'skipped');
+                                    await onItemRated(item.id, 0, 'skipped', scale);
                                     newSubmitted.add(item.id);
                                 }
                             }

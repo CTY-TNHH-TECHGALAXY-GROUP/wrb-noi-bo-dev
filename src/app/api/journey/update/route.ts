@@ -1,5 +1,26 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+import { RATING_CONFIG_KEYS, normalizeScale, clampRating, isTopRating, type RatingScale } from '@/lib/ratingScale';
+
+/**
+ * `rating_scale` columns come from admin migration 20261002110000. Until that migration runs on a
+ * database, writing the column would fail the whole rating (PGRST204), so probe once per table.
+ */
+const ratingScaleColumnCache = new Map<string, boolean>();
+async function hasRatingScaleColumn(supabase: any, table: 'BookingItems' | 'Bookings'): Promise<boolean> {
+    if (ratingScaleColumnCache.has(table)) return ratingScaleColumnCache.get(table)!;
+    const { error } = await supabase.from(table).select('rating_scale').limit(1);
+    if (error) console.warn(`[journey/update] ${table}.rating_scale missing — rating saved without scale (treated as 4).`);
+    ratingScaleColumnCache.set(table, !error);
+    return !error;
+}
+
+/** Scale of this rating: what the customer saw (4|5); missing → current admin setting. */
+async function resolveRatingScale(supabase: any, sent: unknown): Promise<RatingScale> {
+    if (Number(sent) === 4 || Number(sent) === 5) return Number(sent) as RatingScale;
+    const { data } = await supabase.from('SystemConfigs').select('value').eq('key', RATING_CONFIG_KEYS.scale).maybeSingle();
+    return normalizeScale(data?.value);
+}
 
 
 export async function PATCH(request: Request) {
@@ -40,6 +61,14 @@ export async function PATCH(request: Request) {
 
         // --- Per-item rating: khi khách đánh giá 1 dịch vụ cụ thể ---
         if (bookingItemId && itemRating !== undefined) {
+            // Clamp to 0 (skipped) .. scale; the scale is saved with the rating in the SAME update
+            // so the ledger trigger reads the right scale.
+            const ratingScale = await resolveRatingScale(supabaseAdmin, body.ratingScale);
+            const clamped = clampRating(itemRating, ratingScale);
+            if (clamped === null) return NextResponse.json({ error: 'Invalid rating' }, { status: 400 });
+            itemRating = clamped;
+            const writeScale = await hasRatingScaleColumn(supabaseAdmin, 'BookingItems');
+
             // Extract ktvCode from request (for per-KTV rating)
             const { ktvCode } = body;
 
@@ -125,6 +154,8 @@ export async function PATCH(request: Request) {
                 }
             }
 
+            if (writeScale) updatePayload.rating_scale = ratingScale;
+
             // 2. Try to update BookingItem
             let updateError;
             ({ error: updateError } = await supabaseAdmin
@@ -153,8 +184,8 @@ export async function PATCH(request: Request) {
                 return NextResponse.json({ error: updateError.message }, { status: 500 });
             }
 
-            // 🌟 Thông báo khi khách đánh giá "Xuất sắc" (rating = 4)
-            if (itemRating === 4) {
+            // 🌟 Thông báo khi khách đánh giá mức cao nhất của thang ("Xuất sắc")
+            if (isTopRating(itemRating, ratingScale)) {
                 try {
                     // Xác định danh sách KTV codes
                     let techCodesForNotif: string[] = [];
@@ -291,7 +322,11 @@ export async function PATCH(request: Request) {
 
         if (status) updatePayload.status = status;
         if (violations !== undefined) updatePayload.violations = violations;
-        if (rating !== undefined) updatePayload.rating = rating;
+        if (rating !== undefined) {
+            const ratingScale = await resolveRatingScale(supabaseAdmin, body.ratingScale);
+            updatePayload.rating = clampRating(rating, ratingScale) ?? rating;
+            if (await hasRatingScaleColumn(supabaseAdmin, 'Bookings')) updatePayload.rating_scale = ratingScale;
+        }
         if (tipAmount !== undefined) updatePayload.tipAmount = tipAmount;
         if (feedbackNote !== undefined) updatePayload.feedbackNote = feedbackNote;
 

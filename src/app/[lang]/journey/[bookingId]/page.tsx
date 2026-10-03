@@ -262,7 +262,7 @@ export default function JourneyPage({ params, searchParams }: { params: Promise<
     };
 
     // 🆕 Per-item rating handler (supports per-KTV ratings)
-    const handleItemRated = useCallback(async (itemId: string, rating: number, feedback: string) => {
+    const handleItemRated = useCallback(async (itemId: string, rating: number, feedback: string, ratingScale?: number) => {
         // Strip composite KTV suffix (e.g. 'abc-ktv0' → 'abc') for DB update
         const realItemId = itemId.replace(/-ktv\d+$/, '');
 
@@ -283,6 +283,7 @@ export default function JourneyPage({ params, searchParams }: { params: Promise<
                 itemRating: rating,
                 itemFeedback: feedback || null,
                 ktvCode, // Per-KTV rating identifier
+                ratingScale, // Scale the customer rated on (4|5)
                 status: 'DONE',
             })
         });
