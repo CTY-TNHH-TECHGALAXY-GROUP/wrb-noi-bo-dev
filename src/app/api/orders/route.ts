@@ -96,6 +96,26 @@ export async function POST(request: Request) {
 
         const vnTimeStr = new Date().toISOString();
 
+        // 2.4 Lịch hẹn từ quầy: nếu hồ sơ khách chỉ có mã GUEST- (kiosk sinh), checkout đã xoá SĐT
+        // đó nên không khớp được khách cũ -> tra PreBookings lấy lại mã, khớp đúng hồ sơ, tránh sinh GUEST- mới.
+        if (preBookingId && !customer.id) {
+            const { data: pb } = await supabaseAdmin
+                .from('PreBookings')
+                .select('customer_phone, customer_email')
+                .eq('id', preBookingId)
+                .maybeSingle();
+            const pbPhone = typeof pb?.customer_phone === 'string' ? pb.customer_phone.trim() : '';
+            if (/^GUEST-/i.test(pbPhone)) {
+                const { data: known } = await supabaseAdmin
+                    .from('Customers')
+                    .select('id')
+                    .eq('phone', pbPhone)
+                    .limit(1)
+                    .maybeSingle();
+                if (known?.id) customer.id = known.id;
+            }
+        }
+
         // 2.5 Generate or find Customer ID
         const savedCustomer = await saveBookingCustomer(supabaseAdmin, customer, customId, vnTimeStr, vatInvoice);
         const { customerId } = savedCustomer;

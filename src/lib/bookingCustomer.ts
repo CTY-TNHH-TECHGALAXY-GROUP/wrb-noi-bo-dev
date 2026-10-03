@@ -20,6 +20,13 @@ export function realContact(customer: CustomerInput | null | undefined) {
 
 export async function saveBookingCustomer(db: Admin, customer: CustomerInput | null | undefined, bookingId: string, createdAt: string, vatInvoice?: InvoiceInput | null) {
     const { phone, email } = realContact(customer);
+    // Quầy đã chốt đúng hồ sơ (lịch hẹn chọn từ Customers, kể cả khách chỉ có mã GUEST-):
+    // dùng thẳng id đó, không tạo thêm một khách GUEST- mới cho cùng một người.
+    const knownId = typeof customer?.id === 'string' ? customer.id.trim() : '';
+    if (knownId) {
+        const { data: known } = await db.from('Customers').select('id').eq('id', knownId).maybeSingle();
+        if (known?.id) return { customerId: String(known.id), created: false, phone, email };
+    }
     // A lookup failure cannot turn valid contact details into a rejected order.
     const [emailMatches, phoneMatches] = await Promise.all([
         email ? Promise.resolve(db.from('Customers').select('id,email,createdAt').ilike('email', literalLike(email)).order('createdAt', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).limit(1)).then(({ data, error }) => error ? [] : data || []).catch(() => []) : Promise.resolve([]),
