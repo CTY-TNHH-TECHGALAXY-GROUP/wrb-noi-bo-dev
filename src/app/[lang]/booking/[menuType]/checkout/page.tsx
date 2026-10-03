@@ -124,6 +124,7 @@ export default function BookingCheckoutPage({ params }: { params: Promise<{ lang
                     const info = JSON.parse(contactedStr);
                     if (!autoName && info.customerName) autoName = info.customerName;
                     if (!autoPhone && info.customerPhone) autoPhone = info.customerPhone;
+                    if (!autoEmail && info.customerEmail) autoEmail = info.customerEmail;
                 }
             } catch (e) {}
         }

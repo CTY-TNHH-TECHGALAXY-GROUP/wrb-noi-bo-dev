@@ -6,6 +6,7 @@ import { useParams, usePathname, useRouter, notFound } from 'next/navigation';
 // --- IMPORT 2 GIAO DIá»†N Lá»šN ---
 // Tá»± Ä‘á»™ng tÃ¬m file index.tsx trong thÆ° má»¥c tÆ°Æ¡ng á»©ng
 import StandardMenu from '@/components/Menu/Standard';
+import { rememberCustomerVisit } from '@/lib/customerVisit';
 import PremiumMenu from '@/components/Menu/Premium';
 
 export default function MenuPage() {
@@ -20,14 +21,23 @@ export default function MenuPage() {
             const urlParams = new URLSearchParams(window.location.search);
             const preBookingId = urlParams.get('preBookingId');
             if (preBookingId) {
+                const name = urlParams.get('name') || '';
+                // Bỏ SĐT/email giả (GUEST-…, @guest.com) — quầy có thể gửi nhầm từ hồ sơ kiosk cũ.
+                const rawPhone = urlParams.get('phone') || '';
+                const rawEmail = urlParams.get('email') || '';
+                const phone = /^GUEST-/i.test(rawPhone) ? '' : rawPhone;
+                const email = /@guest\.com$/i.test(rawEmail) ? '' : rawEmail;
                 localStorage.setItem('contactedFirstInfo', JSON.stringify({
                     preBookingId,
-                    customerName: urlParams.get('name') || '',
-                    customerPhone: urlParams.get('phone') || '',
-                    customerEmail: urlParams.get('email') || '',
+                    customerName: name,
+                    customerPhone: phone,
+                    customerEmail: email,
                     guestCount: Number(urlParams.get('guests')) || 1,
                     notes: urlParams.get('notes') || ''
                 }));
+                // Lịch hẹn từ quầy là nguồn chính của phiên này: ghi đè currentUserInfo cũ trên máy
+                // để mọi trang checkout (standard/booking/old-user) tự điền đủ tên, SĐT, email.
+                if (phone || email) rememberCustomerVisit(phone || email, name, { phone, email });
                 // XoÃ¡ param trÃªn thanh Ä‘á»‹a chá»‰ cho sáº¡ch (Next.js way)
                 router.replace(window.location.pathname, { scroll: false });
             }
