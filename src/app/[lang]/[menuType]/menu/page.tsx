@@ -38,8 +38,10 @@ export default function MenuPage() {
                 // Lịch hẹn từ quầy là nguồn chính của phiên này: ghi đè currentUserInfo cũ trên máy
                 // để mọi trang checkout (standard/booking/old-user) tự điền đủ tên, SĐT, email.
                 if (phone || email) rememberCustomerVisit(phone || email, name, { phone, email });
-                // XoÃ¡ param trÃªn thanh Ä‘á»‹a chá»‰ cho sáº¡ch (Next.js way)
-                router.replace(window.location.pathname, { scroll: false });
+                // Xoá param thông tin khách cho sạch, nhưng GIỮ ?tab (VD tab=deep_body từ lịch hẹn quầy)
+                // — Premium menu đọc tab này để mở đúng Deep Body.
+                const keepTab = urlParams.get('tab');
+                router.replace(window.location.pathname + (keepTab ? `?tab=${encodeURIComponent(keepTab)}` : ''), { scroll: false });
             }
         }
     }, [router]);
