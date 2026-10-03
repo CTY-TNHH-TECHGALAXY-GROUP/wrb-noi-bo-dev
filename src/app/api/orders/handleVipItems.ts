@@ -172,6 +172,19 @@ export async function handleVipItems(
             }
         }
 
+        // Ghi chú tự do KHÔNG mang vùng tập trung/tránh: focus/avoid đã là trường riêng, và client
+        // (Deep Body / Therapy) vẫn ghép "[Tập trung: … | Tránh: …]" vào note → Admin hiện trùng
+        // hai lần (ca 004-03102026). Gỡ hết các cụm đó, chỉ giữ phần khách gõ tay.
+        const AREA_WORDS = '(?:Tập trung|Tránh|Né|Focus|Avoid|重点|避开|집중|피함|避ける)';
+        rawNote = rawNote
+            .replace(new RegExp(`\\[\\s*${AREA_WORDS}[^\\]]*\\]`, 'gi'), ' ')
+            .replace(new RegExp(`${AREA_WORDS}\\s*[:：][^|\\n]*`, 'gi'), ' ')
+            .replace(/\((?:Tứ thủ[^)]*|Four Hands[^)]*|四手[^)]*|포핸즈[^)]*|Mỗi khách[^)]*|Separate[^)]*|独立[^)]*)\)/gi, ' ')
+            .replace(/\s*\|\s*(\|\s*)+/g, ' | ')
+            .replace(/^[\s|•]+|[\s|•]+$/g, '')
+            .replace(/\s{2,}/g, ' ')
+            .trim();
+
         // Translate free-text note if foreign
         let displayNote = rawNote;
         const targetLang = (customerLang || '').toLowerCase();
