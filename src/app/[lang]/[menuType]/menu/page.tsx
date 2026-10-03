@@ -22,11 +22,11 @@ export default function MenuPage() {
             const preBookingId = urlParams.get('preBookingId');
             if (preBookingId) {
                 const name = urlParams.get('name') || '';
-                // Bỏ SĐT/email giả (GUEST-…, @guest.com) — quầy có thể gửi nhầm từ hồ sơ kiosk cũ.
-                const rawPhone = urlParams.get('phone') || '';
+                // GIỮ SĐT giữ chỗ GUEST-… của hồ sơ kiosk: hiện ở ô SĐT checkout và gửi lên API để khớp
+                // đúng khách cũ (API tự bỏ GUEST- khi lưu, không tạo thêm khách mới). Chỉ bỏ email giả.
+                const phone = (urlParams.get('phone') || '').trim();
                 const rawEmail = urlParams.get('email') || '';
-                const phone = /^GUEST-/i.test(rawPhone) ? '' : rawPhone;
-                const email = /@guest\.com$/i.test(rawEmail) ? '' : rawEmail;
+                const email = /@guest\.com$|@no-email\.com$/i.test(rawEmail) ? '' : rawEmail;
                 localStorage.setItem('contactedFirstInfo', JSON.stringify({
                     preBookingId,
                     customerName: name,

@@ -152,14 +152,24 @@ export default function CustomerInfo({ lang, dict, info, onChange, isBookingFlow
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [info.phone]);
 
+    // Chưa nhập số thì gửi '' (không gửi mỗi mã nước "+1") để validation "SĐT hoặc Email" và API
+    // không coi mã nước là một SĐT thật.
+    // Mã giữ chỗ GUEST-… (hồ sơ kiosk, lịch hẹn quầy) giữ nguyên, không ghép mã nước.
+    const composePhone = (dialCode: string, local: string) => {
+        const trimmed = local.trim();
+        if (/^GUEST-/i.test(trimmed)) return trimmed;
+        const digits = normalizeLocalPhone(trimmed);
+        return digits ? `${dialCode}${digits}` : '';
+    };
+
     const handlePhoneChange = (newLocalPhone: string) => {
         setLocalPhone(newLocalPhone);
-        onChange('phone', `${selectedCountry.dialCode}${normalizeLocalPhone(newLocalPhone)}`);
+        onChange('phone', composePhone(selectedCountry.dialCode, newLocalPhone));
     };
 
     const handleCountryCodeChange = (newCountry: CountryCodeData) => {
         setCountryIso(newCountry.code);
-        onChange('phone', `${newCountry.dialCode}${normalizeLocalPhone(localPhone)}`);
+        onChange('phone', composePhone(newCountry.dialCode, localPhone));
     };
 
     // Extract raw labels for buttons

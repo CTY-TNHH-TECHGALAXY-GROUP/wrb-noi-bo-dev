@@ -7,10 +7,14 @@ type InvoiceInput = Record<string, unknown>;
 
 export const normalizePhone = (value: string) => value.replace(/[\s\-()]/g, '');
 export const literalLike = (value: string) => value.replace(/[\\%_]/g, '\\$&');
+// Ô SĐT ở checkout ghép "mã nước + số"; khách bỏ trống số thì client vẫn có thể gửi lên mỗi mã nước
+// ("+1", "+84"...). Chuỗi đó không phải SĐT: coi như trống để không khớp nhầm / không đụng UNIQUE(phone).
+export const isDialCodeOnly = (phone: string) => /^\+?\d{0,4}$/.test(phone);
 
 export function realContact(customer: CustomerInput | null | undefined) {
     const rawPhone = typeof customer?.phone === 'string' ? customer.phone.trim() : '';
-    const phone = /^GUEST-/i.test(rawPhone) ? '' : normalizePhone(rawPhone);
+    const normalized = /^GUEST-/i.test(rawPhone) ? '' : normalizePhone(rawPhone);
+    const phone = isDialCodeOnly(normalized) ? '' : normalized;
     const email = typeof customer?.email === 'string' ? customer.email.trim().toLowerCase() : '';
     return {
         phone,
