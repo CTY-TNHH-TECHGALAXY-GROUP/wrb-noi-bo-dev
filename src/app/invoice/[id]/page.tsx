@@ -6,6 +6,12 @@ import { Loader2 } from 'lucide-react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 
+// 🔧 UI CONFIGURATION
+// Tablet đã đăng ký (localStorage REGISTERED_DEVICE_ID) tự quay về menu sau ngần này giây
+// để không kẹt ở hoá đơn của khách trước (plans/plan_dao_nguoc_luong_qr_hoa_don.md — Bước 3,
+// trước đây chưa làm). Máy thường (điện thoại khách quét QR) không đếm ngược.
+const TABLET_RESET_SECONDS = 180;
+
 export default function InvoicePrintPage() {
     const params = useParams();
     const searchParams = useSearchParams();
@@ -28,6 +34,29 @@ export default function InvoicePrintPage() {
     const [bookingData, setBookingData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    // null = không phải tablet → không hiện đếm ngược
+    const [tabletCountdown, setTabletCountdown] = useState<number | null>(null);
+
+    const menuUrl = `/${lang}/standard/menu`;
+
+    // Auto-reset tablet về menu cho khách kế tiếp
+    useEffect(() => {
+        let isTablet = false;
+        try { isTablet = !!localStorage.getItem('REGISTERED_DEVICE_ID'); } catch { /* storage bị chặn */ }
+        if (!isTablet) return;
+        setTabletCountdown(TABLET_RESET_SECONDS);
+        const startedAt = Date.now();
+        const interval = setInterval(() => {
+            const left = TABLET_RESET_SECONDS - Math.floor((Date.now() - startedAt) / 1000);
+            if (left <= 0) {
+                clearInterval(interval);
+                window.location.href = menuUrl;
+                return;
+            }
+            setTabletCountdown(left);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [menuUrl]);
 
     useEffect(() => {
         const init = async () => {
@@ -104,7 +133,7 @@ export default function InvoicePrintPage() {
             <div className="print:hidden fixed top-4 left-4 z-50">
                 <button
                     onClick={() => {
-                        window.location.href = `/${lang}/standard/menu`;
+                        window.location.href = menuUrl;
                     }}
                     className="flex items-center gap-2 bg-gray-900/80 hover:bg-black text-white px-4 py-2.5 rounded-full font-medium transition-all shadow-lg backdrop-blur-md active:scale-95"
                 >
@@ -115,6 +144,13 @@ export default function InvoicePrintPage() {
                 </button>
             </div>
             
+            {tabletCountdown !== null && (
+                <div className="print:hidden fixed top-4 right-4 z-50 bg-gray-900/80 text-white text-xs font-medium px-3 py-2 rounded-full shadow-lg backdrop-blur-md">
+                    {({ vi: 'Tự về menu sau', en: 'Back to menu in', cn: '返回菜单', jp: 'メニューに戻るまで', kr: '메뉴로 돌아가기' } as Record<string, string>)[lang] || 'Back to menu in'}{' '}
+                    {Math.floor(tabletCountdown / 60)}:{String(tabletCountdown % 60).padStart(2, '0')}
+                </div>
+            )}
+
             <PrintableInvoice config={config} bookingData={bookingData} lang={lang} />
         </div>
     );

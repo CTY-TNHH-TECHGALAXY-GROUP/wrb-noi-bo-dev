@@ -69,23 +69,27 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     const [tabletResetCountdown, setTabletResetCountdown] = useState(UI_CONFIG.TABLET_RESET_SECONDS);
     const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
-    // Check if current device is a registered Tablet
+    // Check if current device is a registered Tablet.
+    // Tin localStorage NGAY (đồng bộ) rồi mới hỏi DB để gỡ cờ nếu thiết bị đã bị huỷ
+    // đăng ký. Trước đây chờ DB trả về mới set true: mạng chậm / lỗi tra là thành
+    // "không phải tablet" → sau khi gửi đơn nhảy sang Journey thay vì Hoá đơn.
     useEffect(() => {
-        const checkDevice = async () => {
-            const deviceId = localStorage.getItem('REGISTERED_DEVICE_ID');
-            if (!deviceId) return;
+        const deviceId = localStorage.getItem('REGISTERED_DEVICE_ID');
+        if (!deviceId) return;
+        setIsTabletDevice(true);
+        const verifyDevice = async () => {
             try {
                 const supabase = createClient();
-                const { data } = await supabase
+                const { data, error } = await supabase
                     .from('RegisteredDevices')
-                    .select('id')
+                    .select('is_active')
                     .eq('device_id', deviceId)
-                    .eq('is_active', true)
-                    .single();
-                if (data) setIsTabletDevice(true);
-            } catch { /* not a tablet */ }
+                    .maybeSingle();
+                // Tra được và thiết bị KHÔNG còn active → gỡ cờ. Lỗi mạng → giữ nguyên.
+                if (!error && data && data.is_active === false) setIsTabletDevice(false);
+            } catch { /* giữ cờ theo localStorage */ }
         };
-        checkDevice();
+        verifyDevice();
     }, []);
 
     // --- Helper Functions (Hoisted or defined before use) ---
