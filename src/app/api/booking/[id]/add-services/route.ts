@@ -1,38 +1,19 @@
 import { NextResponse } from "next/server";
-import { addServicesToBooking, BookingItem } from "@/services/booking";
 
+/**
+ * ĐÃ KHOÁ (04/10/2026): route này không có xác thực và không còn nơi nào gọi (đã grep 3 repo).
+ * Khách muốn thêm dịch vụ → gửi yêu cầu qua /api/customer/request (có accessToken + rate-limit),
+ * quầy thêm vào đơn bằng công cụ điều phối của Admin.
+ * Giữ file để tránh vỡ import/route; mọi request trả 410 Gone.
+ */
 export async function POST(
-    request: Request,
+    _request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    try {
-        const resolvedParams = await params;
-        const { id: bookingId } = resolvedParams;
-        const body = await request.json();
-
-        if (!body.items || body.items.length === 0) {
-            return NextResponse.json(
-                { success: false, message: "Giỏ hàng trống" },
-                { status: 400 }
-            );
-        }
-
-        const adminId = body.addedBy || 'ADMIN';
-
-        const result = await addServicesToBooking(bookingId, body.items as BookingItem[], adminId);
-
-        return NextResponse.json({
-            success: true,
-            message: "Thêm dịch vụ thành công!",
-            data: result
-        });
-
-    } catch (error: any) {
-        console.error("❌ [API Add Services] Error:", error);
-
-        return NextResponse.json(
-            { success: false, message: error.message || "Lỗi Server nội bộ" },
-            { status: 500 }
-        );
-    }
+    const { id } = await params;
+    console.warn(`[API Add Services] Blocked call for booking ${id} — route disabled`);
+    return NextResponse.json(
+        { success: false, message: "Tính năng này đã tắt. Vui lòng gửi yêu cầu thêm dịch vụ cho quầy." },
+        { status: 410 }
+    );
 }

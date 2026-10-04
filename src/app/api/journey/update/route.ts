@@ -39,8 +39,18 @@ export async function PATCH(request: Request) {
             itemFeedback,
         } = body;
 
-        if (!bookingId) {
+        if (typeof bookingId !== 'string' || !bookingId.trim()) {
             return NextResponse.json({ error: 'Missing bookingId' }, { status: 400 });
+        }
+        // Trang Journey chỉ chuyển sang FEEDBACK; DONE do server tự tính khi đủ đánh giá.
+        if (status !== undefined && status !== 'FEEDBACK') {
+            return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+        }
+        if (bookingItemId !== undefined && typeof bookingItemId !== 'string') {
+            return NextResponse.json({ error: 'Invalid bookingItemId' }, { status: 400 });
+        }
+        if (body.ktvCode !== undefined && body.ktvCode !== null && typeof body.ktvCode !== 'string') {
+            return NextResponse.json({ error: 'Invalid ktvCode' }, { status: 400 });
         }
 
         const supabaseAdmin = getSupabaseAdmin();
@@ -48,16 +58,22 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: 'Database client not initialized' }, { status: 500 });
         }
 
-        // 🔒 Resolve accessToken → real booking ID (backward compatible)
-        const { data: resolved } = await supabaseAdmin
+        // 🔒 Chỉ chấp nhận accessToken (mã đơn thô dạng 11NDK-001-… đoán được, không phải bí mật).
+        // Khách luôn vào Journey bằng token nên không có luồng thật nào gửi mã đơn.
+        const { data: resolved, error: resolveError } = await supabaseAdmin
             .from('Bookings')
             .select('id')
-            .or(`accessToken.eq.${bookingId},id.eq.${bookingId}`)
+            .eq('accessToken', bookingId.trim())
             .maybeSingle();
 
-        if (resolved) {
-            bookingId = resolved.id; // Use real ID for all subsequent queries
+        if (resolveError) {
+            console.error('[journey/update] resolve error:', resolveError);
+            return NextResponse.json({ error: resolveError.message }, { status: 500 });
         }
+        if (!resolved) {
+            return NextResponse.json({ error: 'Unauthorized or Booking not found' }, { status: 403 });
+        }
+        bookingId = resolved.id; // Use real ID for all subsequent queries
 
         // --- Per-item rating: khi khách đánh giá 1 dịch vụ cụ thể ---
         if (bookingItemId && itemRating !== undefined) {
@@ -335,11 +351,14 @@ export async function PATCH(request: Request) {
             .update(updatePayload)
             .eq('id', bookingId)
             .select()
-            .single();
+            .maybeSingle();
 
         if (error) {
             console.error('Supabase update error:', error);
             return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+        if (!data) {
+            return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
         }
 
         return NextResponse.json({ success: true, booking: data }, { status: 200 });

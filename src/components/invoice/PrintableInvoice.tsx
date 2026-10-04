@@ -280,7 +280,9 @@ export const PrintableInvoice = ({ config, bookingData, lang = 'vi' }: Printable
 
     // QR Journey URL
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://oriaspa.com');
-    const journeyUrl = bookingData?.id ? `${baseUrl}/${lang}/journey/${bookingData.id}` : baseUrl;
+    // Trang Journey chỉ mở được bằng accessToken (useJourneyRealtime .eq('accessToken')). API hoá đơn trả
+    // journeyToken khi hoá đơn được mở từ màn hành trình; mở bằng mã đơn thì QR trỏ về trang chủ.
+    const journeyUrl = bookingData?.journeyToken ? `${baseUrl}/${lang}/journey/${bookingData.journeyToken}` : baseUrl;
 
     return (
         <div className={styles.invoiceContainer}>

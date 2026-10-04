@@ -5,6 +5,24 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 export const revalidate = 0;
 
+// Chỉ các cột hoá đơn cần. KHÔNG có notes / violations / reception_feedback (nội bộ quầy).
+// accessToken lấy ra để quyết định trả journeyToken, không trả thẳng.
+const INVOICE_BOOKING_COLUMNS =
+    'id, billCode, customerName, customerPhone, customerEmail, customerLang, createdAt, bookingDate, timeStart, timeEnd, ' +
+    'paymentMethod, totalAmount, discountAmount, status, source, parent_booking_id, roomName, bedId, accessToken';
+const INVOICE_PUBLIC_FIELDS = [
+    'id', 'billCode', 'customerName', 'customerPhone', 'customerEmail', 'customerLang', 'createdAt', 'bookingDate',
+    'timeStart', 'timeEnd', 'paymentMethod', 'totalAmount', 'discountAmount', 'status', 'source', 'parent_booking_id',
+    'roomName', 'bedId',
+] as const;
+type InvoiceBookingRow = {
+    id: string;
+    accessToken: string | null;
+    totalAmount: number | null;
+    discountAmount: number | null;
+    [key: string]: unknown;
+};
+
 export async function GET(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -25,16 +43,28 @@ export async function GET(
             return NextResponse.json({ success: false, error: 'Booking ID is required' }, { status: 400 });
         }
 
-        // Fetch Booking
-        const { data: booking, error: bError } = await supabase
+        // Fetch Booking: nhận mã đơn (link phòng chờ / lịch sử) hoặc accessToken (từ màn hành trình).
+        // Hai query .eq riêng, không nội suy chuỗi người dùng vào .or() (tránh chèn filter PostgREST).
+        const byToken = (await supabase
             .from('Bookings')
-            .select('*')
-            .or(`id.eq.${bookingId},accessToken.eq.${bookingId}`)
-            .single();
+            .select(INVOICE_BOOKING_COLUMNS)
+            .eq('accessToken', bookingId)
+            .maybeSingle()).data as InvoiceBookingRow | null;
+        const openedByToken = !!byToken;
+        const booking: InvoiceBookingRow | null = byToken || ((await supabase
+            .from('Bookings')
+            .select(INVOICE_BOOKING_COLUMNS)
+            .eq('id', bookingId)
+            .maybeSingle()).data as InvoiceBookingRow | null);
 
-        if (bError || !booking) {
+        if (!booking) {
             return NextResponse.json({ success: false, error: 'Booking not found' }, { status: 404 });
         }
+        // Token hành trình chỉ trả khi request đến bằng token (QR trên hoá đơn mở từ màn hành trình).
+        // Mở bằng mã đơn → không lộ token.
+        const journeyToken = booking.accessToken;
+        // Whitelist tường minh (không dựa vào danh sách cột của select) — không bao giờ lộ notes/violations/token.
+        const publicBooking = Object.fromEntries(INVOICE_PUBLIC_FIELDS.filter(k => k in booking).map(k => [k, booking[k]]));
 
         // Fetch child bookings if this is a parent booking
         const actualBookingId = booking.id;
@@ -109,7 +139,8 @@ export async function GET(
         return NextResponse.json({
             success: true,
             data: {
-                ...booking,
+                ...publicBooking,
+                journeyToken: openedByToken ? journeyToken : null,
                 discountAmount: aggregatedDiscount,
                 totalAmount: aggregatedTotal,
                 items: enrichedItems
