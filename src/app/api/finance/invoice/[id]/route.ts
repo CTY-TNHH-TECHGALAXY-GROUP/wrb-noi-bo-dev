@@ -7,19 +7,23 @@ export const revalidate = 0;
 
 // Chỉ các cột hoá đơn cần. KHÔNG có notes / violations / reception_feedback (nội bộ quầy).
 // accessToken lấy ra để quyết định trả journeyToken, không trả thẳng.
+//
+// ⚠️ Mọi cột ở đây PHẢI có thật trong `Bookings` (xem TableInSupabase.md ở repo Admin).
+// PostgREST gặp một cột lạ là trả 400 cho CẢ câu select → `.data` = null → route báo
+// "Booking not found" cho mọi đơn. Đã xảy ra 04/10/2026 với `discountAmount`
+// (bảng không có cột này; giảm giá luôn = 0). Kiểm bằng `scratch/check_invoice_columns.cjs`.
 const INVOICE_BOOKING_COLUMNS =
     'id, billCode, customerName, customerPhone, customerEmail, customerLang, createdAt, bookingDate, timeStart, timeEnd, ' +
-    'paymentMethod, totalAmount, discountAmount, status, source, parent_booking_id, roomName, bedId, accessToken';
+    'paymentMethod, totalAmount, status, source, parent_booking_id, roomName, bedId, accessToken';
 const INVOICE_PUBLIC_FIELDS = [
     'id', 'billCode', 'customerName', 'customerPhone', 'customerEmail', 'customerLang', 'createdAt', 'bookingDate',
-    'timeStart', 'timeEnd', 'paymentMethod', 'totalAmount', 'discountAmount', 'status', 'source', 'parent_booking_id',
+    'timeStart', 'timeEnd', 'paymentMethod', 'totalAmount', 'status', 'source', 'parent_booking_id',
     'roomName', 'bedId',
 ] as const;
 type InvoiceBookingRow = {
     id: string;
     accessToken: string | null;
     totalAmount: number | null;
-    discountAmount: number | null;
     [key: string]: unknown;
 };
 
@@ -68,19 +72,22 @@ export async function GET(
 
         // Fetch child bookings if this is a parent booking
         const actualBookingId = booking.id;
-        const { data: childBookings } = await supabase
+        // Cũng không select `discountAmount` ở đây: trước 04/10 câu này lỗi 400 âm thầm
+        // (không check error) nên đơn tách chưa bao giờ được cộng tiền đơn con.
+        const { data: childBookings, error: cError } = await supabase
             .from('Bookings')
-            .select('id, totalAmount, discountAmount')
+            .select('id, totalAmount')
             .eq('parent_booking_id', actualBookingId);
+        if (cError) throw cError;
 
         const allBookingIds = [actualBookingId, ...(childBookings || []).map(b => b.id)];
-        
-        let aggregatedDiscount = booking.discountAmount || 0;
+
+        // Bảng Bookings không có cột giảm giá → hoá đơn luôn hiển thị giảm giá 0.
+        const aggregatedDiscount = 0;
         let aggregatedTotal = booking.totalAmount || 0;
         
         if (childBookings && childBookings.length > 0) {
             childBookings.forEach(cb => {
-                aggregatedDiscount += (cb.discountAmount || 0);
                 aggregatedTotal += (cb.totalAmount || 0);
             });
         }

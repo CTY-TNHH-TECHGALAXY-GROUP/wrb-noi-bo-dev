@@ -40,17 +40,18 @@ export default function InvoicePrintPage() {
             try {
                 setIsLoading(true);
                 // Fetch config
+                // SystemConfigs là key-value: cột `key` / `value` (jsonb). Trước đây đọc
+                // `configKey = 'SYSTEM_SETTINGS'` — cột không tồn tại nên luôn rơi về cấu hình
+                // mặc định, admin đổi địa chỉ/logo trên hoá đơn không có tác dụng ở đây.
                 const supabase = createClient();
-                const { data: configRows } = await supabase
+                const { data: configRow } = await supabase
                     .from('SystemConfigs')
-                    .select('configValue')
-                    .eq('configKey', 'SYSTEM_SETTINGS')
-                    .single();
-                
-                const configData = configRows?.configValue;
+                    .select('value')
+                    .eq('key', 'invoice_config')
+                    .maybeSingle();
 
-                if (configData && configData.invoice_config) {
-                    const loaded = configData.invoice_config;
+                const loaded = configRow?.value;
+                if (loaded && typeof loaded === 'object') {
                     setConfig(prev => ({ 
                         ...prev, 
                         ...loaded,
