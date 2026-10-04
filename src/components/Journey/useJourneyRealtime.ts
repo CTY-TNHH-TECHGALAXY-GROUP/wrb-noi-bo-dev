@@ -1,6 +1,23 @@
 import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase';
 
+/**
+ * BookingItems.segments có thể về dạng mảng (REST) hoặc chuỗi JSON (Realtime payload), và chuỗi có thể hỏng.
+ * Không bao giờ throw: chuỗi hỏng -> trả fallback (tránh crash trong setData / render).
+ */
+const safeParseSegments = (raw: unknown, fallback: any): any => {
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+        try {
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : fallback;
+        } catch {
+            return fallback;
+        }
+    }
+    return fallback;
+};
+
 // 🔧 EGRESS OPTIMIZATION: Cache Services in module scope (fetch once per session)
 let cachedServices: any[] | null = null;
 let servicesCacheTimestamp = 0;
@@ -211,20 +228,20 @@ export function useJourneyRealtime(bookingId: string, guestId?: string) {
                         const itemBedId = ktvSegment?.bedId || i.bedId || booking.bedId || null;
 
                         const fallbackName = svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`;
-                        const segments = Array.isArray(i.segments) ? i.segments : (typeof i.segments === 'string' ? JSON.parse(i.segments) : []);
+                        const segments = safeParseSegments(i.segments, []);
                         let pausedSeconds = 0;
                         if (segments && segments.length > 0) {
                             let firstStart = 0;
                             let activeMs = 0;
                             segments.forEach((seg: any) => {
                                 if (seg.actualStartTime) {
-                                    const start = new Date(seg.actualStartTime.replace(' ', 'T')).getTime();
+                                    const start = new Date(String(seg.actualStartTime).replace(' ', 'T')).getTime();
                                     if (!firstStart || start < firstStart) firstStart = start;
                                     let end = Date.now();
                                     if (seg.actualEndTime) {
-                                        end = new Date(seg.actualEndTime.replace(' ', 'T')).getTime();
+                                        end = new Date(String(seg.actualEndTime).replace(' ', 'T')).getTime();
                                     } else if (i.status === 'PAUSED' && i.pauseStart) {
-                                        end = new Date(i.pauseStart.replace(' ', 'T')).getTime();
+                                        end = new Date(String(i.pauseStart).replace(' ', 'T')).getTime();
                                     }
                                     activeMs += Math.max(0, end - start);
                                 }
@@ -386,7 +403,7 @@ export function useJourneyRealtime(bookingId: string, guestId?: string) {
                                     itemFeedback: updatedItem.itemFeedback ?? item.itemFeedback,
                                     ktvRatings: updatedKtvRatings,
                                     computedTimeStart: updatedItem.timeStart ?? item.computedTimeStart,
-                                    segments: Array.isArray(updatedItem.segments) ? updatedItem.segments : (typeof updatedItem.segments === 'string' ? JSON.parse(updatedItem.segments) : item.segments)
+                                    segments: safeParseSegments(updatedItem.segments, item.segments)
                                 };
                             }
                             return item;

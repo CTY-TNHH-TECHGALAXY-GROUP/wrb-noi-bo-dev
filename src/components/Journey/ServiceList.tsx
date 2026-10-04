@@ -48,30 +48,33 @@ const TabTimerView = ({
 
     // Group items by technician
     const groups = groupItemsByTech(items || [], lang || 'vi');
-    const currentGroup = groups[selectedIdx] || groups[0];
-    if (!currentGroup) return null;
+    // currentGroup có thể undefined (items rỗng / đang tải). KHÔNG return sớm trước các hook bên dưới:
+    // items đi từ rỗng -> có (quầy thêm dịch vụ qua Realtime) sẽ đổi số hook giữa 2 lần render -> React crash.
+    const currentGroup: GroupedService | undefined = groups[selectedIdx] || groups[0];
 
     const { formattedTime, progress: pct, isStarted, isFinished } = useServiceTimer(
-        currentGroup.totalDuration, 
-        currentGroup.earliestTimeStart, 
-        currentGroup.earliestTimeEnd, 
+        currentGroup?.totalDuration ?? 0,
+        currentGroup?.earliestTimeStart ?? null,
+        currentGroup?.earliestTimeEnd ?? null,
         isPaused,
-        currentGroup.items[0]?.pausedSeconds || 0
+        currentGroup?.items[0]?.pausedSeconds || 0
     );
     const circumference = 2 * Math.PI * TIMER_CONFIG_COMPACT.RADIUS;
-    const isCompleted = currentGroup.isCompleted;
+    const isCompleted = currentGroup?.isCompleted ?? false;
     const violations = useRemindersCustomer(lang || 'vi');
 
     // Use shared violations hook
-    const currentGroupId = currentGroup.items[0]?.id || '0';
+    const currentGroupId = currentGroup?.items[0]?.id || '0';
     const { selectedViolations, sentViolations, sendingViolation, toggleViolation } = useViolations(
         bookingId,
         currentGroupId,
         violations,
-        currentGroup.roomName || roomName,
-        currentGroup.bedId || bedId,
-        currentGroup.combinedName,
+        currentGroup?.roomName || roomName,
+        currentGroup?.bedId || bedId,
+        currentGroup?.combinedName,
     );
+
+    if (!currentGroup) return null;
 
     return (
         <div className="flex flex-col w-full pb-6">
