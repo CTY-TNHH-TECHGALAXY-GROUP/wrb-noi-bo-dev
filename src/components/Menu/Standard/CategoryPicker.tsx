@@ -171,6 +171,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
     const { services, clearCart, updateCustomerInfo, resetCustomerInfo } = useMenuData();
     const bestSeller = bestSellerText[lang] || bestSellerText.en;
     const barberBestSeller = useMemo(() => {
+        if (!categories.some((cat) => cat.id === 'Barber')) return undefined;
         const activeBarberServices = services.filter((svc) => svc.ACTIVE !== false && svc.cat === 'Barber');
 
         return activeBarberServices.find((svc) =>
@@ -178,7 +179,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack, showBack = true, s
         ) || activeBarberServices.find((svc) =>
             (svc.names.en || '').trim().toLowerCase().includes('package 4')
         );
-    }, [services]);
+    }, [services, categories]);
 
     const changeLanguage = (newLang: string) => {
         if (!pathname) return;

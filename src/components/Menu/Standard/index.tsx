@@ -143,8 +143,10 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
 
             if (savedMode === 'MENU') {
                 setMode('MENU');
-                if (savedCategory) {
+                if (savedCategory && CATEGORIES.some(c => c.id === savedCategory)) {
                     setActiveCategory(savedCategory);
+                } else {
+                    setActiveCategory(CATEGORIES[0]?.id || 'Body');
                 }
                 // Clear so it doesn't affect subsequent normal visits
                 sessionStorage.removeItem('standard_menu_mode');
@@ -193,7 +195,10 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
     const allCategories = CATEGORIES;
     const pickerCategories = showEntryActions ? [...CATEGORIES, DESIGN_JOURNEY_CATEGORY] : CATEGORIES;
     // Array dành cho phần thân: CHỈ hiển thị category đang được chọn
-    const filteredCategories = CATEGORIES.filter(cat => cat.id === activeCategory);
+    const filteredCategories = useMemo(() => {
+        const found = CATEGORIES.filter(cat => cat.id === activeCategory);
+        return found.length > 0 ? found : (CATEGORIES.length > 0 ? [CATEGORIES[0]] : []);
+    }, [activeCategory]);
     const privateRoomAddonService = useMemo(
         () => allServices.find(isPrivateRoomAddonService),
         [allServices]
@@ -314,8 +319,10 @@ export default function StandardMenu({ lang, menuType = 'standard', onBack, onCh
     };
 
     const maybeOpenSingleGroupDurationDrawer = (categoryId: string) => {
+        const catNorm = categoryId.toLowerCase().replace(/\s+/g, '');
+        const matchesCat = (c?: string) => Boolean(c && (c === categoryId || c.toLowerCase().replace(/\s+/g, '') === catNorm));
         const categoryServices = services.filter(s => 
-            (s.cat === categoryId || (s.cats && s.cats.includes(categoryId))) && 
+            (matchesCat(s.cat) || (s.cats && s.cats.some(matchesCat))) && 
             s.ACTIVE !== false
         );
         const groups: Record<string, Service[]> = {};

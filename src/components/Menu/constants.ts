@@ -44,15 +44,15 @@ export const CATEGORIES: Category[] = [
         image: '/assets/category-icons-svg/earclean.svg'
     },
     {
-        id: 'Barber',
+        id: 'Head Spa',
         names: {
-            en: 'Barber',
-            vi: 'Cắt Tóc Nam',
-            jp: '理容',
-            kr: '이발',
-            cn: '男士理发'
+            en: 'Head Spa',
+            vi: 'Gội Đầu Dưỡng Sinh',
+            jp: 'ヘッドスパ',
+            kr: '헤드 스파',
+            cn: '养生洗头'
         },
-        image: '/assets/category-icons-svg/haircut.svg'
+        image: '/assets/category-icons-svg/hairwash.svg'
     },
     {
         id: 'Package',
@@ -90,7 +90,7 @@ export const CATEGORIES: Category[] = [
 ];
 
 // --- Cấu hình riêng cho Luồng Khách Mới (để lọc bỏ các dịch vụ cũ/rác mà không sửa DB) ---
-export const NEW_USER_CONTROLLED_CATEGORIES = ['Body', 'Foot', 'Package', 'Ear Clean', 'Premium'];
+export const NEW_USER_CONTROLLED_CATEGORIES = ['Body', 'Foot', 'Package', 'Ear Clean', 'Premium', 'Head Spa'];
 
 export const NEW_USER_ALLOWED_IDS = [
     // Body Care
@@ -103,8 +103,10 @@ export const NEW_USER_ALLOWED_IDS = [
     'NHS0090', 'NHS0091', 'NHS0092', 'NHS0093', 'NHS0094', 'NHS0095', 'NHS0096',
     // Foot Care
     'NHS0100', 'NHS0101', 'NHS0102', 'NHS0103', 'NHS0104', 'NHS0105', 'NHS0106', 'NHS0107',
+    // Head Spa
+    'NHS0202',
     // Package Combo
-    'NHS0202', 'NHS1000', 'NHS1009', 'NHS1010', 'NHS1011', 'NHS1012', 'NHS1013', 'NHS1014', 'NHS1015', 'NHS1016', 'NHS1017', 'NHS1018', 'NHS1019',
+    'NHS1000', 'NHS1009', 'NHS1010', 'NHS1011', 'NHS1012', 'NHS1013', 'NHS1014', 'NHS1015', 'NHS1016', 'NHS1017', 'NHS1018', 'NHS1019',
     // Ear Clean
     'NHS0600', 'NHS0601', 'NHS0602', 'NHS1001', 'NHS1002', 'NHS1003', 'NHS1004', 'NHS1005', 'NHS1006', 'NHS1007',
     // VIP Package

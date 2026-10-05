@@ -175,7 +175,9 @@ export default function ServiceList({ categories, services, cart, lang, directio
                     // Phân loại NGHIÊM NGẶT theo category id (cat)
                     const categoryGroups = Object.values(groupedServices).filter(group => {
                         const rep = group[0];
-                        return (rep.cats && rep.cats.includes(cat.id)) || rep.cat === cat.id;
+                        const normCat = cat.id.toLowerCase().replace(/\s+/g, '');
+                        const matchesCat = (c?: string) => Boolean(c && (c === cat.id || c.toLowerCase().replace(/\s+/g, '') === normCat));
+                        return (rep.cats && rep.cats.some(matchesCat)) || matchesCat(rep.cat);
                     });
 
                     if (categoryGroups.length === 0) return null;
