@@ -42,8 +42,12 @@ export async function PATCH(request: Request) {
         if (typeof bookingId !== 'string' || !bookingId.trim()) {
             return NextResponse.json({ error: 'Missing bookingId' }, { status: 400 });
         }
-        // Trang Journey chỉ chuyển sang FEEDBACK; DONE do server tự tính khi đủ đánh giá.
-        if (status !== undefined && status !== 'FEEDBACK') {
+        // Trang Journey gửi 'FEEDBACK' (đã kiểm đồ) và 'DONE' KÈM điểm khi khách đánh giá
+        // (handleItemRated / handleFeedbackComplete). Chặn 'DONE' không kèm điểm đã làm hỏng MỌI lượt
+        // khách tự đánh giá từ 04/10/2026 13:56 (adf5949) → chỉ nhận 'DONE' khi có rating/itemRating.
+        // Nhánh đánh giá theo dịch vụ vẫn tự tính DONE ở server, không dùng status gửi lên.
+        const isRatingSubmit = rating !== undefined || itemRating !== undefined;
+        if (status !== undefined && status !== 'FEEDBACK' && !(status === 'DONE' && isRatingSubmit)) {
             return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
         }
         if (bookingItemId !== undefined && typeof bookingItemId !== 'string') {
