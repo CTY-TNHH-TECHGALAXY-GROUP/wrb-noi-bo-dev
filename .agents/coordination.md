@@ -7,6 +7,10 @@
 
 ## 📡 Active Conversations
 
+### Bổ sung BARBER 1 vào menu Package
+- **Đang sửa**: `src/components/Menu/constants.ts`
+- **Trạng thái**: 🔴 Xong
+
 ### Bắt buộc thông tin Khách Hàng Name và (Phone|Email)
 - **Conversation**: `b81b3ab8-9dd4-4b56-ad3f-5376604fd12c`
 - **Đang sửa**:

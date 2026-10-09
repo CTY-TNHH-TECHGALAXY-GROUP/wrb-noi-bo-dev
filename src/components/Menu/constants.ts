@@ -106,6 +106,7 @@ export const NEW_USER_ALLOWED_IDS = [
     // Head Spa
     'NHS0202',
     // Package Combo
+    'NHS0702', // Barber Package 1
     'NHS1000', 'NHS1009', 'NHS1010', 'NHS1011', 'NHS1012', 'NHS1013', 'NHS1014', 'NHS1015', 'NHS1016', 'NHS1017', 'NHS1018', 'NHS1019',
     // Ear Clean
     'NHS0600', 'NHS0601', 'NHS0602', 'NHS1001', 'NHS1002', 'NHS1003', 'NHS1004', 'NHS1005', 'NHS1006', 'NHS1007',
