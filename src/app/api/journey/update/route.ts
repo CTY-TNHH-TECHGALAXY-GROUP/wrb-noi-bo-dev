@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { RATING_CONFIG_KEYS, normalizeScale, clampRating, isTopRating, type RatingScale } from '@/lib/ratingScale';
+import { customerRatingMayCloseItem } from '@/lib/serviceWorkFinished';
 
 /**
  * `rating_scale` columns come from admin migration 20261002110000. Until that migration runs on a
@@ -20,6 +21,26 @@ async function resolveRatingScale(supabase: any, sent: unknown): Promise<RatingS
     if (Number(sent) === 4 || Number(sent) === 5) return Number(sent) as RatingScale;
     const { data } = await supabase.from('SystemConfigs').select('value').eq('key', RATING_CONFIG_KEYS.scale).maybeSingle();
     return normalizeScale(data?.value);
+}
+
+/**
+ * Trạng thái đơn = tính từ trạng thái các dịch vụ, bằng RPC dùng chung với quầy/KTV
+ * (`dispatch_recompute_booking_status`, migration admin 20260927120000, chỉ service_role gọi được).
+ * RPC chưa có trên DB → tự tính tối thiểu: mọi dịch vụ DONE/CANCELLED → DONE, còn lại giữ nguyên.
+ * Trả về status sau khi tính (đọc lại từ DB).
+ */
+async function recomputeBookingStatus(supabase: any, bookingId: string): Promise<string | null> {
+    const { error } = await supabase.rpc('dispatch_recompute_booking_status', { p_booking_id: bookingId });
+    if (error) {
+        console.warn('[journey/update] dispatch_recompute_booking_status failed, fallback:', error.message);
+        const { data: items } = await supabase.from('BookingItems').select('status').eq('bookingId', bookingId);
+        const statuses: string[] = (items || []).map((i: { status: unknown }) => String(i.status));
+        if (statuses.length > 0 && statuses.every(s => s === 'DONE' || s === 'CANCELLED')) {
+            await supabase.from('Bookings').update({ status: 'DONE' }).eq('id', bookingId);
+        }
+    }
+    const { data: b } = await supabase.from('Bookings').select('status').eq('id', bookingId).maybeSingle();
+    return b?.status ?? null;
 }
 
 
@@ -98,13 +119,16 @@ export async function PATCH(request: Request) {
             };
 
             let useKtvRatings = false; // Track if ktvRatings column is available
+            // Chặng của item: quyết định khách chấm sao có được đóng item (DONE) hay chưa.
+            let itemSegments: unknown = undefined;
+            let itemStatus: unknown = undefined;
 
             if (ktvCode) {
                 // Per-KTV rating: try to use ktvRatings JSONB map
                 // First read existing item data
                 const { data: existingItem, error: readError } = await supabaseAdmin
                     .from('BookingItems')
-                    .select('ktvRatings, technicianCodes')
+                    .select('ktvRatings, technicianCodes, segments, status')
                     .eq('id', bookingItemId)
                     .eq('bookingId', bookingId)
                     .maybeSingle();
@@ -115,18 +139,20 @@ export async function PATCH(request: Request) {
                     
                     const { data: fallbackItem } = await supabaseAdmin
                         .from('BookingItems')
-                        .select('technicianCodes')
+                        .select('technicianCodes, segments, status')
                         .eq('id', bookingItemId)
                         .eq('bookingId', bookingId)
                         .maybeSingle();
 
                     // Fallback: just update itemRating directly
                     updatePayload.itemRating = itemRating;
-                    updatePayload.status = 'DONE';
+                    if (customerRatingMayCloseItem(fallbackItem?.segments, fallbackItem?.status)) updatePayload.status = 'DONE';
                     useKtvRatings = false;
                 } else {
                     // ktvRatings column exists — use per-KTV flow
                     useKtvRatings = true;
+                    itemSegments = existingItem?.segments;
+                    itemStatus = existingItem?.status;
                     const existingRatings: Record<string, number> = existingItem?.ktvRatings || {};
                     existingRatings[ktvCode.trim()] = itemRating;
 
@@ -142,24 +168,25 @@ export async function PATCH(request: Request) {
                         // All KTVs rated → set itemRating as the average + mark DONE
                         const ratings = techCodes.map((c: string) => existingRatings[c.trim()]).filter(Boolean);
                         updatePayload.itemRating = Math.round(ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length);
-                        updatePayload.status = 'DONE';
+                        if (customerRatingMayCloseItem(itemSegments, itemStatus)) updatePayload.status = 'DONE';
                     }
                     // If not all KTVs rated yet → DON'T set itemRating or DONE status
                 }
             } else {
                 // Single-KTV: set itemRating + luôn ghi ktvRatings cho lịch sử KTV
                 updatePayload.itemRating = itemRating;
-                updatePayload.status = 'DONE';
 
-                // Đọc technicianCodes để ghi ktvRatings cho KTV
+                // Đọc technicianCodes để ghi ktvRatings cho KTV; segments để quyết định có được DONE không
                 try {
                     const { data: singleItem, error: singleReadErr } = await supabaseAdmin
                         .from('BookingItems')
-                        .select('technicianCodes, ktvRatings')
+                        .select('technicianCodes, ktvRatings, segments, status')
                         .eq('id', bookingItemId)
                         .eq('bookingId', bookingId)
                         .maybeSingle();
 
+                    itemSegments = singleItem?.segments;
+                    itemStatus = singleItem?.status;
                     if (!singleReadErr && singleItem?.technicianCodes) {
                         useKtvRatings = true;
                         const ktvR: Record<string, number> = singleItem.ktvRatings || {};
@@ -172,6 +199,7 @@ export async function PATCH(request: Request) {
                 } catch {
                     // ktvRatings column chưa tồn tại — bỏ qua, chỉ dùng itemRating
                 }
+                if (customerRatingMayCloseItem(itemSegments, itemStatus)) updatePayload.status = 'DONE';
             }
 
             if (writeScale) updatePayload.rating_scale = ratingScale;
@@ -189,7 +217,7 @@ export async function PATCH(request: Request) {
                 console.warn('[journey/update] Update with ktvRatings failed, retrying without:', updateError.message);
                 delete updatePayload.ktvRatings;
                 updatePayload.itemRating = itemRating;
-                updatePayload.status = 'DONE';
+                if (customerRatingMayCloseItem(itemSegments, itemStatus)) updatePayload.status = 'DONE';
                 useKtvRatings = false;
 
                 ({ error: updateError } = await supabaseAdmin
@@ -315,12 +343,13 @@ export async function PATCH(request: Request) {
                 });
 
             if (allRated) {
-                // Tất cả dịch vụ đã được đánh giá → cập nhật booking DONE
+                // Tất cả dịch vụ đã được đánh giá → KHÔNG ép booking DONE nữa. Trạng thái đơn tính từ
+                // trạng thái các item (RPC dùng chung với quầy/KTV); KTV chưa bấm xong → đơn vẫn IN_PROGRESS.
+                const bookingStatus = await recomputeBookingStatus(supabaseAdmin, bookingId);
                 const { error: bookingError } = await supabaseAdmin
                     .from('Bookings')
-                    .update({ 
-                        status: 'DONE',
-                        timeEnd: new Date().toISOString(),
+                    .update({
+                        ...(bookingStatus === 'DONE' && { timeEnd: new Date().toISOString() }),
                         ...(tipAmount !== undefined && { tipAmount }),
                         ...(feedbackNote !== undefined && { feedbackNote }),
                     })
@@ -331,7 +360,7 @@ export async function PATCH(request: Request) {
                     return NextResponse.json({ error: bookingError.message }, { status: 500 });
                 }
 
-                return NextResponse.json({ success: true, allRated: true, bookingStatus: 'DONE' }, { status: 200 });
+                return NextResponse.json({ success: true, allRated: true, bookingStatus }, { status: 200 });
             }
 
             return NextResponse.json({ success: true, allRated: false, itemId: bookingItemId }, { status: 200 });
@@ -340,7 +369,8 @@ export async function PATCH(request: Request) {
         // --- Booking-level update (legacy / non-item-specific) ---
         const updatePayload: any = {};
 
-        if (status) updatePayload.status = status;
+        // 'DONE' từ màn Feedback KHÔNG ghi thẳng: trạng thái đơn tính lại từ item sau khi lưu điểm.
+        if (status && status !== 'DONE') updatePayload.status = status;
         if (violations !== undefined) updatePayload.violations = violations;
         if (rating !== undefined) {
             const ratingScale = await resolveRatingScale(supabaseAdmin, body.ratingScale);
@@ -363,6 +393,13 @@ export async function PATCH(request: Request) {
         }
         if (!data) {
             return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+        }
+        if (status === 'DONE') {
+            const bookingStatus = await recomputeBookingStatus(supabaseAdmin, bookingId);
+            if (bookingStatus === 'DONE' && !data.timeEnd) {
+                await supabaseAdmin.from('Bookings').update({ timeEnd: new Date().toISOString() }).eq('id', bookingId);
+            }
+            return NextResponse.json({ success: true, booking: { ...data, status: bookingStatus } }, { status: 200 });
         }
 
         return NextResponse.json({ success: true, booking: data }, { status: 200 });
